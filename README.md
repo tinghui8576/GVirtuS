@@ -51,6 +51,8 @@ The GPU Virtualization Service (GVirtuS) presented in this work tries to fill th
 
 * **CUDA Toolkit:** Version 10.2 or above
 
+* **cuDNN**: https://docs.nvidia.com/deeplearning/cudnn/installation/latest/linux.html (it does not included by default in the CUDA Toolkit). 
+
 Furthermore, those packages are required:
 
 ```
