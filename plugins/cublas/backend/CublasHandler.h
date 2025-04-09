@@ -40,7 +40,7 @@
 #include <string>
 #include <memory>
 
-#include "cublas_v2.h"
+#include <cublas.h>
 
 #include <gvirtus/backend/Handler.h>
 #include <gvirtus/communicators/Result.h>
