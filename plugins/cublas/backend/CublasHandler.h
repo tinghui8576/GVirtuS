@@ -41,6 +41,7 @@
 #include <memory>
 
 #include <cublas.h>
+#include "cublas_v2.h"
 
 #include <gvirtus/backend/Handler.h>
 #include <gvirtus/communicators/Result.h>
