@@ -73,7 +73,7 @@ The required packages can be installed with the following commands:
 Ubuntu:
 
 ```
-sudo apt-get install build-essential libxmu-dev libxi-dev libgl-dev libosmesa-dev git liblog4cplus-dev librdmacm-dev
+sudo apt-get install build-essential libxmu-dev libxi-dev libgl-dev libosmesa-dev git liblog4cplus-dev librdmacm-dev libibverbs-dev
 ```
 
 CentOS:
