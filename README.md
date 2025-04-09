@@ -47,9 +47,9 @@ The GPU Virtualization Service (GVirtuS) presented in this work tries to fill th
 
 * **CMake:** Version 3.17 or above
 
-* **OS:** CentOS 7.3 or Ubuntu 18.04 (note that those are tested OSes, but GVirtuS could be virtually installed anywhere)
+* **OS:** CentOS 7.3 or Ubuntu 18.04/22.04 (note that those are tested OSes, but GVirtuS could be virtually installed anywhere)
 
-* **CUDA Toolkit:** Version 11.80 (supported until below 12)
+* **CUDA Toolkit:** Version 11.8.0 (supported until below 12)
 
 * **[cuDNN](https://developer.nvidia.com/cudnn-downloads)**: Version 9.x.y (note that it is not included by default when downloading the CUDA Toolkit)
 
