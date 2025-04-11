@@ -232,11 +232,19 @@ export LD_LIBRARY_PATH=${GVIRTUS_HOME}/lib:${GVIRTUS_HOME}/lib/frontend:${LD_LIB
 
 `ldd`command could be useful to check whether the CUDA application is using GVirtuS libraries.
 
+
 If everything is correctly set up, the cuda application can be eventually run through GVirtuS, in a transparent fashion:
 
 ```
 ./example
 ```
+
+If the above does not work and it uses a shared library, e.g. cudart, try:
+
+```
+LD_PRELOAD=${GVIRTUS_HOME}/lib/frontend/libcudart.so ./example
+```
+
 
 If `GVIRTUS_LOGLEVEL` environment variable is set on `DEBUG_LOG_LEVEL`, debug logs on terminal are expected on both backend and frontend applications. 
 
