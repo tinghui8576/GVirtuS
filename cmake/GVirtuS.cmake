@@ -17,7 +17,7 @@ include(ExternalProject)
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/external)
 
 ExternalProject_Add(log4cplus
-        URL https://sourceforge.net/projects/log4cplus/files/log4cplus-stable/2.1.2/log4cplus-2.1.2.tar.gz/download
+        URL https://downloads.sourceforge.net/log4cplus/log4cplus-stable/2.1.2/log4cplus-2.1.2.tar.gz
         TIMEOUT 360
         BUILD_IN_SOURCE 1
         CONFIGURE_COMMAND ./configure --prefix=${EXTERNAL_INSTALL_LOCATION} CFLAGS=-fPIC CPPFLAGS=-I${EXTERNAL_INSTALL_LOCATION}/include/ LDFLAGS=-L${EXTERNAL_INSTALL_LOCATION}/lib/
