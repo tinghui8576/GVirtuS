@@ -81,7 +81,7 @@ extern "C" curandStatus_t curandGenerateUniform( curandGenerator_t generator, fl
     cout<<"Before AddVariableForArguments"<<endl;
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
     cout<<"Before AddDevicePointerForArguments"<<endl;
-    CurandFrontend::AddDevicePointerForArguments<float>(outputPtr);
+    CurandFrontend::AddDevicePointerForArguments(outputPtr);
     cout<<"Before AddVariableForArguments"<<endl;
     CurandFrontend::AddVariableForArguments<size_t>(num);
 
