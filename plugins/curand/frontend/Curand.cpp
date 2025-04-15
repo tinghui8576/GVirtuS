@@ -77,12 +77,17 @@ extern "C" curandStatus_t curandGenerateLongLong( curandGenerator_t generator, u
 
 extern "C" curandStatus_t curandGenerateUniform( curandGenerator_t generator, float *outputPtr, size_t num){
     CurandFrontend::Prepare();
-    
+
+    cout<<"Before AddVariableForArguments"<<endl;
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
+    cout<<"Before AddHostPointerForArguments"<<endl;
     CurandFrontend::AddHostPointerForArguments<float>(outputPtr);
+    cout<<"Before AddVariableForArguments"<<endl;
     CurandFrontend::AddVariableForArguments<size_t>(num);
-    
+
+    cout<<"Before Execute"<<endl;
     CurandFrontend::Execute("curandGenerateUniform");
+    cout<<"After Execute"<<endl;
     return CurandFrontend::GetExitCode();
 }
 
