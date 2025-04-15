@@ -51,7 +51,7 @@ The GPU Virtualization Service (GVirtuS) presented in this work tries to fill th
 
 * **CUDA Toolkit:** Version 11.8.0 (supported until below 12)
 
-* **[cuDNN](https://developer.nvidia.com/cudnn-downloads)**: Version 9.x.y (note that it is not included by default when downloading the CUDA Toolkit)
+* **[cuDNN](https://developer.nvidia.com/cudnn-downloads)**: Version 8.x.y (note that it is not included by default when downloading the CUDA Toolkit)
 
 * CLang: Version 12.0.1 (supported between 3 until below 13) 
 
