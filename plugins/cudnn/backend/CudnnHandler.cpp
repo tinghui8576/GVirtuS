@@ -1204,19 +1204,25 @@ CUDNN_ROUTINE_HANDLER(GetErrorString){
 
 CUDNN_ROUTINE_HANDLER(Create){
 
+    // Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Create"));
+    // cudnnHandle_t handle;
+    // cudnnStatus_t cs = cudnnCreate(&handle);
+    // std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    // try{
+    //      out->Add<cudnnHandle_t>(handle);
+    // } catch (string e){
+    //                     LOG4CPLUS_DEBUG(logger,e);
+    //                     return std::make_shared<Result>(CUDNN_STATUS_EXECUTION_FAILED);
+    // }
+    // //LOG4CPLUS_DEBUG(logger,"cudnnCreate Executed");
+    // return std::make_shared<Result>(cs,out);
+    
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Create"));
-    cudnnHandle_t handle;
-    cudnnStatus_t cs = cudnnCreate(&handle);
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try{
-         out->Add<cudnnHandle_t>(handle);
-    } catch (string e){
-                        LOG4CPLUS_DEBUG(logger,e);
-                        return std::make_shared<Result>(CUDNN_STATUS_EXECUTION_FAILED);
-    }
-    //LOG4CPLUS_DEBUG(logger,"cudnnCreate Executed");
-    return std::make_shared<Result>(cs,out);
 
+    cudnnHandle_t *handle = in->Assign<cudnnHandle_t>();
+    cudnnStatus_t cs = cudnnCreate(handle);
+
+    return std::make_shared<Result>(cs);
 }
 
 CUDNN_ROUTINE_HANDLER(Destroy){
