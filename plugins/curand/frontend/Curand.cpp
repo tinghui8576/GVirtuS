@@ -31,6 +31,8 @@
 
 using namespace std;
 
+// TODO: Fix bug where all CurandFrontend::AddDevicePointerForArguments(outputPtr) commands cause termination of backend
+
 /* HOST API */
 
 extern "C" curandStatus_t CURANDAPI curandCreateGenerator ( curandGenerator_t* generator, curandRngType_t rng_type ){
