@@ -221,7 +221,7 @@ export EXTRA_NVCCFLAGS="--cudart=shared"
 
 Now compile the CUDA application. A potential `nvcc` command could be:
 ```
-nvcc example.cu -o example --cudart=shared
+nvcc example.cu -o example -L ${GVIRTUS_HOME}/lib/frontend --cudart=shared
 ```
 
 In order to tell your applications to use GVirtuS libraries, export the **dynamic GVirtuS library** with the following command. **THIS STEP IS FUNDAMENTAL**:
@@ -237,12 +237,6 @@ If everything is correctly set up, the cuda application can be eventually run th
 
 ```
 ./example
-```
-
-If the above does not work and it uses a shared library, e.g. cudart, try:
-
-```
-LD_PRELOAD=${GVIRTUS_HOME}/lib/frontend/libcudart.so ./example
 ```
 
 
