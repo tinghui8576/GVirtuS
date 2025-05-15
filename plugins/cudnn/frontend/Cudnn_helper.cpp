@@ -35,10 +35,8 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreate        (cudnnHandle_t *handle) 
     CudnnFrontend::Prepare();
     //CudnnFrontend::AddHostPointerForArguments<cudnnHandle_t>(handle);
     CudnnFrontend::Execute("cudnnCreate");
-    cout << "cudnnCreate before success" << endl;
     if(CudnnFrontend::Success())
-        *handle = (CudnnFrontend::GetOutputVariable<cudnnHandle_t>());
-    cout << "cudnnCreate after success" << endl;
+        *handle = *(CudnnFrontend::GetOutputHostPointer<cudnnHandle_t>());
     return CudnnFrontend::GetExitCode();
 }
 
