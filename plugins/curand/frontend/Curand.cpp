@@ -31,8 +31,6 @@
 
 using namespace std;
 
-// TODO: Fix bug where all CurandFrontend::AddDevicePointerForArguments(outputPtr) commands cause termination of backend
-
 /* HOST API */
 
 extern "C" curandStatus_t CURANDAPI curandCreateGenerator ( curandGenerator_t* generator, curandRngType_t rng_type ){
@@ -59,7 +57,7 @@ extern "C" curandStatus_t curandGenerate( curandGenerator_t generator, unsigned 
     CurandFrontend::Prepare();
     
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<unsigned int>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(num);
     
     CurandFrontend::Execute("curandGenerate");
@@ -70,7 +68,7 @@ extern "C" curandStatus_t curandGenerateLongLong( curandGenerator_t generator, u
     CurandFrontend::Prepare();
     
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<unsigned long long>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(num);
     
     CurandFrontend::Execute("curandGenerateLongLong");
@@ -79,11 +77,11 @@ extern "C" curandStatus_t curandGenerateLongLong( curandGenerator_t generator, u
 
 extern "C" curandStatus_t curandGenerateUniform( curandGenerator_t generator, float *outputPtr, size_t num){
     CurandFrontend::Prepare();
-
+    
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<float>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(num);
-
+    
     CurandFrontend::Execute("curandGenerateUniform");
     return CurandFrontend::GetExitCode();
 }
@@ -92,7 +90,7 @@ extern "C" curandStatus_t curandGenerateNormal( curandGenerator_t generator, flo
     CurandFrontend::Prepare();
     
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<float>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(n);
     CurandFrontend::AddVariableForArguments<float>(mean);
     CurandFrontend::AddVariableForArguments<float>(stddev);
@@ -106,7 +104,7 @@ extern "C" curandStatus_t curandGenerateLogNormal( curandGenerator_t generator, 
     CurandFrontend::Prepare();
     
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<float>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(n);
     CurandFrontend::AddVariableForArguments<float>(mean);
     CurandFrontend::AddVariableForArguments<float>(stddev);
@@ -119,7 +117,7 @@ extern "C" curandStatus_t curandGeneratePoisson( curandGenerator_t generator, un
     CurandFrontend::Prepare();
     
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<unsigned int>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(n);
     CurandFrontend::AddVariableForArguments<double>(lambda);
     
@@ -131,7 +129,7 @@ extern "C" curandStatus_t curandGenerateUniformDouble( curandGenerator_t generat
     CurandFrontend::Prepare();
     
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<double>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(num);
     
     CurandFrontend::Execute("curandGenerateUniformDouble");
@@ -142,7 +140,7 @@ extern "C" curandStatus_t curandGenerateNormalDouble( curandGenerator_t generato
     CurandFrontend::Prepare();
     
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<double>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(n);
     CurandFrontend::AddVariableForArguments<double>(mean);
     CurandFrontend::AddVariableForArguments<double>(stddev);
@@ -155,7 +153,7 @@ extern "C" curandStatus_t curandGenerateLogNormalDouble( curandGenerator_t gener
     CurandFrontend::Prepare();
     
     CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddHostPointerForArguments<double>(outputPtr);
     CurandFrontend::AddVariableForArguments<size_t>(n);
     CurandFrontend::AddVariableForArguments<double>(mean);
     CurandFrontend::AddVariableForArguments<double>(stddev);

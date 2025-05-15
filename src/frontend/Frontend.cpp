@@ -130,18 +130,17 @@ void Frontend::Init(Communicator *c) {
 
 Frontend::~Frontend() {
     if (mpFrontends == nullptr) {
-        delete mpFrontends;
-        return;
+        return; // Nothing to do
     }
 
-    pid_t tid = syscall(SYS_gettid);  // getting frontend's tid
+    pid_t tid = syscall(SYS_gettid);
 
     auto env = getenv("GVIRTUS_DUMP_STATS");
-    auto dump_stats =
+    bool dump_stats =
             env != nullptr && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
 
-    map<pthread_t, Frontend *>::iterator it;
-    for (it = mpFrontends->begin(); it != mpFrontends->end(); it++) {
+    // Safe iteration while erasing entries
+    for (auto it = mpFrontends->begin(); it != mpFrontends->end(); /* no increment here */) {
         if (dump_stats) {
             std::cerr << "[GVIRTUS_STATS] Executed " << it->second->mRoutinesExecuted << " routine(s) in "
                       << it->second->mRoutineExecutionTime << " second(s)\n"
@@ -152,18 +151,25 @@ Frontend::~Frontend() {
                       << it->second->mReceivingTime
                       << " second(s)\n";
         }
-        mpFrontends->erase(it);
+        delete it->second;        // Free the Frontend* memory
+        it = mpFrontends->erase(it); // erase returns the next iterator
     }
+
+    // Delete the map itself and set pointer to nullptr
+    delete mpFrontends;
+    mpFrontends = nullptr;
 }
 
 Frontend *Frontend::GetFrontend(Communicator *c) {
+    // Lazy initialization, thread-unsafe
     if (mpFrontends == nullptr)
         mpFrontends = new map<pthread_t, Frontend *>();
 
     pid_t tid = syscall(SYS_gettid);  // getting frontend's tid
 
-    if (mpFrontends->find(tid) != mpFrontends->end())
-        return mpFrontends->find(tid)->second;
+    auto it = mpFrontends->find(tid);
+    if (it != mpFrontends->end())
+        return it->second;
 
     Frontend *f = new Frontend();
     try {
@@ -172,6 +178,8 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
     }
     catch (const char *e) {
         cerr << "Error: cannot create Frontend ('" << e << "')" << endl;
+        delete f;  // Clean up on failure
+        return nullptr;
     }
 
     return f;

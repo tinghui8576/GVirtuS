@@ -1203,6 +1203,7 @@ CUDNN_ROUTINE_HANDLER(GetErrorString){
 }
 
 CUDNN_ROUTINE_HANDLER(Create){
+
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Create"));
     cudnnHandle_t handle;
     cudnnStatus_t cs = cudnnCreate(&handle);
@@ -1215,6 +1216,7 @@ CUDNN_ROUTINE_HANDLER(Create){
     }
     //LOG4CPLUS_DEBUG(logger,"cudnnCreate Executed");
     return std::make_shared<Result>(cs,out);
+
 }
 
 CUDNN_ROUTINE_HANDLER(Destroy){
