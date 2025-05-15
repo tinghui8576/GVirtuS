@@ -136,8 +136,9 @@ Frontend::~Frontend() {
     pid_t tid = syscall(SYS_gettid);
 
     auto env = getenv("GVIRTUS_DUMP_STATS");
-    bool dump_stats =
-            env != nullptr && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
+    // bool dump_stats =
+            // env != nullptr && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
+    bool dump_stats = false;
 
     // Safe iteration while erasing entries
     for (auto it = mpFrontends->begin(); it != mpFrontends->end(); /* no increment here */) {
@@ -151,7 +152,9 @@ Frontend::~Frontend() {
                       << it->second->mReceivingTime
                       << " second(s)\n";
         }
-        delete it->second;        // Free the Frontend* memory
+        if (it->second) {
+            delete it->second; // Free the Frontend* memory
+        }        
         it = mpFrontends->erase(it); // erase returns the next iterator
     }
 
