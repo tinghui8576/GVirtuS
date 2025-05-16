@@ -66,7 +66,7 @@ private:
 #define CURAND_ROUTINE_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CurandHandler * pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)
 #define CURAND_ROUTINE_HANDLER_PAIR(name) make_pair("curand" #name, handle##name)
 
-/* CudnnHandler_Platform */
+/* CurandHandler_Platform */
 CURAND_ROUTINE_HANDLER(CreateGenerator);
 CURAND_ROUTINE_HANDLER(CreateGeneratorHost);
 CURAND_ROUTINE_HANDLER(Generate);

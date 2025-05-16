@@ -26,6 +26,8 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
+#include <mutex>
+#include <unordered_map>
 
 #include "CurandHandler.h"
 
@@ -35,34 +37,49 @@ using namespace log4cplus;
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
-CURAND_ROUTINE_HANDLER(CreateGenerator){
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("CreateGenerator"));
-    cout<<"ciao ciao ciao"<<endl;
-    curandGenerator_t generator;
-    curandRngType_t gnrType = (curandRngType_t) in->Get<int>();
-    curandStatus_t cs = curandCreateGenerator(&generator,gnrType);
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try{
-        out->Add<long long int>((long long int)generator);
-    } catch (string e){
-        return std::make_shared<Result>(cs);
+
+static std::mutex backend_generator_type_mutex;
+static std::unordered_map<curandGenerator_t, bool> backend_generator_is_host_map;
+
+bool isHostGenerator(curandGenerator_t generator) {
+    std::lock_guard<std::mutex> lock(backend_generator_type_mutex);
+    auto it = backend_generator_is_host_map.find(generator);
+    if (it != backend_generator_is_host_map.end()) {
+        return it->second;
     }
-    return std::make_shared<Result>(cs,out);
+    return false;  // default to device generator
 }
 
-CURAND_ROUTINE_HANDLER(CreateGeneratorHost){
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("CreateGeneratorHost"));
-    
+CURAND_ROUTINE_HANDLER(CreateGenerator) {
+    // Create the generator, get handle
     curandGenerator_t generator;
-    curandRngType_t gnrType = (curandRngType_t) in->Get<int>();
-    curandStatus_t cs = curandCreateGeneratorHost(&generator,gnrType);
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try{
-        out->Add<long long int>((long long int)generator);
-    } catch (string e){
-        return std::make_shared<Result>(cs);
+    curandRngType_t gnrType = (curandRngType_t)in->Get<int>();
+    curandStatus_t cs = curandCreateGenerator(&generator, gnrType);
+
+    if (cs == CURAND_STATUS_SUCCESS) {
+        std::lock_guard<std::mutex> lock(backend_generator_type_mutex);
+        backend_generator_is_host_map[generator] = false;  // device generator
     }
-    return std::make_shared<Result>(cs,out);
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    out->Add<long long int>((long long int)generator);
+    return std::make_shared<Result>(cs, out);
+}
+
+CURAND_ROUTINE_HANDLER(CreateGeneratorHost) {
+    // Create host generator
+    curandGenerator_t generator;
+    curandRngType_t gnrType = (curandRngType_t)in->Get<int>();
+    curandStatus_t cs = curandCreateGeneratorHost(&generator, gnrType);
+
+    if (cs == CURAND_STATUS_SUCCESS) {
+        std::lock_guard<std::mutex> lock(backend_generator_type_mutex);
+        backend_generator_is_host_map[generator] = true;  // host generator
+    }
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    out->Add<long long int>((long long int)generator);
+    return std::make_shared<Result>(cs, out);
 }
 
 
@@ -89,14 +106,29 @@ CURAND_ROUTINE_HANDLER(GenerateLongLong){
     return std::make_shared<Result>(cs);
 }
 
-CURAND_ROUTINE_HANDLER(GenerateUniform){
+CURAND_ROUTINE_HANDLER(GenerateUniform) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateUniform"));
-    
+
+    // Read generator handle (type long long int or uintptr_t)
     curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    float * outputPtr = in->Assign<float>();
+
+    // Now you must know whether this is a host or device pointer.
+    // For simplicity, assume you track generator types similarly in backend:
+    bool is_host = isHostGenerator(generator);
+
+    float* outputPtr = nullptr;
+    if (is_host) {
+        // Host pointer: data is serialized in the buffer, so get actual float array
+        outputPtr = in->Assign<float>();  // Deserialize float array data
+    } else {
+        // Device pointer: read pointer value (uint64_t) from buffer, cast to float*
+        outputPtr = (float*)(uintptr_t)in->Get<uint64_t>();
+    }
+
     size_t num = in->Get<size_t>();
-    
-    curandStatus_t cs = curandGenerateUniform(generator,outputPtr,num);
+
+    curandStatus_t cs = curandGenerateUniform(generator, outputPtr, num);
+
     return std::make_shared<Result>(cs);
 }
 
@@ -189,14 +221,13 @@ CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed){
 }
 
 CURAND_ROUTINE_HANDLER(DestroyGenerator) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DestroyGenerator"));
-
-    // Retrieve the generator handle from input buffer
     curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-
-    // Call the actual cuRAND function
     curandStatus_t cs = curandDestroyGenerator(generator);
 
-    // Return the result status only (no output buffer needed)
+    if (cs == CURAND_STATUS_SUCCESS) {
+        std::lock_guard<std::mutex> lock(backend_generator_type_mutex);
+        backend_generator_is_host_map.erase(generator);
+    }
+
     return std::make_shared<Result>(cs);
 }

@@ -26,29 +26,53 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
+#include <mutex>
+#include <unordered_map>
 
 #include "CurandFrontend.h"
 
 using namespace std;
 
+static std::mutex generator_type_mutex;
+static std::unordered_map<curandGenerator_t, bool> generator_is_host_map;  // true if host, false if device
+
+/* Helper Functions */
+
+bool isHostGenerator(curandGenerator_t generator) {
+    std::lock_guard<std::mutex> lock(generator_type_mutex);
+    auto it = generator_is_host_map.find(generator);
+    if (it != generator_is_host_map.end()) {
+        return it->second;
+    }
+    // Default if unknown, assume device generator (or handle error)
+    return false;
+}
+
 /* HOST API */
 
-extern "C" curandStatus_t CURANDAPI curandCreateGenerator ( curandGenerator_t* generator, curandRngType_t rng_type ){
+extern "C" curandStatus_t CURANDAPI curandCreateGenerator(curandGenerator_t* generator, curandRngType_t rng_type) {
     CurandFrontend::Prepare();
     CurandFrontend::AddVariableForArguments<int>(rng_type);
     CurandFrontend::Execute("curandCreateGenerator");
-    if(CurandFrontend::Success())
-        *generator = (curandGenerator_t) CurandFrontend::GetOutputVariable<long long int>();
+    if (CurandFrontend::Success()) {
+        *generator = (curandGenerator_t)CurandFrontend::GetOutputVariable<uintptr_t>();
+        
+        std::lock_guard<std::mutex> lock(generator_type_mutex);
+        generator_is_host_map[*generator] = false;  // device generator
+    }
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t CURANDAPI curandCreateGeneratorHost ( curandGenerator_t* generator, curandRngType_t rng_type ){
+extern "C" curandStatus_t CURANDAPI curandCreateGeneratorHost(curandGenerator_t* generator, curandRngType_t rng_type) {
     CurandFrontend::Prepare();
-    
     CurandFrontend::AddVariableForArguments<int>(rng_type);
     CurandFrontend::Execute("curandCreateGeneratorHost");
-    if(CurandFrontend::Success())
-        *generator = (curandGenerator_t) CurandFrontend::GetOutputVariable<long long int>();
+    if (CurandFrontend::Success()) {
+        *generator = (curandGenerator_t)CurandFrontend::GetOutputVariable<uintptr_t>();
+        
+        std::lock_guard<std::mutex> lock(generator_type_mutex);
+        generator_is_host_map[*generator] = true;  // host generator
+    }
     return CurandFrontend::GetExitCode();
 }
 
@@ -75,13 +99,15 @@ extern "C" curandStatus_t curandGenerateLongLong( curandGenerator_t generator, u
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGenerateUniform( curandGenerator_t generator, float *outputPtr, size_t num){
+extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, float *outputPtr, size_t num) {
     CurandFrontend::Prepare();
-    
-    CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
-    CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    CurandFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)generator);
+    if (isHostGenerator(generator)) {
+        CurandFrontend::AddHostPointerForArguments<float>(outputPtr);
+    } else {
+        CurandFrontend::AddDevicePointerForArguments(outputPtr);
+    }
     CurandFrontend::AddVariableForArguments<size_t>(num);
-    
     CurandFrontend::Execute("curandGenerateUniform");
     return CurandFrontend::GetExitCode();
 }
@@ -174,8 +200,14 @@ extern "C" curandStatus_t CURANDAPI curandSetPseudoRandomGeneratorSeed( curandGe
 
 extern "C" curandStatus_t CURANDAPI curandDestroyGenerator(curandGenerator_t generator) {
     CurandFrontend::Prepare();
-    CurandFrontend::AddVariableForArguments<long long int>((long long int)generator);
+    CurandFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)generator);
     CurandFrontend::Execute("curandDestroyGenerator");
+
+    if (CurandFrontend::Success()) {
+        std::lock_guard<std::mutex> lock(generator_type_mutex);
+        generator_is_host_map.erase(generator);
+    }
+
     return CurandFrontend::GetExitCode();
 }
 
