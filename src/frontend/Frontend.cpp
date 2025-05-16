@@ -42,10 +42,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <iostream>
-
+#include <mutex>
 #include <chrono>
-
 #include <stdlib.h> /* getenv */
+
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
@@ -61,6 +61,7 @@ using gvirtus::frontend::Frontend;
 using std::chrono::steady_clock;
 
 static Frontend msFrontend;
+std::mutex gFrontendMutex;
 map<pthread_t, Frontend *> *Frontend::mpFrontends = NULL;
 static bool initialized = false;
 
@@ -101,9 +102,12 @@ void Frontend::Init(Communicator *c) {
     std::unique_ptr<char> default_endpoint;
 
     // no frontend found
-    if (mpFrontends->find(tid) == mpFrontends->end()) {
-        Frontend *f = new Frontend();
-        mpFrontends->insert(make_pair(tid, f));
+    {
+        std::lock_guard<std::mutex> lock(gFrontendMutex);
+        if (mpFrontends->find(tid) == mpFrontends->end()) {
+            Frontend *f = new Frontend();
+            mpFrontends->insert(make_pair(tid, f));
+        }
     }
 
     LOG4CPLUS_INFO(logger, "🛈  - GVirtuS frontend version " + config_path);
@@ -129,55 +133,68 @@ void Frontend::Init(Communicator *c) {
 }
 
 Frontend::~Frontend() {
-    if (mpFrontends == nullptr) {
-        return; // Nothing to do
-    }
+    static bool destroying = false;
+    if (destroying || mpFrontends == nullptr) return;
+    destroying = true;
 
-    pid_t tid = syscall(SYS_gettid);
+    std::lock_guard<std::mutex> lock(gFrontendMutex);
+    {
+        pid_t tid = syscall(SYS_gettid);
 
-    auto env = getenv("GVIRTUS_DUMP_STATS");
-    bool dump_stats = 
-            env != nullptr && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
+        auto env = getenv("GVIRTUS_DUMP_STATS");
+        bool dump_stats = env && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
 
+        // Safe iteration while erasing entries
+        for (auto it = mpFrontends->begin(); it != mpFrontends->end(); /* no increment here */) {
+            if (it->second == this) {
+                it = mpFrontends->erase(it);
+                continue;
+            }
 
-    // Safe iteration while erasing entries
-    for (auto it = mpFrontends->begin(); it != mpFrontends->end(); /* no increment here */) {
-        if (dump_stats && it->second) {
-            std::cerr << "[GVIRTUS_STATS] Executed " << it->second->mRoutinesExecuted << " routine(s) in "
-                      << it->second->mRoutineExecutionTime << " second(s)\n"
-                      << "[GVIRTUS_STATS] Sent " << it->second->mDataSent / (1024 * 1024.0) << " Mb(s) in "
-                      << it->second->mSendingTime
-                      << " second(s)\n"
-                      << "[GVIRTUS_STATS] Received " << it->second->mDataReceived / (1024 * 1024.0) << " Mb(s) in "
-                      << it->second->mReceivingTime
-                      << " second(s)\n";
+            if (dump_stats) {
+                std::cerr << "[GVIRTUS_STATS] Executed " << it->second->mRoutinesExecuted << " routine(s) in "
+                        << it->second->mRoutineExecutionTime << " second(s)\n"
+                        << "[GVIRTUS_STATS] Sent " << it->second->mDataSent / (1024 * 1024.0) << " Mb(s) in "
+                        << it->second->mSendingTime
+                        << " second(s)\n"
+                        << "[GVIRTUS_STATS] Received " << it->second->mDataReceived / (1024 * 1024.0) << " Mb(s) in "
+                        << it->second->mReceivingTime
+                        << " second(s)\n";
+            }
+
+            delete it->second;
+            it = mpFrontends->erase(it);
         }
-        if (it->second) {
-            delete it->second; // Free the Frontend* memory
-        }
-        it = mpFrontends->erase(it); // erase returns the next iterator
-    }
 
-    // Delete the map itself and set pointer to nullptr
-    delete mpFrontends;
-    mpFrontends = nullptr;
+        // Delete the map itself and set pointer to nullptr
+        delete mpFrontends;
+        mpFrontends = nullptr;
+    }
 }
 
 Frontend *Frontend::GetFrontend(Communicator *c) {
-    // Lazy initialization, thread-unsafe
-    if (mpFrontends == nullptr)
-        mpFrontends = new map<pthread_t, Frontend *>();
+    {
+        std::lock_guard<std::mutex> lock(gFrontendMutex);
+        if (mpFrontends == nullptr)
+            mpFrontends = new map<pthread_t, Frontend *>();
+    }
 
     pid_t tid = syscall(SYS_gettid);  // getting frontend's tid
 
-    auto it = mpFrontends->find(tid);
-    if (it != mpFrontends->end())
-        return it->second;
+    {
+        std::lock_guard<std::mutex> lock(gFrontendMutex);
+        auto it = mpFrontends->find(tid);
+        if (it != mpFrontends->end())
+            return it->second;
+    }
 
     Frontend *f = new Frontend();
     try {
         f->Init(c);
-        mpFrontends->insert(make_pair(tid, f));
+        {
+            std::lock_guard<std::mutex> lock(gFrontendMutex);
+            mpFrontends->insert(make_pair(tid, f));
+        }
     }
     catch (const char *e) {
         cerr << "Error: cannot create Frontend ('" << e << "')" << endl;
@@ -192,14 +209,20 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     if (input_buffer == nullptr) input_buffer = mpInputBuffer.get();
 
     pid_t tid = syscall(SYS_gettid);
-    if (mpFrontends->find(tid) == mpFrontends->end()) {
-        // error
-        cerr << " ERROR - can't send any job request " << endl;
-        return;
+    {
+        std::lock_guard<std::mutex> lock(gFrontendMutex);
+        if (mpFrontends->find(tid) == mpFrontends->end()) {
+            // error
+            cerr << " ERROR - can't send any job request " << endl;
+            return;
+        }
     }
 
     /* sending job */
-    auto frontend = mpFrontends->find(tid)->second;
+    {
+        std::lock_guard<std::mutex> lock(gFrontendMutex);
+        auto frontend = mpFrontends->find(tid)->second;
+    }
     frontend->mRoutinesExecuted++;
     auto start = steady_clock::now();
     frontend->_communicator->obj_ptr()->Write(routine, strlen(routine) + 1);
@@ -225,6 +248,8 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
 
 void Frontend::Prepare() {
     pid_t tid = syscall(SYS_gettid);
-    if (this->mpFrontends->find(tid) != mpFrontends->end())
-        mpFrontends->find(tid)->second->mpInputBuffer->Reset();
+    {
+        if (this->mpFrontends->find(tid) != mpFrontends->end())
+            mpFrontends->find(tid)->second->mpInputBuffer->Reset();
+    }
 }
