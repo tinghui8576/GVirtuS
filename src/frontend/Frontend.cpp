@@ -136,13 +136,13 @@ Frontend::~Frontend() {
     pid_t tid = syscall(SYS_gettid);
 
     auto env = getenv("GVIRTUS_DUMP_STATS");
-    // bool dump_stats =
-            // env != nullptr && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
-    bool dump_stats = false;
+    bool dump_stats = 
+            env != nullptr && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
+
 
     // Safe iteration while erasing entries
     for (auto it = mpFrontends->begin(); it != mpFrontends->end(); /* no increment here */) {
-        if (dump_stats) {
+        if (dump_stats && it->second) {
             std::cerr << "[GVIRTUS_STATS] Executed " << it->second->mRoutinesExecuted << " routine(s) in "
                       << it->second->mRoutineExecutionTime << " second(s)\n"
                       << "[GVIRTUS_STATS] Sent " << it->second->mDataSent / (1024 * 1024.0) << " Mb(s) in "
@@ -154,7 +154,7 @@ Frontend::~Frontend() {
         }
         if (it->second) {
             delete it->second; // Free the Frontend* memory
-        }        
+        }
         it = mpFrontends->erase(it); // erase returns the next iterator
     }
 

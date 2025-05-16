@@ -79,6 +79,7 @@ CURAND_ROUTINE_HANDLER(GenerateUniformDouble);
 CURAND_ROUTINE_HANDLER(GenerateNormalDouble);
 CURAND_ROUTINE_HANDLER(GenerateLogNormalDouble);
 CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed);
+CURAND_ROUTINE_HANDLER(DestroyGenerator);
 
 #endif //_CURANDHANDLER_H
 

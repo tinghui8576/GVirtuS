@@ -187,3 +187,16 @@ CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed){
     curandStatus_t cs = curandSetPseudoRandomGeneratorSeed(generator,seed);
     return std::make_shared<Result>(cs);
 }
+
+CURAND_ROUTINE_HANDLER(DestroyGenerator) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DestroyGenerator"));
+
+    // Retrieve the generator handle from input buffer
+    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
+
+    // Call the actual cuRAND function
+    curandStatus_t cs = curandDestroyGenerator(generator);
+
+    // Return the result status only (no output buffer needed)
+    return std::make_shared<Result>(cs);
+}
