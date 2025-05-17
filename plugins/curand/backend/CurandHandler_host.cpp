@@ -116,8 +116,8 @@ CURAND_ROUTINE_HANDLER(GenerateUniform) {
     curandStatus_t cs;
 
     if (is_host) {
-        float* input_buffer = in->Assign<float>();  // we discard the input content
         num = in->Get<size_t>();
+        float* input_buffer = in->Assign<float>(num);  // we discard the input content
 
         float* generated = new float[num];
         cs = curandGenerateUniform(generator, generated, num);
