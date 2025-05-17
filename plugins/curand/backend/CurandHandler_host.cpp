@@ -38,13 +38,13 @@ using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 
-static std::mutex backend_generator_type_mutex;
-static std::unordered_map<curandGenerator_t, bool> backend_generator_is_host_map;
+static std::mutex generator_type_mutex;
+static std::unordered_map<curandGenerator_t, bool> generator_is_host_map;
 
 bool isHostGenerator(curandGenerator_t generator) {
-    std::lock_guard<std::mutex> lock(backend_generator_type_mutex);
-    auto it = backend_generator_is_host_map.find(generator);
-    if (it != backend_generator_is_host_map.end()) {
+    std::lock_guard<std::mutex> lock(generator_type_mutex);
+    auto it = generator_is_host_map.find(generator);
+    if (it != generator_is_host_map.end()) {
         return it->second;
     }
     return false;  // default to device generator
@@ -57,8 +57,8 @@ CURAND_ROUTINE_HANDLER(CreateGenerator) {
     curandStatus_t cs = curandCreateGenerator(&generator, gnrType);
 
     if (cs == CURAND_STATUS_SUCCESS) {
-        std::lock_guard<std::mutex> lock(backend_generator_type_mutex);
-        backend_generator_is_host_map[generator] = false;  // device generator
+        std::lock_guard<std::mutex> lock(generator_type_mutex);
+        generator_is_host_map[generator] = false;  // device generator
     }
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
@@ -73,15 +73,14 @@ CURAND_ROUTINE_HANDLER(CreateGeneratorHost) {
     curandStatus_t cs = curandCreateGeneratorHost(&generator, gnrType);
 
     if (cs == CURAND_STATUS_SUCCESS) {
-        std::lock_guard<std::mutex> lock(backend_generator_type_mutex);
-        backend_generator_is_host_map[generator] = true;  // host generator
+        std::lock_guard<std::mutex> lock(generator_type_mutex);
+        generator_is_host_map[generator] = true;  // host generator
     }
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->Add<long long int>((long long int)generator);
     return std::make_shared<Result>(cs, out);
 }
-
 
 CURAND_ROUTINE_HANDLER(Generate){
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Generate"));
@@ -110,7 +109,7 @@ CURAND_ROUTINE_HANDLER(GenerateUniform) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateUniform"));
 
     // Read generator handle (type long long int or uintptr_t)
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
 
     // Now you must know whether this is a host or device pointer.
     // For simplicity, assume you track generator types similarly in backend:
@@ -128,6 +127,12 @@ CURAND_ROUTINE_HANDLER(GenerateUniform) {
     size_t num = in->Get<size_t>();
 
     curandStatus_t cs = curandGenerateUniform(generator, outputPtr, num);
+
+    // Send back generated values if host generator
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    if (is_host && cs == CURAND_STATUS_SUCCESS) {
+        out->Add<float>(outputPtr, num);
+    }
 
     return std::make_shared<Result>(cs);
 }
@@ -225,8 +230,8 @@ CURAND_ROUTINE_HANDLER(DestroyGenerator) {
     curandStatus_t cs = curandDestroyGenerator(generator);
 
     if (cs == CURAND_STATUS_SUCCESS) {
-        std::lock_guard<std::mutex> lock(backend_generator_type_mutex);
-        backend_generator_is_host_map.erase(generator);
+        std::lock_guard<std::mutex> lock(generator_type_mutex);
+        generator_is_host_map.erase(generator);
     }
 
     return std::make_shared<Result>(cs);

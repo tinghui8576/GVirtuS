@@ -33,7 +33,7 @@
 
 using namespace std;
 
-static std::mutex generator_type_mutex;
+static std::mutex generator_type_mutex; // Mutex to protect access to generator_is_host_map
 static std::unordered_map<curandGenerator_t, bool> generator_is_host_map;  // true if host, false if device
 
 /* Helper Functions */
@@ -44,7 +44,7 @@ bool isHostGenerator(curandGenerator_t generator) {
     if (it != generator_is_host_map.end()) {
         return it->second;
     }
-    // Default if unknown, assume device generator (or handle error)
+    // Default if unknown, assume device generator
     return false;
 }
 
@@ -103,12 +103,18 @@ extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, flo
     CurandFrontend::Prepare();
     CurandFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)generator);
     if (isHostGenerator(generator)) {
-        CurandFrontend::AddHostPointerForArguments<float>(outputPtr);
+        CurandFrontend::AddHostPointerForArguments<float>(outputPtr, num);
     } else {
         CurandFrontend::AddDevicePointerForArguments(outputPtr);
     }
     CurandFrontend::AddVariableForArguments<size_t>(num);
     CurandFrontend::Execute("curandGenerateUniform");
+
+    if (isHostGenerator(generator) && CurandFrontend::Success()) {
+        float* updated = CurandFrontend::GetOutputHostPointer<float>(num);
+        std::copy(updated, updated + num, outputPtr);  // Ensure result arrives in user memory
+    }
+
     return CurandFrontend::GetExitCode();
 }
 
