@@ -29,8 +29,6 @@
 #include <mutex>
 #include <unordered_map>
 
-#include <log4cplus/loggingmacros.h>
-
 #include "CurandHandler.h"
 
 using namespace std;
@@ -38,7 +36,6 @@ using namespace log4cplus;
 
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
-
 
 static std::mutex generator_type_mutex;
 static std::unordered_map<curandGenerator_t, bool> generator_is_host_map;
@@ -128,13 +125,13 @@ CURAND_ROUTINE_HANDLER(Generate) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateLongLong) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLongLong"));
+    std::cout << "[GenerateLongLong] Handler invoked" << std::endl;
 
     curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Generator pointer: ") << (uintptr_t)generator);
+    std::cout << "[GenerateLongLong] Generator pointer: " << (uintptr_t)generator << std::endl;
 
     bool is_host = isHostGenerator(generator);
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("is_host: ") << (is_host ? LOG4CPLUS_TEXT("true") : LOG4CPLUS_TEXT("false")));
+    std::cout << "[GenerateLongLong] is_host: " << (is_host ? "true" : "false") << std::endl;
 
     size_t num = 0;
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
@@ -142,19 +139,19 @@ CURAND_ROUTINE_HANDLER(GenerateLongLong) {
 
     if (is_host) {
         num = in->Get<size_t>();
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Number of elements (host): ") << num);
+        std::cout << "[GenerateLongLong] Number of elements (host): " << num << std::endl;
 
         unsigned long long* input_buffer = in->Assign<unsigned long long>(num);  // discard input
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Discarded input_buffer pointer: ") << (uintptr_t)input_buffer);
+        std::cout << "[GenerateLongLong] Discarded input_buffer pointer: " << (uintptr_t)input_buffer << std::endl;
 
         unsigned long long* generated = new unsigned long long[num];
         cs = curandGenerateLongLong(generator, generated, num);
 
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("curandGenerateLongLong returned status: ") << cs);
+        std::cout << "[GenerateLongLong] curandGenerateLongLong returned status: " << cs << std::endl;
 
         if (cs == CURAND_STATUS_SUCCESS) {
             out->Add(generated, num);
-            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Added generated data to output buffer"));
+            std::cout << "[GenerateLongLong] Added generated data to output buffer" << std::endl;
         }
 
         delete[] generated;
@@ -162,14 +159,14 @@ CURAND_ROUTINE_HANDLER(GenerateLongLong) {
     } else {
         uint64_t ptr_val = in->Get<uint64_t>();
         unsigned long long* outputPtr = reinterpret_cast<unsigned long long*>(ptr_val);
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Received device pointer (uint64): ") << ptr_val);
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Output pointer reinterpret cast: ") << (uintptr_t)outputPtr);
+        std::cout << "[GenerateLongLong] Received device pointer (uint64): " << ptr_val << std::endl;
+        std::cout << "[GenerateLongLong] Output pointer reinterpret cast: " << (uintptr_t)outputPtr << std::endl;
 
         num = in->Get<size_t>();
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Number of elements (device): ") << num);
+        std::cout << "[GenerateLongLong] Number of elements (device): " << num << std::endl;
 
         cs = curandGenerateLongLong(generator, outputPtr, num);
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("curandGenerateLongLong returned status: ") << cs);
+        std::cout << "[GenerateLongLong] curandGenerateLongLong returned status: " << cs << std::endl;
 
         return std::make_shared<Result>(cs);
     }
