@@ -105,12 +105,13 @@ extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, flo
 
     bool is_host = isHostGenerator(generator);
     if (is_host) {
+        CurandFrontend::AddVariableForArguments<size_t>(num);
         CurandFrontend::AddHostPointerForArguments<float>(outputPtr, num); // Send serialized data
     } else {
         CurandFrontend::AddDevicePointerForArguments(outputPtr); // Send pointer address
+        CurandFrontend::AddVariableForArguments<size_t>(num);
     }
 
-    CurandFrontend::AddVariableForArguments<size_t>(num);
     CurandFrontend::Execute("curandGenerateUniform");
 
     if (is_host && CurandFrontend::Success()) {
