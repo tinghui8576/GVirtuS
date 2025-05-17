@@ -138,33 +138,23 @@ CURAND_ROUTINE_HANDLER(Generate) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateLongLong) {
-    std::cout << "[GenerateLongLong] Handler invoked" << std::endl;
-
     curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
-    std::cout << "[GenerateLongLong] Generator pointer: " << (uintptr_t)generator << std::endl;
 
     bool is_host = isHostGenerator(generator);
-    std::cout << "[GenerateLongLong] is_host: " << (is_host ? "true" : "false") << std::endl;
-
     size_t num = 0;
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     curandStatus_t cs;
 
     if (is_host) {
         num = in->Get<size_t>();
-        std::cout << "[GenerateLongLong] Number of elements (host): " << num << std::endl;
 
         unsigned long long* input_buffer = in->Assign<unsigned long long>(num);  // discard input
-        std::cout << "[GenerateLongLong] Discarded input_buffer pointer: " << (uintptr_t)input_buffer << std::endl;
-
         unsigned long long* generated = new unsigned long long[num];
-        cs = curandGenerateLongLong(generator, generated, num);
 
-        std::cout << "[GenerateLongLong] curandGenerateLongLong returned status: " << cs << std::endl;
+        cs = curandGenerateLongLong(generator, generated, num);
 
         if (cs == CURAND_STATUS_SUCCESS) {
             out->Add(generated, num);
-            std::cout << "[GenerateLongLong] Added generated data to output buffer" << std::endl;
         }
 
         delete[] generated;
@@ -172,15 +162,10 @@ CURAND_ROUTINE_HANDLER(GenerateLongLong) {
     } else {
         uint64_t ptr_val = in->Get<uint64_t>();
         unsigned long long* outputPtr = reinterpret_cast<unsigned long long*>(ptr_val);
-        std::cout << "[GenerateLongLong] Received device pointer (uint64): " << ptr_val << std::endl;
-        std::cout << "[GenerateLongLong] Output pointer reinterpret cast: " << (uintptr_t)outputPtr << std::endl;
 
         num = in->Get<size_t>();
-        std::cout << "[GenerateLongLong] Number of elements (device): " << num << std::endl;
 
         cs = curandGenerateLongLong(generator, outputPtr, num);
-        std::cout << "[GenerateLongLong] curandGenerateLongLong returned status: " << cs << std::endl;
-
         return std::make_shared<Result>(cs);
     }
 }

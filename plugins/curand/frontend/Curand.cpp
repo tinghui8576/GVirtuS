@@ -120,40 +120,27 @@ extern "C" curandStatus_t curandGenerate(curandGenerator_t generator, unsigned i
 }
 
 extern "C" curandStatus_t curandGenerateLongLong(curandGenerator_t generator, unsigned long long *outputPtr, size_t num) {
-    printf("[DEBUG] curandGenerateLongLong called\n");
-    printf("[DEBUG] generator ptr: %p\n", (void*)generator);
-    printf("[DEBUG] outputPtr ptr: %p\n", (void*)outputPtr);
-    printf("[DEBUG] num: %zu\n", num);
-
     CurandFrontend::Prepare();
     CurandFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)generator);
 
     bool is_host = isHostGenerator(generator);
-    printf("[DEBUG] is_host: %s\n", is_host ? "true" : "false");
 
     if (is_host) {
         CurandFrontend::AddVariableForArguments<size_t>(num);
         CurandFrontend::AddHostPointerForArguments<unsigned long long>(outputPtr, num);
-        printf("[DEBUG] Added host pointer args\n");
     } else {
         CurandFrontend::AddDevicePointerForArguments(outputPtr);
         CurandFrontend::AddVariableForArguments<size_t>(num);
-        printf("[DEBUG] Added device pointer args, outputPtr as uint64: 0x%016llx\n", (unsigned long long)outputPtr);
     }
 
     CurandFrontend::Execute("curandGenerateLongLong");
-    printf("[DEBUG] Execution done\n");
 
     if (is_host && CurandFrontend::Success()) {
         unsigned long long* backend_output = CurandFrontend::GetOutputHostPointer<unsigned long long>(num);
-        printf("[DEBUG] Copying back %zu elements from backend_output %p to outputPtr %p\n", num, (void*)backend_output, (void*)outputPtr);
         std::memcpy(outputPtr, backend_output, sizeof(unsigned long long) * num);
     }
 
-    curandStatus_t ret = CurandFrontend::GetExitCode();
-    printf("[DEBUG] Return code: %d\n", ret);
-
-    return ret;
+    return CurandFrontend::GetExitCode();
 }
 
 extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, float *outputPtr, size_t num) {
