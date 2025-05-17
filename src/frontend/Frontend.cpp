@@ -213,9 +213,8 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     Frontend* frontend = nullptr;
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
-        auto it = mpFrontends->find(tid)
+        auto it = mpFrontends->find(tid);
         if (it == mpFrontends->end()) {
-            // error
             cerr << " ERROR - can't send any job request " << endl;
             return;
         }
