@@ -108,33 +108,28 @@ CURAND_ROUTINE_HANDLER(GenerateLongLong){
 CURAND_ROUTINE_HANDLER(GenerateUniform) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateUniform"));
 
-    // Read generator handle (type long long int or uintptr_t)
     curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
-
-    // Now you must know whether this is a host or device pointer.
-    // For simplicity, assume you track generator types similarly in backend:
     bool is_host = isHostGenerator(generator);
-
-    float* outputPtr = nullptr;
-    if (is_host) {
-        // Host pointer: data is serialized in the buffer, so get actual float array
-        outputPtr = in->Assign<float>();  // Deserialize float array data
-    } else {
-        // Device pointer: read pointer value (uint64_t) from buffer, cast to float*
-        outputPtr = (float*)(uintptr_t)in->Get<uint64_t>();
-    }
-
     size_t num = in->Get<size_t>();
 
-    curandStatus_t cs = curandGenerateUniform(generator, outputPtr, num);
-
-    // Send back generated values if host generator
+    float* outputPtr = nullptr;
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    if (is_host && cs == CURAND_STATUS_SUCCESS) {
-        out->Add<float>(outputPtr, num);
-    }
 
-    return std::make_shared<Result>(cs);
+    if (is_host) {
+        // Allocate host buffer
+        outputPtr = new float[num];
+        curandStatus_t cs = curandGenerateUniform(generator, outputPtr, num);
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(outputPtr, num);  // Serialize result
+        }
+        delete[] outputPtr;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        // Device generator: get device pointer from frontend
+        outputPtr = (float*)(uintptr_t)in->Get<uint64_t>();
+        curandStatus_t cs = curandGenerateUniform(generator, outputPtr, num);
+        return std::make_shared<Result>(cs);
+    }
 }
 
 CURAND_ROUTINE_HANDLER(GenerateNormal){

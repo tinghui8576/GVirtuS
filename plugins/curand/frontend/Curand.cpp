@@ -102,17 +102,19 @@ extern "C" curandStatus_t curandGenerateLongLong( curandGenerator_t generator, u
 extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, float *outputPtr, size_t num) {
     CurandFrontend::Prepare();
     CurandFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)generator);
+    
     if (isHostGenerator(generator)) {
         CurandFrontend::AddHostPointerForArguments<float>(outputPtr, num);
     } else {
         CurandFrontend::AddDevicePointerForArguments(outputPtr);
     }
+
     CurandFrontend::AddVariableForArguments<size_t>(num);
     CurandFrontend::Execute("curandGenerateUniform");
 
     if (isHostGenerator(generator) && CurandFrontend::Success()) {
-        float* updated = CurandFrontend::GetOutputHostPointer<float>(num);
-        std::copy(updated, updated + num, outputPtr);  // Ensure result arrives in user memory
+        float* backend_output = CurandFrontend::GetOutputHostPointer<float>(num);
+        std::memcpy(outputPtr, backend_output, sizeof(float) * num);  // Ensure result arrives in user memory
     }
 
     return CurandFrontend::GetExitCode();
