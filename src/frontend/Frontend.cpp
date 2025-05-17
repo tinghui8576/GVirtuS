@@ -209,20 +209,19 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     if (input_buffer == nullptr) input_buffer = mpInputBuffer.get();
 
     pid_t tid = syscall(SYS_gettid);
+
+    Frontend* frontend = nullptr;
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
-        if (mpFrontends->find(tid) == mpFrontends->end()) {
+        auto it = mpFrontends->find(tid)
+        if (it == mpFrontends->end()) {
             // error
             cerr << " ERROR - can't send any job request " << endl;
             return;
         }
+        frontend = it->second;
     }
 
-    /* sending job */
-    {
-        std::lock_guard<std::mutex> lock(gFrontendMutex);
-        auto frontend = mpFrontends->find(tid)->second;
-    }
     frontend->mRoutinesExecuted++;
     auto start = steady_clock::now();
     frontend->_communicator->obj_ptr()->Write(routine, strlen(routine) + 1);
