@@ -110,25 +110,31 @@ CURAND_ROUTINE_HANDLER(GenerateUniform) {
 
     curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
     bool is_host = isHostGenerator(generator);
-    size_t num = in->Get<size_t>();
+    size_t num = 0;
 
-    float* outputPtr = nullptr;
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
 
     if (is_host) {
-        // Allocate host buffer
-        outputPtr = new float[num];
-        curandStatus_t cs = curandGenerateUniform(generator, outputPtr, num);
+        float* input_buffer = in->Assign<float>();  // we discard the input content
+        num = in->Get<size_t>();
+
+        float* generated = new float[num];
+        cs = curandGenerateUniform(generator, generated, num);
+
         if (cs == CURAND_STATUS_SUCCESS) {
-            out->Add(outputPtr, num);  // Serialize result
+            out->Add(generated, num);  // Serialize result to send to frontend
         }
-        delete[] outputPtr;
+
+        delete[] generated;
         return std::make_shared<Result>(cs, out);
     } else {
-        // Device generator: get device pointer from frontend
-        outputPtr = (float*)(uintptr_t)in->Get<uint64_t>();
-        curandStatus_t cs = curandGenerateUniform(generator, outputPtr, num);
-        return std::make_shared<Result>(cs);
+        uint64_t ptr_val = in->Get<uint64_t>();
+        float* outputPtr = reinterpret_cast<float*>(ptr_val);
+        num = in->Get<size_t>();
+
+        cs = curandGenerateUniform(generator, outputPtr, num);
+        return std::make_shared<Result>(cs);  // No output buffer needed
     }
 }
 

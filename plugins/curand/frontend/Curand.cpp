@@ -102,19 +102,20 @@ extern "C" curandStatus_t curandGenerateLongLong( curandGenerator_t generator, u
 extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, float *outputPtr, size_t num) {
     CurandFrontend::Prepare();
     CurandFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)generator);
-    
-    if (isHostGenerator(generator)) {
-        CurandFrontend::AddHostPointerForArguments<float>(outputPtr, num);
+
+    bool is_host = isHostGenerator(generator);
+    if (is_host) {
+        CurandFrontend::AddHostPointerForArguments<float>(outputPtr, num); // Send serialized data
     } else {
-        CurandFrontend::AddDevicePointerForArguments(outputPtr);
+        CurandFrontend::AddDevicePointerForArguments(outputPtr); // Send pointer address
     }
 
     CurandFrontend::AddVariableForArguments<size_t>(num);
     CurandFrontend::Execute("curandGenerateUniform");
 
-    if (isHostGenerator(generator) && CurandFrontend::Success()) {
+    if (is_host && CurandFrontend::Success()) {
         float* backend_output = CurandFrontend::GetOutputHostPointer<float>(num);
-        std::memcpy(outputPtr, backend_output, sizeof(float) * num);  // Ensure result arrives in user memory
+        std::memcpy(outputPtr, backend_output, sizeof(float) * num);
     }
 
     return CurandFrontend::GetExitCode();
