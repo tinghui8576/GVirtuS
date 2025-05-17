@@ -86,6 +86,16 @@ extern "C" curandStatus_t curandSetPseudoRandomGeneratorSeed(
     return CurandFrontend::GetExitCode();
 }
 
+extern "C" curandStatus_t curandSetQuasiRandomGeneratorDimensions(
+    curandGenerator_t generator, unsigned int num_dimensions) {
+
+    CurandFrontend::Prepare();
+    CurandFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)generator);
+    CurandFrontend::AddVariableForArguments<unsigned int>(num_dimensions);
+    CurandFrontend::Execute("curandSetQuasiRandomGeneratorDimensions");
+    return CurandFrontend::GetExitCode();
+}
+
 extern "C" curandStatus_t curandGenerate(curandGenerator_t generator, unsigned int *outputPtr, size_t num) {
     CurandFrontend::Prepare();
     CurandFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)generator);

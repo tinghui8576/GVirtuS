@@ -91,6 +91,19 @@ CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed) {
     return std::make_shared<Result>(cs);
 }
 
+CURAND_ROUTINE_HANDLER(SetQuasiRandomGeneratorDimensions) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetQuasiRandomGeneratorDimensions"));
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    unsigned int num_dimensions = in->Get<unsigned int>();
+
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Generator pointer: ") << (uintptr_t)generator);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Number of dimensions: ") << num_dimensions);
+
+    curandStatus_t cs = curandSetQuasiRandomGeneratorDimensions(generator, num_dimensions);
+    return std::make_shared<Result>(cs);
+}
+
 CURAND_ROUTINE_HANDLER(Generate) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Generate"));
 
