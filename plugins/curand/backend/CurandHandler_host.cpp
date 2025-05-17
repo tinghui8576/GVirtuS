@@ -62,7 +62,7 @@ CURAND_ROUTINE_HANDLER(CreateGenerator) {
     }
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    out->Add<long long int>((long long int)generator);
+    out->Add<uintptr_t>((uintptr_t)generator);
     return std::make_shared<Result>(cs, out);
 }
 
@@ -78,31 +78,84 @@ CURAND_ROUTINE_HANDLER(CreateGeneratorHost) {
     }
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    out->Add<long long int>((long long int)generator);
+    out->Add<uintptr_t>((uintptr_t)generator);
     return std::make_shared<Result>(cs, out);
 }
 
-CURAND_ROUTINE_HANDLER(Generate){
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Generate"));
-    
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    unsigned int * outputPtr = in->Assign<unsigned int>();
-    size_t num = in->Get<size_t>();
-    
-    curandStatus_t cs = curandGenerate(generator,outputPtr,num);
-    
+CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetPseudoRandomGeneratorSeed"));
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    unsigned long long seed = in->Get<unsigned long long>();
+
+    curandStatus_t cs = curandSetPseudoRandomGeneratorSeed(generator, seed);
     return std::make_shared<Result>(cs);
 }
 
-CURAND_ROUTINE_HANDLER(GenerateLongLong){
+CURAND_ROUTINE_HANDLER(Generate) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Generate"));
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    bool is_host = isHostGenerator(generator);
+    size_t num = 0;
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
+
+    if (is_host) {
+        num = in->Get<size_t>();
+        unsigned int* input_buffer = in->Assign<unsigned int>(num);  // discard input
+
+        unsigned int* generated = new unsigned int[num];
+        cs = curandGenerate(generator, generated, num);
+
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(generated, num);
+        }
+
+        delete[] generated;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        uint64_t ptr_val = in->Get<uint64_t>();
+        unsigned int* outputPtr = reinterpret_cast<unsigned int*>(ptr_val);
+        num = in->Get<size_t>();
+
+        cs = curandGenerate(generator, outputPtr, num);
+        return std::make_shared<Result>(cs);
+    }
+}
+
+CURAND_ROUTINE_HANDLER(GenerateLongLong) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLongLong"));
-    
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    unsigned long long int * outputPtr = in->Assign<unsigned long long int>();
-    size_t num = in->Get<size_t>();
-    
-    curandStatus_t cs = curandGenerateLongLong(generator,outputPtr,num);
-    return std::make_shared<Result>(cs);
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    bool is_host = isHostGenerator(generator);
+    size_t num = 0;
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
+
+    if (is_host) {
+        num = in->Get<size_t>();
+        unsigned long long* input_buffer = in->Assign<unsigned long long>(num);  // discard input
+
+        unsigned long long* generated = new unsigned long long[num];
+        cs = curandGenerateLongLong(generator, generated, num);
+
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(generated, num);
+        }
+
+        delete[] generated;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        uint64_t ptr_val = in->Get<uint64_t>();
+        unsigned long long* outputPtr = reinterpret_cast<unsigned long long*>(ptr_val);
+        num = in->Get<size_t>();
+
+        cs = curandGenerateLongLong(generator, outputPtr, num);
+        return std::make_shared<Result>(cs);
+    }
 }
 
 CURAND_ROUTINE_HANDLER(GenerateUniform) {
@@ -138,96 +191,228 @@ CURAND_ROUTINE_HANDLER(GenerateUniform) {
     }
 }
 
-CURAND_ROUTINE_HANDLER(GenerateNormal){
+CURAND_ROUTINE_HANDLER(GenerateNormal) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateNormal"));
-    
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    float * outputPtr = in->Assign<float>();
-    size_t n = in->Get<size_t>();
-    float mean = in->Get<float>();
-    float stddev = in->Get<float>();
-    
-    curandStatus_t cs = curandGenerateNormal(generator,outputPtr,n,mean,stddev);
-    return std::make_shared<Result>(cs);
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    bool is_host = isHostGenerator(generator);
+
+    size_t num = 0;
+    float mean = 0.0f, stddev = 0.0f;
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
+
+    if (is_host) {
+        num = in->Get<size_t>();
+        float* input_buffer = in->Assign<float>(num);  // discard input
+        mean = in->Get<float>();
+        stddev = in->Get<float>();
+
+        float* generated = new float[num];
+        cs = curandGenerateNormal(generator, generated, num, mean, stddev);
+
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(generated, num);
+        }
+
+        delete[] generated;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        uint64_t ptr_val = in->Get<uint64_t>();
+        float* outputPtr = reinterpret_cast<float*>(ptr_val);
+        num = in->Get<size_t>();
+        mean = in->Get<float>();
+        stddev = in->Get<float>();
+
+        cs = curandGenerateNormal(generator, outputPtr, num, mean, stddev);
+        return std::make_shared<Result>(cs);
+    }
 }
 
-
-CURAND_ROUTINE_HANDLER(GenerateLogNormal){
+CURAND_ROUTINE_HANDLER(GenerateLogNormal) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLogNormal"));
-    
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    float * outputPtr = in->Assign<float>();
-    size_t n = in->Get<size_t>();
-    float mean = in->Get<float>();
-    float stddev = in->Get<float>();
-    
-    curandStatus_t cs = curandGenerateLogNormal(generator,outputPtr,n,mean,stddev);
-    return std::make_shared<Result>(cs);
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    bool is_host = isHostGenerator(generator);
+
+    size_t num = 0;
+    float mean = 0.0f, stddev = 0.0f;
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
+
+    if (is_host) {
+        num = in->Get<size_t>();
+        float* input_buffer = in->Assign<float>(num);  // discard input
+        mean = in->Get<float>();
+        stddev = in->Get<float>();
+
+        float* generated = new float[num];
+        cs = curandGenerateLogNormal(generator, generated, num, mean, stddev);
+
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(generated, num);
+        }
+
+        delete[] generated;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        uint64_t ptr_val = in->Get<uint64_t>();
+        float* outputPtr = reinterpret_cast<float*>(ptr_val);
+        num = in->Get<size_t>();
+        mean = in->Get<float>();
+        stddev = in->Get<float>();
+
+        cs = curandGenerateLogNormal(generator, outputPtr, num, mean, stddev);
+        return std::make_shared<Result>(cs);
+    }
 }
 
-CURAND_ROUTINE_HANDLER(GeneratePoisson){
+CURAND_ROUTINE_HANDLER(GeneratePoisson) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GeneratePoisson"));
-    
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    unsigned int * outputPtr = in->Assign<unsigned int>();
-    size_t n = in->Get<size_t>();
-    double lambda = in->Get<double>();
-    
-    curandStatus_t cs = curandGeneratePoisson(generator,outputPtr,n,lambda);
-    return std::make_shared<Result>(cs);
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    bool is_host = isHostGenerator(generator);
+    size_t num = 0;
+    double lambda = 0.0;
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
+
+    if (is_host) {
+        num = in->Get<size_t>();
+        unsigned int* input_buffer = in->Assign<unsigned int>(num); // discard input
+        lambda = in->Get<double>();
+
+        unsigned int* generated = new unsigned int[num];
+        cs = curandGeneratePoisson(generator, generated, num, lambda);
+
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(generated, num);
+        }
+
+        delete[] generated;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        uint64_t ptr_val = in->Get<uint64_t>();
+        unsigned int* outputPtr = reinterpret_cast<unsigned int*>(ptr_val);
+        num = in->Get<size_t>();
+        lambda = in->Get<double>();
+
+        cs = curandGeneratePoisson(generator, outputPtr, num, lambda);
+        return std::make_shared<Result>(cs);
+    }
 }
 
-CURAND_ROUTINE_HANDLER(GenerateUniformDouble){
+CURAND_ROUTINE_HANDLER(GenerateUniformDouble) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateUniformDouble"));
-    
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    double * outputPtr = in->Assign<double>();
-    size_t num = in->Get<size_t>();
-    
-    curandStatus_t cs = curandGenerateUniformDouble(generator,outputPtr,num);
-    return std::make_shared<Result>(cs);
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    bool is_host = isHostGenerator(generator);
+    size_t num = 0;
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
+
+    if (is_host) {
+        num = in->Get<size_t>();
+        double* input_buffer = in->Assign<double>(num); // discard input
+        double* generated = new double[num];
+        cs = curandGenerateUniformDouble(generator, generated, num);
+
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(generated, num);
+        }
+
+        delete[] generated;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        uint64_t ptr_val = in->Get<uint64_t>();
+        double* outputPtr = reinterpret_cast<double*>(ptr_val);
+        num = in->Get<size_t>();
+
+        cs = curandGenerateUniformDouble(generator, outputPtr, num);
+        return std::make_shared<Result>(cs);
+    }
 }
 
-CURAND_ROUTINE_HANDLER(GenerateNormalDouble){
+CURAND_ROUTINE_HANDLER(GenerateNormalDouble) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateNormalDouble"));
-    
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    double * outputPtr = in->Assign<double>();
-    size_t n = in->Get<size_t>();
-    double mean = in->Get<double>();
-    double stddev = in->Get<double>();
-    
-    
-    curandStatus_t cs = curandGenerateNormalDouble(generator,outputPtr,n,mean,stddev);
-    return std::make_shared<Result>(cs);
+
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    bool is_host = isHostGenerator(generator);
+    size_t num = 0;
+    double mean, stddev;
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
+
+    if (is_host) {
+        num = in->Get<size_t>();
+        double* input_buffer = in->Assign<double>(num); // discard input
+        mean = in->Get<double>();
+        stddev = in->Get<double>();
+
+        double* generated = new double[num];
+        cs = curandGenerateNormalDouble(generator, generated, num, mean, stddev);
+
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(generated, num);
+        }
+
+        delete[] generated;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        uint64_t ptr_val = in->Get<uint64_t>();
+        double* outputPtr = reinterpret_cast<double*>(ptr_val);
+        num = in->Get<size_t>();
+        mean = in->Get<double>();
+        stddev = in->Get<double>();
+
+        cs = curandGenerateNormalDouble(generator, outputPtr, num, mean, stddev);
+        return std::make_shared<Result>(cs);
+    }
 }
 
-CURAND_ROUTINE_HANDLER(GenerateLogNormalDouble){
+CURAND_ROUTINE_HANDLER(GenerateLogNormalDouble) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLogNormalDouble"));
-    
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    double * outputPtr = in->Assign<double>();
-    size_t n = in->Get<size_t>();
-    double mean = in->Get<double>();
-    double stddev = in->Get<double>();
-    
-    
-    curandStatus_t cs = curandGenerateLogNormalDouble(generator,outputPtr,n,mean,stddev);
-    return std::make_shared<Result>(cs);
-}
 
-CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed){
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLogNormalDouble"));
-    cout<<"ciao ciao ciao"<<endl;
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
-    unsigned long long seed = in->Get<unsigned long long>();
-    cout<<"generator: "<< generator << " seed: "<< seed<<endl;
-    curandStatus_t cs = curandSetPseudoRandomGeneratorSeed(generator,seed);
-    return std::make_shared<Result>(cs);
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
+    bool is_host = isHostGenerator(generator);
+    size_t num = 0;
+    double mean, stddev;
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    curandStatus_t cs;
+
+    if (is_host) {
+        num = in->Get<size_t>();
+        double* input_buffer = in->Assign<double>(num); // discard input buffer
+        mean = in->Get<double>();
+        stddev = in->Get<double>();
+
+        double* generated = new double[num];
+        cs = curandGenerateLogNormalDouble(generator, generated, num, mean, stddev);
+
+        if (cs == CURAND_STATUS_SUCCESS) {
+            out->Add(generated, num); // serialize to frontend
+        }
+
+        delete[] generated;
+        return std::make_shared<Result>(cs, out);
+    } else {
+        uint64_t ptr_val = in->Get<uint64_t>();
+        double* outputPtr = reinterpret_cast<double*>(ptr_val);
+        num = in->Get<size_t>();
+        mean = in->Get<double>();
+        stddev = in->Get<double>();
+
+        cs = curandGenerateLogNormalDouble(generator, outputPtr, num, mean, stddev);
+        return std::make_shared<Result>(cs);
+    }
 }
 
 CURAND_ROUTINE_HANDLER(DestroyGenerator) {
-    curandGenerator_t generator = (curandGenerator_t)in->Get<long long int>();
+    curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
     curandStatus_t cs = curandDestroyGenerator(generator);
 
     if (cs == CURAND_STATUS_SUCCESS) {
