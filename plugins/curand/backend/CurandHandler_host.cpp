@@ -129,21 +129,30 @@ CURAND_ROUTINE_HANDLER(GenerateLongLong) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLongLong"));
 
     curandGenerator_t generator = (curandGenerator_t)in->Get<uintptr_t>();
-    bool is_host = isHostGenerator(generator);
-    size_t num = 0;
+    logger.debug(LOG4CPLUS_TEXT("Generator pointer: ") + std::to_string((uintptr_t)generator));
 
+    bool is_host = isHostGenerator(generator);
+    logger.debug(LOG4CPLUS_TEXT("is_host: ") + (is_host ? LOG4CPLUS_TEXT("true") : LOG4CPLUS_TEXT("false")));
+
+    size_t num = 0;
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     curandStatus_t cs;
 
     if (is_host) {
         num = in->Get<size_t>();
+        logger.debug(LOG4CPLUS_TEXT("Number of elements (host): ") + std::to_string(num));
+
         unsigned long long* input_buffer = in->Assign<unsigned long long>(num);  // discard input
+        logger.debug(LOG4CPLUS_TEXT("Discarded input_buffer pointer: ") + std::to_string((uintptr_t)input_buffer));
 
         unsigned long long* generated = new unsigned long long[num];
         cs = curandGenerateLongLong(generator, generated, num);
 
+        logger.debug(LOG4CPLUS_TEXT("curandGenerateLongLong returned status: ") + std::to_string(cs));
+
         if (cs == CURAND_STATUS_SUCCESS) {
             out->Add(generated, num);
+            logger.debug(LOG4CPLUS_TEXT("Added generated data to output buffer"));
         }
 
         delete[] generated;
@@ -151,9 +160,15 @@ CURAND_ROUTINE_HANDLER(GenerateLongLong) {
     } else {
         uint64_t ptr_val = in->Get<uint64_t>();
         unsigned long long* outputPtr = reinterpret_cast<unsigned long long*>(ptr_val);
+        logger.debug(LOG4CPLUS_TEXT("Received device pointer (uint64): ") + std::to_string(ptr_val));
+        logger.debug(LOG4CPLUS_TEXT("Output pointer reinterpret cast: ") + std::to_string((uintptr_t)outputPtr));
+
         num = in->Get<size_t>();
+        logger.debug(LOG4CPLUS_TEXT("Number of elements (device): ") + std::to_string(num));
 
         cs = curandGenerateLongLong(generator, outputPtr, num);
+        logger.debug(LOG4CPLUS_TEXT("curandGenerateLongLong returned status: ") + std::to_string(cs));
+
         return std::make_shared<Result>(cs);
     }
 }

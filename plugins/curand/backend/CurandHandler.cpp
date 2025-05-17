@@ -73,6 +73,7 @@ void CurandHandler::Initialize() {
     /* CurandHandler Query Platform Info */
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(CreateGenerator));
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(CreateGeneratorHost));
+    mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(SetPseudoRandomGeneratorSeed));
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(Generate));
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(GenerateLongLong));
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(GenerateUniform));
@@ -82,6 +83,5 @@ void CurandHandler::Initialize() {
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(GenerateUniformDouble));
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(GenerateNormalDouble));
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(GenerateLogNormalDouble));
-    mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(SetPseudoRandomGeneratorSeed));
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(DestroyGenerator));
 }

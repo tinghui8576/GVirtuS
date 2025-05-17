@@ -69,6 +69,7 @@ private:
 /* CurandHandler_Platform */
 CURAND_ROUTINE_HANDLER(CreateGenerator);
 CURAND_ROUTINE_HANDLER(CreateGeneratorHost);
+CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed);
 CURAND_ROUTINE_HANDLER(Generate);
 CURAND_ROUTINE_HANDLER(GenerateLongLong);
 CURAND_ROUTINE_HANDLER(GenerateUniform);
@@ -78,7 +79,6 @@ CURAND_ROUTINE_HANDLER(GeneratePoisson);
 CURAND_ROUTINE_HANDLER(GenerateUniformDouble);
 CURAND_ROUTINE_HANDLER(GenerateNormalDouble);
 CURAND_ROUTINE_HANDLER(GenerateLogNormalDouble);
-CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed);
 CURAND_ROUTINE_HANDLER(DestroyGenerator);
 
 #endif //_CURANDHANDLER_H
