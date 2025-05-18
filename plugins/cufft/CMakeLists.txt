@@ -32,7 +32,7 @@ message(STATUS "Found cuFFT: ${CUFFT_VERSION} (${CUFFT_INCLUDE_DIRECTORY}/cufft.
 
 gvirtus_add_backend(cufft ${CUDA_VERSION}
         backend/CufftHandler.cpp)
-target_link_libraries(${PROJECT_NAME} ${CUDA_cublas_LIBRARY} ${CUDA_CUDART_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${CUDA_cufft_LIBRARY} ${CUDA_CUDART_LIBRARY})
 
 gvirtus_add_frontend(cufft ${CUDA_VERSION}
         frontend/Cufft.cpp
