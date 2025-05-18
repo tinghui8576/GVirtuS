@@ -393,17 +393,27 @@ extern "C" cufftResult cufftPlanMany(cufftHandle *plan, int rank, int *n,
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
-
 extern "C" cufftResult cufftCreate(cufftHandle *plan) {
-  CufftFrontend::Prepare();
-  CufftFrontend::AddHostPointerForArguments(plan);
-  CufftFrontend::Execute("cufftCreate");
-  if (CufftFrontend::Success())
-    *plan = *(CufftFrontend::GetOutputHostPointer<cufftHandle>());
-  //printf("plan: %d",*plan);
-  return (cufftResult) CufftFrontend::GetExitCode();//(cufftResult) CufftFrontend::GetExitCode();
+    if (!plan) return CUFFT_INVALID_PLAN;
+
+    CufftFrontend::Prepare();
+    CufftFrontend::Execute("cufftCreate");
+
+    if (CufftFrontend::Success())
+        *plan = CufftFrontend::GetOutputVariable<cufftHandle>();  // simpler than GetOutputHostPointer()
+
+    return (cufftResult) CufftFrontend::GetExitCode();
 }
 
+// extern "C" cufftResult cufftCreate(cufftHandle *plan) {
+//   CufftFrontend::Prepare();
+//   CufftFrontend::AddHostPointerForArguments(plan);
+//   CufftFrontend::Execute("cufftCreate");
+//   if (CufftFrontend::Success())
+//     *plan = *(CufftFrontend::GetOutputHostPointer<cufftHandle>());
+//   //printf("plan: %d",*plan);
+//   return (cufftResult) CufftFrontend::GetExitCode();
+// }
 
 extern "C" cufftResult cufftDestroy(cufftHandle plan) {
   CufftFrontend::Prepare();

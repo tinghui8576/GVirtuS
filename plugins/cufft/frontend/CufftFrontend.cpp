@@ -3,7 +3,7 @@
  * @author Vincenzo Santopietro <vincenzo.santopietro@uniparthenope.it>
  * @date   Jan 26, 2017, 10:01 AM
  * 
- * @brief  
+ * @brief
  * 
  */
 

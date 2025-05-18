@@ -230,29 +230,49 @@ CUFFT_ROUTINE_HANDLER(SetCompatibilityMode) {
 #endif
 
 CUFFT_ROUTINE_HANDLER(Create) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Create"));
-    cufftHandle *plan_adv = in->Assign<cufftHandle>();
-    cufftResult exit_code = cufftCreate(plan_adv);
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Create"));
+
+    cufftHandle plan;
+    cufftResult exit_code = cufftCreate(&plan);  // this is safe now
+
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-        out->Add(plan_adv);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+        out->Add(&plan, 1);  // Send the value back to frontend
+    } catch (const std::string &e) {
+        LOG4CPLUS_DEBUG(logger, e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout <<"DEBUG - Plan: "<< *plan_adv<<"\n";
-    cout<<"DEBUG - cufftCreate Executed\n";
-    
+
+    std::cout << "DEBUG - Plan: " << plan << "\n";
+    std::cout << "DEBUG - cufftCreate Executed\n";
+
     return std::make_shared<Result>(exit_code, out);
-    //return std::make_shared<Result>(ec, out);
 }
+
+// CUFFT_ROUTINE_HANDLER(Create) {
+//     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Create"));
+//     cufftHandle *plan_adv = in->Assign<cufftHandle>();
+//     cufftResult exit_code = cufftCreate(plan_adv);
+//     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+//     try {
+//         out->Add(plan_adv);
+//     } catch (string e) {
+//         LOG4CPLUS_DEBUG(logger,e);
+//         return std::make_shared<Result>(cudaErrorMemoryAllocation);
+//     }
+//     cout << "DEBUG - Plan: " << *plan_adv << "\n";
+//     cout << "DEBUG - cufftCreate Executed\n";
+    
+//     return std::make_shared<Result>(exit_code, out);
+// }
+
 /*
  * cufftResult cufftDestroy(cufftHandle plan);
  * Frees all GPU resources associated with a cuFFT plan and destroys the internal plan data structure.
  * This function should be called once a plan is no longer needed, to avoid wasting GPU memory.
  */
 CUFFT_ROUTINE_HANDLER(Destroy) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Create"));
+    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Destroy"));
     
     cufftHandle plan = in->Get<cufftHandle>();
     cufftResult exit_code = cufftDestroy(plan);
