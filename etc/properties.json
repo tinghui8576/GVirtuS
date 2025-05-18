@@ -11,7 +11,8 @@
         "cudart",
         "cublas",
         "curand",
-        "cudnn"
+        "cudnn",
+        "cufft"
       ]
     }
   ],

@@ -1159,5 +1159,3 @@ void CufftHandler::Initialize() {
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(XtMemcpy));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(XtFree));
 }
-
-
