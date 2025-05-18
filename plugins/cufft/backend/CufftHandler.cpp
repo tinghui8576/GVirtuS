@@ -1124,7 +1124,9 @@ void CufftHandler::Initialize() {
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(GetSize));
     /* - Estimate - */
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(SetWorkArea));
+#if CUDART_VERSION <= 9000
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(SetCompatibilityMode));
+#endif
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(SetAutoAllocation));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(GetVersion));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(SetStream));
