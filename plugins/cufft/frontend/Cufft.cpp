@@ -600,8 +600,7 @@ extern "C" cufftResult cufftXtMalloc(cufftHandle plan,
   CufftFrontend::Execute("cufftXtMalloc");
 
   if (CufftFrontend::Success()) {
-    *descriptorPtr = reinterpret_cast<cudaLibXtDesc*>(
-        CufftFrontend::GetOutputHostPointer());
+    *descriptorPtr = CufftFrontend::GetOutputHostPointer<cudaLibXtDesc *>();
   }
 
   return (cufftResult) CufftFrontend::GetExitCode();
@@ -617,7 +616,7 @@ extern "C" cufftResult cufftXtMalloc(cufftHandle plan,
 
 //   CufftFrontend::Execute("cufftXtMalloc");
 //   if (CufftFrontend::Success())
-//     *descriptor = *(CufftFrontend::GetOutputHostPointer<cudaLibXtDesc *>());
+//     descriptor = CufftFrontend::GetOutputHostPointer<cudaLibXtDesc *>();
 //   return (cufftResult) CufftFrontend::GetExitCode();
 // }
 
