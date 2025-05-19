@@ -407,7 +407,7 @@ extern "C" cufftResult cufftPlanMany(cufftHandle *plan, int rank, int *n,
 
 extern "C" cufftResult cufftCreate(cufftHandle *plan) {
   CufftFrontend::Prepare();
-  CufftFrontend::AddHostPointerForArguments(plan);
+  CufftFrontend::AddHostPointerForArguments<cufftHandle>(plan);
   CufftFrontend::Execute("cufftCreate");
   if (CufftFrontend::Success())
     *plan = *(CufftFrontend::GetOutputHostPointer<cufftHandle>());
@@ -693,7 +693,7 @@ extern "C" cufftResult cufftGetVersion(int *version) {
   CufftFrontend::AddHostPointerForArguments<int>(version);
   CufftFrontend::Execute("cufftGetVersion");
   if (CufftFrontend::Success())
-    version = CufftFrontend::GetOutputHostPointer<int>();
+    *version = *CufftFrontend::GetOutputHostPointer<int>();
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
