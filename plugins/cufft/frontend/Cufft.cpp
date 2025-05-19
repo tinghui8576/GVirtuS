@@ -600,7 +600,7 @@ extern "C" cufftResult cufftXtMalloc(cufftHandle plan,
   CufftFrontend::Execute("cufftXtMalloc");
 
   if (CufftFrontend::Success()) {
-    descriptorPtr = CufftFrontend::GetOutputHostPointer<cudaLibXtDesc **>();
+    *descriptorPtr = *CufftFrontend::GetOutputHostPointer<cudaLibXtDesc **>();
   }
 
   return (cufftResult) CufftFrontend::GetExitCode();
