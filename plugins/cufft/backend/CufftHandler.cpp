@@ -944,8 +944,9 @@ CUFFT_ROUTINE_HANDLER(GetProperty){
 #endif
 
 CUFFT_ROUTINE_HANDLER(XtMalloc) {
-  cufftHandle plan = input_buffer->Get<cufftHandle>();
-  cufftXtSubFormat format = input_buffer->Get<cufftXtSubFormat>();
+  Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMalloc"));
+  cufftHandle plan = in->Get<cufftHandle>();
+  cufftXtSubFormat format = in->Get<cufftXtSubFormat>();
 
   cudaLibXtDesc* data = nullptr;
   cufftResult exit_code = cufftXtMalloc(plan, &data, format);
