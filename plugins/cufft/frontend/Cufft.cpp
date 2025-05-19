@@ -590,21 +590,39 @@ extern "C" cufftResult cufftXtSetGPUs(cufftHandle plan, int nGPUs, int *whichGPU
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
-extern "C" cufftResult cufftXtMalloc(cufftHandle plan, cudaLibXtDesc **descriptor, cufftXtSubFormat format) {
+// tgasla attempt to fix the problem with the malloc function
+extern "C" cufftResult cufftXtMalloc(cufftHandle plan,
+                                     cudaLibXtDesc** descriptorPtr,
+                                     cufftXtSubFormat format) {
   CufftFrontend::Prepare();
-  //Passing arguments
-  CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
-  CufftFrontend::AddHostPointerForArguments<cudaLibXtDesc *>(descriptor);
-  CufftFrontend::AddVariableForArguments<cufftXtSubFormat>(format);
-
+  CufftFrontend::AddVariableForArguments(plan);
+  CufftFrontend::AddVariableForArguments(format);
   CufftFrontend::Execute("cufftXtMalloc");
-  if (CufftFrontend::Success())
-    *descriptor = *(CufftFrontend::GetOutputHostPointer<cudaLibXtDesc *>());
+
+  if (CufftFrontend::Success()) {
+    *descriptorPtr = reinterpret_cast<cudaLibXtDesc*>(
+        CufftFrontend::GetOutputHostPointer());
+  }
+
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
+// original gvirtus code
+// extern "C" cufftResult cufftXtMalloc(cufftHandle plan, cudaLibXtDesc **descriptor, cufftXtSubFormat format) {
+//   CufftFrontend::Prepare();
+//   //Passing arguments
+//   CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
+//   CufftFrontend::AddHostPointerForArguments<cudaLibXtDesc *>(descriptor);
+//   CufftFrontend::AddVariableForArguments<cufftXtSubFormat>(format);
+
+//   CufftFrontend::Execute("cufftXtMalloc");
+//   if (CufftFrontend::Success())
+//     *descriptor = *(CufftFrontend::GetOutputHostPointer<cudaLibXtDesc *>());
+//   return (cufftResult) CufftFrontend::GetExitCode();
+// }
 
 /*Da testare*/
+// slightly modified gvirtus code
 extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type) {
   CufftFrontend::Prepare();
   CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
@@ -633,6 +651,8 @@ extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *s
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
+
+// tgasla attempt to fix the problem with the memcpy function
 // extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type) {
 //   CufftFrontend::Prepare();
 //   CufftFrontend::AddVariableForArguments(plan);

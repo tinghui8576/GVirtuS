@@ -943,6 +943,22 @@ CUFFT_ROUTINE_HANDLER(GetProperty){
 }
 #endif
 
+CUFFT_ROUTINE_HANDLER(XtMalloc) {
+  cufftHandle plan = input_buffer->Get<cufftHandle>();
+  cufftXtSubFormat format = input_buffer->Get<cufftXtSubFormat>();
+
+  cudaLibXtDesc* data = nullptr;
+  cufftResult exit_code = cufftXtMalloc(plan, &data, format);
+
+#ifdef DEBUG
+  std::cout << "cufftXtMalloc returned descriptor: " << data << std::endl;
+#endif
+
+  std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+  out->AddMarshal(data);  // add the opaque descriptor pointer
+  return std::make_shared<Result>(exit_code, out);
+}
+
 /*
  * cufftResult cufftXtMalloc(cufftHandle plan, cudaLibXtDesc **descriptor, 
         cufftXtSubFormat format);
@@ -950,26 +966,27 @@ CUFFT_ROUTINE_HANDLER(GetProperty){
  * @param descriptor
  * @param format
  */
-CUFFT_ROUTINE_HANDLER(XtMalloc){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMalloc"));
+ // original gvirtus code
+// CUFFT_ROUTINE_HANDLER(XtMalloc){
+//     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMalloc"));
     
-    cufftHandle plan = in->Get<cufftHandle>();
-    cudaLibXtDesc ** desc = in->Assign<cudaLibXtDesc*>();
-    cufftXtSubFormat format = in->Get<cufftXtSubFormat>();
+//     cufftHandle plan = in->Get<cufftHandle>();
+//     cudaLibXtDesc ** desc = in->Assign<cudaLibXtDesc*>();
+//     cufftXtSubFormat format = in->Get<cufftXtSubFormat>();
     
-    cufftResult exit_code = cufftXtMalloc(plan,desc,format);
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    // Buffer * out = new Buffer();
-    try{
-        out->Add(desc);
-    } catch (string e){
-        cout << "DEBUG - " <<  e << endl;
-        LOG4CPLUS_DEBUG(logger,e);
-        return std::make_shared<Result>(cudaErrorMemoryAllocation);
-    }
-    cout<<"DEBUG - cufftXtMalloc Executed"<<endl;
-    return std::make_shared<Result>(exit_code,out);
-}
+//     cufftResult exit_code = cufftXtMalloc(plan,desc,format);
+//     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+//     // Buffer * out = new Buffer();
+//     try{
+//         out->Add(desc);
+//     } catch (string e){
+//         cout << "DEBUG - " <<  e << endl;
+//         LOG4CPLUS_DEBUG(logger,e);
+//         return std::make_shared<Result>(cudaErrorMemoryAllocation);
+//     }
+//     cout<<"DEBUG - cufftXtMalloc Executed"<<endl;
+//     return std::make_shared<Result>(exit_code,out);
+// }
 
 /*
  * cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type);
@@ -978,6 +995,7 @@ CUFFT_ROUTINE_HANDLER(XtMalloc){
  * @param *srcPointer
  * @param type
  */
+ // original gvirtus code
 CUFFT_ROUTINE_HANDLER(XtMemcpy){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMemcpy"));
 
@@ -1031,6 +1049,8 @@ CUFFT_ROUTINE_HANDLER(XtMemcpy){
     return std::make_shared<Result>(exit_code,out);
 }
 
+
+// tgasla attempt to implement XtMemcpy
 // CUFFT_ROUTINE_HANDLER(XtMemcpy) {
 //     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("XtMemcpy"));
 
