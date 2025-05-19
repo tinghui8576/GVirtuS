@@ -693,7 +693,7 @@ extern "C" cufftResult cufftGetVersion(int *version) {
   CufftFrontend::AddHostPointerForArguments<int>(version);
   CufftFrontend::Execute("cufftGetVersion");
   if (version)
-    *version = CufftFrontend::GetOutput<int>();
+    *version = CufftFrontend::GetOutputHostPointer<int>();
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
