@@ -320,39 +320,44 @@ CUFFT_ROUTINE_HANDLER(SetAutoAllocation){
         
     @return    *workSize   Pointer to the size(s) of the work areas.
 */
+
+/* -- FUNCTION NOT SUPPORTED IN GVIRTUS -- */
+// Frontend returns CUFFT_NOT_IMPLEMENTED
+// So, the code below is not executed
 CUFFT_ROUTINE_HANDLER(XtMakePlanMany) {
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMakePlanMany"));
     
-    cufftHandle plan = in->Get<cufftHandle>();
-    int rank = in->Get<int>();
-    long long int *n = in->Assign<long long int>();
-    long long int *inembed = in->Assign<long long int>();
-    long long int istride = in->Get<long long int>();
-    long long int idist = in->Get<long long int>();
-    cudaDataType inputtype = in->Get<cudaDataType>();
+    // cufftHandle plan = in->Get<cufftHandle>();
+    // int rank = in->Get<int>();
+    // long long int *n = in->Assign<long long int>();
+    // long long int *inembed = in->Assign<long long int>();
+    // long long int istride = in->Get<long long int>();
+    // long long int idist = in->Get<long long int>();
+    // cudaDataType inputtype = in->Get<cudaDataType>();
 
-    long long int *onembed = in->Assign<long long int>();
-    long long int ostride = in->Get<long long int>();
-    long long int odist = in->Get<long long int>();
-    cudaDataType outputtype = in->Get<cudaDataType>();
+    // long long int *onembed = in->Assign<long long int>();
+    // long long int ostride = in->Get<long long int>();
+    // long long int odist = in->Get<long long int>();
+    // cudaDataType outputtype = in->Get<cudaDataType>();
     
-    long long int batch = in->Get<long long int>();
-    size_t * workSize = in->Assign<size_t>();
-    cudaDataType executiontype = in->Get<cudaDataType>();
+    // long long int batch = in->Get<long long int>();
+    // size_t * workSize = in->Assign<size_t>();
+    // cudaDataType executiontype = in->Get<cudaDataType>();
     
-    cufftResult exit_code = cufftXtMakePlanMany(plan,rank,n,inembed,istride,idist,inputtype,onembed,ostride,odist,outputtype,batch,workSize,executiontype);
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try{
-        //out->Add(n);
-        //out->Add(inembed);
-        //out->Add(onembed);
-        out->Add(workSize);   
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
-        return std::make_shared<Result>(cudaErrorMemoryAllocation);
-    }
-    cout<<"DEBUG - cufftXtMakePlanMany Executed\n";
-    return std::make_shared<Result>(exit_code,out);
+    // cufftResult exit_code = cufftXtMakePlanMany(plan,rank,n,inembed,istride,idist,inputtype,onembed,ostride,odist,outputtype,batch,workSize,executiontype);
+    // std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    // try{
+    //     //out->Add(n);
+    //     //out->Add(inembed);
+    //     //out->Add(onembed);
+    //     out->Add(workSize);
+    // } catch (string e) {
+    //     LOG4CPLUS_DEBUG(logger,e);
+    //     return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    // }
+    // cout<<"DEBUG - cufftXtMakePlanMany Executed\n";
+    // return std::make_shared<Result>(exit_code,out);
+    return std::make_shared<Result>(CUFFT_NOT_IMPLEMENTED);
 }
 #endif
 
@@ -1093,8 +1098,8 @@ CUFFT_ROUTINE_HANDLER(GetVersion){
     int *version = in->Assign<int>();
     cufftResult exit_code = cufftGetVersion(version);
     cout<<"DEBUG - cufftGetVersion Executed"<<endl;
+    return std::make_shared<Result>(exit_code);
 }
-
 
 void CufftHandler::Initialize() {
     if (mspHandlers != NULL)
@@ -1105,6 +1110,11 @@ void CufftHandler::Initialize() {
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Plan2d));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Plan3d));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(PlanMany));
+        /* - Estimate - */
+    mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Estimate1d));
+    mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Estimate2d));
+    mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Estimate3d));
+    mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(EstimateMany));
     /* - MakePlan - */
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(MakePlan1d));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(MakePlan2d));
@@ -1133,12 +1143,6 @@ void CufftHandler::Initialize() {
 #if __CUDA_API_VERSION >= 7000
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(GetProperty));
 #endif
-    /* - Estimate - */
-    mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Estimate1d));
-    mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Estimate2d));
-    mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Estimate3d));
-    mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(EstimateMany));
-    
     /* - Create/Destroy - */
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Create));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(Destroy));
@@ -1150,9 +1154,9 @@ void CufftHandler::Initialize() {
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(ExecD2Z));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(ExecZ2D));
     /* -- CufftX -- */
-    #if __CUDA_API_VERSION >= 7000
+#if __CUDA_API_VERSION >= 7000
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(XtMakePlanMany));
-    #endif
+#endif
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(XtSetGPUs));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(XtExecDescriptorC2C));
     mspHandlers->insert(CUFFT_ROUTINE_HANDLER_PAIR(XtSetCallback));

@@ -684,7 +684,7 @@ extern "C" cufftResult cufftXtSetCallback(cufftHandle plan,
   cout<<"callerinfo: "<<callerInfo<< "plan: "<<plan<<endl;
   CufftFrontend::Execute("cufftXtSetCallback");*/
   /* Avoiding useless communication because GVIRTUS does not support statically linked libraries */
-  cout << endl << "EXCEPTION - function cufftXtSetCallback not supported in GVIRTUS" << endl;
+  cout << "EXCEPTION - function cufftXtSetCallback not supported in GVIRTUS" << endl;
   return (cufftResult) CUFFT_NOT_IMPLEMENTED;//CufftFrontend::GetExitCode();
 }
 
@@ -692,6 +692,8 @@ extern "C" cufftResult cufftGetVersion(int *version) {
   CufftFrontend::Prepare();
   CufftFrontend::AddHostPointerForArguments<int>(version);
   CufftFrontend::Execute("cufftGetVersion");
+  if (version)
+    *version = CufftFrontend::GetOutput<int>();
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
@@ -709,6 +711,6 @@ extern "C" cufftResult CUFFTAPI cufftXtMakePlanMany(cufftHandle plan,
                                                     long long int batch,
                                                     size_t *workSize,
                                                     cudaDataType executiontype) {
-  cout << endl << "EXCEPTION - function cufftXtMakePlanMany not supported in GVIRTUS" << endl;
+  cout << "EXCEPTION - function cufftXtMakePlanMany not supported in GVIRTUS" << endl;
   return (cufftResult) CUFFT_NOT_IMPLEMENTED;//CufftFrontend::GetExitCode();
 }
