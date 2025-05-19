@@ -978,72 +978,141 @@ CUFFT_ROUTINE_HANDLER(XtMalloc){
  * @param *srcPointer
  * @param type
  */
-CUFFT_ROUTINE_HANDLER(XtMemcpy){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMemcpy"));
-    
+// CUFFT_ROUTINE_HANDLER(XtMemcpy){
+//     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMemcpy"));
+
+//     cufftHandle plan = in->Get<cufftHandle>();
+//     cout<<"plan_input: "<< plan<<endl;
+//     void * dstPointer = NULL;
+
+//     void * srcPointer = NULL;
+//     cufftXtCopyType type = in->BackGet<cufftXtCopyType>();
+//     cufftResult exit_code;
+//     std::shared_ptr<Buffer> out;
+//     try{
+//         switch(type){
+//             case CUFFT_COPY_HOST_TO_DEVICE:
+//                 cout<<"type: HOST_TO_DEVICE"<< endl;
+//                 dstPointer = in->GetFromMarshal<void*>();
+//                 cout<<"dstPointer:"<< dstPointer <<endl;
+//                 srcPointer = (in->Assign<void>());
+//                 cout<<"srcPointer:"<< srcPointer <<endl;
+
+//                 exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,CUFFT_COPY_HOST_TO_DEVICE);
+
+//                 cout<<"type: HOST_TO_DEVICE"<< endl;
+//                 if (exit_code == CUFFT_INVALID_PLAN)
+//                     cout << "A"<<endl;
+//                 if (exit_code == CUFFT_INVALID_VALUE)
+//                     cout << "B"<<endl;
+//                 if (exit_code == CUFFT_INTERNAL_ERROR)
+//                     cout << "C"<<endl;
+//                 if (exit_code == CUFFT_SETUP_FAILED)
+//                     cout << "D"<<endl;
+//                 if (exit_code == CUFFT_INVALID_DEVICE)
+//                     cout << "E"<<endl;
+//                 if (exit_code == CUFFT_SUCCESS)
+//                     cout << "F"<<endl;
+//                 cout <<"exit_code: "<<exit_code<<endl;
+//                 //out->AddMarshal(dstPointer);
+//                 break;
+//             /*case CUFFT_COPY_DEVICE_TO_DEVICE:
+//                 cout<<"type: DEVICE_TO_DEVICE"<< endl;
+
+//                 dstPointer = in->GetFromMarshal<void*>();
+//                 srcPointer = in->GetFromMarshal<void*>();
+//                 exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,type);
+//                 out = new Buffer();
+//                 out->AddMarshal(dstPointer);
+
+//                 break;
+//             case CUFFT_COPY_DEVICE_TO_HOST:
+//                 cout<<"type: DEVICE_TO_HOST"<< endl;
+//                 dstPointer = in->Assign<char>();
+//                 srcPointer = in->GetFromMarshal<void*>();
+//                 exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,type);
+//                 out = new Buffer();
+//                 out->Add(dstPointer);
+//                 break;*/
+//             default:
+//                 break;
+//         }
+//     } catch (string e){
+//         cout << "EXCEPTION - " <<  e << endl;
+//         LOG4CPLUS_DEBUG(logger,e);
+//         return std::make_shared<Result>(cudaErrorMemoryAllocation);
+//     }
+//     cout<<"DEBUG - cufftXtMemcpy Executed"<<endl;
+//     return std::make_shared<Result>(exit_code,out);
+// }
+
+CUFFT_ROUTINE_HANDLER(XtMemcpy) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("XtMemcpy"));
+
     cufftHandle plan = in->Get<cufftHandle>();
-    cout<<"plan_input: "<< plan<<endl;
-    void * dstPointer = NULL;
-    
-    void * srcPointer = NULL;
+    std::cout << "plan_input: " << plan << std::endl;
+
+    void* dstPointer = nullptr;
+    void* srcPointer = nullptr;
     cufftXtCopyType type = in->BackGet<cufftXtCopyType>();
     cufftResult exit_code;
-    std::shared_ptr<Buffer> out;
-    try{
-        switch(type){
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+
+    try {
+        switch (type) {
             case CUFFT_COPY_HOST_TO_DEVICE:
-                cout<<"type: HOST_TO_DEVICE"<< endl;  
+                std::cout << "type: HOST_TO_DEVICE" << std::endl;
+
                 dstPointer = in->GetFromMarshal<void*>();
-                cout<<"dstPointer:"<< dstPointer <<endl;
-                srcPointer = (in->Assign<void>());
-                cout<<"srcPointer:"<< srcPointer <<endl;
-                
-                exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,CUFFT_COPY_HOST_TO_DEVICE);
-                
-                cout<<"type: HOST_TO_DEVICE"<< endl;  
-                if (exit_code == CUFFT_INVALID_PLAN)
-                    cout << "A"<<endl;
-                if (exit_code == CUFFT_INVALID_VALUE)
-                    cout << "B"<<endl;
-                if (exit_code == CUFFT_INTERNAL_ERROR)
-                    cout << "C"<<endl;
-                if (exit_code == CUFFT_SETUP_FAILED)
-                    cout << "D"<<endl;
-                if (exit_code == CUFFT_INVALID_DEVICE)
-                    cout << "E"<<endl;
-                if (exit_code == CUFFT_SUCCESS)
-                    cout << "F"<<endl;
-                cout <<"exit_code: "<<exit_code<<endl;
-                //out->AddMarshal(dstPointer);
+                std::cout << "dstPointer: " << dstPointer << std::endl;
+
+                srcPointer = in->GetFromMarshal<void*>();
+                std::cout << "srcPointer: " << srcPointer << std::endl;
+
+                exit_code = cufftXtMemcpy(plan, dstPointer, srcPointer, type);
                 break;
-            /*case CUFFT_COPY_DEVICE_TO_DEVICE:
-                cout<<"type: DEVICE_TO_DEVICE"<< endl;  
-                
+
+            case CUFFT_COPY_DEVICE_TO_DEVICE:
+                std::cout << "type: DEVICE_TO_DEVICE" << std::endl;
+
                 dstPointer = in->GetFromMarshal<void*>();
                 srcPointer = in->GetFromMarshal<void*>();
-                exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,type);
-                out = new Buffer();
-                out->AddMarshal(dstPointer);
-                
+
+                exit_code = cufftXtMemcpy(plan, dstPointer, srcPointer, type);
                 break;
+
             case CUFFT_COPY_DEVICE_TO_HOST:
-                cout<<"type: DEVICE_TO_HOST"<< endl;  
-                dstPointer = in->Assign<char>();
+                std::cout << "type: DEVICE_TO_HOST" << std::endl;
+
+                dstPointer = in->GetFromMarshal<void*>();
                 srcPointer = in->GetFromMarshal<void*>();
-                exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,type);
-                out = new Buffer();
-                out->Add(dstPointer);
-                break;*/
+
+                exit_code = cufftXtMemcpy(plan, dstPointer, srcPointer, type);
+
+                // Optional: If you want to return the host data
+                // out->AddMarshal(dstPointer);
+                break;
+
             default:
+                std::cerr << "Invalid copy type!" << std::endl;
+                exit_code = CUFFT_INVALID_TYPE;
                 break;
         }
-    } catch (string e){
-        cout << "EXCEPTION - " <<  e << endl;
-        LOG4CPLUS_DEBUG(logger,e);
+
+        // Log errors if needed
+        if (exit_code != CUFFT_SUCCESS) {
+            std::cerr << "cufftXtMemcpy failed with exit code: " << exit_code << std::endl;
+        }
+
+    } catch (const std::string& e) {
+        std::cerr << "EXCEPTION - " << e << std::endl;
+        LOG4CPLUS_DEBUG(logger, e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout<<"DEBUG - cufftXtMemcpy Executed"<<endl;
-    return std::make_shared<Result>(exit_code,out);
+
+    std::cout << "DEBUG - cufftXtMemcpy Executed" << std::endl;
+    return std::make_shared<Result>(exit_code, out);
 }
 
 /*Da testare*/
