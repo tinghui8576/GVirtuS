@@ -628,6 +628,7 @@ extern "C" cufftResult cufftXtMalloc(cufftHandle plan,
 extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type) {
   CufftFrontend::Prepare();
   CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
+  CufftFrontend::AddVariableForArguments<cufftXtCopyType>(type);
 
   switch (type) {
     case CUFFT_COPY_HOST_TO_DEVICE:
@@ -646,9 +647,7 @@ extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *s
       break;
   }
 
-  CufftFrontend::AddVariableForArguments<cufftXtCopyType>(CUFFT_COPY_HOST_TO_DEVICE);
   CufftFrontend::Execute("cufftXtMemcpy");
-
 
   return (cufftResult) CufftFrontend::GetExitCode();
 }
@@ -709,7 +708,7 @@ extern "C" cufftResult cufftXtExecDescriptorC2C(cufftHandle plan,
 extern "C" cufftResult cufftXtFree(cudaLibXtDesc *descriptor) {
   CufftFrontend::Prepare();
   //Passing arguments
-  CufftFrontend::AddHostPointerForArguments<cudaLibXtDesc>(descriptor);
+  CufftFrontend::AddDevicePointerForArguments(descriptor);
   CufftFrontend::Execute("cufftXtFree");
   return (cufftResult) CufftFrontend::GetExitCode();
 }

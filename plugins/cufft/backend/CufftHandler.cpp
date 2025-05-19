@@ -1122,9 +1122,9 @@ CUFFT_ROUTINE_HANDLER(XtExecDescriptorC2C){
 /*Da testare*/
 CUFFT_ROUTINE_HANDLER(XtFree){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtFree"));
-    cudaLibXtDesc *descriptor = in->Assign<cudaLibXtDesc>();
+    cudaLibXtDesc *descriptor = in->GetFromMarshal<cudaLibXtDesc*>();
     cufftResult exit_code = cufftXtFree(descriptor);
-    cout<<"DEBUG - cufftXtMemcpy Executed"<<endl;
+    cout<<"DEBUG - cufftXtFree Executed"<<endl;
     return std::make_shared<Result>(exit_code);
 }
 
