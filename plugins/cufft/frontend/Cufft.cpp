@@ -605,70 +605,70 @@ extern "C" cufftResult cufftXtMalloc(cufftHandle plan, cudaLibXtDesc **descripto
 
 
 /*Da testare*/
-// extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type) {
-//   CufftFrontend::Prepare();
-
-//   switch (type) {
-//     case CUFFT_COPY_HOST_TO_DEVICE:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
-//       CufftFrontend::AddDevicePointerForArguments((void *) dstPointer);
-//       CufftFrontend::AddHostPointerForArguments((void *) srcPointer);
-//       CufftFrontend::AddVariableForArguments<cufftXtCopyType>(CUFFT_COPY_HOST_TO_DEVICE);
-//       CufftFrontend::Execute("cufftXtMemcpy");
-//       cout << "executed" << endl;
-//       //if(CufftFrontend::Success())
-//       //    dstPointer = CufftFrontend::GetOutputDevicePointer();
-//       cout << "dstPointer" << dstPointer << endl;
-//       break;
-//     case CUFFT_COPY_DEVICE_TO_HOST:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
-//       CufftFrontend::AddHostPointerForArguments(dstPointer);
-//       CufftFrontend::AddDevicePointerForArguments(srcPointer);
-//       CufftFrontend::AddVariableForArguments<cufftXtCopyType>(type);
-//       CufftFrontend::Execute("cufftXtMemcpy");
-//       if (CufftFrontend::Success())
-//         dstPointer = CufftFrontend::GetOutputHostPointer<void>();
-//       break;
-//     case CUFFT_COPY_DEVICE_TO_DEVICE:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
-//       CufftFrontend::AddDevicePointerForArguments(dstPointer);
-//       CufftFrontend::AddDevicePointerForArguments(srcPointer);
-//       CufftFrontend::AddVariableForArguments<cufftXtCopyType>(type);
-//       CufftFrontend::Execute("cufftXtMemcpy");
-//       if (CufftFrontend::Success())
-//         dstPointer = CufftFrontend::GetOutputDevicePointer();
-//       break;
-//     default:break;
-//   }
-//   return (cufftResult) CufftFrontend::GetExitCode();
-// }
-
 extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type) {
   CufftFrontend::Prepare();
-  CufftFrontend::AddVariableForArguments(plan);
-  CufftFrontend::AddVariableForArguments(type);
 
   switch (type) {
-    case CUFFT_COPY_HOST_TO_DEVICE:
-      CufftFrontend::AddDevicePointerForArguments(dstPointer);
-      CufftFrontend::AddHostPointerForArguments(srcPointer);
+    case CUFFT_COPY_HOST_TO_DEVICE:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
+      CufftFrontend::AddDevicePointerForArguments((void *) dstPointer);
+      CufftFrontend::AddHostPointerForArguments((void *) srcPointer);
+      CufftFrontend::AddVariableForArguments<cufftXtCopyType>(CUFFT_COPY_HOST_TO_DEVICE);
+      CufftFrontend::Execute("cufftXtMemcpy");
+      cout << "executed" << endl;
+      //if(CufftFrontend::Success())
+      //    dstPointer = CufftFrontend::GetOutputDevicePointer();
+      cout << "dstPointer" << dstPointer << endl;
       break;
-
-    case CUFFT_COPY_DEVICE_TO_HOST:
+    case CUFFT_COPY_DEVICE_TO_HOST:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
       CufftFrontend::AddHostPointerForArguments(dstPointer);
       CufftFrontend::AddDevicePointerForArguments(srcPointer);
+      CufftFrontend::AddVariableForArguments<cufftXtCopyType>(type);
+      CufftFrontend::Execute("cufftXtMemcpy");
+      if (CufftFrontend::Success())
+        dstPointer = CufftFrontend::GetOutputHostPointer<void>();
       break;
-
-    case CUFFT_COPY_DEVICE_TO_DEVICE:
+    case CUFFT_COPY_DEVICE_TO_DEVICE:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
       CufftFrontend::AddDevicePointerForArguments(dstPointer);
       CufftFrontend::AddDevicePointerForArguments(srcPointer);
+      CufftFrontend::AddVariableForArguments<cufftXtCopyType>(type);
+      CufftFrontend::Execute("cufftXtMemcpy");
+      if (CufftFrontend::Success())
+        dstPointer = CufftFrontend::GetOutputDevicePointer();
       break;
-
-    default:
-      return CUFFT_INVALID_TYPE;
+    default:break;
   }
-
-  CufftFrontend::Execute("cufftXtMemcpy");
-
-  return static_cast<cufftResult>(CufftFrontend::GetExitCode());
+  return (cufftResult) CufftFrontend::GetExitCode();
 }
+
+// extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type) {
+//   CufftFrontend::Prepare();
+//   CufftFrontend::AddVariableForArguments(plan);
+//   CufftFrontend::AddVariableForArguments(type);
+
+//   switch (type) {
+//     case CUFFT_COPY_HOST_TO_DEVICE:
+//       CufftFrontend::AddDevicePointerForArguments(dstPointer);
+//       CufftFrontend::AddHostPointerForArguments(srcPointer);
+//       break;
+
+//     case CUFFT_COPY_DEVICE_TO_HOST:
+//       CufftFrontend::AddHostPointerForArguments(dstPointer);
+//       CufftFrontend::AddDevicePointerForArguments(srcPointer);
+//       break;
+
+//     case CUFFT_COPY_DEVICE_TO_DEVICE:
+//       CufftFrontend::AddDevicePointerForArguments(dstPointer);
+//       CufftFrontend::AddDevicePointerForArguments(srcPointer);
+//       break;
+
+//     default:
+//       return CUFFT_INVALID_TYPE;
+//   }
+
+//   CufftFrontend::Execute("cufftXtMemcpy");
+
+//   return static_cast<cufftResult>(CufftFrontend::GetExitCode());
+// }
 
 /*Da testare*/
 extern "C" cufftResult cufftXtExecDescriptorC2C(cufftHandle plan,
