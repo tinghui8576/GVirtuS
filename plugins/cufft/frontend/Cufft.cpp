@@ -584,7 +584,7 @@ extern "C" cufftResult cufftXtSetGPUs(cufftHandle plan, int nGPUs, int *whichGPU
   //Passing arguments
   CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
   CufftFrontend::AddVariableForArguments<int>(nGPUs);
-  CufftFrontend::AddHostPointerForArguments<int>(whichGPUs, sizeof(int));
+  CufftFrontend::AddHostPointerForArguments<int>(whichGPUs);
 
   CufftFrontend::Execute("cufftXtSetGPUs");
   return (cufftResult) CufftFrontend::GetExitCode();
@@ -693,7 +693,7 @@ extern "C" cufftResult cufftGetVersion(int *version) {
   CufftFrontend::AddHostPointerForArguments<int>(version);
   CufftFrontend::Execute("cufftGetVersion");
   if (CufftFrontend::Success())
-    *version = *CufftFrontend::GetOutputHostPointer<int>();
+    *version = *(CufftFrontend::GetOutputHostPointer<int>());
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
