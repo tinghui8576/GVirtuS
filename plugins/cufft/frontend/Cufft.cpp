@@ -692,8 +692,8 @@ extern "C" cufftResult cufftGetVersion(int *version) {
   CufftFrontend::Prepare();
   CufftFrontend::AddHostPointerForArguments<int>(version);
   CufftFrontend::Execute("cufftGetVersion");
-  if (version)
-    *version = CufftFrontend::GetOutputHostPointer<int>();
+  if (CufftFrontend::Success())
+    version = CufftFrontend::GetOutputHostPointer<int>();
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
