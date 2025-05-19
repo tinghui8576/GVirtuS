@@ -1050,32 +1050,35 @@ CUFFT_ROUTINE_HANDLER(XtMemcpy) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("XtMemcpy"));
 
     // 1) Read the plan handle
-    cufftHandle plan            = in->Get<cufftHandle>();
+    cufftHandle plan = in->Get<cufftHandle>();
 
-    // 2) Read the pointers in the same order the frontend added them:
-    void*    dstPointer         = in->GetFromMarshal<void*>(); // device or host, depending on type
-    void*    srcPointer         = in->GetFromMarshal<void*>();
+    // 2) Read the copy type first (important for correct unmarshaling)
+    cufftXtCopyType type = in->Get<cufftXtCopyType>();
 
-    // 3) Finally read the copy type
-    cufftXtCopyType type        = in->Get<cufftXtCopyType>();
+    void* dstPointer;
+    void* srcPointer;
+
+    // 3) Retrieve pointers in the correct way depending on type
+    switch (type) {
+        case CUFFT_COPY_HOST_TO_DEVICE:
+            dstPointer = in->Get<void*>();               // Device pointer
+            srcPointer = in->GetFromMarshal<void*>();    // Host pointer
+            break;
+        case CUFFT_COPY_DEVICE_TO_HOST:
+            dstPointer = in->GetFromMarshal<void*>();    // Host pointer
+            srcPointer = in->Get<void*>();               // Device pointer
+            break;
+        case CUFFT_COPY_DEVICE_TO_DEVICE:
+            dstPointer = in->Get<void*>();               // Device pointer
+            srcPointer = in->Get<void*>();               // Device pointer
+            break;
+        default:
+            return std::make_shared<Result>(CUFFT_INVALID_VALUE);
+    }
 
     cufftResult exit_code;
-
     try {
-        switch (type) {
-            case CUFFT_COPY_HOST_TO_DEVICE:
-                exit_code = cufftXtMemcpy(plan, dstPointer, srcPointer, type);
-                break;
-            case CUFFT_COPY_DEVICE_TO_HOST:
-                exit_code = cufftXtMemcpy(plan, dstPointer, srcPointer, type);
-                break;
-            case CUFFT_COPY_DEVICE_TO_DEVICE:
-                exit_code = cufftXtMemcpy(plan, dstPointer, srcPointer, type);
-                break;
-            default:
-                exit_code = CUFFT_INVALID_VALUE;
-                break;
-        }
+        exit_code = cufftXtMemcpy(plan, dstPointer, srcPointer, type);
     } catch (const std::string &e) {
         LOG4CPLUS_DEBUG(logger, e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
@@ -1084,6 +1087,7 @@ CUFFT_ROUTINE_HANDLER(XtMemcpy) {
     if (exit_code != CUFFT_SUCCESS) {
         std::cerr << "[XtMemcpy] cufftXtMemcpy failed with code " << exit_code << std::endl;
     }
+
     return std::make_shared<Result>(exit_code);
 }
 
