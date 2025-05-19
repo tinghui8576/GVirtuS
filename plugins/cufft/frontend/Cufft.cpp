@@ -607,36 +607,29 @@ extern "C" cufftResult cufftXtMalloc(cufftHandle plan, cudaLibXtDesc **descripto
 /*Da testare*/
 extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type) {
   CufftFrontend::Prepare();
+  CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
 
   switch (type) {
-    case CUFFT_COPY_HOST_TO_DEVICE:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
-      CufftFrontend::AddDevicePointerForArguments((void *) dstPointer);
-      CufftFrontend::AddHostPointerForArguments((void *) srcPointer);
-      CufftFrontend::AddVariableForArguments<cufftXtCopyType>(CUFFT_COPY_HOST_TO_DEVICE);
-      CufftFrontend::Execute("cufftXtMemcpy");
-      cout << "executed" << endl;
-      //if(CufftFrontend::Success())
-      //    dstPointer = CufftFrontend::GetOutputDevicePointer();
-      cout << "dstPointer" << dstPointer << endl;
+    case CUFFT_COPY_HOST_TO_DEVICE:
+      CufftFrontend::AddDevicePointerForArguments(dstPointer);
+      CufftFrontend::AddHostPointerForArguments(srcPointer);
       break;
-    case CUFFT_COPY_DEVICE_TO_HOST:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
+    case CUFFT_COPY_DEVICE_TO_HOST:
       CufftFrontend::AddHostPointerForArguments(dstPointer);
       CufftFrontend::AddDevicePointerForArguments(srcPointer);
-      CufftFrontend::AddVariableForArguments<cufftXtCopyType>(type);
-      CufftFrontend::Execute("cufftXtMemcpy");
-      if (CufftFrontend::Success())
-        dstPointer = CufftFrontend::GetOutputHostPointer<void>();
       break;
-    case CUFFT_COPY_DEVICE_TO_DEVICE:CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
+    case CUFFT_COPY_DEVICE_TO_DEVICE:
       CufftFrontend::AddDevicePointerForArguments(dstPointer);
       CufftFrontend::AddDevicePointerForArguments(srcPointer);
-      CufftFrontend::AddVariableForArguments<cufftXtCopyType>(type);
-      CufftFrontend::Execute("cufftXtMemcpy");
-      if (CufftFrontend::Success())
-        dstPointer = CufftFrontend::GetOutputDevicePointer();
       break;
-    default:break;
+    default:
+      break;
   }
+
+  CufftFrontend::AddVariableForArguments<cufftXtCopyType>(CUFFT_COPY_HOST_TO_DEVICE);
+  CufftFrontend::Execute("cufftXtMemcpy");
+
+
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 

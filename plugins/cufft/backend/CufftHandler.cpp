@@ -997,43 +997,28 @@ CUFFT_ROUTINE_HANDLER(XtMemcpy){
                 cout<<"dstPointer:"<< dstPointer <<endl;
                 srcPointer = (in->Assign<void>());
                 cout<<"srcPointer:"<< srcPointer <<endl;
-
                 exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,CUFFT_COPY_HOST_TO_DEVICE);
-
                 cout<<"type: HOST_TO_DEVICE"<< endl;
-                if (exit_code == CUFFT_INVALID_PLAN)
-                    cout << "A"<<endl;
-                if (exit_code == CUFFT_INVALID_VALUE)
-                    cout << "B"<<endl;
-                if (exit_code == CUFFT_INTERNAL_ERROR)
-                    cout << "C"<<endl;
-                if (exit_code == CUFFT_SETUP_FAILED)
-                    cout << "D"<<endl;
-                if (exit_code == CUFFT_INVALID_DEVICE)
-                    cout << "E"<<endl;
-                if (exit_code == CUFFT_SUCCESS)
-                    cout << "F"<<endl;
-                cout <<"exit_code: "<<exit_code<<endl;
                 //out->AddMarshal(dstPointer);
                 break;
-            case CUFFT_COPY_DEVICE_TO_DEVICE:
-                cout<<"type: DEVICE_TO_DEVICE"<< endl;
+            // case CUFFT_COPY_DEVICE_TO_DEVICE:
+            //     cout<<"type: DEVICE_TO_DEVICE"<< endl;
 
-                dstPointer = in->GetFromMarshal<void*>();
-                srcPointer = in->GetFromMarshal<void*>();
-                exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,type);
-                out = new Buffer();
-                out->AddMarshal(dstPointer);
+            //     dstPointer = in->GetFromMarshal<void*>();
+            //     srcPointer = in->GetFromMarshal<void*>();
+            //     exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,type);
+            //     out = new Buffer();
+            //     out->AddMarshal(dstPointer);
 
-                break;
-            case CUFFT_COPY_DEVICE_TO_HOST:
-                cout<<"type: DEVICE_TO_HOST"<< endl;
-                dstPointer = in->Assign<char>();
-                srcPointer = in->GetFromMarshal<void*>();
-                exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,type);
-                out = new Buffer();
-                out->Add(dstPointer);
-                break;
+            //     break;
+            // case CUFFT_COPY_DEVICE_TO_HOST:
+            //     cout<<"type: DEVICE_TO_HOST"<< endl;
+            //     dstPointer = in->Assign<char>();
+            //     srcPointer = in->GetFromMarshal<void*>();
+            //     exit_code = cufftXtMemcpy(plan,dstPointer,srcPointer,type);
+            //     out = new Buffer();
+            //     out->Add(dstPointer);
+            //     break;
             default:
                 break;
         }
