@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.17)
-project(GVirtuS)
-
-set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_C_COMPILER /usr/bin/gcc-11)
+# set(CMAKE_CXX_COMPILER /usr/bin/g++-11)
+# set(CUDA_HOST_COMPILER /usr/bin/gcc-11)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS ON)
+# add_compile_options(-fpermissive)
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
+# set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Xcompiler -fpermissive")
+
+project(GVirtuS)
 
 if("$ENV{GVIRTUS_HOME}" STREQUAL "")
     message(STATUS "Setting GVIRTUS_HOME=$ENV{HOME}/GVirtuS")
@@ -17,7 +23,7 @@ include(cmake/GVirtuS.cmake)
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/include/nlohmann/json.hpp
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/include/nlohmann
-        COMMAND curl -L https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp -o ${CMAKE_CURRENT_BINARY_DIR}/include/nlohmann/json.hpp)
+        COMMAND curl -L https://github.com/nlohmann/json/releases/download/v3.12.0/json.hpp -o ${CMAKE_CURRENT_BINARY_DIR}/include/nlohmann/json.hpp)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
 
 add_library(gvirtus-common SHARED
@@ -35,7 +41,9 @@ add_library(gvirtus-common SHARED
         ##src/communicators/rdma/ktmrdma.cpp
         src/common/Util.cpp)
 
-add_dependencies(gvirtus-common log4cplus)
+if (EXTERNALLY_DOWNLOADED_LOG4CPLUS)
+    add_dependencies(gvirtus-common log4cplus)
+endif()
 
 target_link_libraries(gvirtus-common stdc++fs ${CMAKE_DL_LIBS} ${LIBLOG4CPLUS} rdmacm ibverbs)
 
@@ -44,8 +52,10 @@ target_link_libraries(gvirtus-common stdc++fs ${CMAKE_DL_LIBS} ${LIBLOG4CPLUS} r
 
 gvirtus_install_target(gvirtus-common)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/nlohmann DESTINATION ${GVIRTUS_HOME}/include)
-install(DIRECTORY ${EXTERNAL_INSTALL_LOCATION}/include/log4cplus DESTINATION ${GVIRTUS_HOME}/include)
-install(DIRECTORY ${EXTERNAL_INSTALL_LOCATION}/lib DESTINATION ${GVIRTUS_HOME})
+if (LOG4CPLUS_EXTERNALLY_DOWNLOADED)
+    install(DIRECTORY ${EXTERNAL_INSTALL_LOCATION}/include/log4cplus DESTINATION ${GVIRTUS_HOME}/include)
+    install(DIRECTORY ${EXTERNAL_INSTALL_LOCATION}/lib DESTINATION ${GVIRTUS_HOME})
+endif()
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/etc DESTINATION ${GVIRTUS_HOME})
 
 add_library(gvirtus-communicators SHARED

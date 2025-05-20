@@ -63,45 +63,62 @@ class Buffer {
   virtual ~Buffer();
 
   template <class T>
-  void Add(T item) {
-    if ((mLength + (sizeof(T))) >= mSize) {
-      mSize = ((mLength + (sizeof(T))) / mBlockSize + 1) * mBlockSize;
-      if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw "Buffer::Add(item): Can't reallocate memory.";
-    }
-    memmove(mpBuffer + mLength, (char *)&item, sizeof(T));
-    mLength += sizeof(T);
-    mBackOffset = mLength;
+  void Add(const T& item) {
+      if constexpr (std::is_void_v<T>) {
+          // You typically can't add a single 'void' value, so either static_assert or no-op
+          static_assert(!std::is_void_v<T>, "Buffer::Add<T>: Adding single 'void' item not supported");
+      } else {
+          size_t itemSize = sizeof(T);
+          if ((mLength + itemSize) >= mSize) {
+              mSize = ((mLength + itemSize) / mBlockSize + 1) * mBlockSize;
+              if ((mpBuffer = (char*)realloc(mpBuffer, mSize)) == NULL)
+                  throw "Buffer::Add(item): Can't reallocate memory.";
+          }
+          memmove(mpBuffer + mLength, &item, itemSize);
+          mLength += itemSize;
+          mBackOffset = mLength;
+      }
   }
 
   template <class T>
-  void Add(T *item, size_t n = 1) {
-    if (item == NULL) {
-      Add((size_t)0);
-      return;
-    }
-    size_t size = sizeof(T) * n;
-    Add(size);
-    if ((mLength + size) >= mSize) {
-      mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
-      if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw "Buffer::Add(item, n): Can't reallocate memory.";
-    }
-    memmove(mpBuffer + mLength, (char *)item, size);
-    mLength += size;
-    mBackOffset = mLength;
+  void Add(const T* item, size_t n = 1) {
+      if constexpr (std::is_void_v<T>) {
+          // For void*, forward to your existing Add(const void*, size_t)
+          if (item == nullptr) {
+              Add((size_t)0);
+              return;
+          }
+          size_t size = n; // n here is number of bytes for void*
+          Add(static_cast<const void*>(item), size);
+      } else {
+          static_assert(!std::is_void_v<T>, "Buffer::Add<T*>: void type not supported");
+          if (item == nullptr) {
+              Add((size_t)0);
+              return;
+          }
+          size_t size = sizeof(T) * n;
+          Add(size);
+          if ((mLength + size) >= mSize) {
+              mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
+              if ((mpBuffer = (char*)realloc(mpBuffer, mSize)) == NULL)
+                  throw "Buffer::Add(item, n): Can't reallocate memory.";
+          }
+          memmove(mpBuffer + mLength, item, size);
+          mLength += size;
+          mBackOffset = mLength;
+      }
   }
 
-  template <class T>
-  void AddConst(const T item) {
-    if ((mLength + (sizeof(T))) >= mSize) {
-      mSize = ((mLength + (sizeof(T))) / mBlockSize + 1) * mBlockSize;
-      if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw "Buffer::AddConst(item): Can't reallocate memory.";
-    }
-    memmove(mpBuffer + mLength, (char *)&item, sizeof(T));
-    mLength += sizeof(T);
-    mBackOffset = mLength;
+  // The raw data add method remains the same:
+  void Add(const void* data, size_t size) {
+      if ((mLength + size) >= mSize) {
+          mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
+          if ((mpBuffer = (char*)realloc(mpBuffer, mSize)) == NULL)
+              throw "Buffer::Add(data, size): Can't reallocate memory.";
+      }
+      memmove(mpBuffer + mLength, data, size);
+      mLength += size;
+      mBackOffset = mLength;
   }
 
   template <class T>
@@ -120,6 +137,12 @@ class Buffer {
     memmove(mpBuffer + mLength, (char *)item, size);
     mLength += size;
     mBackOffset = mLength;
+  }
+
+  // Overload if caller passes value instead of pointer
+  template <class T>
+  void AddConst(const T &item) {
+      AddConst(&item, 1);
   }
 
   void AddString(const char *s) {
@@ -204,28 +227,50 @@ class Buffer {
   }
 
   template <class T>
-  T *Assign(size_t n = 1) {
-    if (Get<size_t>() == 0) return NULL;
+  T* Assign(size_t n = 1) {
+      if constexpr (std::is_void_v<T>) {
+          if (Get<size_t>() == 0) return nullptr;
 
-    if (mOffset + sizeof(T) * n > mLength) {
-      throw "Buffer::Assign(n): Can't read  " + std::string(typeid(T).name()) + ".";
-    }
-    T *result = (T *)(mpBuffer + mOffset);
-    mOffset += sizeof(T) * n;
-    return result;
+          if (mOffset + n > mLength) {
+              throw std::string("Buffer::Assign(n): Can't read void.");
+          }
+          void* result = static_cast<void*>(mpBuffer + mOffset);
+          mOffset += n;
+          return static_cast<T*>(result);  // T is void, so void*
+      } else {
+          if (Get<size_t>() == 0) return nullptr;
+
+          if (mOffset + sizeof(T) * n > mLength) {
+              throw std::string("Buffer::Assign(n): Can't read ") + typeid(T).name() + ".";
+          }
+          T* result = reinterpret_cast<T*>(mpBuffer + mOffset);
+          mOffset += sizeof(T) * n;
+          return result;
+      }
   }
 
-    template <class T>
-    T *AssignAll() {
-        size_t size = Get<size_t>();
-        if (size == 0) return NULL;
-        size_t n = size / sizeof(T);
-        if (mOffset + sizeof(T) * n > mLength)
-            throw "Buffer::AssignAll(): Can't read  " + std::string(typeid(T).name()) + ".";
-        T *result = (T *)(mpBuffer + mOffset);
-        mOffset += sizeof(T) * n;
-        return result;
-    }
+  template <class T>
+  T* AssignAll() {
+      size_t size = Get<size_t>();
+      if (size == 0) return nullptr;
+
+      if constexpr (std::is_void_v<T>) {
+          if (mOffset + size > mLength) {
+              throw std::string("Buffer::AssignAll(): Can't read void.");
+          }
+          void* result = static_cast<void*>(mpBuffer + mOffset);
+          mOffset += size;
+          return static_cast<T*>(result);
+      } else {
+          size_t n = size / sizeof(T);
+          if (mOffset + sizeof(T) * n > mLength) {
+              throw std::string("Buffer::AssignAll(): Can't read ") + typeid(T).name() + ".";
+          }
+          T* result = reinterpret_cast<T*>(mpBuffer + mOffset);
+          mOffset += sizeof(T) * n;
+          return result;
+      }
+  }
 
   char *AssignString() {
     size_t size = Get<size_t>();

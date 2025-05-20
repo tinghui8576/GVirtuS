@@ -72,13 +72,13 @@ public:
     const char *GetVar(std::string & handler);
     const char *GetVar(const char *handler);
 
-    void RegisterTexture(std::string & handler, textureReference *texref);
-    void RegisterTexture(const char *handler, textureReference *texref);
-    textureReference *GetTexture(std::string & handler);
-    textureReference *GetTexture(const char *handler);
-    const char *GetTextureHandler(textureReference *texref);
+    // void RegisterTexture(std::string & handler, cudaTextureObject_t* texref);
+    // void RegisterTexture(const char *handler, cudaTextureObject_t* texref);
+    // cudaTextureObject_t* GetTexture(std::string & handler);
+    // cudaTextureObject_t* GetTexture(const char *handler);
+    // const char *GetTextureHandler(cudaTextureObject_t* texref);
 
-    const char *GetSymbol(Buffer * in);
+    // const char *GetSymbol(Buffer * in);
 
     void RegisterSharedMemory(const char *name) {
         mShmFd = shm_open(name, O_RDWR, S_IRWXU);
@@ -127,7 +127,7 @@ private:
     std::map<std::string, void **> * mpFatBinary;
     std::map<std::string, std::string> * mpDeviceFunction;
     std::map<std::string, std::string> * mpVar;
-    std::map<std::string, textureReference *> * mpTexture;
+    std::map<std::string, cudaTextureObject_t*> * mpTexture;
     void *mpShm;
     int mShmFd;
 };
@@ -141,9 +141,9 @@ CUDA_DRIVER_HANDLER(Init);
 
 /*CudaDrHandler_context*/
 CUDA_DRIVER_HANDLER(CtxCreate);
-CUDA_DRIVER_HANDLER(CtxAttach);
 CUDA_DRIVER_HANDLER(CtxDestroy);
-CUDA_DRIVER_HANDLER(CtxDetach);
+// CUDA_DRIVER_HANDLER(CtxAttach);
+// CUDA_DRIVER_HANDLER(CtxDetach);
 CUDA_DRIVER_HANDLER(CtxGetDevice);
 CUDA_DRIVER_HANDLER(CtxPopCurrent);
 CUDA_DRIVER_HANDLER(CtxPushCurrent);
@@ -198,7 +198,7 @@ CUDA_DRIVER_HANDLER(ModuleUnload);
 CUDA_DRIVER_HANDLER(ModuleGetFunction);
 CUDA_DRIVER_HANDLER(ModuleGetGlobal);
 CUDA_DRIVER_HANDLER(ModuleLoadDataEx);
-CUDA_DRIVER_HANDLER(ModuleGetTexRef);
+// CUDA_DRIVER_HANDLER(ModuleGetTexRef);
 
 /*CudaDrHandler_version*/
 CUDA_DRIVER_HANDLER(DriverGetVersion);
@@ -218,15 +218,15 @@ CUDA_DRIVER_HANDLER(EventRecord);
 CUDA_DRIVER_HANDLER(EventSynchronize);
 
 /*CudaDrHandler_texture*/
-CUDA_DRIVER_HANDLER(TexRefSetArray);
-CUDA_DRIVER_HANDLER(TexRefSetAddressMode);
-CUDA_DRIVER_HANDLER(TexRefSetFilterMode);
-CUDA_DRIVER_HANDLER(TexRefSetFlags);
-CUDA_DRIVER_HANDLER(TexRefSetFormat);
-CUDA_DRIVER_HANDLER(TexRefGetAddress);
-CUDA_DRIVER_HANDLER(TexRefGetArray);
-CUDA_DRIVER_HANDLER(TexRefGetFlags);
-CUDA_DRIVER_HANDLER(TexRefSetAddress);
+// CUDA_DRIVER_HANDLER(TexRefSetArray);
+// CUDA_DRIVER_HANDLER(TexRefSetAddressMode);
+// CUDA_DRIVER_HANDLER(TexRefSetFilterMode);
+// CUDA_DRIVER_HANDLER(TexRefSetFlags);
+// CUDA_DRIVER_HANDLER(TexRefSetFormat);
+// CUDA_DRIVER_HANDLER(TexRefGetAddress);
+// CUDA_DRIVER_HANDLER(TexRefGetArray);
+// CUDA_DRIVER_HANDLER(TexRefGetFlags);
+// CUDA_DRIVER_HANDLER(TexRefSetAddress);
 
 /*New Cuda 6.5 functions*/
 CUDA_DRIVER_HANDLER(LaunchKernel);

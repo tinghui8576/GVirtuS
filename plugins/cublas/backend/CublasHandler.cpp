@@ -333,7 +333,7 @@ OpenclHandler::OpenclHandler() {
     mpFatBinary = new map<string, void **>();
     mpDeviceFunction = new map<string, string > ();
     mpVar = new map<string, string > ();
-    //mpTexture = new map<string, textureReference *>();
+    //mpTexture = new map<string, cudaTextureObject_t*>();
     Initialize();
 }
 
@@ -461,20 +461,20 @@ void OpenclHandler::RegisterTexture(const char* handler,
     RegisterTexture(tmp, texref);
 }
 
-textureReference *OpenclHandler::GetTexture(string & handler) {
-    map<string, textureReference *>::iterator it = mpTexture->find(handler);
+cudaTextureObject_t* OpenclHandler::GetTexture(string & handler) {
+    map<string, cudaTextureObject_t*>::iterator it = mpTexture->find(handler);
     if (it == mpTexture->end())
         return NULL;
     return it->second;
 }
 
-textureReference * OpenclHandler::GetTexture(const char* handler) {
+cudaTextureObject_t* OpenclHandler::GetTexture(const char* handler) {
     string tmp(handler);
     return GetTexture(tmp);
 }
 
 const char *OpenclHandler::GetTextureHandler(textureReference* texref) {
-    for (map<string, textureReference *>::iterator it = mpTexture->begin();
+    for (map<string, cudaTextureObject_t*>::iterator it = mpTexture->begin();
             it != mpTexture->end(); it++)
         if (it->second == texref)
             return it->first.c_str();

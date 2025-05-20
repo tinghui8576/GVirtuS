@@ -48,7 +48,7 @@ CudaDrHandler::CudaDrHandler() {
     mpFatBinary = new map<string, void **>();
     mpDeviceFunction = new map<string, string > ();
     mpVar = new map<string, string > ();
-    mpTexture = new map<string, textureReference *>();
+    mpTexture = new map<string, cudaTextureObject_t*>();
     Initialize();
 }
 
@@ -178,39 +178,39 @@ const char * CudaDrHandler::GetVar(const char* handler) {
     return GetVar(tmp);
 }
 
-void CudaDrHandler::RegisterTexture(string& handler, textureReference* texref) {
-    mpTexture->insert(make_pair(handler, texref));
-//#ifdef DEBUG
-//    cout << "Registered Texture " << texref << " with handler " << handler<< endl;
-//#endif
-    LOG4CPLUS_DEBUG(logger,"Registered Texture " << texref << " with handler " << handler);
-}
+// void CudaDrHandler::RegisterTexture(string& handler, textureReference* texref) {
+//     mpTexture->insert(make_pair(handler, texref));
+// //#ifdef DEBUG
+// //    cout << "Registered Texture " << texref << " with handler " << handler<< endl;
+// //#endif
+//     LOG4CPLUS_DEBUG(logger,"Registered Texture " << texref << " with handler " << handler);
+// }
 
-void CudaDrHandler::RegisterTexture(const char* handler,
-        textureReference* texref) {
-    string tmp(handler);
-    RegisterTexture(tmp, texref);
-}
+// void CudaDrHandler::RegisterTexture(const char* handler,
+//         textureReference* texref) {
+//     string tmp(handler);
+//     RegisterTexture(tmp, texref);
+// }
 
-textureReference *CudaDrHandler::GetTexture(string & handler) {
-    map<string, textureReference *>::iterator it = mpTexture->find(handler);
-    if (it == mpTexture->end())
-        return NULL;
-    return it->second;
-}
+// cudaTextureObject_t*CudaDrHandler::GetTexture(string & handler) {
+//     map<string, cudaTextureObject_t*>::iterator it = mpTexture->find(handler);
+//     if (it == mpTexture->end())
+//         return NULL;
+//     return it->second;
+// }
 
-textureReference * CudaDrHandler::GetTexture(const char* handler) {
-    string tmp(handler);
-    return GetTexture(tmp);
-}
+// cudaTextureObject_t* CudaDrHandler::GetTexture(const char* handler) {
+//     string tmp(handler);
+//     return GetTexture(tmp);
+// }
 
-const char *CudaDrHandler::GetTextureHandler(textureReference* texref) {
-    for (map<string, textureReference *>::iterator it = mpTexture->begin();
-            it != mpTexture->end(); it++)
-        if (it->second == texref)
-            return it->first.c_str();
-    return NULL;
-}
+// const char *CudaDrHandler::GetTextureHandler(textureReference* texref) {
+//     for (map<string, cudaTextureObject_t*>::iterator it = mpTexture->begin();
+//             it != mpTexture->end(); it++)
+//         if (it->second == texref)
+//             return it->first.c_str();
+//     return NULL;
+// }
 
 const char *CudaDrHandler::GetSymbol(Buffer* in) {
     char *symbol_handler = in->AssignString();

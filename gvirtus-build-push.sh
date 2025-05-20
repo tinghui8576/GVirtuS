@@ -4,5 +4,5 @@ docker buildx build \
   --platform linux/amd64 \
   --push \
   --no-cache \
-  -t taslanidis/gvirtus:cuda11.8.0-cudnn8-ubuntu22.04 \
-  -f docker/Dockerfile .
+  -t taslanidis/gvirtus-dependencies:cuda12.6.3-cudnn-ubuntu22.04 \
+  .

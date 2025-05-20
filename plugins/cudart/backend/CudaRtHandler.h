@@ -40,6 +40,10 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <algorithm>
+
+using std::min;
+using std::max;
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -62,9 +66,9 @@
 #if (CUDART_VERSION >= 9020)
 #if (CUDART_VERSION >= 11000)
 #define __CUDACC__
-#define cudaPushCallConfiguration __cudaPushCallConfiguration
+// #define cudaPushCallConfiguration __cudaPushCallConfiguration
 #endif
-#include "crt/device_functions.h"
+// #include "crt/device_functions.h"
 #endif
 
 //#define DEBUG
@@ -109,18 +113,18 @@ class CudaRtHandler : public gvirtus::backend::Handler {
   const char *GetVar(std::string &handler);
   const char *GetVar(const char *handler);
 
-  void RegisterTexture(std::string &handler, textureReference *texref);
-  void RegisterTexture(const char *handler, textureReference *texref);
-  void RegisterSurface(std::string &handler, surfaceReference *surref);
-  void RegisterSurface(const char *handler, surfaceReference *surref);
-  textureReference *GetTexture(std::string &handler);
-  textureReference *GetTexture(pointer_t handler);
-  textureReference *GetTexture(const char *handler);
-  const char *GetTextureHandler(textureReference *texref);
-  surfaceReference *GetSurface(std::string &handler);
-  surfaceReference *GetSurface(pointer_t handler);
-  surfaceReference *GetSurface(const char *handler);
-  const char *GetSurfaceHandler(surfaceReference *texref);
+//   void RegisterTexture(std::string &handler, cudaTextureObject_t *texref);
+//   void RegisterTexture(const char *handler, cudaTextureObject_t *texref);
+//   void RegisterSurface(std::string &handler, cudaSurfaceObject_t *surref);
+//   void RegisterSurface(const char *handler, cudaSurfaceObject_t *surref);
+//   cudaTextureObject_t* GetTexture(std::string &handler);
+//   cudaTextureObject_t* GetTexture(pointer_t handler);
+//   cudaTextureObject_t* GetTexture(const char *handler);
+//   const char *GetTextureHandler(cudaTextureObject_t *texref);
+//   cudaSurfaceObject_t*GetSurface(std::string &handler);
+//   cudaSurfaceObject_t*GetSurface(pointer_t handler);
+//   cudaSurfaceObject_t*GetSurface(const char *handler);
+//   const char *GetSurfaceHandler(cudaSurfaceObject_t *texref);
 
   const char *GetSymbol(std::shared_ptr<Buffer> in);
 
@@ -168,8 +172,8 @@ class CudaRtHandler : public gvirtus::backend::Handler {
   std::map<std::string, void **> *mpFatBinary;
   std::map<std::string, std::string> *mpDeviceFunction;
   std::map<std::string, std::string> *mpVar;
-  std::map<std::string, textureReference *> *mpTexture;
-  std::map<std::string, surfaceReference *> *mpSurface;
+  std::map<std::string, cudaTextureObject_t*> *mpTexture;
+  std::map<std::string, cudaSurfaceObject_t*> *mpSurface;
   map<std::string, NvInfoFunction>* mapDeviceFunc2InfoFunc;
   map<const void *,std::string>* mapHost2DeviceFunc;
   void *mpShm;
@@ -224,7 +228,9 @@ CUDA_ROUTINE_HANDLER(ConfigureCall);
 CUDA_ROUTINE_HANDLER(FuncGetAttributes);
 CUDA_ROUTINE_HANDLER(FuncSetCacheConfig);
 CUDA_ROUTINE_HANDLER(Launch);
+#if CUDART_VERSION >= 9000
 CUDA_ROUTINE_HANDLER(LaunchKernel);
+#endif
 CUDA_ROUTINE_HANDLER(SetDoubleForDevice);
 CUDA_ROUTINE_HANDLER(SetDoubleForHost);
 CUDA_ROUTINE_HANDLER(SetupArgument);
@@ -242,8 +248,8 @@ CUDA_ROUTINE_HANDLER(RegisterFunction);
 CUDA_ROUTINE_HANDLER(RegisterVar);
 CUDA_ROUTINE_HANDLER(RegisterSharedVar);
 CUDA_ROUTINE_HANDLER(RegisterShared);
-CUDA_ROUTINE_HANDLER(RegisterTexture);
-CUDA_ROUTINE_HANDLER(RegisterSurface);
+// CUDA_ROUTINE_HANDLER(RegisterTexture);
+// CUDA_ROUTINE_HANDLER(RegisterSurface);
 CUDA_ROUTINE_HANDLER(RegisterSharedMemory);
 CUDA_ROUTINE_HANDLER(RequestSharedMemory);
 
@@ -273,7 +279,7 @@ CUDA_ROUTINE_HANDLER(Malloc3DArray);
 CUDA_ROUTINE_HANDLER(MemcpyPeerAsync);
 
 /* CudaRtHandler_opengl */
-CUDA_ROUTINE_HANDLER(GLSetGLDevice);
+// CUDA_ROUTINE_HANDLER(GLSetGLDevice); // deprecated
 CUDA_ROUTINE_HANDLER(GraphicsGLRegisterBuffer);
 CUDA_ROUTINE_HANDLER(GraphicsMapResources);
 CUDA_ROUTINE_HANDLER(GraphicsResourceGetMappedPointer);
@@ -290,23 +296,25 @@ CUDA_ROUTINE_HANDLER(StreamCreateWithFlags);
 CUDA_ROUTINE_HANDLER(StreamWaitEvent);
 CUDA_ROUTINE_HANDLER(StreamCreateWithPriority);
 
-/* CudaRtHandler_texture */
-CUDA_ROUTINE_HANDLER(BindTexture);
-CUDA_ROUTINE_HANDLER(BindTexture2D);
-CUDA_ROUTINE_HANDLER(BindTextureToArray);
-CUDA_ROUTINE_HANDLER(CreateTextureObject);
-CUDA_ROUTINE_HANDLER(GetChannelDesc);
-CUDA_ROUTINE_HANDLER(GetTextureAlignmentOffset);
-CUDA_ROUTINE_HANDLER(GetTextureReference);
-CUDA_ROUTINE_HANDLER(UnbindTexture);
+// DEPRECATED
+/* CudaRtHandler_texture */ 
+// CUDA_ROUTINE_HANDLER(BindTexture);
+// CUDA_ROUTINE_HANDLER(BindTexture2D);
+// CUDA_ROUTINE_HANDLER(BindTextureToArray);
+// CUDA_ROUTINE_HANDLER(CreateTextureObject);
+// CUDA_ROUTINE_HANDLER(GetChannelDesc);
+// CUDA_ROUTINE_HANDLER(GetTextureAlignmentOffset);
+// CUDA_ROUTINE_HANDLER(GetTextureReference);
+// CUDA_ROUTINE_HANDLER(UnbindTexture);
 
+// DEPRECATED
 /* CudaRtHandler_surface */
-CUDA_ROUTINE_HANDLER(BindSurfaceToArray);
+// CUDA_ROUTINE_HANDLER(BindSurfaceToArray);
 // CUDA_ROUTINE_HANDLER(GetTextureReference);
 
 /* CudaRtHandler_thread */
-CUDA_ROUTINE_HANDLER(ThreadExit);
-CUDA_ROUTINE_HANDLER(ThreadSynchronize);
+// CUDA_ROUTINE_HANDLER(ThreadExit);
+// CUDA_ROUTINE_HANDLER(ThreadSynchronize);
 
 /* CudaRtHandler_version */
 CUDA_ROUTINE_HANDLER(DriverGetVersion);

@@ -368,8 +368,8 @@ CUDA_ROUTINE_HANDLER(IpcOpenEventHandle) {
   } catch (string e) {
     // cerr << e << endl;
     LOG4CPLUS_DEBUG(logger, e);
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
+  return std::make_shared<Result>(cudaErrorMemoryAllocation);
 }
 
 CUDA_ROUTINE_HANDLER(SetValidDevices) {

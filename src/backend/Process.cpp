@@ -119,7 +119,7 @@ void Process::Start() {
     );
 
     // inserisci i sym dei plugin in h
-    std::function<void(Communicator *)> execute = [=](Communicator *client_comm) {
+    std::function<void(Communicator *)> execute = [this](Communicator *client_comm) {
         LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]" << "Process::Start()'s \"execute\" lambda called");
         // carica i puntatori ai simboli dei moduli in mHandlers
 

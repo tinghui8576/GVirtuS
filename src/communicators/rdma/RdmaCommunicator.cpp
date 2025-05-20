@@ -14,29 +14,31 @@
 
 using gvirtus::communicators::RdmaCommunicator;
 
-RdmaCommunicator::RdmaCommunicator(char * hostname, char * port) {
+RdmaCommunicator::RdmaCommunicator(const std::string& hostname, const std::string& port) {
 #ifdef DEBUG
-    std::cout << "Called " << "RdmaCommunicator(char * hostname, char * port)" << std::endl;
+    std::cout << "Called " << "RdmaCommunicator(const std::string& hostname, const std::string& port)" << std::endl;
 #endif
 
-    if (port == nullptr or std::string(port).empty()) {
-        throw "RdmaCommunicator: Port not specified...";
+    if (port.empty()) {
+        throw std::runtime_error("RdmaCommunicator: Port not specified...");
     }
 
-    hostent *ent = gethostbyname(hostname);
+    hostent *ent = gethostbyname(hostname.c_str());
     if (ent == NULL) {
-        throw "RdmaCommunicator: Can't resolve hostname \"" + std::string(hostname) + "\"...";
+        std::ostringstream oss;
+        oss << "RdmaCommunicator: Can't resolve hostname \"" << hostname << "\"...";
+        throw std::runtime_error(oss.str());
     }
 
     //auto addrLen = ent->h_length;
     //this->hostname = new char[addrLen];
     //memcpy(this->hostname, *ent->h_addr_list, addrLen);
-    strcpy(this->hostname, hostname);
-    strcpy(this->port, port);
+    strcpy(this->hostname, hostname.c_str());
+    strcpy(this->port, port.c_str());
 
 #ifdef DEBUG
     std::cout << "RdmaCommunicator(" << this->hostname << ", " << this->port << ")" << std::endl;
-    std::cout << strlen(hostname) << " " << strlen(port) << std::endl;
+    std::cout << hostname.size() << " " << port.size() << std::endl;
 #endif
 
     memset(&rdmaCmId, 0, sizeof(rdmaCmId));
@@ -231,7 +233,7 @@ extern "C" std::shared_ptr <RdmaCommunicator> create_communicator(std::shared_pt
     hostname = std::dynamic_pointer_cast<gvirtus::communicators::Endpoint_Rdma>(end)->address();
     port = std::to_string(std::dynamic_pointer_cast<gvirtus::communicators::Endpoint_Rdma>(end)->port());
 
-    return std::make_shared<RdmaCommunicator>(hostname.data(), port.data());
+    return std::make_shared<RdmaCommunicator>(hostname, port);
 }
 
 

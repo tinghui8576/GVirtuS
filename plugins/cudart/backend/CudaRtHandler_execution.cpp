@@ -99,6 +99,7 @@ void CUDART_CB  manageMemoryStreamCallback(cudaStream_t stream, cudaError_t stat
     }
 }
 
+#if CUDART_VERSION >= 9000
 CUDA_ROUTINE_HANDLER(LaunchKernel) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("LaunchKernel"));
     LOG4CPLUS_DEBUG(logger, "LaunchKernel");
@@ -165,7 +166,7 @@ CUDA_ROUTINE_HANDLER(LaunchKernel) {
 
   return std::make_shared<Result>(exit_code);
 }
-
+#endif
 
 
 CUDA_ROUTINE_HANDLER(Launch) {
