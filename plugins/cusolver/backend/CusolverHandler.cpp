@@ -38,7 +38,6 @@ extern "C" std::shared_ptr<CusolverHandler> create_t() {
     return std::make_shared<CusolverHandler>();
 }
 
-
 extern "C" int HandlerInit() {
     return 0;
 }
@@ -83,41 +82,28 @@ std::shared_ptr<gvirtus::communicators::Result> CusolverHandler::Execute(std::st
     return NULL;
 }
 
-void CusolverHandler::Initialize(){
-   if (mspHandlers != NULL)
-        return;
-    mspHandlers = new map<string, CusolverHandler::CudnnRoutineHandler> ();
-    
-    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnGetVersion));
-    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnGetErrorString)); 
-    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnCreate));
-    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnDestroy));
-    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnSetStream));
-    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnGetStream));
-}
+// CUSOLVER_ROUTINE_HANDLER(DnGetVersion){
+//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DnGetVersion"));
 
-CUSOLVER_ROUTINE_HANDLER(DnGetVersion){
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DnGetVersion"));
+//     size_t version = cusolverDnGetVersion();
+//     LOG4CPLUS_DEBUG(logger,"cusolverDnGetVersion Executed");
+//     return std::make_shared<Result>(version);
+// }
 
-    size_t version = cusolverDnGetVersion();
-    LOG4CPLUS_DEBUG(logger,"cusolverDnGetVersion Executed");
-    return std::make_shared<Result>(version);
-}
-
-CUSOLVER_ROUTINE_HANDLER(DnGetErrorString){
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DnGetErrorString"));
-    cusolverDnStatus_t cs = in->Get<cusolverDnStatus_t>();
-    const char * s = cusolverDnGetErrorString(cs);
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try{
-        out->Add((char *)s);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
-        return std::make_shared<Result>(CUSOLVER_STATUS_EXECUTION_FAILED);
-    }
-    LOG4CPLUS_DEBUG(logger,"cusolverDnGetErrorString Executed");
-    return std::make_shared<Result>(CUDNN_STATUS_SUCCESS,out);
-}
+// CUSOLVER_ROUTINE_HANDLER(DnGetErrorString){
+//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DnGetErrorString"));
+//     cusolverDnStatus_t cs = in->Get<cusolverDnStatus_t>();
+//     const char * s = cusolverDnGetErrorString(cs);
+//     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+//     try{
+//         out->Add((char *)s);
+//     } catch (string e){
+//         LOG4CPLUS_DEBUG(logger,e);
+//         return std::make_shared<Result>(CUSOLVER_STATUS_EXECUTION_FAILED);
+//     }
+//     LOG4CPLUS_DEBUG(logger,"cusolverDnGetErrorString Executed");
+//     return std::make_shared<Result>(CUDNN_STATUS_SUCCESS,out);
+// }
 
 CUSOLVER_ROUTINE_HANDLER(DnCreate){
 
@@ -170,3 +156,15 @@ CUSOLVER_ROUTINE_HANDLER(DnGetStream){
     return std::make_shared<Result>(cs,out);
 }
 
+void CusolverHandler::Initialize(){
+   if (mspHandlers != NULL)
+        return;
+    mspHandlers = new map<string, CusolverHandler::CudnnRoutineHandler> ();
+    
+    // mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnGetVersion));
+    // mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnGetErrorString)); 
+    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnCreate));
+    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnDestroy));
+    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnSetStream));
+    mspHandlers->insert(CUSOLVER_ROUTINE_HANDLER_PAIR(DnGetStream));
+}

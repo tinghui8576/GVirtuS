@@ -38,7 +38,6 @@ extern "C" std::shared_ptr<CusparseHandler> create_t() {
     return std::make_shared<CusparseHandler>();
 }
 
-
 extern "C" int HandlerInit() {
     return 0;
 }
@@ -81,19 +80,6 @@ std::shared_ptr<Result> CusparseHandler::Execute(std::string routine, std::share
         LOG4CPLUS_DEBUG(logger,strerror(errno));
     }
     return NULL;
-}
-
-void CudnnHandler::Initialize(){
-   if (mspHandlers != NULL)
-        return;
-    mspHandlers = new map<string, CudnnHandler::CusparseRoutineHandler> ();
-
-    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(GetVersion));
-    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(GetErrorString));
-    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(Create));
-    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(Destroy));
-    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(SetStream));
-    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(GetStream));  
 }
 
 CUSPARSE_ROUTINE_HANDLER(GetVersion){
@@ -169,4 +155,17 @@ CUSPARSE_ROUTINE_HANDLER(GetStream){
     }
     cout << "DEBUG - cusparseGetStream Executed"<<endl;
     return std::make_shared<Result>(cs,out);
+}
+
+void CudnnHandler::Initialize(){
+   if (mspHandlers != NULL)
+        return;
+    mspHandlers = new map<string, CudnnHandler::CusparseRoutineHandler> ();
+
+    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(GetVersion));
+    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(GetErrorString));
+    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(Create));
+    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(Destroy));
+    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(SetStream));
+    mspHandlers->insert(CUSPARSE_ROUTINE_HANDLER_PAIR(GetStream));  
 }

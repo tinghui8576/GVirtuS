@@ -318,9 +318,6 @@ CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Dtrmm_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Ctrmm_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Ztrmm_v2));
-  // mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(cublasSetMatrix));
-  // mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(cublasSscal));
-  // mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(cublasDestroy));
 }
 
 /*

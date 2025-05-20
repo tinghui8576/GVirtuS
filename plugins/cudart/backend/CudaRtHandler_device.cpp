@@ -373,7 +373,7 @@ CUDA_ROUTINE_HANDLER(IpcOpenEventHandle) {
 }
 
 CUDA_ROUTINE_HANDLER(SetValidDevices) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetValidDevice"));
+  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetValidDevices"));
   CudaRtHandler::setLogLevel(&logger);
 
   try {

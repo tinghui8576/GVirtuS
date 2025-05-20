@@ -65,11 +65,11 @@ private:
 #define CUSOLVER_ROUTINE_HANDLER(name) std::shared_ptr<Result> handle##name(CusolverHandler * pThis, std::shared_ptr<Buffer> in)
 #define CUSOLVER_ROUTINE_HANDLER_PAIR(name) make_pair("cusolver" #name, handle##name)
 
-CUSOLVER_ROUTINE_HANDLER(GetVersion);
-CUSOLVER_ROUTINE_HANDLER(GetErrorString);
-CUSOLVER_ROUTINE_HANDLER(Create);
-CUSOLVER_ROUTINE_HANDLER(Destroy);
-CUSOLVER_ROUTINE_HANDLER(SetStream);
-CUSOLVER_ROUTINE_HANDLER(GetStream);
+// CUSOLVER_ROUTINE_HANDLER(GetVersion);
+// CUSOLVER_ROUTINE_HANDLER(GetErrorString);
+CUSOLVER_ROUTINE_HANDLER(DnCreate);
+CUSOLVER_ROUTINE_HANDLER(DnDestroy);
+CUSOLVER_ROUTINE_HANDLER(DnSetStream);
+CUSOLVER_ROUTINE_HANDLER(DnGetStream);
 
 #endif  /* CUSOLVERHANDLER_H */
