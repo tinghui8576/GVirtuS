@@ -96,6 +96,8 @@
 | -------------------------------------------------------- | ----------- | ------ | ------- | ----------------------- |
 | `cudaMalloc`                                             | ✅          | ✅      | ✅      |                         |
 | `cudaFree`                                               | ✅          | ✅      | ✅      |                         |
+| `cudaMallocHost`                                         | ❌          | ❌      | ❌      |                         |
+| `cudaFreeHost`                                           | ❌          | ❌      | ❌      |                         |
 | `cudaMemcpy`                                             | ✅          | ✅      | ✅      |                         |
 | `cudaMemcpyAsync`                                        | ✅          | ✅      | ✅      |                         |
 | `cudaMemsetAsync`                                        | ✅          | ✅      | ✅      |                         |
@@ -455,10 +457,10 @@
 
 | Function                                                   | Implemented | Tested | Working |          Notes           |
 | ---------------------------------------------------------- | ----------- | ------ | ------- | -------------------------|
-| `cuDNNGetVersion`                                          | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetErrorString`                                      | ✅          | ❌      | ❓      |                          | 
 | `cuDNNCreate`                                              | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDestroy`                                             | ✅          | ❌      | ❓      |                          | 
+| `cuDNNGetVersion`                                          | ✅          | ❌      | ❓      |                          | 
+| `cuDNNGetErrorString`                                      | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetStream`                                           | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetStream`                                           | ✅          | ❌      | ❓      |                          |  
 | `cuDNNCreateTensorDescriptor`                              | ✅          | ❌      | ❓      |                          | 
