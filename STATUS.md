@@ -7,6 +7,8 @@
 | `cuCtxAttach`                     | ✅          | ❌      | ❓      |                         |
 | `cuCtxDestroy`                    | ✅          | ❌      | ❓      |                         |
 | `cuCtxDetach`                     | ✅          | ❌      | ❓      |                         |
+| `cuCtxSetCurrent`                 | ❌          | ❌      | ❌      |                         |
+| `cuCtxGetCurrent`                 | ❌          | ❌      | ❌      |                         |
 | `cuCtxGetDevice`                  | ✅          | ❌      | ❓      |                         |
 | `cuCtxPopCurrent`                 | ✅          | ❌      | ❓      |                         |
 | `cuCtxPushCurrent`                | ✅          | ❌      | ❓      |                         |
@@ -35,8 +37,16 @@
 | `cuFuncSetCacheConfig`            | ✅          | ❌      | ❓      |                         |
 | `cuMemFree`                       | ✅          | ❌      | ❓      |                         |
 | `cuMemAlloc`                      | ✅          | ❌      | ❓      |                         |
+| `cuMemAllocManaged`               | ❌          | ❌      | ❌      |                         |
+| `cuMemHostAlloc`                  | ❌          | ❌      | ❌      |                         |
+| `cuMemHostFree`                   | ❌          | ❌      | ❌      |                         |
 | `cuMemcpyDtoH`                    | ✅          | ❌      | ❓      |                         |
 | `cuMemcpyHtoD`                    | ✅          | ❌      | ❓      |                         |
+| `cuMemcpyDtoD`                    | ❌          | ❌      | ❌      |                         |
+| `cuMemcpyHtoDAsync`               | ❌          | ❌      | ❌      |                         |
+| `cuMemcpyDtoHAsync`               | ❌          | ❌      | ❌      |                         |
+| `cuMemsetD32`                     | ❌          | ❌      | ❌      |                         |
+| `cuMemsetD8`                      | ❌          | ❌      | ❌      |                         |
 | `cuArrayCreate`                   | ✅          | ❌      | ❓      |                         |
 | `cuMemcpy2D`                      | ✅          | ❌      | ❓      |                         |
 | `cuArrayDestroy`                  | ✅          | ❌      | ❓      |                         |
@@ -63,6 +73,12 @@
 | `cuEventQuery`                    | ✅          | ❌      | ❓      |                         |
 | `cuEventRecord`                   | ✅          | ❌      | ❓      |                         |
 | `cuEventSynchronize`              | ✅          | ❌      | ❓      |                         |
+| `cuLinkCreate`                    | ❌          | ❌      | ❌      |                         |
+| `cuLinkAddData`                   | ❌          | ❌      | ❌      |                         |
+| `cuLinkComplete`                  | ❌          | ❌      | ❌      |                         |
+| `cuModuleLoadDataEx`              | ❌          | ❌      | ❌      |                         |
+| `cuGraphicsGLRegisterBuffer`      | ❌          | ❌      | ❌      |                         |
+| `cuGraphicsMapResources`          | ❌          | ❌      | ❌      |                         |
 | `cuTexRefSetArray`                | ✅          | ❌      | ❓      |                         |
 | `cuTexRefSetAddressMode`          | ✅          | ❌      | ❓      |                         |
 | `cuTexRefSetFilterMode`           | ✅          | ❌      | ❓      |                         |
@@ -586,7 +602,7 @@
 | `cuDNNCreateRNNDescriptor`                                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDestroyRNNDescriptor`                                | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetRNNDescriptor_v5`                                 | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNDescriptor_v5`                                 | ❌          | ❌      | ❓      |                          | 
+| `cuDNNGetRNNDescriptor_v5`                                 | ❌          | ❌      | ❌      |                          | 
 | `cuDNNSetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetRNNDescriptor_v8`                                 | ✅          | ❌      | ❓      |                          | 
@@ -683,12 +699,18 @@
 
 | Function                                  | Implemented | Tested | Working |          Notes           |
 | ----------------------------------------- | ----------- | ------ | ------- | -------------------------|
-| `cusparseGetVersion`                      | ✅          | ❌      | ❓      |                          | 
-| `cusparseGetErrorString`                  | ✅          | ❌      | ❓      |                          | 
 | `cusparseCreate`                          | ✅          | ❌      | ❓      |                          | 
 | `cusparseDestroy`                         | ✅          | ❌      | ❓      |                          | 
+| `cusparseGetVersion`                      | ✅          | ❌      | ❓      |                          | 
+| `cusparseGetErrorString`                  | ✅          | ❌      | ❓      |                          | 
 | `cusparseSetStream`                       | ✅          | ❌      | ❓      |                          | 
 | `cusparseGetStream`                       | ✅          | ❌      | ❓      |                          | 
+| `cusparseXcsrgemm`                        | ❌          | ❌      | ❌      |                          | 
+| `cusparseXcsr2dense`                      | ❌          | ❌      | ❌      |                          | 
+| `cusparseXdense2csr`                      | ❌          | ❌      | ❌      |                          | 
+| `cusparseXcsrmv`                          | ❌          | ❌      | ❌      |                          | 
+| `cusparseXcsrmv_analysis`                 | ❌          | ❌      | ❌      |                          | 
+| `cusparseXcsrmv_solve`                    | ❌          | ❌      | ❌      |                          | 
 
 
 # cuSOLVER
@@ -699,3 +721,11 @@
 | `cusolverDnDestroy`                       | ✅          | ❌      | ❓      |                          | 
 | `cusolverDnSetStream`                     | ✅          | ❌      | ❓      |                          | 
 | `cusolverDnGetStream`                     | ✅          | ❌      | ❓      |                          |
+| `cusolverDnSgetrf`                        | ❌          | ❌      | ❌      |                          |
+| `cusolverDnDgetrf`                        | ❌          | ❌      | ❌      |                          |
+| `cusolverDnSgetrs`                        | ❌          | ❌      | ❌      |                          |     
+| `cusolverDnDgetrs`                        | ❌          | ❌      | ❌      |                          |
+| `cusolverDnSgesvd`                        | ❌          | ❌      | ❌      |                          |
+| `cusolverDnDgesvd`                        | ❌          | ❌      | ❌      |                          |
+| `cusolverDnSpotrf`                        | ❌          | ❌      | ❌      |                          |
+| `cusolverDnDpotrf`                        | ❌          | ❌      | ❌      |                          |
