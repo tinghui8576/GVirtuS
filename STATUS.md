@@ -391,7 +391,7 @@
 | `curandGeneratePoisson`                   | ✅          | ✅      | ✅      |            *             |
 | `curandDestroyGenerator`                  | ✅          | ✅      | ✅      |                          |
 
-*This function can generate numbers using either a CPU or a GPU generator, created using `curandCreateGenerator` and `curandCreateGeneratorHost`, respectively. **Both CPU and GPU are tested and working**.
+*This function can generate numbers using either a CPU or a GPU generator, created using `curandCreateGenerator` or `curandCreateGeneratorHost`, respectively. **Both CPU and GPU generations are tested and working**.
 
 
 # cuFFT
