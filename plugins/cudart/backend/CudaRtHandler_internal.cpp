@@ -81,11 +81,11 @@ extern "C" {
   void __cudaRegisterSharedVar(void **fatCubinHandle, void **devicePtr,
                                       size_t size, size_t alignment, int storage);
   void __cudaRegisterShared(void **fatCubinHandle, void **devicePtr);
-  cudaError_t CUDARTAPI __cudaPopCallConfiguration(dim3 *gridDim,
+  cudaError_t CUDARTAPI cudaPopCallConfiguration(dim3 *gridDim,
                                                           dim3 *blockDim,
                                                           size_t *sharedMem,
                                                           void *stream);
-  __host__ __device__ unsigned CUDARTAPI __cudaPushCallConfiguration(dim3 gridDim, 
+  __host__ __device__ unsigned CUDARTAPI cudaPushCallConfiguration(dim3 gridDim, 
                                                                             dim3 blockDim, 
                                                                             size_t sharedMem = 0, 
                                                                             void *stream = 0);
@@ -538,7 +538,7 @@ CUDA_ROUTINE_HANDLER(PushCallConfiguration) {
         printf("blockDim: %d,%d,%d\n",blockDim.x,blockDim.y,blockDim.z);
         printf("sharedMem: %d stream: %x\n",sharedMem,stream);
 */
-        cudaError_t exit_code = static_cast<cudaError_t>(__cudaPushCallConfiguration(gridDim, blockDim, sharedMem, stream));
+        cudaError_t exit_code = static_cast<cudaError_t>(cudaPushCallConfiguration(gridDim, blockDim, sharedMem, stream));
 //        printf("PushCallConfiguration: %d\n",exit_code);
         return std::make_shared<Result>(exit_code);
     } catch (string e) {
@@ -555,7 +555,7 @@ CUDA_ROUTINE_HANDLER(PopCallConfiguration) {
         dim3 gridDim,blockDim;
         size_t sharedMem;
         cudaStream_t stream;
-        cudaError_t exit_code = static_cast<cudaError_t>(__cudaPopCallConfiguration(&gridDim, &blockDim, &sharedMem, &stream));
+        cudaError_t exit_code = static_cast<cudaError_t>(cudaPopCallConfiguration(&gridDim, &blockDim, &sharedMem, &stream));
         /*
         printf("__cudaPopCallConfiguration: %d\n",exit_code);
         printf("gridDim: %d,%d,%d\n",gridDim.x,gridDim.y,gridDim.z);
