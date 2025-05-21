@@ -40,6 +40,7 @@
 #include <cstring>
 #include <iostream>
 #include <typeinfo>
+#include <stdexcept>
 
 #include <gvirtus/common/gvirtus-type.h>
 
@@ -232,7 +233,7 @@ class Buffer {
           if (Get<size_t>() == 0) return nullptr;
 
           if (mOffset + n > mLength) {
-              throw std::string("Buffer::Assign(n): Can't read void.");
+              throw std::runtime_error("Buffer::Assign(n): Can't read void.");
           }
           void* result = static_cast<void*>(mpBuffer + mOffset);
           mOffset += n;
@@ -241,7 +242,7 @@ class Buffer {
           if (Get<size_t>() == 0) return nullptr;
 
           if (mOffset + sizeof(T) * n > mLength) {
-              throw std::string("Buffer::Assign(n): Can't read ") + typeid(T).name() + ".";
+              throw std::runtime_error("Buffer::Assign(n): Can't read ") + typeid(T).name() + ".";
           }
           T* result = reinterpret_cast<T*>(mpBuffer + mOffset);
           mOffset += sizeof(T) * n;
@@ -256,7 +257,7 @@ class Buffer {
 
       if constexpr (std::is_void_v<T>) {
           if (mOffset + size > mLength) {
-              throw std::string("Buffer::AssignAll(): Can't read void.");
+              throw std::runtime_error("Buffer::AssignAll(): Can't read void.");
           }
           void* result = static_cast<void*>(mpBuffer + mOffset);
           mOffset += size;
@@ -264,7 +265,7 @@ class Buffer {
       } else {
           size_t n = size / sizeof(T);
           if (mOffset + sizeof(T) * n > mLength) {
-              throw std::string("Buffer::AssignAll(): Can't read ") + typeid(T).name() + ".";
+              throw std::runtime_error("Buffer::AssignAll(): Can't read ") + typeid(T).name() + ".";
           }
           T* result = reinterpret_cast<T*>(mpBuffer + mOffset);
           mOffset += sizeof(T) * n;

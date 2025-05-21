@@ -27,6 +27,8 @@
 #include <errno.h>
 #include <cuda_runtime_api.h>
 #include <cudnn.h>
+#include <stdexcept>
+
 #include "CudnnHandler.h"
 
 using namespace std;
@@ -37,7 +39,6 @@ std::map<string, CudnnHandler::CudnnRoutineHandler> * CudnnHandler::mspHandlers 
 extern "C" std::shared_ptr<CudnnHandler> create_t() {
     return std::make_shared<CudnnHandler>();
 }
-
 
 extern "C" int HandlerInit() {
     return 0;
@@ -73,7 +74,7 @@ std::shared_ptr<Result> CudnnHandler::Execute(std::string routine, std::shared_p
     map<string, CudnnHandler::CudnnRoutineHandler>::iterator it;
     it = mspHandlers->find(routine);
     if (it == mspHandlers->end())
-        throw "No handler for '" + routine + "' found!";
+        throw runtime_error("No handler for '" + routine + "' found!");
     try {
         return it->second(this, input_buffer);
     } catch (const char *ex) {

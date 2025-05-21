@@ -6,6 +6,8 @@
 #include <utility>
 #include <vector>
 #include <stdlib.h> /* getenv */
+#include <stdexcept> /* runtime_error */
+
 #include "Communicator.h"
 #include "Endpoint.h"
 #include "Endpoint_Tcp.h"

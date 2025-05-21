@@ -5,6 +5,8 @@
 #include <iostream>
 #include <sstream>
 #include <arpa/inet.h>
+#include <stdexcept>
+
 #include "RdmaCommunicator.h"
 
 #include <gvirtus/communicators/Endpoint.h>
