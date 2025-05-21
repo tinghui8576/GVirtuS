@@ -30,6 +30,7 @@
 //#include <map>
 #include <bits/stl_map.h>
 #include <errno.h>
+#include <stdexcept>
 
 using namespace std;
 using namespace log4cplus;
@@ -66,11 +67,11 @@ CublasHandler::CanExecute(std::string routine) {
 
 std::shared_ptr<Result>
 CublasHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
-//  LOG4CPLUS_DEBUG(logger, "Called " << routine);
+ LOG4CPLUS_DEBUG(logger, "Called " << routine);
   map<string, CublasHandler::CublasRoutineHandler>::iterator it;
   it = mspHandlers->find(routine);
   if (it == mspHandlers->end())
-    throw "No handler for '" + routine + "' found!";
+    throw runtime_error("No handler for '" + routine + "' found!");
   try {
     return it->second(this, input_buffer);
   } catch (const char *ex) {

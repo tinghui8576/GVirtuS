@@ -49,10 +49,10 @@ cudaChooseDevice(int *device, const cudaDeviceProp *prop) {
 
 extern "C" __host__ __device__ cudaError_t CUDARTAPI cudaGetDevice(int *device) {
   CudaRtFrontend::Prepare();
-  // CudaRtFrontend::AddHostPointerForArguments(device);
+  CudaRtFrontend::AddHostPointerForArguments(device);
   CudaRtFrontend::Execute("cudaGetDevice");
   if (CudaRtFrontend::Success())
-    *device = (CudaRtFrontend::GetOutputVariable<int>());
+    *device = *(CudaRtFrontend::GetOutputHostPointer<int>());
   return CudaRtFrontend::GetExitCode();
 }
 

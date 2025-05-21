@@ -32,6 +32,7 @@
 #include "CudaUtil.h"
 #include "CudaDrHandler.h"
 #include <cuda.h>
+#include <stdexcept>
 
 using namespace std;
 using namespace log4cplus;
@@ -69,11 +70,11 @@ std::shared_ptr<Result> CudaDrHandler::Execute(std::string routine, std::shared_
 //#ifdef DEBUG
 //    std::cout<<"Called "<<routine<<std::endl;
 //#endif    
-    LOG4CPLUS_DEBUG(logger,"Called " << routine);
+    LOG4CPLUS_DEBUG(logger, "Called " << routine);
 
     it = mspHandlers->find(routine);
     if (it == mspHandlers->end())
-        throw "No handler for '" + routine + "' found!";
+        throw runtime_error("No handler for '" + routine + "' found!");
     return it->second(this, input_buffer);
 }
 
@@ -97,7 +98,7 @@ void CudaDrHandler::RegisterFatBinary(const char* handler, void ** fatCubinHandl
 void ** CudaDrHandler::GetFatBinary(string & handler) {
     map<string, void **>::iterator it = mpFatBinary->find(handler);
     if (it == mpFatBinary->end())
-        throw "Fat Binary '" + handler + "' not found";
+        throw runtime_error("Fat Binary '" + handler + "' not found");
     return it->second;
 }
 
@@ -143,7 +144,7 @@ void CudaDrHandler::RegisterDeviceFunction(const char * handler, const char * fu
 const char *CudaDrHandler::GetDeviceFunction(std::string & handler) {
     map<string, string>::iterator it = mpDeviceFunction->find(handler);
     if (it == mpDeviceFunction->end())
-        throw "Device Function '" + handler + "' not found";
+        throw runtime_error("Device Function '" + handler + "' not found");
     return it->second.c_str();
 }
 

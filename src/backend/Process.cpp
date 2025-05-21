@@ -11,6 +11,7 @@
 #include <functional>
 #include <thread>
 #include <iostream>
+#include <stdexcept>
 
 #define DEBUG
 
@@ -44,9 +45,6 @@ Process::Process(std::shared_ptr<LD_Lib<Communicator, std::shared_ptr<Endpoint>>
 }
 
 bool getstring(Communicator *c, string &s) {
-#ifdef DEBUG
-    printf("getstring called.\n");
-#endif
 
     // TODO: FIX LISKOV SUBSTITUTION AND DIPENDENCE INVERSION!!!!!
     if (c->to_string() == "tcpcommunicator") {
@@ -73,7 +71,6 @@ bool getstring(Communicator *c, string &s) {
                 s += std::string(buf);
                 printf("append\n");
                 //free(buf);
-                printf("free\n");
                 return true;
             }
         }
@@ -86,7 +83,7 @@ bool getstring(Communicator *c, string &s) {
         return false;
     }
 
-    throw "Communicator getstring read error... Unknown communicator type...";
+    throw runtime_error("Communicator getstring read error... Unknown communicator type...");
 }
 
 extern std::string getEnvVar(std::string const &key);

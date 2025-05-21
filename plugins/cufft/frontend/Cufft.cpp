@@ -410,7 +410,7 @@ extern "C" cufftResult cufftCreate(cufftHandle *plan) {
   CufftFrontend::AddHostPointerForArguments<cufftHandle>(plan);
   CufftFrontend::Execute("cufftCreate");
   if (CufftFrontend::Success())
-    *plan = *(CufftFrontend::GetOutputHostPointer<cufftHandle>());
+    plan = CufftFrontend::GetOutputHostPointer<cufftHandle>();
   //printf("plan: %d",*plan);
   return (cufftResult) CufftFrontend::GetExitCode();
 }

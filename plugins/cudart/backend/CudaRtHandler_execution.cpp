@@ -174,7 +174,7 @@ CUDA_ROUTINE_HANDLER(Launch) {
   void *pointer;
   // cudaConfigureCall
   ctrl = input_buffer->Get<int>();
-  if (ctrl != 0x434e34c) throw "Expecting cudaConfigureCall";
+  if (ctrl != 0x434e34c) throw runtime_error("Expecting cudaConfigureCall");
 
   dim3 gridDim = input_buffer->Get<dim3>();
   dim3 blockDim = input_buffer->Get<dim3>();
@@ -198,7 +198,7 @@ CUDA_ROUTINE_HANDLER(Launch) {
   }
 
   // cudaLaunch
-  if (ctrl != 0x4c41554e) throw "Expecting cudaLaunch";
+  if (ctrl != 0x4c41554e) throw runtime_error("Expecting cudaLaunch");
 
   // char *handler = input_buffer->AssignString();
   // fprintf(stderr,"handler:%s\n",handler);

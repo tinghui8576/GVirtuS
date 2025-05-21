@@ -242,14 +242,16 @@ CUDA_ROUTINE_HANDLER(GetDevice) {
   CudaRtHandler::setLogLevel(&logger);
 
   try {
-    int *device;
+    int *device = input_buffer->Assign<int>();
+    LOG4CPLUS_DEBUG(logger, "GetDevice: " << *device);
     cudaError_t exit_code = cudaGetDevice(device);
+    LOG4CPLUS_DEBUG(logger, "called cudaGetDevice");
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-
-    out->Add<int>(*device);
+    out->Add<int>(device);
+    LOG4CPLUS_DEBUG(logger, "added device to out buffer");
     return std::make_shared<Result>(exit_code, out);
   } catch (string e) {
-    LOG4CPLUS_DEBUG(logger, e);
+    LOG4CPLUS_DEBUG(logger, "Error" << e);
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -265,10 +267,9 @@ CUDA_ROUTINE_HANDLER(DeviceReset) {
 }
 
 CUDA_ROUTINE_HANDLER(DeviceSynchronize) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS"));
+  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceSynchronize"));
   CudaRtHandler::setLogLevel(&logger);
 
-  LOG4CPLUS_DEBUG(logger, "DeviceSynchronize");
     //printf("Pre\n");
   cudaError_t exit_code = cudaDeviceSynchronize();
     //printf("Post\n");
@@ -276,7 +277,7 @@ CUDA_ROUTINE_HANDLER(DeviceSynchronize) {
 }
 
 CUDA_ROUTINE_HANDLER(GetDeviceCount) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS"));
+  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetDeviceCount"));
   CudaRtHandler::setLogLevel(&logger);
 
   try {
@@ -287,7 +288,6 @@ CUDA_ROUTINE_HANDLER(GetDeviceCount) {
     out->Add(count);
     return std::make_shared<Result>(exit_code, out);
   } catch (string e) {
-    // cerr << e << endl;
     LOG4CPLUS_DEBUG(logger, e);
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }

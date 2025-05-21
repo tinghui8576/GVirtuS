@@ -71,7 +71,7 @@ std::shared_ptr<Result> CufftHandler::Execute(std::string routine, std::shared_p
     map<string, CufftHandler::CufftRoutineHandler>::iterator it;
     it = mspHandlers->find(routine);
     if (it == mspHandlers->end())
-        throw "No handler for '" + routine + "' found!";
+        throw std::runtime_error(std::string("No handler for '") + routine + std::string("' found!"));
     try {
         return it->second(this, input_buffer);
     } catch (const char *ex) {
@@ -251,18 +251,16 @@ CUFFT_ROUTINE_HANDLER(SetCompatibilityMode) {
 
 CUFFT_ROUTINE_HANDLER(Create) {
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Create"));
-    cufftHandle *plan_adv = in->Assign<cufftHandle>();
-    cufftResult exit_code = cufftCreate(plan_adv);
+    cufftHandle plan;
+    cufftResult exit_code = cufftCreate(&plan);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-        out->Add(plan_adv);
+        out->Add<cufftHandle>(plan);
     } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+        LOG4CPLUS_DEBUG(logger, e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - Plan: " << *plan_adv << "\n";
-    cout << "DEBUG - cufftCreate Executed\n";
-    
+    LOG4CPLUS_DEBUG(logger, "cufftCreate Executed. Plan: " << plan);
     return std::make_shared<Result>(exit_code, out);
 }
 
@@ -277,7 +275,7 @@ CUFFT_ROUTINE_HANDLER(Destroy) {
     cufftHandle plan = in->Get<cufftHandle>();
     cufftResult exit_code = cufftDestroy(plan);
     
-    cout << "DEBUG - cufftDestroy Executed\n";
+    LOG4CPLUS_DEBUG(logger,"cufftDestroy Executed");
     return std::make_shared<Result>(exit_code);
 }
 

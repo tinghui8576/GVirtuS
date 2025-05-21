@@ -40,16 +40,13 @@
 #include <iostream>
 #include <map>
 #include <string>
-#include <algorithm>
-
-using std::min;
-using std::max;
 
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdexcept>
 
 #include <cuda_runtime_api.h>
 

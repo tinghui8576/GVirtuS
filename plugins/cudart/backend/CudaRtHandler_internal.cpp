@@ -30,6 +30,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "CudaUtil.h"
 
@@ -140,7 +141,7 @@ void addFatBinary(void **handler, void *bin) {
     int i;
     for (i = 0; fatCubinHandlers[i] != NULL && i < 2048; i++);
     if (i >= 2048)
-        throw "Ahi ahi ahi";
+        throw runtime_error("Exceeded maximum number of fat binaries");
     fatCubinHandlers[i] = handler;
     fatCubins[i] = bin;
 }

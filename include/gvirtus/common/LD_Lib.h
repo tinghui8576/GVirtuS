@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <stdexcept>
 
 //#define ldDEBUG
 
@@ -22,7 +23,7 @@ namespace gvirtus::common {
             m_module = ::dlopen(path.c_str(), flag);
 
             if (m_module == nullptr) {
-                throw "Error loading: " + std::string(dlerror());
+                throw std::runtime_error(std::string("Error loading: ") + dlerror());
             }
 
 #ifdef ldDEBUG
@@ -54,7 +55,7 @@ namespace gvirtus::common {
 #endif
                 std::string error(dl_error);
                 ::dlclose(m_module);
-                throw "Cannot load symbol create: " + error;
+                throw std::runtime_error(std::string("Cannot load symbol create: ") + error);
             }
 
 #ifdef ldDEBUG
