@@ -72,7 +72,7 @@ class Buffer {
           if ((mLength + itemSize) >= mSize) {
               mSize = ((mLength + itemSize) / mBlockSize + 1) * mBlockSize;
               if ((mpBuffer = (char*)realloc(mpBuffer, mSize)) == NULL)
-                  throw "Buffer::Add(item): Can't reallocate memory.";
+                  throw std::runtime_error("Buffer::Add(item): Can't reallocate memory.");
           }
           memmove(mpBuffer + mLength, &item, itemSize);
           mLength += itemSize;
@@ -101,7 +101,7 @@ class Buffer {
           if ((mLength + size) >= mSize) {
               mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
               if ((mpBuffer = (char*)realloc(mpBuffer, mSize)) == NULL)
-                  throw "Buffer::Add(item, n): Can't reallocate memory.";
+                  throw std::runtime_error("Buffer::Add(item, n): Can't reallocate memory.");
           }
           memmove(mpBuffer + mLength, item, size);
           mLength += size;
@@ -114,7 +114,7 @@ class Buffer {
       if ((mLength + size) >= mSize) {
           mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
           if ((mpBuffer = (char*)realloc(mpBuffer, mSize)) == NULL)
-              throw "Buffer::Add(data, size): Can't reallocate memory.";
+              throw std::runtime_error("Buffer::Add(data, size): Can't reallocate memory.");
       }
       memmove(mpBuffer + mLength, data, size);
       mLength += size;
@@ -132,7 +132,7 @@ class Buffer {
     if ((mLength + size) >= mSize) {
       mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw "Buffer::AddConst(item, n): Can't reallocate memory.";
+        throw std::runtime_error("Buffer::AddConst(item, n): Can't reallocate memory.");
     }
     memmove(mpBuffer + mLength, (char *)item, size);
     mLength += size;
@@ -162,7 +162,7 @@ class Buffer {
     if (required_size >= mSize) {
       mSize = (required_size / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw "Buffer::Read(*c) Can't reallocate memory.";
+        throw std::runtime_error("Buffer::Read(*c): Can't reallocate memory.");
     }
     c->Read(mpBuffer + mLength, sizeof(T));
     mLength += sizeof(T);
@@ -175,7 +175,7 @@ class Buffer {
     if (required_size >= mSize) {
       mSize = (required_size / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw "Buffer::Read(*c, n): Can't reallocate memory.";
+        throw std::runtime_error("Buffer::Read(*c, n): Can't reallocate memory.");
     }
     c->Read(mpBuffer + mLength, sizeof(T) * n);
     mLength += sizeof(T) * n;
@@ -185,7 +185,7 @@ class Buffer {
   template <class T>
   T Get() {
     if (mOffset + sizeof(T) > mLength)
-      throw "Buffer::Get(): Can't read any " + std::string(typeid(T).name()) + ".";
+      throw std::runtime_error("Buffer::Get(): Can't read any " + std::string(typeid(T).name()) + ".");
     T result = *((T *)(mpBuffer + mOffset));
     mOffset += sizeof(T);
     return result;
@@ -194,7 +194,7 @@ class Buffer {
   template <class T>
   T BackGet() {
     if (mBackOffset - sizeof(T) > mLength)
-      throw "Buffer::BackGet(): Can't read  " + std::string(typeid(T).name()) + ".";
+      throw std::runtime_error("Buffer::BackGet(): Can't read any " + std::string(typeid(T).name()) + ".");
     T result = *((T *)(mpBuffer + mBackOffset - sizeof(T)));
     mBackOffset -= sizeof(T);
     return result;
@@ -204,7 +204,7 @@ class Buffer {
   T *Get(size_t n) {
     if (Get<size_t>() == 0) return NULL;
     if (mOffset + sizeof(T) * n > mLength)
-      throw "Buffer::Get(n): Can't read  " + std::string(typeid(T).name()) + ".";
+      throw std::runtime_error("Buffer::Get(n): Can't read any " + std::string(typeid(T).name()) + ".");
     T *result = new T[n];
     memmove((char *)result, mpBuffer + mOffset, sizeof(T) * n);
     mOffset += sizeof(T) * n;
@@ -218,7 +218,7 @@ class Buffer {
     if ((mLength + size) >= mSize) {
       mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw "Buffer::Delegate(n): Can't reallocate memory.";
+        throw std::runtime_error("Buffer::Delegate(n): Can't reallocate memory.");
     }
     T *dst = (T *)(mpBuffer + mLength);
     mLength += size;
@@ -280,7 +280,7 @@ class Buffer {
   template <class T>
   T *BackAssign(size_t n = 1) {
     if (mBackOffset - sizeof(T) * n > mLength)
-      throw "Buffer::BackAssign(n): Can't read  " + std::string(typeid(T).name()) + ".";
+      throw std::runtime_error("Buffer::BackAssign(): Can't read any " + std::string(typeid(T).name()) + ".");
     T *result = (T *)(mpBuffer + mBackOffset - sizeof(T) * n);
     mBackOffset -= sizeof(T) * n + sizeof(size_t);
     return result;

@@ -48,12 +48,12 @@ namespace gvirtus {
   size_t
   VMSocketCommunicator::Read(char *buffer, size_t size) {
     size_t offset = 0;
-    int readed;
+    int bytes_read;
     while (offset < size) {
-      readed = read(mFd, buffer + offset, size - offset);
-      if (readed <= 0 && offset == 0)
-        return readed;
-      offset += readed;
+      bytes_read = read(mFd, buffer + offset, size - offset);
+      if (bytes_read <= 0 && offset == 0)
+        return bytes_read;
+      offset += bytes_read;
     }
     return size;
   }

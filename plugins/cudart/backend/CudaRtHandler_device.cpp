@@ -242,14 +242,13 @@ CUDA_ROUTINE_HANDLER(GetDevice) {
   CudaRtHandler::setLogLevel(&logger);
 
   try {
-    int *device = input_buffer->Assign<int>();
+    int *device;
     cudaError_t exit_code = cudaGetDevice(device);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-    out->Add(device);
+    out->Add<int>(*device);
     return std::make_shared<Result>(exit_code, out);
   } catch (string e) {
-    // cerr << e << endl;
     LOG4CPLUS_DEBUG(logger, e);
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
@@ -313,7 +312,6 @@ CUDA_ROUTINE_HANDLER(GetDeviceProperties) {
     out->Add(prop, 1);
     return std::make_shared<Result>(exit_code, out);
   } catch (string e) {
-    // cerr << e << endl;
     LOG4CPLUS_DEBUG(logger, e);
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
@@ -325,10 +323,10 @@ CUDA_ROUTINE_HANDLER(SetDevice) {
 
   try {
     int device = input_buffer->Get<int>();
+    LOG4CPLUS_DEBUG(logger, "SetDevice: " << device);
     cudaError_t exit_code = cudaSetDevice(device);
     return std::make_shared<Result>(exit_code);
   } catch (string e) {
-    // cerr << e << endl;
     LOG4CPLUS_DEBUG(logger, e);
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }

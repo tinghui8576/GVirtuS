@@ -47,12 +47,12 @@ cudaChooseDevice(int *device, const cudaDeviceProp *prop) {
   return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaGetDevice(int *device) {
+extern "C" __host__ __device__ cudaError_t CUDARTAPI cudaGetDevice(int *device) {
   CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(device);
+  // CudaRtFrontend::AddHostPointerForArguments(device);
   CudaRtFrontend::Execute("cudaGetDevice");
   if (CudaRtFrontend::Success())
-    *device = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    *device = (CudaRtFrontend::GetOutputVariable<int>());
   return CudaRtFrontend::GetExitCode();
 }
 

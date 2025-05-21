@@ -113,6 +113,7 @@ class CudaRtHandler : public gvirtus::backend::Handler {
   const char *GetVar(std::string &handler);
   const char *GetVar(const char *handler);
 
+// textures and surfaces have become obsolete
 //   void RegisterTexture(std::string &handler, cudaTextureObject_t *texref);
 //   void RegisterTexture(const char *handler, cudaTextureObject_t *texref);
 //   void RegisterSurface(std::string &handler, cudaSurfaceObject_t *surref);
@@ -312,6 +313,7 @@ CUDA_ROUTINE_HANDLER(StreamCreateWithPriority);
 // CUDA_ROUTINE_HANDLER(BindSurfaceToArray);
 // CUDA_ROUTINE_HANDLER(GetTextureReference);
 
+// DEPRECATED
 /* CudaRtHandler_thread */
 // CUDA_ROUTINE_HANDLER(ThreadExit);
 // CUDA_ROUTINE_HANDLER(ThreadSynchronize);

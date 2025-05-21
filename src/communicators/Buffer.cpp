@@ -48,7 +48,7 @@ Buffer::Buffer(size_t initial_size, size_t block_size) {
   if (mSize == 0) mSize = 0;
   if ((mSize = (mSize / mBlockSize) * mBlockSize) == 0) mSize = mBlockSize;
   if ((mpBuffer = (char *)malloc(mSize)) == NULL)
-    throw "Can't allocate memory.";
+    throw std::err
   mBackOffset = mLength;
 }
 
@@ -100,7 +100,7 @@ void Buffer::Reset() {
 void Buffer::Reset(Communicator *c) {
   c->Read((char *)&mLength, sizeof(size_t));
 #ifdef DEBUG
-  std::cout << "readed size of buffer " << mLength << std::endl;
+  std::cout << "read size of buffer " << mLength << std::endl;
 #endif
   mOffset = 0;
   mBackOffset = mLength;
@@ -110,9 +110,9 @@ void Buffer::Reset(Communicator *c) {
       throw "Can't reallocate memory.";
   }
 #ifdef DEBUG
-  for(int i = 0; i < mLength; i++)
-      printf("%c", mpBuffer[i]);
-  printf("\n");
+  // for(int i = 0; i < mLength; i++)
+      // printf("%c", mpBuffer[i]);
+  // printf("\n");
 #endif
   c->Read(mpBuffer, mLength);
 }
