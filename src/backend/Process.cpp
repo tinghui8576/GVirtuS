@@ -151,7 +151,7 @@ void Process::Start() {
             result->Dump(client_comm);
             if (result->GetExitCode() != 0 && routine.compare("cudaLaunch")) {
                 LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]: Requested '" << routine << "' routine.");
-                LOG4CPLUS_DEBUG(logger, "✓ - - [Process " << getpid() << "]: Exit Code '" << result->GetExitCode() << "'.");
+                LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]: Exit Code '" << result->GetExitCode() << "'.");
             }
         }
 

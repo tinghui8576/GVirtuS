@@ -1,3 +1,7 @@
+## This Dockerfile is for building a Gvirtus backend image with CUDA support.
+## It does not include the Gvirtus source code, as it is expected to be mounted at runtime (useful for development).
+## The image will be pushed at taslanidis/gvirtus-dependencies:cuda12.6.3-cudnn-ubuntu22.04 using the gvirtus-build-push.sh script.
+
 FROM nvidia/cuda:12.6.3-cudnn-devel-ubuntu22.04
 RUN apt update && apt install -y --no-install-recommends \
     build-essential \
@@ -8,15 +12,13 @@ RUN apt update && apt install -y --no-install-recommends \
     liblog4cplus-dev \
     librdmacm-dev \
     libibverbs-dev \
-    autotools-dev \
-    automake \
+    libgtest-dev \
     cmake \
-    pkg-config \
-    curl \
-    git \
-    # gcc-10 \
-    # g++-10 \
     && rm -rf /var/lib/apt/lists/*
+
+ENV GVIRTUS_HOME=/usr/local/gvirtus
+ENV GVIRTUS_LOGLEVEL=0
+ENV LD_LIBRARY_PATH=${GVIRTUS_HOME}/lib:${LD_LIBRARY_PATH}
 
 # COPY cmake /gvirtus/cmake
 # COPY etc /gvirtus/etc

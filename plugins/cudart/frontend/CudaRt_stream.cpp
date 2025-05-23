@@ -55,7 +55,7 @@ cudaStreamCreateWithFlags(cudaStream_t *pStream, unsigned int flags) {
   CudaRtFrontend::AddVariableForArguments(flags);
   CudaRtFrontend::Execute("cudaStreamCreateWithFlags");
   if (CudaRtFrontend::Success())
-    *pStream = (cudaStream_t)CudaRtFrontend::GetOutputDevicePointer();
+    *pStream = (cudaStream_t) CudaRtFrontend::GetOutputDevicePointer();
   return CudaRtFrontend::GetExitCode();
 }
 
@@ -99,7 +99,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaStreamCreateWithPriority(
   CudaRtFrontend::AddVariableForArguments(priority);
   CudaRtFrontend::Execute("cudaStreamCreateWithPriority");
   if (CudaRtFrontend::Success())
-    *pStream = (cudaStream_t)CudaRtFrontend::GetOutputDevicePointer();
+    *pStream = (cudaStream_t) CudaRtFrontend::GetOutputDevicePointer();
   return CudaRtFrontend::GetExitCode();
 }
 
