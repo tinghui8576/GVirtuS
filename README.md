@@ -45,7 +45,7 @@ To test GVirtuS, follow the steps below. This setup runs the GVirtuS backend ins
 Use the script below to start the GVirtuS backend. It builds GVirtuS from source inside a Docker container and launches the backend process:
 
 ```
-./gvirtus-run.sh
+make run-gvirtus-backend-dev
 ```
 
 **2. Run the Tests**
@@ -53,7 +53,7 @@ Use the script below to start the GVirtuS backend. It builds GVirtuS from source
 Once the backend is running, you can run the tests using the following script. This script creates a new process inside the same container that acts as the frontend and runs all test files located in the tests/ directory:
 
 ```
-./gvirtus-tests.sh
+make run-gvirtus-tests
 ```
 
 **3. Adding Tests**
@@ -64,10 +64,10 @@ To add new tests, simply place your test code in any existing .cu file inside th
 
 After making local changes to the source or tests:
 
-Stop the currently running backend:
+Stop the currently running GVirtuS backend:
 
 ```
-./gvirtus-stop.sh
+make stop-gvirtus
 ```
 
 Ensure your changes are saved.
