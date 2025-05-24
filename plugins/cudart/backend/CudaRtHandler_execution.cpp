@@ -99,6 +99,7 @@ void CUDART_CB  manageMemoryStreamCallback(cudaStream_t stream, cudaError_t stat
     }
 }
 
+#if CUDART_VERSION >= 9000
 CUDA_ROUTINE_HANDLER(LaunchKernel) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("LaunchKernel"));
     LOG4CPLUS_DEBUG(logger, "LaunchKernel");
@@ -165,7 +166,7 @@ CUDA_ROUTINE_HANDLER(LaunchKernel) {
 
   return std::make_shared<Result>(exit_code);
 }
-
+#endif
 
 
 CUDA_ROUTINE_HANDLER(Launch) {
@@ -173,7 +174,7 @@ CUDA_ROUTINE_HANDLER(Launch) {
   void *pointer;
   // cudaConfigureCall
   ctrl = input_buffer->Get<int>();
-  if (ctrl != 0x434e34c) throw "Expecting cudaConfigureCall";
+  if (ctrl != 0x434e34c) throw runtime_error("Expecting cudaConfigureCall");
 
   dim3 gridDim = input_buffer->Get<dim3>();
   dim3 blockDim = input_buffer->Get<dim3>();
@@ -197,7 +198,7 @@ CUDA_ROUTINE_HANDLER(Launch) {
   }
 
   // cudaLaunch
-  if (ctrl != 0x4c41554e) throw "Expecting cudaLaunch";
+  if (ctrl != 0x4c41554e) throw runtime_error("Expecting cudaLaunch");
 
   // char *handler = input_buffer->AssignString();
   // fprintf(stderr,"handler:%s\n",handler);

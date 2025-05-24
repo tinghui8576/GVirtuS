@@ -5,7 +5,7 @@ if(NOT ${PROJECT_NAME} STREQUAL "gvirtus-common")
     link_directories(${GVIRTUS_HOME}/lib)
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGVIRTUS_HOME=\\\"${GVIRTUS_HOME}\\\"")
 set(CMAKE_SKIP_RPATH ON)
@@ -16,19 +16,8 @@ include(ExternalProject)
 # Set the external install location
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/external)
 
-ExternalProject_Add(log4cplus
-        URL https://downloads.sourceforge.net/log4cplus/log4cplus-stable/2.1.2/log4cplus-2.1.2.tar.gz
-        TIMEOUT 360
-        BUILD_IN_SOURCE 1
-        CONFIGURE_COMMAND ./configure --prefix=${EXTERNAL_INSTALL_LOCATION} CFLAGS=-fPIC CPPFLAGS=-I${EXTERNAL_INSTALL_LOCATION}/include/ LDFLAGS=-L${EXTERNAL_INSTALL_LOCATION}/lib/
-        BUILD_COMMAND make
-        INSTALL_COMMAND make install
-        )
-set(LIBLOG4CPLUS ${EXTERNAL_INSTALL_LOCATION}/lib/liblog4cplus.so)
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(LIBLOG4CPLUS ${EXTERNAL_INSTALL_LOCATION}/lib/liblog4cplus.dylib)
-endif()
-include_directories(${EXTERNAL_INSTALL_LOCATION}/include)
+# Include the log4cplus module (downloads or finds it)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/log4cplus.cmake)
 
 find_package(Threads REQUIRED)
 

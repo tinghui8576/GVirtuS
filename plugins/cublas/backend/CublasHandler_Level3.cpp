@@ -36,7 +36,7 @@ CUBLAS_ROUTINE_HANDLER(Sgemm_v2) {
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-   // cout << "DEBUG - cublasSgemm_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasSgemm_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -72,7 +72,7 @@ CUBLAS_ROUTINE_HANDLER(SgemmBatched_v2){
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasSgemmBatched_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasSgemmBatched_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -106,7 +106,7 @@ CUBLAS_ROUTINE_HANDLER(Dgemm_v2) {
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasDgemm_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasDgemm_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -142,7 +142,7 @@ CUBLAS_ROUTINE_HANDLER(DgemmBatched_v2){
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasDgemmBatched_v2 Executed"<<endl;
+   LOG4CPLUS_DEBUG(logger, "cublasDgemmBatched_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -177,7 +177,7 @@ CUBLAS_ROUTINE_HANDLER(Cgemm_v2) {
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasCgemm_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasCgemm_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -213,7 +213,7 @@ CUBLAS_ROUTINE_HANDLER(CgemmBatched_v2){
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasCgemmBatched_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasCgemmBatched_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -248,7 +248,7 @@ CUBLAS_ROUTINE_HANDLER(Zgemm_v2) {
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasZgemm_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasZgemm_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -284,7 +284,7 @@ CUBLAS_ROUTINE_HANDLER(ZgemmBatched_v2){
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasZgemmBatched_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasZgemmBatched_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -308,7 +308,7 @@ CUBLAS_ROUTINE_HANDLER(Snrm2_v2){
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasSnrm2_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasSnrm2_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -331,7 +331,7 @@ CUBLAS_ROUTINE_HANDLER(Dnrm2_v2){
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasDnrm2_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasDnrm2_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -354,7 +354,7 @@ CUBLAS_ROUTINE_HANDLER(Scnrm2_v2){
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasScnrm2_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasScnrm2_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -377,7 +377,7 @@ CUBLAS_ROUTINE_HANDLER(Dznrm2_v2){
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    cout << "DEBUG - cublasDznrm2_v2 Executed"<<endl;
+    LOG4CPLUS_DEBUG(logger, "cublasDznrm2_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 

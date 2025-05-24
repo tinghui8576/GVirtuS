@@ -37,6 +37,8 @@
 #ifndef _CUFFTHANDLER_H
 #define	_CUFFTHANDLER_H
 
+#include <stdexcept>
+
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 

@@ -23,11 +23,13 @@
  *
  */
 
-#include <cstring>
-#include <map>
-#include <errno.h>
-#include <cuda_runtime_api.h>
-#include "CusolverHandler.h"
+ #include <cstring>
+ #include <map>
+ #include <errno.h>
+ #include <cuda_runtime_api.h>
+ #include <stdexcept>
+
+ #include "CusolverHandler.h"
 
 using namespace std;
 using namespace log4cplus;
@@ -68,11 +70,11 @@ bool CusolverHandler::CanExecute(std::string routine) {
 }
 
 std::shared_ptr<gvirtus::communicators::Result> CusolverHandler::Execute(std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer) {
-    LOG4CPLUS_DEBUG(logger,"Called " << routine);
+    LOG4CPLUS_DEBUG(logger, "Called " << routine);
     map<string, CusolverHandler::CusolverRoutineHandler>::iterator it;
     it = mspHandlers->find(routine);
     if (it == mspHandlers->end())
-        throw "No handler for '" + routine + "' found!";
+        throw runtime_error("No handler for '" + routine + "' found!");
     try {
         return it->second(this, input_buffer);
     } catch (const char *ex) {

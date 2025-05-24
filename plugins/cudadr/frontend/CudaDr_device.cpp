@@ -114,7 +114,7 @@ extern CUresult cuDeviceTotalMem(size_t *bytes, CUdevice dev) {
     CudaDrFrontend::AddVariableForArguments(dev);
     CudaDrFrontend::Execute("cuDeviceTotalMem");
     if (CudaDrFrontend::Success())
-        *bytes = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
+        *bytes = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
     return (CUresult) (CudaDrFrontend::GetExitCode());
 }
 

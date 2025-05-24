@@ -28,26 +28,27 @@
 
 using namespace std;
 
-// extern const surfaceReference *getSurface(const surfaceReference *handler);
+// extern const cudaSurfaceObject_t*getSurface(const cudaSurfaceObject_t*handler);
 
-CUDA_ROUTINE_HANDLER(BindSurfaceToArray) {
-  char *surfrefHandler = input_buffer->AssignString();
+// Deprecated
+// CUDA_ROUTINE_HANDLER(BindSurfaceToArray) {
+//   char *surfrefHandler = input_buffer->AssignString();
 
-  surfaceReference *guestSurfref = input_buffer->Assign<surfaceReference>();
+//   cudaSurfaceObject_t*guestSurfref = input_buffer->Assign<surfaceReference>();
 
-  surfaceReference *surfref = pThis->GetSurface(surfrefHandler);
-  cudaChannelFormatDesc *a = &(surfref->channelDesc);
-  memmove(surfref, guestSurfref, sizeof(surfaceReference));
-  cudaArray *array = (cudaArray *)input_buffer->Get<pointer_t>();
-  cudaChannelFormatDesc *desc = input_buffer->Assign<cudaChannelFormatDesc>();
+//   cudaSurfaceObject_t*surfref = pThis->GetSurface(surfrefHandler);
+//   cudaChannelFormatDesc *a = &(surfref->channelDesc);
+//   memmove(surfref, guestSurfref, sizeof(surfaceReference));
+//   cudaArray *array = (cudaArray *)input_buffer->Get<pointer_t>();
+//   cudaChannelFormatDesc *desc = input_buffer->Assign<cudaChannelFormatDesc>();
 
-  cudaError_t exit_code = cudaBindSurfaceToArray(surfref, array, desc);
+//   cudaError_t exit_code = cudaBindSurfaceToArray(surfref, array, desc);
 
-  return std::make_shared<Result>(exit_code);
-}
+//   return std::make_shared<Result>(exit_code);
+// }
 
 // CUDA_ROUTINE_HANDLER(GetTextureReference) {
-//    textureReference *texref;
+//    cudaTextureObject_t* texref;
 //    char *symbol_handler = input_buffer->AssignString();
 //    char *symbol = input_buffer->AssignString();
 //
@@ -56,7 +57,7 @@ CUDA_ROUTINE_HANDLER(BindSurfaceToArray) {
 //        symbol = const_cast<char *> (our_symbol);
 //
 //    cudaError_t exit_code = cudaGetTextureReference(
-//            (const textureReference ** ) &texref, symbol);
+//            (const cudaTextureObject_t** ) &texref, symbol);
 //
 //    Buffer *out = new Buffer();
 //    if(exit_code == cudaSuccess)

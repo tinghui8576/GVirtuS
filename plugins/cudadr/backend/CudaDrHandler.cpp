@@ -32,6 +32,7 @@
 #include "CudaUtil.h"
 #include "CudaDrHandler.h"
 #include <cuda.h>
+#include <stdexcept>
 
 using namespace std;
 using namespace log4cplus;
@@ -48,7 +49,7 @@ CudaDrHandler::CudaDrHandler() {
     mpFatBinary = new map<string, void **>();
     mpDeviceFunction = new map<string, string > ();
     mpVar = new map<string, string > ();
-    mpTexture = new map<string, textureReference *>();
+    mpTexture = new map<string, cudaTextureObject_t*>();
     Initialize();
 }
 
@@ -69,11 +70,11 @@ std::shared_ptr<Result> CudaDrHandler::Execute(std::string routine, std::shared_
 //#ifdef DEBUG
 //    std::cout<<"Called "<<routine<<std::endl;
 //#endif    
-    LOG4CPLUS_DEBUG(logger,"Called " << routine);
+    LOG4CPLUS_DEBUG(logger, "Called " << routine);
 
     it = mspHandlers->find(routine);
     if (it == mspHandlers->end())
-        throw "No handler for '" + routine + "' found!";
+        throw runtime_error("No handler for '" + routine + "' found!");
     return it->second(this, input_buffer);
 }
 
@@ -97,7 +98,7 @@ void CudaDrHandler::RegisterFatBinary(const char* handler, void ** fatCubinHandl
 void ** CudaDrHandler::GetFatBinary(string & handler) {
     map<string, void **>::iterator it = mpFatBinary->find(handler);
     if (it == mpFatBinary->end())
-        throw "Fat Binary '" + handler + "' not found";
+        throw runtime_error("Fat Binary '" + handler + "' not found");
     return it->second;
 }
 
@@ -143,7 +144,7 @@ void CudaDrHandler::RegisterDeviceFunction(const char * handler, const char * fu
 const char *CudaDrHandler::GetDeviceFunction(std::string & handler) {
     map<string, string>::iterator it = mpDeviceFunction->find(handler);
     if (it == mpDeviceFunction->end())
-        throw "Device Function '" + handler + "' not found";
+        throw runtime_error("Device Function '" + handler + "' not found");
     return it->second.c_str();
 }
 
@@ -178,39 +179,39 @@ const char * CudaDrHandler::GetVar(const char* handler) {
     return GetVar(tmp);
 }
 
-void CudaDrHandler::RegisterTexture(string& handler, textureReference* texref) {
-    mpTexture->insert(make_pair(handler, texref));
-//#ifdef DEBUG
-//    cout << "Registered Texture " << texref << " with handler " << handler<< endl;
-//#endif
-    LOG4CPLUS_DEBUG(logger,"Registered Texture " << texref << " with handler " << handler);
-}
+// void CudaDrHandler::RegisterTexture(string& handler, textureReference* texref) {
+//     mpTexture->insert(make_pair(handler, texref));
+// //#ifdef DEBUG
+// //    cout << "Registered Texture " << texref << " with handler " << handler<< endl;
+// //#endif
+//     LOG4CPLUS_DEBUG(logger,"Registered Texture " << texref << " with handler " << handler);
+// }
 
-void CudaDrHandler::RegisterTexture(const char* handler,
-        textureReference* texref) {
-    string tmp(handler);
-    RegisterTexture(tmp, texref);
-}
+// void CudaDrHandler::RegisterTexture(const char* handler,
+//         textureReference* texref) {
+//     string tmp(handler);
+//     RegisterTexture(tmp, texref);
+// }
 
-textureReference *CudaDrHandler::GetTexture(string & handler) {
-    map<string, textureReference *>::iterator it = mpTexture->find(handler);
-    if (it == mpTexture->end())
-        return NULL;
-    return it->second;
-}
+// cudaTextureObject_t*CudaDrHandler::GetTexture(string & handler) {
+//     map<string, cudaTextureObject_t*>::iterator it = mpTexture->find(handler);
+//     if (it == mpTexture->end())
+//         return NULL;
+//     return it->second;
+// }
 
-textureReference * CudaDrHandler::GetTexture(const char* handler) {
-    string tmp(handler);
-    return GetTexture(tmp);
-}
+// cudaTextureObject_t* CudaDrHandler::GetTexture(const char* handler) {
+//     string tmp(handler);
+//     return GetTexture(tmp);
+// }
 
-const char *CudaDrHandler::GetTextureHandler(textureReference* texref) {
-    for (map<string, textureReference *>::iterator it = mpTexture->begin();
-            it != mpTexture->end(); it++)
-        if (it->second == texref)
-            return it->first.c_str();
-    return NULL;
-}
+// const char *CudaDrHandler::GetTextureHandler(textureReference* texref) {
+//     for (map<string, cudaTextureObject_t*>::iterator it = mpTexture->begin();
+//             it != mpTexture->end(); it++)
+//         if (it->second == texref)
+//             return it->first.c_str();
+//     return NULL;
+// }
 
 const char *CudaDrHandler::GetSymbol(Buffer* in) {
     char *symbol_handler = in->AssignString();

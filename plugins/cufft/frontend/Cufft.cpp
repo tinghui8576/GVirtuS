@@ -388,30 +388,16 @@ extern "C" cufftResult cufftPlanMany(cufftHandle *plan, int rank, int *n,
   CufftFrontend::Execute("cufftPlanMany");
 
   if (CufftFrontend::Success())
-    plan = CufftFrontend::GetOutputHostPointer<cufftHandle>();
+    *plan = *CufftFrontend::GetOutputHostPointer<cufftHandle>();
 
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
-// extern "C" cufftResult cufftCreate(cufftHandle *plan) {
-//     if (!plan) return CUFFT_INVALID_PLAN;
-
-//     CufftFrontend::Prepare();
-//     CufftFrontend::Execute("cufftCreate");
-
-//     if (CufftFrontend::Success())
-//         *plan = CufftFrontend::GetOutputVariable<cufftHandle>();  // simpler than GetOutputHostPointer()
-
-//     return (cufftResult) CufftFrontend::GetExitCode();
-// }
-
 extern "C" cufftResult cufftCreate(cufftHandle *plan) {
   CufftFrontend::Prepare();
-  CufftFrontend::AddHostPointerForArguments<cufftHandle>(plan);
   CufftFrontend::Execute("cufftCreate");
   if (CufftFrontend::Success())
     *plan = *(CufftFrontend::GetOutputHostPointer<cufftHandle>());
-  //printf("plan: %d",*plan);
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 
@@ -584,7 +570,7 @@ extern "C" cufftResult cufftXtSetGPUs(cufftHandle plan, int nGPUs, int *whichGPU
   //Passing arguments
   CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
   CufftFrontend::AddVariableForArguments<int>(nGPUs);
-  CufftFrontend::AddHostPointerForArguments<int>(whichGPUs);
+  CufftFrontend::AddHostPointerForArguments<int>(whichGPUs, nGPUs);
 
   CufftFrontend::Execute("cufftXtSetGPUs");
   return (cufftResult) CufftFrontend::GetExitCode();

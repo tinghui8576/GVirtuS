@@ -27,7 +27,6 @@
 #include <map>
 #include <errno.h>
 
-
 using namespace std;
 using namespace log4cplus;
 
@@ -54,7 +53,7 @@ std::shared_ptr<Result> CurandHandler::Execute(std::string routine, std::shared_
     map<string, CurandHandler::CurandRoutineHandler>::iterator it;
     it = mspHandlers->find(routine);
     if (it == mspHandlers->end())
-        throw "No handler for '" + routine + "' found!";
+        throw runtime_error(std::string("No handler for '") + routine + std::string("' found!"));
     try {
         return it->second(this, in);
     } catch (const char *ex) {

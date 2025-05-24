@@ -333,7 +333,7 @@ CUDNN_ROUTINE_HANDLER(DestroyRNNDescriptor);
 CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v5);
 //CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v5);
 #endif
-#if CUDNN_VERSION >= 6000
+#if CUDNN_VERSION >= 6000 && CUDNN_VERSION < 9000
 CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v6);
 CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v6);
 #endif
@@ -341,6 +341,8 @@ CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v6);
 CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v8);
 CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v8);
 #endif
+
+#if CUDNN_VERSION < 9000
 CUDNN_ROUTINE_HANDLER(SetRNNMatrixMathType);
 CUDNN_ROUTINE_HANDLER(GetRNNMatrixMathType);
 CUDNN_ROUTINE_HANDLER(SetRNNBiasMode);
@@ -363,10 +365,6 @@ CUDNN_ROUTINE_HANDLER(RNNBackwardData);
 CUDNN_ROUTINE_HANDLER(RNNBackwardWeights);
 CUDNN_ROUTINE_HANDLER(SetRNNPaddingMode);
 CUDNN_ROUTINE_HANDLER(GetRNNPaddingMode);
-CUDNN_ROUTINE_HANDLER(CreateRNNDataDescriptor);
-CUDNN_ROUTINE_HANDLER(DestroyRNNDataDescriptor);
-CUDNN_ROUTINE_HANDLER(SetRNNDataDescriptor);
-CUDNN_ROUTINE_HANDLER(GetRNNDataDescriptor);
 CUDNN_ROUTINE_HANDLER(RNNForwardTrainingEx);
 CUDNN_ROUTINE_HANDLER(RNNForwardInferenceEx);
 CUDNN_ROUTINE_HANDLER(RNNBackwardDataEx);
@@ -380,6 +378,24 @@ CUDNN_ROUTINE_HANDLER(GetRNNBackwardDataAlgorithmMaxCount);
 CUDNN_ROUTINE_HANDLER(FindRNNBackwardDataAlgorithmEx);
 CUDNN_ROUTINE_HANDLER(GetRNNBackwardWeightsAlgorithmMaxCount);
 CUDNN_ROUTINE_HANDLER(FindRNNBackwardWeightsAlgorithmEx);
+CUDNN_ROUTINE_HANDLER(CreateAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(SetAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(GetAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(CopyAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(DestroyAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(CreateAlgorithmPerformance);
+CUDNN_ROUTINE_HANDLER(SetAlgorithmPerformance);
+CUDNN_ROUTINE_HANDLER(GetAlgorithmPerformance);
+CUDNN_ROUTINE_HANDLER(DestroyAlgorithmPerformance);
+CUDNN_ROUTINE_HANDLER(GetAlgorithmSpaceSize);
+CUDNN_ROUTINE_HANDLER(SaveAlgorithm);
+CUDNN_ROUTINE_HANDLER(RestoreAlgorithm);
+#endif
+
+CUDNN_ROUTINE_HANDLER(CreateRNNDataDescriptor);
+CUDNN_ROUTINE_HANDLER(DestroyRNNDataDescriptor);
+CUDNN_ROUTINE_HANDLER(SetRNNDataDescriptor);
+CUDNN_ROUTINE_HANDLER(GetRNNDataDescriptor);
 CUDNN_ROUTINE_HANDLER(CreateSeqDataDescriptor);
 CUDNN_ROUTINE_HANDLER(DestroySeqDataDescriptor);
 CUDNN_ROUTINE_HANDLER(SetSeqDataDescriptor);
@@ -401,18 +417,7 @@ CUDNN_ROUTINE_HANDLER(GetCTCLossDescriptorEx);
 CUDNN_ROUTINE_HANDLER(DestroyCTCLossDescriptor);
 CUDNN_ROUTINE_HANDLER(CTCLoss);
 CUDNN_ROUTINE_HANDLER(GetCTCLossWorkspaceSize);
-CUDNN_ROUTINE_HANDLER(CreateAlgorithmDescriptor);
-CUDNN_ROUTINE_HANDLER(SetAlgorithmDescriptor);
-CUDNN_ROUTINE_HANDLER(GetAlgorithmDescriptor);
-CUDNN_ROUTINE_HANDLER(CopyAlgorithmDescriptor);
-CUDNN_ROUTINE_HANDLER(DestroyAlgorithmDescriptor);
-CUDNN_ROUTINE_HANDLER(CreateAlgorithmPerformance);
-CUDNN_ROUTINE_HANDLER(SetAlgorithmPerformance);
-CUDNN_ROUTINE_HANDLER(GetAlgorithmPerformance);
-CUDNN_ROUTINE_HANDLER(DestroyAlgorithmPerformance);
-CUDNN_ROUTINE_HANDLER(GetAlgorithmSpaceSize);
-CUDNN_ROUTINE_HANDLER(SaveAlgorithm);
-CUDNN_ROUTINE_HANDLER(RestoreAlgorithm);
+
 CUDNN_ROUTINE_HANDLER(SetCallback);
 CUDNN_ROUTINE_HANDLER(GetCallback);
 CUDNN_ROUTINE_HANDLER(CreateFusedOpsConstParamPack);
@@ -427,6 +432,5 @@ CUDNN_ROUTINE_HANDLER(CreateFusedOpsPlan);
 CUDNN_ROUTINE_HANDLER(DestroyFusedOpsPlan);
 CUDNN_ROUTINE_HANDLER(MakeFusedOpsPlan);
 CUDNN_ROUTINE_HANDLER(FusedOpsExecute);
-
 
 #endif  /* CUDNNHANDLER_H */

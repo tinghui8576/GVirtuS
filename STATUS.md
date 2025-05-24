@@ -220,25 +220,25 @@
 
 | Function                | Implemented | Tested | Working |          Notes          |
 | ----------------------- | ----------- | ------ | ------- | ------------------------|
-| `cublasCreate`          | ✅          | ✅      | ✅      |                         |
-| `cublasDestroy`         | ✅          | ✅      | ✅      |                         |
-| `cublasSetStream`       | ✅          | ✅      | ✅      |                         |
+| `cublasCreate`          | ✅          | ✅      | ❌      |    broke in CUDA 12    |
+| `cublasDestroy`         | ✅          | ✅      | ❌      |   broke in CUDA 12     |
+| `cublasSetStream`       | ✅          | ✅      | ❌      |   broke in CUDA 12     |
 | `cublasSetVector`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetVector`       | ✅          | ❌      | ❓      |                         |
 | `cublasSetMatrix`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetMatrix`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetPointerMode`  | ✅          | ❌      | ❓      |                         |
 | `cublasSetPointerMode`  | ✅          | ❌      | ❓      |                         |
-| `cublasSaxpy`           | ✅          | ✅      | ✅      |                         |
-| `cublasDaxpy`           | ✅          | ✅      | ✅      |                         |
+| `cublasSaxpy`           | ✅          | ✅      | ❌      |   broke in CUDA 12      |
+| `cublasDaxpy`           | ✅          | ✅      | ❌      |   broke in CUDA 12      |
 | `cublasCaxpy`           | ✅          | ❌      | ❓      |                         |
 | `cublasZaxpy`           | ✅          | ❌      | ❓      |                         |
 | `cublasScopy`           | ✅          | ✅      | ✅      |                         |
 | `cublasDcopy`           | ✅          | ✅      | ✅      |                         |
 | `cublasCcopy`           | ✅          | ❌      | ❓      |                         |
 | `cublasZcopy`           | ✅          | ❌      | ❓      |                         |
-| `cublasSnrm2`           | ✅          | ✅      | ✅      |                         |
-| `cublasDnrm2`           | ✅          | ✅      | ✅      |                         |
+| `cublasSnrm2`           | ✅          | ✅      | ❌      | broke in CUDA 12        |
+| `cublasDnrm2`           | ✅          | ✅      | ❌      | broke in CUDA 12        |
 | `cublasSgemm`           | ✅          | ✅      | ❌      |                         |
 | `cublasDgemm`           | ✅          | ✅      | ❌      |                         |
 | `cublasSgemv`           | ✅          | ✅      | ❌      |                         |
@@ -388,6 +388,8 @@
 | `cublasCtrmm`           | ✅          | ❌      | ❓      |                         |
 | `cublasZtrmm`           | ✅          | ❌      | ❓      |                         |
 
+cuBLAS handle typedefs changed in CUDA 12.
+
 
 # cuRAND
 
@@ -449,9 +451,11 @@
 | `cufftXtMalloc`                           | ✅          | ✅      | ✅      |                          |
 | `cufftXtFree`                             | ✅          | ✅      | ✅      |                          |            
 | `cufftXtMemcpy`                           | ✅          | ✅      | ❌      |                          |  
-| `cufftXtSetGpus`                          | ✅          | ✅      | ❌      |                          |
+| `cufftXtSetGpus`                          | ✅          | ✅      | ✅      |                          |
 | `cufftXtExecDescriptorC2C`                | ✅          | ✅      | ❌      |                          |
-| `cufftXtMakePlanMany`                     | ✅          | ✅      | ❌      |                          |
+| `cufftXtMakePlanMany`                     | ✅          | ✅      | ❌      | Not Supported by GVirtuS |
+
+cuFFT handle typedefs changed in CUDA 12.
 
 # cuDNN
 

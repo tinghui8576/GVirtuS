@@ -31,7 +31,7 @@
 using namespace std;
 
 extern "C" __host__ cudaError_t CUDARTAPI
-cudaBindSurfaceToArray(const surfaceReference *surfref, const cudaArray *array,
+cudaBindSurfaceToArray(const cudaSurfaceObject_t*surfref, const cudaArray *array,
                        const cudaChannelFormatDesc *desc) {
   CudaRtFrontend::Prepare();
 
@@ -48,7 +48,7 @@ cudaBindSurfaceToArray(const surfaceReference *surfref, const cudaArray *array,
 }
 
 // extern "C" __host__ cudaError_t CUDARTAPI cudaGetTextureReference(const
-// textureReference **texref,
+// cudaTextureObject_t**texref,
 //        const void *symbol) {
 //    CudaRtFrontend::Prepare();
 //    // Achtung: skipping to add texref
@@ -58,7 +58,7 @@ cudaBindSurfaceToArray(const surfaceReference *surfref, const cudaArray *array,
 //    CudaRtFrontend::Execute("cudaGetTextureReference");
 //    if (CudaRtFrontend::Success()) {
 //        char *texrefHandler = CudaRtFrontend::GetOutputString();
-//        *texref = (textureReference *) strtoul(texrefHandler, NULL, 16);
+//        *texref = (cudaTextureObject_t*) strtoul(texrefHandler, NULL, 16);
 //    }
 //    return CudaRtFrontend::GetExitCode();
 //}

@@ -148,7 +148,6 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaSetupArgument(const void *arg,
 }
 
 #if CUDA_VERSION >= 9000
-
 extern "C" __host__ cudaError_t cudaLaunchKernel ( const void* func,
                                                    dim3 gridDim, dim3 blockDim,
                                                    void** args,
@@ -271,6 +270,6 @@ extern "C" __host__ cudaError_t cudaLaunchKernel ( const void* func,
     }
     free(pArgsPayload);
     return cudaError;
-#endif
 }
+#endif
 //#endif

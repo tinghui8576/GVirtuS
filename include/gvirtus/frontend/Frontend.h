@@ -182,7 +182,7 @@ class Frontend {
   }
 
   template <class T>T GetOutputVariable() {
-      return mpOutputBuffer->Get<T> ();
+      return mpOutputBuffer->Get<T>();
   }
 
   /**
@@ -195,8 +195,8 @@ class Frontend {
    *
    * @return the pointer from the output parameters.
    */
-  template <class T>T * GetOutputHostPointer(size_t n = 1) {
-      return mpOutputBuffer->Assign<T> (n);
+  template <class T> T * GetOutputHostPointer(size_t n = 1) {
+      return mpOutputBuffer->Assign<T>(n);
   }
 
   /**

@@ -35,16 +35,16 @@
 
 using namespace std;
 
-CUDA_ROUTINE_HANDLER(GLSetGLDevice) {
-  try {
-    int device = input_buffer->Get<int>();
-    cudaError_t exit_code = cudaGLSetGLDevice(device);
-    return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
-}
+// CUDA_ROUTINE_HANDLER(GLSetGLDevice) {
+//   try {
+//     int device = input_buffer->Get<int>();
+//     cudaError_t exit_code = cudaGLSetGLDevice(device);
+//     return std::make_shared<Result>(exit_code);
+//   } catch (string e) {
+//     cerr << e << endl;
+//     return std::make_shared<Result>(cudaErrorMemoryAllocation);
+//   }
+// }
 
 CUDA_ROUTINE_HANDLER(GraphicsGLRegisterBuffer) {
   struct cudaGraphicsResource *resource = NULL;

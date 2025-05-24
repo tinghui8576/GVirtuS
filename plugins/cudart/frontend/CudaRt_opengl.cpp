@@ -71,13 +71,14 @@ cudaGLSetBufferObjectMapFlags(GLuint bufObj, unsigned int flags) {
   return cudaErrorUnknown;
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaGLSetGLDevice(int device) {
-  cerr << "I'm sorry but it isn't possibile to use OpenGL Interoperability "
-       << "API." << endl
-       << "Giving up ..." << endl;
-  exit(-1);
-  return cudaErrorUnknown;
-}
+// deprecated
+// extern "C" __host__ cudaError_t CUDARTAPI cudaGLSetGLDevice(int device) {
+//   cerr << "I'm sorry but it isn't possibile to use OpenGL Interoperability "
+//        << "API." << endl
+//        << "Giving up ..." << endl;
+//   exit(-1);
+//   return cudaErrorUnknown;
+// }
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaGLUnmapBufferObject(GLuint bufObj) {
@@ -115,13 +116,14 @@ cudaGLUnregisterBufferObject(GLuint bufObj) {
 
 // extern "C" void FlushRoutines();
 
-extern "C" cudaError_t cudaGLSetGLDevice(int device) {
-  // FlushRoutines();
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddVariableForArguments(device);
-  CudaRtFrontend::Execute("cudaGLSetGLDevice");
-  return CudaRtFrontend::GetExitCode();
-}
+// deprecated
+// extern "C" cudaError_t cudaGLSetGLDevice(int device) {
+//   // FlushRoutines();
+//   CudaRtFrontend::Prepare();
+//   CudaRtFrontend::AddVariableForArguments(device);
+//   CudaRtFrontend::Execute("cudaGLSetGLDevice");
+//   return CudaRtFrontend::GetExitCode();
+// }
 
 extern "C" cudaError_t cudaGraphicsGLRegisterBuffer(
     struct cudaGraphicsResource **resource, GLuint buffer, unsigned int flags) {

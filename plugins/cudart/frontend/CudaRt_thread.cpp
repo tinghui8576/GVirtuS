@@ -27,14 +27,16 @@
 
 using namespace std;
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaThreadSynchronize() {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaThreadSynchronize");
-  return CudaRtFrontend::GetExitCode();
-}
+// deprecated
+// extern "C" __host__ cudaError_t CUDARTAPI cudaThreadSynchronize() {
+//   CudaRtFrontend::Prepare();
+//   CudaRtFrontend::Execute("cudaThreadSynchronize");
+//   return CudaRtFrontend::GetExitCode();
+// }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaThreadExit() {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaThreadExit");
-  return CudaRtFrontend::GetExitCode();
-}
+// deprecated
+// extern "C" __host__ cudaError_t CUDARTAPI cudaThreadExit() {
+//   CudaRtFrontend::Prepare();
+//   CudaRtFrontend::Execute("cudaThreadExit");
+//   return CudaRtFrontend::GetExitCode();
+// }

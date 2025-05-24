@@ -219,42 +219,42 @@ extern "C" __host__ void __cudaRegisterSharedVar(void **fatCubinHandle,
   CudaRtFrontend::Execute("cudaRegisterSharedVar");
 }
 
-extern "C" __host__ void __cudaRegisterTexture(void **fatCubinHandle,
-                                               const textureReference *hostVar,
-                                               void **deviceAddress,
-                                               char *deviceName, int dim,
-                                               int norm, int ext) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddStringForArguments(
-      CudaUtil::MarshalHostPointer(fatCubinHandle));
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(hostVar));
-  // Achtung: passing the address and the content of the textureReference
-  CudaRtFrontend::AddHostPointerForArguments(hostVar);
-  CudaRtFrontend::AddStringForArguments((char *)deviceAddress);
-  CudaRtFrontend::AddStringForArguments(deviceName);
-  CudaRtFrontend::AddVariableForArguments(dim);
-  CudaRtFrontend::AddVariableForArguments(norm);
-  CudaRtFrontend::AddVariableForArguments(ext);
-  CudaRtFrontend::Execute("cudaRegisterTexture");
-}
+// extern "C" __host__ void __cudaRegisterTexture(void **fatCubinHandle,
+//                                                const cudaTextureObject_t*hostVar,
+//                                                void **deviceAddress,
+//                                                char *deviceName, int dim,
+//                                                int norm, int ext) {
+//   CudaRtFrontend::Prepare();
+//   CudaRtFrontend::AddStringForArguments(
+//       CudaUtil::MarshalHostPointer(fatCubinHandle));
+//   CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(hostVar));
+//   // Achtung: passing the address and the content of the textureReference
+//   CudaRtFrontend::AddHostPointerForArguments(hostVar);
+//   CudaRtFrontend::AddStringForArguments((char *)deviceAddress);
+//   CudaRtFrontend::AddStringForArguments(deviceName);
+//   CudaRtFrontend::AddVariableForArguments(dim);
+//   CudaRtFrontend::AddVariableForArguments(norm);
+//   CudaRtFrontend::AddVariableForArguments(ext);
+//   CudaRtFrontend::Execute("cudaRegisterTexture");
+// }
 
-extern "C" __host__ void __cudaRegisterSurface(void **fatCubinHandle,
-                                               const surfaceReference *hostVar,
-                                               void **deviceAddress,
-                                               char *deviceName, int dim,
-                                               int ext) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddStringForArguments(
-      CudaUtil::MarshalHostPointer(fatCubinHandle));
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(hostVar));
-  // Achtung: passing the address and the content of the textureReference
-  CudaRtFrontend::AddHostPointerForArguments(hostVar);
-  CudaRtFrontend::AddStringForArguments((char *)deviceAddress);
-  CudaRtFrontend::AddStringForArguments(deviceName);
-  CudaRtFrontend::AddVariableForArguments(dim);
-  CudaRtFrontend::AddVariableForArguments(ext);
-  CudaRtFrontend::Execute("cudaRegisterSurface");
-}
+// extern "C" __host__ void __cudaRegisterSurface(void **fatCubinHandle,
+//                                                const cudaSurfaceObject_t*hostVar,
+//                                                void **deviceAddress,
+//                                                char *deviceName, int dim,
+//                                                int ext) {
+//   CudaRtFrontend::Prepare();
+//   CudaRtFrontend::AddStringForArguments(
+//       CudaUtil::MarshalHostPointer(fatCubinHandle));
+//   CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(hostVar));
+//   // Achtung: passing the address and the content of the textureReference
+//   CudaRtFrontend::AddHostPointerForArguments(hostVar);
+//   CudaRtFrontend::AddStringForArguments((char *)deviceAddress);
+//   CudaRtFrontend::AddStringForArguments(deviceName);
+//   CudaRtFrontend::AddVariableForArguments(dim);
+//   CudaRtFrontend::AddVariableForArguments(ext);
+//   CudaRtFrontend::Execute("cudaRegisterSurface");
+// }
 
 /* */
 
@@ -265,15 +265,15 @@ extern "C" __host__ int __cudaSynchronizeThreads(void **x, void *y) {
   return 0;
 }
 
-extern "C" __host__ void __cudaTextureFetch(const void *tex, void *index,
-                                            int integer, void *val) {
-  // FIXME: implement
-  std::cerr << "*** Error: __cudaTextureFetch() not yet implemented!"
-            << std::endl;
-}
+// extern "C" __host__ void __cudaTextureFetch(const void *tex, void *index,
+//                                             int integer, void *val) {
+//   // FIXME: implement
+//   std::cerr << "*** Error: __cudaTextureFetch() not yet implemented!"
+//             << std::endl;
+// }
 
-#if CUDA_VERSION >= 9000
-extern "C" __host__ __device__  unsigned CUDARTAPI __cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, size_t sharedMem = 0, void *stream = 0) {
+#if CUDA_VERSION >= 9020
+extern "C" __host__ __device__ unsigned CUDARTAPI cudaPushCallConfiguration(dim3 gridDim, dim3 blockDim, size_t sharedMem = 0, void *stream = 0) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(gridDim);
     CudaRtFrontend::AddVariableForArguments(blockDim);
@@ -299,7 +299,7 @@ extern "C" __host__ __device__  unsigned CUDARTAPI __cudaPushCallConfiguration(d
 }
 
 
-extern "C" cudaError_t CUDARTAPI __cudaPopCallConfiguration( dim3 *gridDim,
+extern "C" cudaError_t CUDARTAPI cudaPopCallConfiguration(dim3 *gridDim,
                                                              dim3 *blockDim,
                                                              size_t *sharedMem,
                                                              void *stream) {
