@@ -40,10 +40,9 @@ extern "C" size_t CUDNNWINAPI cudnnGetVersion(){
 
 extern "C" const char * CUDNNWINAPI cudnnGetErrorString(cudnnStatus_t status){
     CudnnFrontend::Prepare();
-
     CudnnFrontend::AddVariableForArguments<cudnnStatus_t>(status);
     CudnnFrontend::Execute("cudnnGetErrorString");
-    return (const char *) CudnnFrontend::GetOutputHostPointer<char *>();
+    return CudnnFrontend::GetOutputVariable<const char *>();
 }
 /*
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreate(cudnnHandle_t *handle){

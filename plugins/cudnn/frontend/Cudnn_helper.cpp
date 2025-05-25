@@ -31,31 +31,32 @@
 
 using namespace std;
 
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreate        (cudnnHandle_t *handle) {
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreate(cudnnHandle_t *handle) {
     CudnnFrontend::Prepare();
-    //CudnnFrontend::AddHostPointerForArguments<cudnnHandle_t>(handle);
     CudnnFrontend::Execute("cudnnCreate");
     if(CudnnFrontend::Success())
-        *handle = *(CudnnFrontend::GetOutputHostPointer<cudnnHandle_t>());
+        *handle = CudnnFrontend::GetOutputVariable<cudnnHandle_t>();
     return CudnnFrontend::GetExitCode();
 }
 
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnDestroy       (cudnnHandle_t handle) {
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnDestroy(cudnnHandle_t handle) {
     CudnnFrontend::Prepare();
     CudnnFrontend::AddDevicePointerForArguments(handle);
     CudnnFrontend::Execute("cudnnDestroy");
     return CudnnFrontend::GetExitCode();
 }
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetStream     (cudnnHandle_t handle, cudaStream_t streamId) {
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetStream(cudnnHandle_t handle, cudaStream_t streamId) {
     CudnnFrontend::Prepare();
     CudnnFrontend::AddDevicePointerForArguments(handle);
     CudnnFrontend::AddDevicePointerForArguments(streamId);
     CudnnFrontend::Execute("cudnnSetStream");
     return CudnnFrontend::GetExitCode();
 }
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetStream     (cudnnHandle_t handle, cudaStream_t *streamId) {
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetStream(cudnnHandle_t handle, cudaStream_t *streamId) {
     CudnnFrontend::Prepare();
     CudnnFrontend::AddDevicePointerForArguments(handle);
     CudnnFrontend::Execute("cudnnGetStream");
+    if (CudnnFrontend::Success())
+        *streamId = CudnnFrontend::GetOutputVariable<cudaStream_t>();
     return CudnnFrontend::GetExitCode();    
 }

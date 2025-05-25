@@ -34,8 +34,9 @@ set(TEST_SOURCES
     test_curand.cu
     test_cublas.cu
     test_cufft.cu
-    test_cudadr.cu
     test_cudnn.cu
+    test_cudadr.cu
+    # Uncomment the following lines if you have these libraries and their tests implemented
     # test_cusparse.cu
     # test_cusolver.cu
 )
