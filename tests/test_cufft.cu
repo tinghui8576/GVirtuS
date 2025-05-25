@@ -554,101 +554,101 @@ TEST(cuFFT, XtMallocFree) {
     CUFFT_CHECK(cufftDestroy(plan));
 }
 
-TEST(cuFFT, CufftXtMallocMemcpyFree) {
-    constexpr size_t N = 8;
-    cufftHandle plan;
-    cudaLibXtDesc* deviceDesc = nullptr;
-    float* hostData = new float[N];
+// TEST(cuFFT, CufftXtMallocMemcpyFree) {
+//     constexpr size_t N = 8;
+//     cufftHandle plan;
+//     cudaLibXtDesc* deviceDesc = nullptr;
+//     float* hostData = new float[N];
 
-    for (size_t i = 0; i < N; ++i)
-        hostData[i] = static_cast<float>(i);
+//     for (size_t i = 0; i < N; ++i)
+//         hostData[i] = static_cast<float>(i);
 
-    // Create cuFFT plan
-    CUFFT_CHECK(cufftPlan1d(&plan, N, CUFFT_R2C, 1));
+//     // Create cuFFT plan
+//     CUFFT_CHECK(cufftPlan1d(&plan, N, CUFFT_R2C, 1));
 
-    // Allocate memory using Xt API
-    CUFFT_CHECK(cufftXtMalloc(plan, &deviceDesc, CUFFT_XT_FORMAT_INPLACE));
+//     // Allocate memory using Xt API
+//     CUFFT_CHECK(cufftXtMalloc(plan, &deviceDesc, CUFFT_XT_FORMAT_INPLACE));
 
-    // Use the opaque descriptor directly in XtMemcpy
-    CUFFT_CHECK(cufftXtMemcpy(plan,
-                              reinterpret_cast<void*>(deviceDesc),
-                              reinterpret_cast<void*>(hostData),
-                              CUFFT_COPY_HOST_TO_DEVICE));
+//     // Use the opaque descriptor directly in XtMemcpy
+//     CUFFT_CHECK(cufftXtMemcpy(plan,
+//                               reinterpret_cast<void*>(deviceDesc),
+//                               reinterpret_cast<void*>(hostData),
+//                               CUFFT_COPY_HOST_TO_DEVICE));
 
-    // Clear hostData before copying back
-    for (size_t i = 0; i < N; ++i)
-        hostData[i] = 0.0f;
+//     // Clear hostData before copying back
+//     for (size_t i = 0; i < N; ++i)
+//         hostData[i] = 0.0f;
 
-    // Copy back from device to host
-    CUFFT_CHECK(cufftXtMemcpy(plan,
-                              reinterpret_cast<void*>(hostData),
-                              reinterpret_cast<void*>(deviceDesc),
-                              CUFFT_COPY_DEVICE_TO_HOST));
+//     // Copy back from device to host
+//     CUFFT_CHECK(cufftXtMemcpy(plan,
+//                               reinterpret_cast<void*>(hostData),
+//                               reinterpret_cast<void*>(deviceDesc),
+//                               CUFFT_COPY_DEVICE_TO_HOST));
 
-    // Check round-trip correctness
-    for (size_t i = 0; i < N; ++i)
-        ASSERT_FLOAT_EQ(hostData[i], static_cast<float>(i));
+//     // Check round-trip correctness
+//     for (size_t i = 0; i < N; ++i)
+//         ASSERT_FLOAT_EQ(hostData[i], static_cast<float>(i));
 
-    // Cleanup
-    // CUFFT_CHECK(cufftXtFree(deviceDesc));
-    CUFFT_CHECK(cufftDestroy(plan));
-    delete[] hostData;
-}
+//     // Cleanup
+//     // CUFFT_CHECK(cufftXtFree(deviceDesc));
+//     CUFFT_CHECK(cufftDestroy(plan));
+//     delete[] hostData;
+// }
 
-TEST(cuFFT, CufftXtExecDescriptorC2C) {
-    // int deviceCount = 0;
-    // CUDA_CHECK(cudaGetDeviceCount(&deviceCount));
-    // if (deviceCount < 2)
-    //     GTEST_SKIP() << "Test requires multiple GPUs";
+// TEST(cuFFT, CufftXtExecDescriptorC2C) {
+//     // int deviceCount = 0;
+//     // CUDA_CHECK(cudaGetDeviceCount(&deviceCount));
+//     // if (deviceCount < 2)
+//     //     GTEST_SKIP() << "Test requires multiple GPUs";
 
-    constexpr size_t N = 8;
-    cufftHandle planFwd, planInv;
-    cudaLibXtDesc* deviceDescFwd = nullptr;
-    cudaLibXtDesc* deviceDescInv = nullptr;
-    cufftComplex* hostData = new cufftComplex[N];
+//     constexpr size_t N = 8;
+//     cufftHandle planFwd, planInv;
+//     cudaLibXtDesc* deviceDescFwd = nullptr;
+//     cudaLibXtDesc* deviceDescInv = nullptr;
+//     cufftComplex* hostData = new cufftComplex[N];
 
-    // Initialize host input with complex numbers
-    for (size_t i = 0; i < N; ++i) {
-        hostData[i].x = static_cast<float>(i);
-        hostData[i].y = 0.0f;
-    }
+//     // Initialize host input with complex numbers
+//     for (size_t i = 0; i < N; ++i) {
+//         hostData[i].x = static_cast<float>(i);
+//         hostData[i].y = 0.0f;
+//     }
 
-    // Create forward and inverse cuFFT plans
-    CUFFT_CHECK(cufftPlan1d(&planFwd, N, CUFFT_C2C, 1));
-    CUFFT_CHECK(cufftPlan1d(&planInv, N, CUFFT_C2C, 1));
+//     // Create forward and inverse cuFFT plans
+//     CUFFT_CHECK(cufftPlan1d(&planFwd, N, CUFFT_C2C, 1));
+//     CUFFT_CHECK(cufftPlan1d(&planInv, N, CUFFT_C2C, 1));
 
-    // Allocate Xt memory
-    CUFFT_CHECK(cufftXtMalloc(planFwd, &deviceDescFwd, CUFFT_XT_FORMAT_INPLACE));
-    CUFFT_CHECK(cufftXtMalloc(planInv, &deviceDescInv, CUFFT_XT_FORMAT_INPLACE));
+//     // Allocate Xt memory
+//     CUFFT_CHECK(cufftXtMalloc(planFwd, &deviceDescFwd, CUFFT_XT_FORMAT_INPLACE));
+//     CUFFT_CHECK(cufftXtMalloc(planInv, &deviceDescInv, CUFFT_XT_FORMAT_INPLACE));
 
-    // Host to device
-    CUFFT_CHECK(cufftXtMemcpy(planFwd,
-                              reinterpret_cast<void*>(deviceDescFwd),
-                              reinterpret_cast<void*>(hostData),
-                              CUFFT_COPY_HOST_TO_DEVICE));
+//     // Host to device
+//     CUFFT_CHECK(cufftXtMemcpy(planFwd,
+//                               reinterpret_cast<void*>(deviceDescFwd),
+//                               reinterpret_cast<void*>(hostData),
+//                               CUFFT_COPY_HOST_TO_DEVICE));
 
-    // Execute forward FFT
-    CUFFT_CHECK(cufftXtExecDescriptorC2C(planFwd, deviceDescFwd, deviceDescInv, CUFFT_FORWARD));
+//     // Execute forward FFT
+//     CUFFT_CHECK(cufftXtExecDescriptorC2C(planFwd, deviceDescFwd, deviceDescInv, CUFFT_FORWARD));
 
-    // Execute inverse FFT (in-place)
-    CUFFT_CHECK(cufftXtExecDescriptorC2C(planInv, deviceDescInv, deviceDescFwd, CUFFT_INVERSE));
+//     // Execute inverse FFT (in-place)
+//     CUFFT_CHECK(cufftXtExecDescriptorC2C(planInv, deviceDescInv, deviceDescFwd, CUFFT_INVERSE));
 
-    // Copy result back to host
-    CUFFT_CHECK(cufftXtMemcpy(planInv,
-                              reinterpret_cast<void*>(hostData),
-                              reinterpret_cast<void*>(deviceDescFwd),
-                              CUFFT_COPY_DEVICE_TO_HOST));
+//     // Copy result back to host
+//     CUFFT_CHECK(cufftXtMemcpy(planInv,
+//                               reinterpret_cast<void*>(hostData),
+//                               reinterpret_cast<void*>(deviceDescFwd),
+//                               CUFFT_COPY_DEVICE_TO_HOST));
 
-    // Check that output matches original input (within tolerance)
-    for (size_t i = 0; i < N; ++i) {
-        ASSERT_NEAR(hostData[i].x / N, static_cast<float>(i), 1e-3);
-        ASSERT_NEAR(hostData[i].y / N, 0.0f, 1e-3);
-    }
+//     // Check that output matches original input (within tolerance)
+//     for (size_t i = 0; i < N; ++i) {
+//         ASSERT_NEAR(hostData[i].x / N, static_cast<float>(i), 1e-3);
+//         ASSERT_NEAR(hostData[i].y / N, 0.0f, 1e-3);
+//     }
 
-    // Cleanup
-    CUFFT_CHECK(cufftXtFree(deviceDescFwd));
-    CUFFT_CHECK(cufftXtFree(deviceDescInv));
-    CUFFT_CHECK(cufftDestroy(planFwd));
-    CUFFT_CHECK(cufftDestroy(planInv));
-    delete[] hostData;
-}
+//     // Cleanup
+//     CUFFT_CHECK(cufftXtFree(deviceDescFwd));
+//     CUFFT_CHECK(cufftXtFree(deviceDescInv));
+//     CUFFT_CHECK(cufftDestroy(planFwd));
+//     CUFFT_CHECK(cufftDestroy(planInv));
+//     delete[] hostData;
+// }

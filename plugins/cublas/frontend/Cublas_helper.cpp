@@ -31,15 +31,16 @@
 
 using namespace std;
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCreate_v2(cublasHandle_t *handle) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCreate_v2(cublasHandle_t* handle) {
     CublasFrontend::Prepare();
-    //CublasFrontend::AddHostPointerForArguments<cublasHandle_t>(handle);
     CublasFrontend::Execute("cublasCreate_v2");
-    if(CublasFrontend::Success())
-        *handle = (CublasFrontend::GetOutputVariable<cublasHandle_t>());
+    if (CublasFrontend::Success())
+        *handle = CublasFrontend::GetOutputVariable<cublasHandle_t>();
+        // *handle = reinterpret_cast<cublasHandle_t>(CublasFrontend::GetOutputDevicePointer()); // equivalent
+        // *handle = reinterpret_cast<cublasHandle_t>(CublasFrontend::GetOutputVariable<uintptr_t>()); // also equivalent
+        // reinterpret_cast<cublasHandle_t> is equivalent to (cublasHandle_t)
     return CublasFrontend::GetExitCode();
 }
-
 
 extern "C"  CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy) {
     CublasFrontend::Prepare();
@@ -113,25 +114,25 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetMatrix(int rows, int c
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDestroy_v2 (cublasHandle_t handle) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDestroy_v2(cublasHandle_t handle) {
     CublasFrontend::Prepare();
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+    // CublasFrontend::AddVariableForArguments<long long int>((long long int)handle); works until cublas < 12
+    // CublasFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)handle); // this works if backend also reads the handle as a uintptr_t and then casts it to cublasHandle_t
+    CublasFrontend::AddDevicePointerForArguments(handle);
+    // CublasFrontend::AddVariableForArguments<cublasHandle_t>(handle); // this does not work as it tries to do sizeof cublasHandle_t which is an incomplete type (opaque struct)
     CublasFrontend::Execute("cublasDestroy_v2");
     return CublasFrontend::GetExitCode();
 }
 
-
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetVersion_v2 (cublasHandle_t handle,int *version) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetVersion_v2(cublasHandle_t handle, int *version) {
     CublasFrontend::Prepare();
-    
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
-    CublasFrontend::Execute("cublasGetVersion");
+    CublasFrontend::Execute("cublasGetVersion_v2");
     if (CublasFrontend::Success())
-        *version = *(CublasFrontend::GetOutputHostPointer<int>());
+        *version = CublasFrontend::GetOutputVariable<int>();
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetStream_v2 (cublasHandle_t handle, cudaStream_t streamId) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetStream_v2(cublasHandle_t handle, cudaStream_t streamId) {
     CublasFrontend::Prepare();
     
     CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);

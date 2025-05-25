@@ -1,4 +1,4 @@
-# cudaDr
+# cudaDr (-lcuda)
 
 | Function                          | Implemented | Tested | Working |        Notes            |
 | --------------------------------- | ----------- | ------ | ------- | ----------------------- |
@@ -90,7 +90,7 @@
 | `cuTexRefSetAddress`              | ✅          | ❌      | ❓      |                         |
 | `cuLaunchKernel`                  | ✅          | ❌      | ❓      |                         |
 
-# cudaRT
+# cudaRT (-lcudart)
 
 | Function                                                 | Implemented | Tested | Working |        Notes            |
 | -------------------------------------------------------- | ----------- | ------ | ------- | ----------------------- |
@@ -216,29 +216,30 @@
 | `cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags` | ✅          | ❌      |❓       |                         |
 
 
-# cuBLAS
+# cuBLAS (-lcublas)
 
 | Function                | Implemented | Tested | Working |          Notes          |
 | ----------------------- | ----------- | ------ | ------- | ------------------------|
-| `cublasCreate`          | ✅          | ✅      | ❌      |    broke in CUDA 12    |
-| `cublasDestroy`         | ✅          | ✅      | ❌      |   broke in CUDA 12     |
-| `cublasSetStream`       | ✅          | ✅      | ❌      |   broke in CUDA 12     |
+| `cublasCreate`          | ✅          | ✅      | ✅      |                         |
+| `cublasDestroy`         | ✅          | ✅      | ✅      |                         |
+| `cublasGetVersion`      | ✅          | ✅      | ✅      |                         |
+| `cublasSetStream`       | ✅          | ✅      | ❌      |     broke in CUDA 12    |
 | `cublasSetVector`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetVector`       | ✅          | ❌      | ❓      |                         |
 | `cublasSetMatrix`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetMatrix`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetPointerMode`  | ✅          | ❌      | ❓      |                         |
 | `cublasSetPointerMode`  | ✅          | ❌      | ❓      |                         |
-| `cublasSaxpy`           | ✅          | ✅      | ❌      |   broke in CUDA 12      |
-| `cublasDaxpy`           | ✅          | ✅      | ❌      |   broke in CUDA 12      |
+| `cublasSaxpy`           | ✅          | ✅      | ✅      |                         |
+| `cublasDaxpy`           | ✅          | ✅      | ❌      |     broke in CUDA 12    |
 | `cublasCaxpy`           | ✅          | ❌      | ❓      |                         |
 | `cublasZaxpy`           | ✅          | ❌      | ❓      |                         |
 | `cublasScopy`           | ✅          | ✅      | ✅      |                         |
 | `cublasDcopy`           | ✅          | ✅      | ✅      |                         |
 | `cublasCcopy`           | ✅          | ❌      | ❓      |                         |
 | `cublasZcopy`           | ✅          | ❌      | ❓      |                         |
-| `cublasSnrm2`           | ✅          | ✅      | ❌      | broke in CUDA 12        |
-| `cublasDnrm2`           | ✅          | ✅      | ❌      | broke in CUDA 12        |
+| `cublasSnrm2`           | ✅          | ✅      | ❌      |     broke in CUDA 12    |
+| `cublasDnrm2`           | ✅          | ✅      | ❌      |     broke in CUDA 12    |
 | `cublasSgemm`           | ✅          | ✅      | ❌      |                         |
 | `cublasDgemm`           | ✅          | ✅      | ❌      |                         |
 | `cublasSgemv`           | ✅          | ✅      | ❌      |                         |
@@ -391,7 +392,7 @@
 cuBLAS handle typedefs changed in CUDA 12.
 
 
-# cuRAND
+# cuRAND (-lcurand)
 
 | Function                                  | Implemented | Tested | Working |          Notes           |
 | ----------------------------------------- | ----------- | ------ | ------- | -------------------------|
@@ -414,7 +415,7 @@ cuBLAS handle typedefs changed in CUDA 12.
 *This function can generate numbers using either a CPU or a GPU generator, created using `curandCreateGenerator` or `curandCreateGeneratorHost`, respectively. **Both CPU and GPU generations are tested and working**.
 
 
-# cuFFT
+# cuFFT (-lcufft)
 
 | Function                                  | Implemented | Tested | Working |          Notes           |
 | ----------------------------------------- | ----------- | ------ | ------- | -------------------------|
@@ -457,7 +458,7 @@ cuBLAS handle typedefs changed in CUDA 12.
 
 cuFFT handle typedefs changed in CUDA 12.
 
-# cuDNN
+# cuDNN (-lcudnn)
 
 | Function                                                   | Implemented | Tested | Working |          Notes           |
 | ---------------------------------------------------------- | ----------- | ------ | ------- | -------------------------|
@@ -701,7 +702,7 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNFusedOpsExecute`                                     | ✅          | ❌      | ❓      |                          | 
 
 
-# cuSPARSE
+# cuSPARSE (-lcusparse)
 
 | Function                                  | Implemented | Tested | Working |          Notes           |
 | ----------------------------------------- | ----------- | ------ | ------- | -------------------------|
@@ -719,7 +720,7 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cusparseXcsrmv_solve`                    | ❌          | ❌      | ❌      |                          | 
 
 
-# cuSOLVER
+# cuSOLVER (-lcusolver)
 
 | Function                                  | Implemented | Tested | Working |          Notes           |
 | ----------------------------------------- | ----------- | ------ | ------- | -------------------------|

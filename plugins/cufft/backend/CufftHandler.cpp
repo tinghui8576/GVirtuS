@@ -190,7 +190,6 @@ CUFFT_ROUTINE_HANDLER(PlanMany) {
     }
 }
 
-
 CUFFT_ROUTINE_HANDLER(ExecC2R) {
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ExecC2R"));
     

@@ -28,62 +28,53 @@
 #include <cstdio>
 #include <string>
 
-CUBLAS_ROUTINE_HANDLER(Create) {
-    cublasHandle_t handle=in->Get<cublasHandle_t>();
-    cublasStatus_t cublas_status=cublasCreate(&handle);
+// cublasStatus_t is a typedef to cublasContext*
+// "The cublasHandle_t type is a pointer type to an opaque structure holding the cuBLAS library context."
+
+CUBLAS_ROUTINE_HANDLER(Create_v2) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Create_v2"));
+    cublasHandle_t handle;
+    cublasStatus_t cs = cublasCreate(&handle);
+    LOG4CPLUS_DEBUG(logger, "cublasCreate_v2 executed with status: " << cs);
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    cout << "Handler create: " << handle << endl;
-    out->Add<cublasHandle_t>(handle);
-    return std::make_shared<Result>(cublas_status, out);
+
+    try {
+        out->AddMarshal(handle); // equivalent
+        // out->Add<uintptr_t>((uintptr_t)handle); // also equivalent
+        // out->Add<cublasHandle_t>(handle); // this does not work as it tries to do sizeof cublasHandle_t which is an incomplete type (opaque struct)
+        LOG4CPLUS_DEBUG(logger, "cublasCreate_v2 handle: " << handle);
+    } catch (string e) {
+        LOG4CPLUS_DEBUG(logger, e);
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+    return std::make_shared<Result>(cs, out);
 }
 
 CUBLAS_ROUTINE_HANDLER(GetVersion_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetVersion"));
     
-    cublasHandle_t handle=(cublasHandle_t)in->Get<long long int>();
     int version;
-    cublasStatus_t cs = cublasGetVersion(handle,&version);
+    cublasStatus_t cs = cublasGetVersion(NULL, &version);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-
-    try{
-        out->Add<int>(version);
-    } catch (string e){
+    LOG4CPLUS_DEBUG(logger, "cublasGetVersion_v2 executed with status: " << cs << " and version: " << version);
+    try {
+        out->Add(&version);
+    } catch (string e) {
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cs);
     }
-    cout << "DEBUG - cublasGetVersion Executed"<<endl;
-    return std::make_shared<Result>(cs,out);
-}
-
-CUBLAS_ROUTINE_HANDLER(Create_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Create_v2"));
-    cublasHandle_t handle ;//= in->Assign<cublasHandle_t>();
-    cublasStatus_t cs = cublasCreate_v2(&handle);
-
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-
-    try{
-        out->Add<cublasHandle_t>(handle);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
-        return std::make_shared<Result>(cudaErrorMemoryAllocation);
-    }
-    if(cs != CUBLAS_STATUS_SUCCESS)
-        cout<<"----Error---"<<endl;
-//    cout << "DEBUG - cublasCreate_v2 Executed"<<endl;
-    return std::make_shared<Result>(cs,out);
+    return std::make_shared<Result>(cs, out);
 }
 
 CUBLAS_ROUTINE_HANDLER(Destroy_v2) {
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Destroy_v2"));
-    cublasHandle_t handle=(cublasHandle_t)in->Get<long long int>();
-    cublasStatus_t cs=cublasDestroy(handle);
- //   cout << "DEBUG - cublasDestroy_v2 Executed"<<endl;
-    //Buffer *out=new Buffer();
+    cublasHandle_t handle = in->Get<cublasHandle_t>(); // here, we read the buffer which contains the cublasHandle_t as a memory address that points to the cublas context.
+    // cublasHandle_t handle = reinterpret_cast<cublasHandle_t>in->Get<uintptr_t>(); // you can also use this if frontend sends the handle as a uintptr_t
+    cublasStatus_t cs = cublasDestroy(handle);
+    LOG4CPLUS_DEBUG(logger, "cublasDestroy_v2 executed with status: " << cs);
     return std::make_shared<Result>(cs);
 }
-
 
 CUBLAS_ROUTINE_HANDLER(SetVector){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("SetVector"));
@@ -128,7 +119,6 @@ CUBLAS_ROUTINE_HANDLER(SetMatrix){
     cout << "DEBUG - cublasSetVector Executed"<<endl;
     return std::make_shared<Result>(cs);
 }
-
 
 CUBLAS_ROUTINE_HANDLER(GetVector){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetVector"));

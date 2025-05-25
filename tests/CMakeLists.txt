@@ -32,8 +32,8 @@ endif()
 set(TEST_SOURCES
     test_cudart.cu
     test_curand.cu
-    test_cufft.cu
     test_cublas.cu
+    test_cufft.cu
     test_cudadr.cu
     test_cudnn.cu
     # test_cusparse.cu
