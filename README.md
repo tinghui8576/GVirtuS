@@ -12,15 +12,13 @@ You can view the full list of all GVirtuS published papers in [CITATIONS](CITATI
 
 ## Prerequisites
 
-* **[CUDA Toolkit](https://developer.nvidia.com/cuda-downloads):** version 12
-  > [!NOTE]
-  > The latest verified working version is CUDA Toolkit v12.6.3
+Before proceeding, ensure the following dependencies are installed on your system:
 
-* **[cuDNN](https://developer.nvidia.com/cudnn-downloads)**: version 9
-  > [!NOTE]
-  > The latest verified working version is cuDNN v9.5.1
+* [CUDA Toolkit 12](https://developer.nvidia.com/cuda-downloads): _Tested with CUDA Toolkit **v12.6.3** (latest verified working version)_
 
-* [Docker](https://docs.docker.com/engine/install/)
+* [cuDNN](https://developer.nvidia.com/cudnn-downloads): _Tested with cuDNN **v9.5.1** (latest verified working version)_
+
+* [Docker](https://docs.docker.com/engine/install/): _Ensure Docker Engine is properly installed and running_
 
 ## Installation
 
