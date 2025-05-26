@@ -36,6 +36,9 @@
 #ifndef _CUDARTHANDLER_H
 #define _CUDARTHANDLER_H
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <cstdio>
 #include <iostream>
 #include <map>
@@ -46,7 +49,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <stdexcept>
 
 #include <cuda_runtime_api.h>
 

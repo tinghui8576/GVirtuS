@@ -11,7 +11,6 @@
 #include <functional>
 #include <thread>
 #include <iostream>
-#include <stdexcept>
 
 #define DEBUG
 

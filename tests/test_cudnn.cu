@@ -14,6 +14,7 @@ TEST(cuDNN, CreateDestroy) {
 TEST(cuDNN, GetVersion) {
     size_t version = cudnnGetVersion();
     ASSERT_GT(version, 0);
+    std::cout << "cuDNN version: " << version << std::endl;
 }
 
 TEST(cuDNN, SetGetStream) {

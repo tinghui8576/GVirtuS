@@ -27,10 +27,8 @@
 #include "CublasHandler_Level2.cpp"
 #include "CublasHandler_Level3.cpp"
 #include <cstring>
-//#include <map>
 #include <bits/stl_map.h>
 #include <errno.h>
-#include <stdexcept>
 
 using namespace std;
 using namespace log4cplus;

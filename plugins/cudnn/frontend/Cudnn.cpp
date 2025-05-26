@@ -34,7 +34,7 @@ using namespace std;
 extern "C" size_t CUDNNWINAPI cudnnGetVersion(){
     CudnnFrontend::Prepare();
     
-    CudnnFrontend::Execute("cudnnGetVersion"); 
+    CudnnFrontend::Execute("cudnnGetVersion");
     return CudnnFrontend::GetExitCode();
 }
 

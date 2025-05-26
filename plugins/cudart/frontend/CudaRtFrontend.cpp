@@ -23,7 +23,6 @@
  *             Department of Applied Science
  */
 
-
 #include "CudaRtFrontend.h"
 
 using namespace std;

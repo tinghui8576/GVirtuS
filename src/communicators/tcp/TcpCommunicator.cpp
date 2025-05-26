@@ -56,7 +56,6 @@ static bool initialized = false;
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include <stdexcept>
 
 using namespace std;
 using gvirtus::communicators::TcpCommunicator;

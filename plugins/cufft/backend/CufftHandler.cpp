@@ -1024,6 +1024,7 @@ CUFFT_ROUTINE_HANDLER(XtMemcpy){
                 cout<<"type: HOST_TO_DEVICE"<< endl;
                 //out->AddMarshal(dstPointer);
                 break;
+            // TODO: IMPLEMENT THE FOLLOWING CASES
             // case CUFFT_COPY_DEVICE_TO_DEVICE:
             //     cout<<"type: DEVICE_TO_DEVICE"<< endl;
 

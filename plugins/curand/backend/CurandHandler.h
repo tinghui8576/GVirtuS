@@ -26,8 +26,6 @@
 #ifndef _CURANDHANDLER_H
 #define _CURANDHANDLER_H
 
-#include <stdexcept>
-
 #include <gvirtus/backend/Handler.h>
 
 #include <gvirtus/communicators/Result.h>

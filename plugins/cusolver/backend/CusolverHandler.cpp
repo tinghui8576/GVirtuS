@@ -27,7 +27,6 @@
  #include <map>
  #include <errno.h>
  #include <cuda_runtime_api.h>
- #include <stdexcept>
 
  #include "CusolverHandler.h"
 

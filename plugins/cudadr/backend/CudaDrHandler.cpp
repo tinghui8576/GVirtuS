@@ -32,7 +32,6 @@
 #include "CudaUtil.h"
 #include "CudaDrHandler.h"
 #include <cuda.h>
-#include <stdexcept>
 
 using namespace std;
 using namespace log4cplus;

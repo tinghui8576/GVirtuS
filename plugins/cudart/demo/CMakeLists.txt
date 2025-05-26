@@ -1,3 +1,10 @@
+cmake_policy(SET CMP0104 NEW)
+
+# Set required CUDA architectures
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES 75 86 89)
+endif()
+
 cuda_add_executable( add_grid.e add_grid.cu OPTIONS --cudart=shared)
 #set_target_properties(add_grid.e PROPERTIES CUDA_RUNTIME_LIBRARY shared EXTRA_NVCCFLAGS --cudart=shared)
 install(TARGETS add_grid.e RUNTIME DESTINATION ${GVIRTUS_HOME}/demo/cudart)

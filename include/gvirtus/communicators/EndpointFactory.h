@@ -3,7 +3,6 @@
 #include <gvirtus/common/JSON.h>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <stdexcept>
 
 #include "Endpoint.h"
 #include "Endpoint_Rdma.h"

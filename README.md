@@ -1,21 +1,28 @@
-# A GPGPU Transparent Virtualization Component for High Performance Computing Clouds
+# GVirtuS
 
 The GPU Virtualization Service (GVirtuS) presented in this work tries to fill the gap between in-house hosted computing clusters, equipped with GPGPUs devices, and pay-for-use high performance virtual clusters deployed via public or private computing clouds. gVirtuS allows an instanced virtual machine to access GPGPUs in a transparent and hypervisor independent way, with an overhead slightly greater than a real machine/GPGPU setup. The performance of the components of gVirtuS is assessed through a suite of tests in different deployment scenarios, such as providing GPGPU power to cloud computing based HPC clusters and sharing remotely hosted GPGPUs among HPC nodes.
 
-**[Click here to read the official GVirtuS paper.](https://link.springer.com/chapter/10.1007/978-3-642-15277-1_37)**
+**Read the official GVirtuS paper [here](https://link.springer.com/chapter/10.1007/978-3-642-15277-1_37).**
 
-## [How to cite GVirtuS in your scientific papers](CITATIONS.md)
+# Published Papers
 
-# How To install GVirtuS framework and plugins
-## Prerequisites:
+You can view the full list of all GVirtuS published papers in [CITATIONS](CITATIONS.md).
 
-* **CUDA Toolkit:** version 12
+# How To install GVirtuS Framework and Plugins
 
-* **[cuDNN](https://developer.nvidia.com/cudnn-downloads)**: version 8
+## Prerequisites
+
+* **[CUDA Toolkit](https://developer.nvidia.com/cuda-downloads):** version 12
+  > [!NOTE]
+  > The latest verified working version is CUDA Toolkit v12.6.3
+
+* **[cuDNN](https://developer.nvidia.com/cudnn-downloads)**: version 9
+  > [!NOTE]
+  > The latest verified working version is cuDNN v9.5.1
 
 * [Docker](https://docs.docker.com/engine/install/)
 
-## Installation:
+## Installation
 
 1) `git clone` the **GVirtuS** main repository: 
 
@@ -35,7 +42,7 @@ cd gvirtus
 git checkout cuda-12.6.3
 ```
 
-## Testing GVirtuS:
+# Testing GVirtuS
 
 To test GVirtuS, follow the steps below. This setup runs the GVirtuS backend inside a Docker container with all dependencies pre-installed, and mounts your local source and test files into the container for easy development and debugging.
 

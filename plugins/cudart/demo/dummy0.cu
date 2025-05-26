@@ -6,6 +6,7 @@ __global__
 void dummy0()
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
+    printf("Hello from thread %d in block %d\n", i, blockIdx.x);
 }
 
 

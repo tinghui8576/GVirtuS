@@ -27,7 +27,6 @@
 #include <errno.h>
 #include <cuda_runtime_api.h>
 #include <cudnn.h>
-#include <stdexcept>
 
 #include "CudnnHandler.h"
 
@@ -1186,7 +1185,7 @@ CUDNN_ROUTINE_HANDLER(GetVersion) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetVersion"));
 
     size_t version = cudnnGetVersion();
-    LOG4CPLUS_DEBUG(logger,"cudnnGetVersion Executed");
+    LOG4CPLUS_DEBUG(logger,"cudnnGetVersion Executed, version: " << version);
     return std::make_shared<Result>(version);
 }
 

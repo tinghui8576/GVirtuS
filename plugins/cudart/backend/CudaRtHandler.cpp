@@ -39,7 +39,6 @@
 #include <cstring>
 #include <cuda_runtime_api.h>
 #include <dlfcn.h>
-#include <stdexcept>
 
 using namespace std;
 using namespace log4cplus;
