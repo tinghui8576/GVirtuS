@@ -44,12 +44,6 @@ git clone https://github.com/tgasla/GVirtuS.git
 cd gvirtus
 ```
 
-2) Checkout to the CUDA 12 branch
-
-```
-git checkout cuda-12.6.3
-```
-
 # Testing GVirtuS
 
 To test GVirtuS, follow the steps below. This setup runs the GVirtuS backend inside a Docker container with all dependencies pre-installed, and mounts your local source and test files into the container for easy development and debugging.
