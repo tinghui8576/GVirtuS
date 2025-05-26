@@ -12,13 +12,23 @@ You can view the full list of all GVirtuS published papers in [CITATIONS](CITATI
 
 ## Prerequisites
 
+**Tested OS**: Ubuntu 22.04 LTS
+
 Before proceeding, ensure the following dependencies are installed on your system:
 
-* [CUDA Toolkit 12](https://developer.nvidia.com/cuda-downloads): _Tested with CUDA Toolkit **v12.6.3** (latest verified working version)_
+* `gcc` compiler and toolchain: _Tested with **v11.4.0** (latest verified working version)_
+
+* [CUDA Drivers](https://docs.nvidia.com/datacenter/tesla/driver-installation-guide/index.html): _Tested with **v560.35.03** (latest verified working version)_
+
+* [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads): _Tested with CUDA Toolkit **v12.6.3** (latest verified working version)_
 
 * [cuDNN](https://developer.nvidia.com/cudnn-downloads): _Tested with cuDNN **v9.5.1** (latest verified working version)_
 
-* [Docker](https://docs.docker.com/engine/install/): _Ensure Docker Engine is properly installed and running_
+* [Docker](https://docs.docker.com/engine/install/): _Ensure Docker Engine is properly installed and running. Latest verified working version **v26.1.3**_
+
+> [!NOTE]
+> **CUDA Drivers**, **CUDA Toolkit**, and **cuDNN** only need to be installed on the **host machine** running the **GVirtuS backend**.
+> Machines acting as **frontends** do **not** require these installations.
 
 ## Installation
 
