@@ -9,12 +9,11 @@ The GPU Virtualization Service (GVirtuS) presented in this work tries to fill th
 # How To install GVirtuS framework and plugins
 ## Prerequisites:
 
-* **CUDA Toolkit:**
-  - Recommended Version: 12
+* **CUDA Toolkit:** version 12
 
-* **[cuDNN](https://developer.nvidia.com/cudnn-downloads)**: Version 8.x.y (note that it is not included by default when downloading the CUDA Toolkit)
+* **[cuDNN](https://developer.nvidia.com/cudnn-downloads)**: version 8
 
-* [Docker](https://docs.docker.com/engine/install/ubuntu/)
+* [Docker](https://docs.docker.com/engine/install/)
 
 ## Installation:
 
@@ -81,4 +80,4 @@ Restart the backend and re-run the tests using the scripts above.
 > The gvirtus-run.sh script starts a Docker container with all necessary GVirtuS dependencies and mounts your local source and test directories. This means your local changes are automatically used inside the container, making development and testing fast and efficient—no need to git push or docker push.
 
 > [!IMPORTANT]
-> If you make **any changes** to the test files, you must restart the GVirtuS backend using `./gvirtus-stop.sh` followed by `./gvirtus-run.sh`. Otherwise, your test changes will not be picked up.
+> If you make **any changes** to the test files, you must restart the GVirtuS backend using `make stop-gvirtus` followed by `make run-gvirtus-backend-dev`. Otherwise, your test changes will not be picked up.
