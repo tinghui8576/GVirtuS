@@ -73,6 +73,30 @@ TEST(cudaRT, DeviceSynchronize) {
     CUDA_CHECK(cudaDeviceSynchronize());
 }
 
+__global__ void launchTestKernel(int* output) {
+    *output = 123;
+}
+
+TEST(cudaRT, LaunchKernel) {
+    int* d_output;
+    CUDA_CHECK(cudaMalloc(&d_output, sizeof(int)));
+    CUDA_CHECK(cudaMemset(d_output, 0, sizeof(int)));
+
+    void* args[] = { &d_output };
+
+    dim3 grid(1), block(1);
+    CUDA_CHECK(cudaLaunchKernel((const void*)launchTestKernel,
+                                grid, block,
+                                args,
+                                0, nullptr));
+
+    int h_output = 0;
+    CUDA_CHECK(cudaMemcpy(&h_output, d_output, sizeof(int), cudaMemcpyDeviceToHost));
+    ASSERT_EQ(h_output, 123);
+
+    CUDA_CHECK(cudaFree(d_output));
+}
+
 // TEST(cudaRT, EventCreateRecordSynchronizeElapsedTime) {
 //     cudaEvent_t start, stop;
 //     CUDA_CHECK(cudaEventCreate(&start));
