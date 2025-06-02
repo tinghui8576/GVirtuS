@@ -4,13 +4,13 @@ The GPU Virtualization Service (GVirtuS) presented in this work tries to fill th
 
 **Read the official GVirtuS paper [here](https://link.springer.com/chapter/10.1007/978-3-642-15277-1_37).**
 
-# Published Papers
+# 📄 Published Papers
 
 You can view the full list of all GVirtuS published papers in [CITATIONS](CITATIONS.md).
 
 # How To install GVirtuS Framework and Plugins
 
-## Prerequisites
+## 🧰 Prerequisites
 
 **Tested OS**: Ubuntu 22.04 LTS
 
@@ -30,7 +30,7 @@ Before proceeding, ensure the following dependencies are installed on your syste
 > **CUDA Drivers**, **CUDA Toolkit**, and **cuDNN** only need to be installed on the **host machine** running the **GVirtuS backend**.
 > Machines acting as **frontends** do **not** require these installations.
 
-## Installation
+## 📦 Installation
 
 1) `git clone` the **GVirtuS** main repository: 
 
@@ -44,7 +44,17 @@ git clone https://github.com/tgasla/GVirtuS.git
 cd gvirtus
 ```
 
-# Testing GVirtuS
+# 📊 GVirtuS Implementation Status
+
+🗂️ Looking for function coverage? Check out the [**STATUS**](./STATUS.md) file for a detailed breakdown of which CUDA functions are:
+- 🛠️ Implemented
+- 🧪 Tested
+- ⚙️ Working
+
+This file tracks progress across major CUDA libraries (e.g., cuBLAS, cuDNN, cuRAND) and helps monitor GVirtuS coverage.
+
+
+# 🔬 Testing GVirtuS
 
 To test GVirtuS, follow the steps below. This setup runs the GVirtuS backend inside a Docker container with all dependencies pre-installed, and mounts your local source and test files into the container for easy development and debugging.
 
