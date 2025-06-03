@@ -598,49 +598,49 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNDestroyRNNDescriptor`                                | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetRNNDescriptor_v5`                                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetRNNDescriptor_v5`                                 | ❌          | ❌      | ❌      |                          | 
-| `cuDNNSetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      |                          | 
+| `cuDNNSetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNSetRNNDescriptor_v8` instead | 
+| `cuDNNGetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNGetRNNDescriptor_v8` instead | 
 | `cuDNNSetRNNDescriptor_v8`                                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetRNNDescriptor_v8`                                 | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetRNNMatrixMathType`                                | ✅          | ❌      | ❓      |                          | 
+| `cuDNNSetRNNMatrixMathType`                                | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNSetRNNDescriptor_v8` instead | 
 | `cuDNNGetRNNMatrixMathType`                                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetRNNBiasMode`                                      | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNBiasMode`                                      | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNSetClip`                                          | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNGetClip`                                          | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetRNNProjectionLayers`                              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNProjectionLayers`                              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNCreatePersistentRNNPlan`                             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyPersistentRNNPlan`                            | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetPersistentRNNPlan`                                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNWorkspaceSize`                                 | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNTrainingReserveSize`                           | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNParamsSize`                                    | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNLinLayerMatrixParams`                          | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNLinLayerBiasParams`                            | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNForwardInference`                                 | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNForwardTraining`                                  | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNBackwardData`                                     | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNBackwardWeights`                                  | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetRNNPaddingMode`                                   | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNPaddingMode`                                   | ✅          | ❌      | ❓      |                          | 
+| `cuDNNSetRNNBiasMode`                                      | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNSetRNNDescriptor_v8` instead | 
+| `cuDNNGetRNNBiasMode`                                      | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNGetRNNDescriptor_v8` instead | 
+| `cuDNNRNNSetClip`                                          | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNSetClip_v9` instead | 
+| `cuDNNRNNGetClip`                                          | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNGetClip_v9` instead | 
+| `cuDNNSetRNNProjectionLayers`                              | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNSetRNNDescriptor_v8` instead | 
+| `cuDNNGetRNNProjectionLayers`                              | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNGetRNNDescriptor_v8` instead | 
+| `cuDNNCreatePersistentRNNPlan`                             | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnBuildRNNDynamic` instead | 
+| `cuDNNDestroyPersistentRNNPlan`                            | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnBuildRNNDynamic` instead | 
+| `cuDNNSetPersistentRNNPlan`                                | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnBuildRNNDynamic` instead | 
+| `cuDNNGetRNNWorkspaceSize`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use  `cudnnGetRNNTempSpaceSize` instead | 
+| `cuDNNGetRNNTrainingReserveSize`                           | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use  `cudnnGetRNNTempSpaceSize` instead | 
+| `cuDNNGetRNNParamsSize`                                    | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use  `cudnnGetRNNWeightSpaceSize` instead | 
+| `cuDNNGetRNNLinLayerMatrixParams`                          | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnGetRNNWeightParams` instead | 
+| `cuDNNGetRNNLinLayerBiasParams`                            | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnGetRNNWeightParams` instead | 
+| `cuDNNRNNForwardInference`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
+| `cuDNNRNNForwardTraining`                                  | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
+| `cuDNNRNNBackwardData`                                     | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 
+| `cuDNNRNNBackwardWeights`                                  | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNSetRNNPaddingMode`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNSetRNNDescriptor_v8` instead | 
+| `cuDNNGetRNNPaddingMode`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNGetRNNDescriptor_v8` instead | 
 | `cuDNNCreateRNNDataDescriptor`                             | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDestroyRNNDataDescriptor`                            | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetRNNDataDescriptor`                                | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetRNNDataDescriptor`                                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNForwardTrainingEx`                                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNForwardInferenceEx`                               | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNBackwardDataEx`                                   | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRNNBackwardWeightsEx`                                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetRNNAlgorithmDescriptor`                           | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNForwardInferenceAlgorithmMaxCount`             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNFindRNNForwardInferenceAlgorithmEx`                  | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNForwardTrainingAlgorithmMaxCount`              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNFindRNNForwardTrainingAlgorithmEx`                   | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNBackwardDataAlgorithmMaxCount`                 | ✅          | ❌      | ❓      |                          | 
-| `cuDNNFindRNNBackwardDataAlgorithmEx`                      | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNBackwardWeightsAlgorithmMaxCount`              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNFindRNNBackwardWeightsAlgorithmEx`                   | ✅          | ❌      | ❓      |                          | 
+| `cuDNNRNNForwardTrainingEx`                                | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
+| `cuDNNRNNForwardInferenceEx`                               | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
+| `cuDNNRNNBackwardDataEx`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 
+| `cuDNNRNNBackwardWeightsEx`                                | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNSetRNNAlgorithmDescriptor`                           | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNGetRNNForwardInferenceAlgorithmMaxCount`             | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNFindRNNForwardInferenceAlgorithmEx`                  | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNGetRNNForwardTrainingAlgorithmMaxCount`              | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNFindRNNForwardTrainingAlgorithmEx`                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNGetRNNBackwardDataAlgorithmMaxCount`                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNFindRNNBackwardDataAlgorithmEx`                      | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNGetRNNBackwardWeightsAlgorithmMaxCount`              | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNFindRNNBackwardWeightsAlgorithmEx`                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
 | `cuDNNCreateSeqDataDescriptor`                             | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDestroySeqDataDescriptor`                            | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetSeqDataDescriptor`                                | ✅          | ❌      | ❓      |                          | 
@@ -662,18 +662,18 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNDestroyCTCLossDescriptor`                            | ✅          | ❌      | ❓      |                          | 
 | `cuDNNCTCLoss`                                             | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetCTCLossWorkspaceSize`                             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNCreateAlgorithmDescriptor`                           | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetAlgorithmDescriptor`                              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetAlgorithmDescriptor`                              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNCopyAlgorithmDescriptor`                             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyAlgorithmDescriptor`                          | ✅          | ❌      | ❓      |                          | 
-| `cuDNNCreateAlgorithmPerformance`                          | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetAlgorithmPerformance`                             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetAlgorithmPerformance`                             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyAlgorithmPerformance`                         | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetAlgorithmSpaceSize`                               | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSaveAlgorithm`                                       | ✅          | ❌      | ❓      |                          | 
-| `cuDNNRestoreAlgorithm`                                    | ✅          | ❌      | ❓      |                          | 
+| `cuDNNCreateAlgorithmDescriptor`                           | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNSetAlgorithmDescriptor`                              | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNGetAlgorithmDescriptor`                              | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNCopyAlgorithmDescriptor`                             | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNDestroyAlgorithmDescriptor`                          | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNCreateAlgorithmPerformance`                          | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNSetAlgorithmPerformance`                             | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNGetAlgorithmPerformance`                             | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNDestroyAlgorithmPerformance`                         | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNGetAlgorithmSpaceSize`                               | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNSaveAlgorithm`                                       | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
+| `cuDNNRestoreAlgorithm`                                    | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
 | `cuDNNSetCallback`                                         | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetCallback`                                         | ✅          | ❌      | ❓      |                          | 
 | `cuDNNCreateFusedOpsConstParamPack`                        | ✅          | ❌      | ❓      |                          | 
