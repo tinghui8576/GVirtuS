@@ -13,7 +13,8 @@
         "curand",
         "cudnn",
         "cufft",
-        "cusolver"
+        "cusolver",
+        "cusparse"
       ]
     }
   ],

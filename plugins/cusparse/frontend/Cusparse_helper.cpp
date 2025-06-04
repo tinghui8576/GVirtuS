@@ -34,28 +34,30 @@ using namespace std;
 extern "C" cusparseStatus_t cusparseCreate(cusparseHandle_t *handle) {
     CusparseFrontend::Prepare();
     CusparseFrontend::Execute("cusparseCreate");
-    if(CusparseFrontend::Success())
-        *handle = *(CusparseFrontend::GetOutputHostPointer<cusparseHandle_t>());
+    if (CusparseFrontend::Success())
+        *handle = CusparseFrontend::GetOutputVariable<cusparseHandle_t>();
     return CusparseFrontend::GetExitCode();
 }
 
 extern "C" cusparseStatus_t cusparseDestroy(cusparseHandle_t handle) {
     CusparseFrontend::Prepare();
-    CusparseFrontend::AddVariableForArguments(handle);
+    CusparseFrontend::AddDevicePointerForArguments(handle);
     CusparseFrontend::Execute("cusparseDestroy");
     return CusparseFrontend::GetExitCode();
 }
 extern "C" cusparseStatus_t cusparseSetStream(cusparseHandle_t handle, cudaStream_t streamId) {
     CusparseFrontend::Prepare();
-    CusparseFrontend::AddVariableForArguments(handle);
-    CusparseFrontend::AddVariableForArguments(streamId);
+    CusparseFrontend::AddDevicePointerForArguments(handle);
+    CusparseFrontend::AddDevicePointerForArguments(streamId);
     CusparseFrontend::Execute("cusparseSetStream");
     return CusparseFrontend::GetExitCode();
 }
 extern "C" cusparseStatus_t cusparseGetStream(cusparseHandle_t handle, cudaStream_t *streamId) {
     CusparseFrontend::Prepare();
-    CusparseFrontend::AddVariableForArguments(handle);
+    CusparseFrontend::AddDevicePointerForArguments(handle);
     CusparseFrontend::Execute("cusparseGetStream");
+    if (CusparseFrontend::Success())
+        *streamId = CusparseFrontend::GetOutputVariable<cudaStream_t>();
     return CusparseFrontend::GetExitCode();
 }
 

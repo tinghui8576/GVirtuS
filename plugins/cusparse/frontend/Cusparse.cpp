@@ -31,56 +31,20 @@
 
 using namespace std;
 
-extern "C" cusparseStatus_t cusparseGetVersion(cusparseHandle_t handle, int* version){
+extern "C" cusparseStatus_t cusparseGetVersion(cusparseHandle_t handle, int* version) {
     CusparseFrontend::Prepare();
-    CusparseFrontend::AddHostPointerForArguments<cusparseHandle_t>(handle);
-    CusparseFrontend::AddHostPointerForArguments<int>(version);
+    CusparseFrontend::AddDevicePointerForArguments(handle);
     CusparseFrontend::Execute("cusparseGetVersion");
+    if (CusparseFrontend::Success())
+        *version = CusparseFrontend::GetOutputVariable<int>();
+    else
+        *version = 0; // Default version in case of failure
     return CusparseFrontend::GetExitCode();
 }
 
-extern "C" const char *cusparseGetErrorString(cusparseStatus_t status){
+extern "C" const char* cusparseGetErrorString(cusparseStatus_t status) {
     CusparseFrontend::Prepare();
-
     CusparseFrontend::AddVariableForArguments<cusparseStatus_t>(status);
     CusparseFrontend::Execute("cusparseGetErrorString");
-    return (const char *) CusparseFrontend::GetOutputHostPointer<char *>();
+    return CusparseFrontend::GetOutputVariable<const char *>();
 }
-
-/*
-extern "C" cusparseStatus_t CUSPARSEAPI cusparseCreate(cusparseHandle_t *handle){
-    CusparseFrontend::Prepare();
-    CusparseFrontend::AddHostPointerForArguments<cusparseHandle_t>(handle);
-    CusparseFrontend::Execute("cusparseCreate");
-    if(CusparseFrontend::Success())
-        *handle = CusparseFrontend::GetOutputVariable<cusparseHandle_t>();
-    return CusparseFrontend::GetExitCode();
-}
-
-extern "C" cusparseStatus_t CUSPARSEAPI cusparseDestroy(cusparseHandle_t handle){
-    CusparseFrontend::Prepare();
-
-    CusparseFrontend::AddVariableForArguments<long long int>((long long int)handle);
-    CusparseFrontend::Execute("cusparseDestroy");
-    return CusparseFrontend::GetExitCode();
-}
-
-extern "C" cusparseStatus_t CUSPARSEAPI cusparseSetStream(cusparseHandle_t handle, cudaStream_t streamId){
-    CusparseFrontend::Prepare();
-
-    CusparseFrontend::AddVariableForArguments<long long int>((long long int)handle);
-    CusparseFrontend::AddVariableForArguments<long long int>((long long int)streamId);
-    CusparseFrontend::Execute("cusparseSetStream");
-    return CusparseFrontend::GetExitCode();
-}
-
-extern "C" cusparseStatus_t CUSPARSEAPI cusparseGetStream(cusparseHandle_t handle, cudaStream_t *streamId){
-    CusparseFrontend::Prepare();
-
-    CusparseFrontend::AddVariableForArguments<long long int>((long long int)handle);
-    CusparseFrontend::Execute("cusparseGetStream");
-    if(CusparseFrontend::Success())
-        *streamId = (cudaStream_t) CusparseFrontend::GetOutputVariable<long long int>();
-    return CusparseFrontend::GetExitCode();
-}
-*/

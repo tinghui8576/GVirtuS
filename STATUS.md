@@ -695,12 +695,12 @@ cuFFT handle typedefs changed in CUDA 12.
 
 | Function                                  | Implemented | Tested  | Working |          Notes           |
 | ----------------------------------------- | ----------- | ------- | ------- | -------------------------|
-| `cusparseCreate`                          | ✅          | ❌      | ❓      |                          | 
-| `cusparseDestroy`                         | ✅          | ❌      | ❓      |                          | 
-| `cusparseGetVersion`                      | ✅          | ❌      | ❓      |                          | 
-| `cusparseGetErrorString`                  | ✅          | ❌      | ❓      |                          | 
-| `cusparseSetStream`                       | ✅          | ❌      | ❓      |                          | 
-| `cusparseGetStream`                       | ✅          | ❌      | ❓      |                          | 
+| `cusparseCreate`                          | ✅          | ✅      | ✅      |                          | 
+| `cusparseDestroy`                         | ✅          | ✅      | ✅      |                          | 
+| `cusparseGetVersion`                      | ✅          | ✅      | ✅      |                          | 
+| `cusparseGetErrorString`                  | ✅          | ✅      | ✅      |                          | 
+| `cusparseSetStream`                       | ✅          | ✅      | ✅      |                          | 
+| `cusparseGetStream`                       | ✅          | ✅      | ✅      |                          | 
 | `cusparseXcsrgemm`                        | ❌          | ❌      | ❌      |                          | 
 | `cusparseXcsr2dense`                      | ❌          | ❌      | ❌      |                          | 
 | `cusparseXdense2csr`                      | ❌          | ❌      | ❌      |                          | 
