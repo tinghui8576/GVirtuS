@@ -12,7 +12,8 @@
         "cublas",
         "curand",
         "cudnn",
-        "cufft"
+        "cufft",
+        "cusolver"
       ]
     }
   ],

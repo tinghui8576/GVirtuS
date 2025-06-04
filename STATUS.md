@@ -713,15 +713,15 @@ cuFFT handle typedefs changed in CUDA 12.
 
 | Function                                  | Implemented | Tested  | Working |          Notes           |
 | ----------------------------------------- | ----------- | ------- | ------- | -------------------------|
-| `cusolverDnCreate`                        | ✅          | ❌      | ❓      |                          |       
-| `cusolverDnDestroy`                       | ✅          | ❌      | ❓      |                          | 
-| `cusolverDnSetStream`                     | ✅          | ❌      | ❓      |                          | 
-| `cusolverDnGetStream`                     | ✅          | ❌      | ❓      |                          |
-| `cusolverDnSgetrf`                        | ❌          | ❌      | ❌      |                          |
-| `cusolverDnDgetrf`                        | ❌          | ❌      | ❌      |                          |
-| `cusolverDnSgetrs`                        | ❌          | ❌      | ❌      |                          |     
-| `cusolverDnDgetrs`                        | ❌          | ❌      | ❌      |                          |
-| `cusolverDnSgesvd`                        | ❌          | ❌      | ❌      |                          |
-| `cusolverDnDgesvd`                        | ❌          | ❌      | ❌      |                          |
-| `cusolverDnSpotrf`                        | ❌          | ❌      | ❌      |                          |
-| `cusolverDnDpotrf`                        | ❌          | ❌      | ❌      |                          |
+| `cusolverDnCreate`                        | ✅          | ✅      | ✅       |                          |       
+| `cusolverDnDestroy`                       | ✅          | ✅      | ✅       |                          | 
+| `cusolverDnSetStream`                     | ✅          | ✅      | ✅       |                          | 
+| `cusolverDnGetStream`                     | ✅          | ✅      | ✅       |                          |
+| `cusolverDnSgetrf`                        | ❌          | ❌      | ❌       |                          |
+| `cusolverDnDgetrf`                        | ❌          | ❌      | ❌       |                          |
+| `cusolverDnSgetrs`                        | ❌          | ❌      | ❌       |                          |     
+| `cusolverDnDgetrs`                        | ❌          | ❌      | ❌       |                          |
+| `cusolverDnSgesvd`                        | ❌          | ❌      | ❌       |                          |
+| `cusolverDnDgesvd`                        | ❌          | ❌      | ❌       |                          |
+| `cusolverDnSpotrf`                        | ❌          | ❌      | ❌       |                          |
+| `cusolverDnDpotrf`                        | ❌          | ❌      | ❌       |                          |

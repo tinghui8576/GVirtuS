@@ -32,10 +32,6 @@
 
 #include <cusolverDn.h>
 
-using gvirtus::common::pointer_t;
-using gvirtus::communicators::Buffer;
-using gvirtus::communicators::Result;
-
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
 #include "log4cplus/configurator.h"
@@ -58,15 +54,13 @@ public:
 private:
     log4cplus::Logger logger;
     void Initialize();
-    typedef std::shared_ptr<gvirtus::communicators::Result> (*CusolverRoutineHandler)(CusolverHandler *, std::shared_ptr<gvirtus::communicators::Result>);
+    typedef std::shared_ptr<gvirtus::communicators::Result> (*CusolverRoutineHandler)(CusolverHandler *, std::shared_ptr<gvirtus::communicators::Buffer>);
     static std::map<std::string, CusolverRoutineHandler> * mspHandlers;
 };
 
-#define CUSOLVER_ROUTINE_HANDLER(name) std::shared_ptr<Result> handle##name(CusolverHandler * pThis, std::shared_ptr<Buffer> in)
+#define CUSOLVER_ROUTINE_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CusolverHandler * pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)
 #define CUSOLVER_ROUTINE_HANDLER_PAIR(name) make_pair("cusolver" #name, handle##name)
 
-// CUSOLVER_ROUTINE_HANDLER(GetVersion);
-// CUSOLVER_ROUTINE_HANDLER(GetErrorString);
 CUSOLVER_ROUTINE_HANDLER(DnCreate);
 CUSOLVER_ROUTINE_HANDLER(DnDestroy);
 CUSOLVER_ROUTINE_HANDLER(DnSetStream);

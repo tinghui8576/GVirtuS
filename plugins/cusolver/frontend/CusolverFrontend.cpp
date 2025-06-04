@@ -34,4 +34,3 @@ void * CusolverFrontend::handler = NULL;
 CusolverFrontend::CusolverFrontend() {
 Frontend::GetFrontend();
 }
-

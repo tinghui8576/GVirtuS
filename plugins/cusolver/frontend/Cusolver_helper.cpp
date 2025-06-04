@@ -33,29 +33,31 @@ using namespace std;
 
 extern "C" cusolverStatus_t CUSOLVERAPI cusolverDnCreate(cusolverDnHandle_t *handle) {
     CusolverFrontend::Prepare();
-    //CusolverFrontend::AddHostPointerForArguments<cusolverDnHandle_t>(handle);
     CusolverFrontend::Execute("cusolverDnCreate");
     if(CusolverFrontend::Success())
-    	*handle = *(CusolverFrontend::GetOutputHostPointer<cusolverDnHandle_t>());
+    	*handle = CusolverFrontend::GetOutputVariable<cusolverDnHandle_t>();
     return CusolverFrontend::GetExitCode();
 }
     
-extern "C" cusolverStatus_t CUSOLVERAPI cuSolverDnDestroy(cusolverDnHandle_t handle) {
+extern "C" cusolverStatus_t CUSOLVERAPI cusolverDnDestroy(cusolverDnHandle_t handle) {
     CusolverFrontend::Prepare();
-    CusolverFrontend::AddVariableForArguments(handle);
+    CusolverFrontend::AddDevicePointerForArguments(handle);
     CusolverFrontend::Execute("cusolverDnDestroy");
     return CusolverFrontend::GetExitCode();
 }
+
 extern "C" cusolverStatus_t CUSOLVERAPI cusolverDnSetStream(cusolverDnHandle_t handle, cudaStream_t streamId) {
     CusolverFrontend::Prepare();
-    CusolverFrontend::AddVariableForArguments(handle);
-    CusolverFrontend::AddVariableForArguments(streamId);
+    CusolverFrontend::AddDevicePointerForArguments(handle);
+    CusolverFrontend::AddDevicePointerForArguments(streamId);
     CusolverFrontend::Execute("cusolverDnSetStream");
     return CusolverFrontend::GetExitCode();
 }
 extern "C" cusolverStatus_t CUSOLVERAPI cusolverDnGetStream(cusolverDnHandle_t handle, cudaStream_t *streamId) {
     CusolverFrontend::Prepare();
-    CusolverFrontend::AddVariableForArguments(handle);
+    CusolverFrontend::AddDevicePointerForArguments(handle);
     CusolverFrontend::Execute("cusolverDnGetStream");
+    if (CusolverFrontend::Success())
+        *streamId = CusolverFrontend::GetOutputVariable<cudaStream_t>();
     return CusolverFrontend::GetExitCode();
 }   

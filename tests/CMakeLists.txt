@@ -36,9 +36,9 @@ set(TEST_SOURCES
     test_cufft.cu
     test_cudnn.cu
     test_cudadr.cu
+    test_cusolver.cu
     # Uncomment the following lines if you have these libraries and their tests implemented
-    # test_cusparse.cu
-    # test_cusolver.cu
+    #test_cusparse.cu
 )
 
 ## Alternatively, you can use file(GLOB ...) to automatically find all .cu files in a directory
@@ -74,8 +74,8 @@ foreach(TEST_SRC ${TEST_SOURCES})
         cufft
         cudnn
         cudnn_adv
+        cusolver
         #cusparse
-        #cusolver
     )
 
     # Register the test with ctest

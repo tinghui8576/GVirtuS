@@ -39,46 +39,10 @@ size_t CUSOLVERAPI cusolverDnGetVersion(){
     return CusolverFrontend::GetExitCode();
 }
 
-extern "C" const char * CUSOLVERAPI cusolverDnGetErrorString(cusolverStatus_t status){
+extern "C" const char * CUSOLVERAPI cusolverDnGetErrorString(cusolverStatus_t status) {
     CusolverFrontend::Prepare();
 
     CusolverFrontend::AddVariableForArguments<cusolverStatus_t>(status);
     CusolverFrontend::Execute("cusolverDnGetErrorString");
     return (const char *) CusolverFrontend::GetOutputHostPointer<char *>();
-}
-
-extern "C" cusolverStatus_t CUSOLVERAPI cusolverDnCreate(cusolverDnHandle_t *handle){
-    CusolverFrontend::Prepare();
-    CusolverFrontend::AddHostPointerForArguments<cusolverDnHandle_t>(handle);
-    CusolverFrontend::Execute("cusolverDnCreate");
-    if(CusolverFrontend::Success())
-        *handle = CusolverFrontend::GetOutputVariable<cusolverDnHandle_t>();
-    return CusolverFrontend::GetExitCode();
-}
-
-extern "C" cusolverStatus_t CUSOLVERAPI cusolverDnDestroy(cusolverDnHandle_t handle){
-    CusolverFrontend::Prepare();
-
-    CusolverFrontend::AddVariableForArguments<long long int>((long long int)handle);
-    CusolverFrontend::Execute("cusolverDnDestroy");
-    return CusolverFrontend::GetExitCode();
-}
-
-extern "C" cusolverStatus_t CUSOLVERAPI cusolverDnSetStream(cusolverDnHandle_t handle, cudaStream_t streamId){
-    CusolverFrontend::Prepare();
-
-    CusolverFrontend::AddVariableForArguments<long long int>((long long int)handle);
-    CusolverFrontend::AddVariableForArguments<long long int>((long long int)streamId);
-    CusolverFrontend::Execute("cusolverSetStream");
-    return CusolverFrontend::GetExitCode();
-}
-
-extern "C" cusolverStatus_t CUSOLVERAPI cusolverDnGetStream(cusolverDnHandle_t handle, cudaStream_t *streamId){
-    CusolverFrontend::Prepare();
-
-    CusolverFrontend::AddVariableForArguments<long long int>((long long int)handle);
-    CusolverFrontend::Execute("cusolverDnGetStream");
-    if(CusolverFrontend::Success())
-        *streamId = (cudaStream_t) CusolverFrontend::GetOutputVariable<long long int>();
-    return CusolverFrontend::GetExitCode();
 }
