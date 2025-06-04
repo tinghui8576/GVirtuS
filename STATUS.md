@@ -561,10 +561,10 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNDestroyActivationDescriptor`                         | ✅          | ✅      | ✅      |                          | 
 | `cuDNNActivationForward`                                   | ✅          | ✅      | ✅      |                          | 
 | `cuDNNActivationBackward`                                  | ✅          | ✅      | ✅      |                          | 
-| `cuDNNCreateLRNDescriptor`                                 | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetLRNDescriptor`                                    | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetLRNDescriptor`                                    | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyLRNDescriptor`                                | ✅          | ❌      | ❓      |                          | 
+| `cuDNNCreateLRNDescriptor`                                 | ✅          | ✅      | ✅      |                          | 
+| `cuDNNSetLRNDescriptor`                                    | ✅          | ✅      | ✅      |                          | 
+| `cuDNNGetLRNDescriptor`                                    | ✅          | ✅      | ✅      |                          | 
+| `cuDNNDestroyLRNDescriptor`                                | ✅          | ✅      | ✅      |                          | 
 | `cuDNNLRNCrossChannelForward`                              | ✅          | ❌      | ❓      |                          | 
 | `cuDNNLRNCrossChannelBackward`                             | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDivisiveNormalizationForward`                        | ✅          | ❌      | ❓      |                          | 

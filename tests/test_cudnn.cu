@@ -1240,3 +1240,31 @@ TEST(cuDNN, FusedOpsPlanCreateDestroy) {
     // Now destroy the plan if it was created
     CUDNN_CHECK(cudnnDestroyFusedOpsPlan(plan));
 }
+
+TEST(cuDNN, createDestroyLRNDescriptor) {
+    cudnnLRNDescriptor_t lrnDesc;
+    CUDNN_CHECK(cudnnCreateLRNDescriptor(&lrnDesc));
+    CUDNN_CHECK(cudnnDestroyLRNDescriptor(lrnDesc));
+}
+
+TEST(cuDNN, SetGetLRNDescriptor) {
+    cudnnLRNDescriptor_t lrnDesc;
+    CUDNN_CHECK(cudnnCreateLRNDescriptor(&lrnDesc));
+
+    // Set LRN descriptor
+    unsigned n = 5;  // Local size
+    double alpha = 1.0f, beta = 0.75f, k = 1e-4f;
+    CUDNN_CHECK(cudnnSetLRNDescriptor(lrnDesc, n, alpha, beta, k));
+
+    // Get LRN descriptor
+    unsigned out_n;
+    double out_alpha, out_beta, out_k;
+    CUDNN_CHECK(cudnnGetLRNDescriptor(lrnDesc, &out_n, &out_alpha, &out_beta, &out_k));
+
+    ASSERT_EQ(out_n, n);
+    ASSERT_FLOAT_EQ(out_alpha, alpha);
+    ASSERT_FLOAT_EQ(out_beta, beta);
+    ASSERT_FLOAT_EQ(out_k, k);
+
+    CUDNN_CHECK(cudnnDestroyLRNDescriptor(lrnDesc));
+}

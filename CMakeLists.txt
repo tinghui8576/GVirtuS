@@ -1,12 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
-# set(CMAKE_C_COMPILER /usr/bin/gcc-11)
-# set(CMAKE_CXX_COMPILER /usr/bin/g++-11)
-# set(CUDA_HOST_COMPILER /usr/bin/gcc-11)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS ON)
-# add_compile_options(-fpermissive)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive")
-# set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Xcompiler -fpermissive")
 
 project(GVirtuS)
 
@@ -41,7 +36,6 @@ add_library(gvirtus-common SHARED
         src/common/Observer.cpp
         src/common/SignalException.cpp
         src/common/SignalState.cpp
-        ##src/communicators/rdma/ktmrdma.cpp
         src/common/Util.cpp)
 
 target_link_libraries(gvirtus-common stdc++fs ${CMAKE_DL_LIBS} ${LIBLOG4CPLUS} rdmacm ibverbs)

@@ -3099,23 +3099,30 @@ CUDNN_ROUTINE_HANDLER(CreateLRNDescriptor) {
 CUDNN_ROUTINE_HANDLER(SetLRNDescriptor) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetLRNDescriptor"));
 
-    cudnnLRNDescriptor_t normDesc = (cudnnLRNDescriptor_t)in->Get<long long int>();
+    cudnnLRNDescriptor_t normDesc = in->Get<cudnnLRNDescriptor_t>();
     unsigned lrnN = in->Get<unsigned>();
     double lrnAlpha = in->Get<double>();
     double lrnBeta = in->Get<double>();
     double lrnK = in->Get<double>();
 
     cudnnStatus_t cs = cudnnSetLRNDescriptor(normDesc, lrnN, lrnAlpha, lrnBeta, lrnK);
-    
     LOG4CPLUS_DEBUG(logger, "cudnnSetLRNDescriptor Executed");
-    //cout << " DEBUG - cudnnSetLRNDescriptor Executed"<<endl;
-    return std::make_shared<Result>(cs);
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try{
+        out->Add<cudnnLRNDescriptor_t>(normDesc);
+    } catch(string e) {
+        LOG4CPLUS_DEBUG(logger, e);
+        return std::make_shared<Result>(cs);
+    }
+
+    return std::make_shared<Result>(cs, out);
 }
 
 CUDNN_ROUTINE_HANDLER(GetLRNDescriptor) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetLRNDescriptor"));
 
-    cudnnLRNDescriptor_t normDesc = (cudnnLRNDescriptor_t)in->Get<long long int>();
+    cudnnLRNDescriptor_t normDesc = in->Get<cudnnLRNDescriptor_t>();
     unsigned lrnN;
     double lrnAlpha;
     double lrnBeta;
@@ -3124,18 +3131,17 @@ CUDNN_ROUTINE_HANDLER(GetLRNDescriptor) {
     cudnnStatus_t cs = cudnnGetLRNDescriptor(normDesc, &lrnN, &lrnAlpha, &lrnBeta, &lrnK);
    
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try{
+    try {
          out->Add<unsigned>(lrnN);
          out->Add<double>(lrnAlpha);  
          out->Add<double>(lrnBeta);
          out->Add<double>(lrnK);
-    }catch(string e) {
+    } catch(string e) {
          LOG4CPLUS_DEBUG(logger, e);
          return std::make_shared<Result>(cs);
     }
     
     LOG4CPLUS_DEBUG(logger, "cudnnGetLRNDescriptor Executed");
-    //cout << " DEBUG - cudnnGetLRNDescriptor Executed"<<endl;
     return std::make_shared<Result>(cs, out);
 }
 

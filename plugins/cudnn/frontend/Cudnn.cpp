@@ -2387,13 +2387,14 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateLRNDescriptor(cudnnLRNDescriptor
 }
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetLRNDescriptor(cudnnLRNDescriptor_t normDesc,
-               						   unsigned lrnN,
-							   double lrnAlpha,
-							   double lrnBeta,
-							   double lrnK) {
+                            unsigned lrnN,
+                            double lrnAlpha,
+                            double lrnBeta,
+                            double lrnK) {
 
     CudnnFrontend::Prepare();
 
+    CudnnFrontend::AddDevicePointerForArguments(normDesc);
     CudnnFrontend::AddVariableForArguments<unsigned>(lrnN);
     CudnnFrontend::AddVariableForArguments<double>(lrnAlpha);
     CudnnFrontend::AddVariableForArguments<double>(lrnBeta);
@@ -2407,16 +2408,17 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetLRNDescriptor(cudnnLRNDescriptor_t 
 }
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetLRNDescriptor(cudnnLRNDescriptor_t normDesc,
-						           unsigned *lrnN,
-							   double *lrnAlpha,
-							   double *lrnBeta,
-							   double *lrnK) {
+                                                            unsigned *lrnN,
+                                                            double *lrnAlpha,
+                                                            double *lrnBeta,
+                                                            double *lrnK) {
 
    CudnnFrontend::Prepare();
 
+   CudnnFrontend::AddDevicePointerForArguments(normDesc);
+
    CudnnFrontend::Execute("cudnnGetLRNDescriptor");
    if (CudnnFrontend::Success()) {
-       normDesc = CudnnFrontend::GetOutputVariable<cudnnLRNDescriptor_t>();
        *lrnN    = CudnnFrontend::GetOutputVariable<unsigned>();
        *lrnAlpha = CudnnFrontend::GetOutputVariable<double>();
        *lrnBeta  =  CudnnFrontend::GetOutputVariable<double>();
@@ -2429,7 +2431,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnDestroyLRNDescriptor(cudnnLRNDescripto
 
     CudnnFrontend::Prepare();
 
-    CudnnFrontend::AddVariableForArguments<long long int>((long long int)lrnDesc);
+    CudnnFrontend::AddDevicePointerForArguments(lrnDesc);
    
     CudnnFrontend::Execute("cudnnDestroyLRNDescriptor");
    
