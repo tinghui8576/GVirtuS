@@ -470,10 +470,10 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNSetTensorTransformDescriptor`                        | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetTensorTransformDescriptor`                        | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDestroyTensorTransformDescriptor`                    | ✅          | ❌      | ❓      |                          | 
-| `cuDNNTransformTensor`                                     | ✅          | ❌      | ❓      |                          | 
+| `cuDNNTransformTensor`                                     | ✅          | ✅      | ❌      |                          | 
 | `cuDNNTransformTensorEx`                                   | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetFoldedConvBackwardDataDescriptors`                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNAddTensor`                                           | ✅          | ❌      | ❓      |                          | 
+| `cuDNNAddTensor`                                           | ✅          | ✅      | ✅      |                          | 
 | `cuDNNCreateOpTensorDescriptor`                            | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetOpTensorDescriptor`                               | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetOpTensorDescriptor`                               | ✅          | ❌      | ❓      |                          | 
@@ -489,7 +489,7 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNSetTensor`                                           | ✅          | ❌      | ❓      |                          | 
 | `cuDNNScaleTensor`                                         | ✅          | ❌      | ❓      |                          | 
 | `cuDNNCreateFilterDescriptor`                              | ✅          | ✅      | ✅      |                          | 
-| `cuDNNSetFilter4dDescriptor`                               | ✅          | ❌      | ❓      |                          | 
+| `cuDNNSetFilter4dDescriptor`                               | ✅          | ✅      | ✅      |                          | 
 | `cuDNNGetFilter4dDescriptor`                               | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetFilter4dDescriptor_v3`                            | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetFilter4dDescriptor_v3`                            | ✅          | ❌      | ❓      |                          | 
@@ -505,43 +505,43 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNDestroyFilterDescriptor`                             | ✅          | ✅      | ✅      |                          | 
 | `cuDNNTransformFilter`                                     | ✅          | ❌      | ❓      |                          | 
 | `cuDNNReorderFilterAndBias`                                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNCreateConvolutionDescriptor`                         | ✅          | ❌      | ❓      |                          | 
+| `cuDNNCreateConvolutionDescriptor`                         | ✅          | ✅      | ✅      |                          | 
 | `cuDNNSetConvolutionMathType`                              | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetConvolutionMathType`                              | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetConvolutionGroupCount`                            | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetConvolutionGroupCount`                            | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetConvolutionReorderType`                           | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetConvolutionReorderType`                           | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetConvolution2dDescriptor`                          | ✅          | ❌      | ❓      |                          | 
+| `cuDNNSetConvolution2dDescriptor`                          | ✅          | ✅      | ✅      |                          | 
 | `cuDNNGetConvolution2dDescriptor`                          | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolution2dForwardOutputDim`                    | ✅          | ❌      | ❓      |                          | 
+| `cuDNNGetConvolution2dForwardOutputDim`                    | ✅          | ✅      | ✅      |                          | 
 | `cuDNNSetConvolutionNdDescriptor`                          | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetConvolutionNdDescriptor`                          | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetConvolutionNdForwardOutputDim`                    | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyConvolutionDescriptor`                        | ✅          | ❌      | ❓      |                          | 
+| `cuDNNDestroyConvolutionDescriptor`                        | ✅          | ✅      | ✅      |                          | 
 | `cuDNNGetConvolutionForwardAlgorithmMaxCount`              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNFindConvolutionForwardAlgorithm`                     | ✅          | ❌      | ❓      |                          | 
-| `cuDNNFindConvolutionForwardAlgorithmEx`                   | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolutionForwardAlgorithm`                      | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolutionForwardAlgorithm_v7`                   | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolutionForwardWorkspaceSize`                  | ✅          | ❌      | ❓      |                          | 
-| `cuDNNConvolutionForward`                                  | ✅          | ❌      | ❓      |                          | 
+| `cuDNNFindConvolutionForwardAlgorithm`                     | ✅          | ✅      | ✅      |                          | 
+| `cuDNNFindConvolutionForwardAlgorithmEx`                   | ✅          | ✅      | ❌      |                          | 
+| `cuDNNGetConvolutionForwardAlgorithm`                      | ✅          | ❌      | ❓      | Deprecated in v8, Use `cuDNNGetConvolutionForwardAlgorithm_v7` instead | 
+| `cuDNNGetConvolutionForwardAlgorithm_v7`                   | ✅          | ✅      | ❌      |                          | 
+| `cuDNNGetConvolutionForwardWorkspaceSize`                  | ✅          | ✅      | ✅      |                          | 
+| `cuDNNConvolutionForward`                                  | ✅          | ✅      | ✅      |                          | 
 | `cuDNNConvolutionBiasActivationForward`                    | ✅          | ❌      | ❓      |                          | 
 | `cuDNNConvolutionBackwardBias`                             | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetConvolutionBackwardFilterAlgorithmMaxCount`       | ✅          | ❌      | ❓      |                          | 
 | `cuDNNFindConvolutionBackwardFilterAlgorithm`              | ✅          | ❌      | ❓      |                          | 
 | `cuDNNFindConvolutionBackwardFilterAlgorithmEx`            | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolutionBackwardFilterAlgorithm`               | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolutionBackwardFilterAlgorithm_v7`            | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolutionBackwardFilterWorkspaceSize`           | ✅          | ❌      | ❓      |                          | 
-| `cuDNNConvolutionBackwardFilter`                           | ✅          | ❌      | ❓      |                          | 
+| `cuDNNGetConvolutionBackwardFilterAlgorithm`               | ✅          | ❌      | ❓      | Deprecated in v8, Use `cuDNNGetConvolutionBackwardFilterAlgorithm_v7` instead | 
+| `cuDNNGetConvolutionBackwardFilterAlgorithm_v7`            | ✅          | ✅      | ✅      |                          | 
+| `cuDNNGetConvolutionBackwardFilterWorkspaceSize`           | ✅          | ✅      | ✅      |                          | 
+| `cuDNNConvolutionBackwardFilter`                           | ✅          | ✅      | ✅      |                          | 
 | `cuDNNGetConvolutionBackwardDataAlgorithmMaxCount`         | ✅          | ❌      | ❓      |                          | 
 | `cuDNNFindConvolutionBackwardDataAlgorithm`                | ✅          | ❌      | ❓      |                          | 
 | `cuDNNFindConvolutionBackwardDataAlgorithmEx`              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolutionBackwardDataAlgorithm`                 | ✅          | ❌      | ❓      |                          | 
+| `cuDNNGetConvolutionBackwardDataAlgorithm`                 | ✅          | ❌      | ❓      | Deprecated in v8, Use `cuDNNGetConvolutionBackwardDataAlgorithm_v7` instead | 
 | `cuDNNGetConvolutionBackwardDataAlgorithm_v7`              | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetConvolutionBackwardDataWorkspaceSize`             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNConvolutionBackwardData`                             | ✅          | ❌      | ❓      |                          | 
+| `cuDNNGetConvolutionBackwardDataWorkspaceSize`             | ✅          | ✅      | ✅      |                          | 
+| `cuDNNConvolutionBackwardData`                             | ✅          | ✅      | ✅      |                          | 
 | `cuDNNIm2Col`                                              | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSoftmaxForward`                                      | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSoftmaxBackward`                                     | ✅          | ✅      | ✅      |                          | 
@@ -554,13 +554,13 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNGetPooling2dForwardOutputDim`                        | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDestroyPoolingDescriptor`                            | ✅          | ✅      | ✅      |                          | 
 | `cuDNNPoolingForward`                                      | ✅          | ✅      | ✅      |                          | 
-| `cuDNNPoolingBackward`                                     | ✅          | ❌      | ❓      |                          | 
+| `cuDNNPoolingBackward`                                     | ✅          | ✅      | ✅      |                          | 
 | `cuDNNCreateActivationDescriptor`                          | ✅          | ✅      | ✅      |                          | 
 | `cuDNNSetActivationDescriptor`                             | ✅          | ✅      | ✅      |                          | 
 | `cuDNNGetActivationDescriptor`                             | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDestroyActivationDescriptor`                         | ✅          | ✅      | ✅      |                          | 
 | `cuDNNActivationForward`                                   | ✅          | ✅      | ✅      |                          | 
-| `cuDNNActivationBackward`                                  | ✅          | ❌      | ❓      |                          | 
+| `cuDNNActivationBackward`                                  | ✅          | ✅      | ✅      |                          | 
 | `cuDNNCreateLRNDescriptor`                                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetLRNDescriptor`                                    | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetLRNDescriptor`                                    | ✅          | ❌      | ❓      |                          | 
@@ -573,10 +573,10 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNGetBatchNormalizationForwardTrainingExWorkspaceSize` | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetBatchNormalizationBackwardExWorkspaceSize`        | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetBatchNormalizationTrainingExReserveSpaceSize`     | ✅          | ❌      | ❓      |                          | 
-| `cuDNNBatchNormalizationForwardTraining`                   | ✅          | ❌      | ❓      |                          | 
+| `cuDNNBatchNormalizationForwardTraining`                   | ✅          | ✅      | ❌      |                          | 
 | `cuDNNBatchNormalizationForwardTrainingEx`                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNBatchNormalizationForwardInference`                  | ✅          | ❌      | ❓      |                          | 
-| `cuDNNBatchNormalizationBackward`                          | ✅          | ❌      | ❓      |                          | 
+| `cuDNNBatchNormalizationBackward`                          | ✅          | ✅      | ❓      |                          | 
 | `cuDNNBatchNormalizationBackwardEx`                        | ✅          | ❌      | ❓      |                          | 
 | `cuDNNCreateSpatialTransformerDescriptor`                  | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetSpatialTransformerNdDescriptor`                   | ✅          | ❌      | ❓      |                          | 
@@ -585,20 +585,20 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNSpatialTfGridGeneratorBackward`                      | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSpatialTfSamplerForward`                             | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSpatialTfSamplerBackward`                            | ✅          | ❌      | ❓      |                          | 
-| `cuDNNCreateDropoutDescriptor`                             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyDropoutDescriptor`                            | ✅          | ❌      | ❓      |                          | 
+| `cuDNNCreateDropoutDescriptor`                             | ✅          | ✅      | ✅      |                          | 
+| `cuDNNDestroyDropoutDescriptor`                            | ✅          | ✅      | ✅      |                          | 
 | `cuDNNDropoutGetStatesSize`                                | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDropoutGetReserveSpaceSize`                          | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetDropoutDescriptor`                                | ✅          | ❌      | ❓      |                          | 
+| `cuDNNSetDropoutDescriptor`                                | ✅          | ✅      | ❌      |                          | 
 | `cuDNNRestoreDropoutDescriptor`                            | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetDropoutDescriptor`                                | ✅          | ❌      | ❓      |                          | 
+| `cuDNNGetDropoutDescriptor`                                | ✅          | ✅      | ❌      |                          | 
 | `cuDNNDropoutForward`                                      | ✅          | ❌      | ❓      |                          | 
 | `cuDNNDropoutBackward`                                     | ✅          | ❌      | ❓      |                          | 
-| `cuDNNCreateRNNDescriptor`                                 | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyRNNDescriptor`                                | ✅          | ❌      | ❓      |                          | 
+| `cuDNNCreateRNNDescriptor`                                 | ✅          | ✅      | ✅      |                          | 
+| `cuDNNDestroyRNNDescriptor`                                | ✅          | ✅      | ✅      |                          | 
 | `cuDNNSetRNNDescriptor_v5`                                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetRNNDescriptor_v5`                                 | ❌          | ❌      | ❌      |                          | 
-| `cuDNNSetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNSetRNNDescriptor_v8` instead | 
+| `cuDNNSetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 
 | `cuDNNGetRNNDescriptor_v6`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNGetRNNDescriptor_v8` instead | 
 | `cuDNNSetRNNDescriptor_v8`                                 | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetRNNDescriptor_v8`                                 | ✅          | ❌      | ❓      |                          | 
@@ -621,13 +621,14 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNRNNForwardInference`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
 | `cuDNNRNNForwardTraining`                                  | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
 | `cuDNNRNNBackwardData`                                     | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 
+| `cuDNNRNNBackwardData_v8`                                  | ❌          | ❌      | ❌      |                          |
 | `cuDNNRNNBackwardWeights`                                  | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
-| `cuDNNSetRNNPaddingMode`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNSetRNNDescriptor_v8` instead | 
+| `cuDNNSetRNNPaddingMode`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 
 | `cuDNNGetRNNPaddingMode`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNGetRNNDescriptor_v8` instead | 
-| `cuDNNCreateRNNDataDescriptor`                             | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyRNNDataDescriptor`                            | ✅          | ❌      | ❓      |                          | 
-| `cuDNNSetRNNDataDescriptor`                                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNGetRNNDataDescriptor`                                | ✅          | ❌      | ❓      |                          | 
+| `cuDNNCreateRNNDataDescriptor`                             | ✅          | ✅      | ✅      |                          | 
+| `cuDNNDestroyRNNDataDescriptor`                            | ✅          | ✅      | ✅      |                          | 
+| `cuDNNSetRNNDataDescriptor`                                | ✅          | ✅      | ✅      |                          | 
+| `cuDNNGetRNNDataDescriptor`                                | ✅          | ✅      | ✅      |                          | 
 | `cuDNNRNNForwardTrainingEx`                                | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
 | `cuDNNRNNForwardInferenceEx`                               | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
 | `cuDNNRNNBackwardDataEx`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 
@@ -684,8 +685,8 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNDestroyFusedOpsVariantParamPack`                     | ✅          | ❌      | ❓      |                          | 
 | `cuDNNSetFusedOpsVariantParamPackAttribute`                | ✅          | ❌      | ❓      |                          | 
 | `cuDNNGetFusedOpsVariantParamPackAttribute`                | ✅          | ❌      | ❓      |                          | 
-| `cuDNNCreateFusedOpsPlan`                                  | ✅          | ❌      | ❓      |                          | 
-| `cuDNNDestroyFusedOpsPlan`                                 | ✅          | ❌      | ❓      |                          | 
+| `cuDNNCreateFusedOpsPlan`                                  | ✅          | ✅      | ✅      |                          | 
+| `cuDNNDestroyFusedOpsPlan`                                 | ✅          | ✅      | ✅      |                          | 
 | `cuDNNMakeFusedOpsPlan`                                    | ✅          | ❌      | ❓      |                          | 
 | `cuDNNFusedOpsExecute`                                     | ✅          | ❌      | ❓      |                          | 
 

@@ -73,6 +73,7 @@ foreach(TEST_SRC ${TEST_SOURCES})
         cublas
         cufft
         cudnn
+        cudnn_adv
         #cusparse
         #cusolver
     )

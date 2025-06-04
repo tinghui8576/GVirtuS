@@ -38,7 +38,7 @@
 using gvirtus::communicators::Buffer;
 using gvirtus::frontend::Frontend;
 
-typedef struct __configureFunction{
+typedef struct __configureFunction {
       gvirtus::common::funcs __f;
       gvirtus::communicators::Buffer* buffer;
 } configureFunction;
@@ -167,5 +167,3 @@ public:
     static void * handler;
 };
 #endif	/* CUDNNFRONTEND_H */
-
-

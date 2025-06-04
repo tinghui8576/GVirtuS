@@ -290,7 +290,7 @@ CUDNN_ROUTINE_HANDLER(GetAlgorithmSpaceSize);
 CUDNN_ROUTINE_HANDLER(SaveAlgorithm);
 CUDNN_ROUTINE_HANDLER(RestoreAlgorithm);
 #endif
-
+// Part of libcudnn_adv, make sure you link your .cu with -lcudnn_adv
 CUDNN_ROUTINE_HANDLER(CreateRNNDataDescriptor);
 CUDNN_ROUTINE_HANDLER(DestroyRNNDataDescriptor);
 CUDNN_ROUTINE_HANDLER(SetRNNDataDescriptor);
@@ -316,9 +316,11 @@ CUDNN_ROUTINE_HANDLER(GetCTCLossDescriptorEx);
 CUDNN_ROUTINE_HANDLER(DestroyCTCLossDescriptor);
 CUDNN_ROUTINE_HANDLER(CTCLoss);
 CUDNN_ROUTINE_HANDLER(GetCTCLossWorkspaceSize);
+//
 
 CUDNN_ROUTINE_HANDLER(SetCallback);
 CUDNN_ROUTINE_HANDLER(GetCallback);
+
 CUDNN_ROUTINE_HANDLER(CreateFusedOpsConstParamPack);
 CUDNN_ROUTINE_HANDLER(DestroyFusedOpsConstParamPack);
 CUDNN_ROUTINE_HANDLER(SetFusedOpsConstParamPackAttribute);

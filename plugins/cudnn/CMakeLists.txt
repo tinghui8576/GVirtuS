@@ -12,6 +12,8 @@ endif()
 include_directories(${CUDNN_INCLUDE_DIRECTORY} ${CUDA_INCLUDE_DIRS})
 
 get_filename_component(CUDA_LIBRARIES_PATH ${CUDA_CUDART_LIBRARY} DIRECTORY FALSE)
+
+# Find cuDNN library
 find_library(CUDNN_LIBRARY
         cudnn
         PATHS ${CUDA_LIBRARIES_PATH})
@@ -33,6 +35,7 @@ message(STATUS "Found cuDNN: ${CUDNN_VERSION} (${CUDNN_INCLUDE_DIRECTORY}/cudnn.
 
 gvirtus_add_backend(cudnn ${CUDNN_VERSION}
         backend/CudnnHandler.cpp)
+
 target_link_libraries(${PROJECT_NAME} ${CUDNN_LIBRARY})
 
 gvirtus_add_frontend(cudnn ${CUDNN_VERSION}

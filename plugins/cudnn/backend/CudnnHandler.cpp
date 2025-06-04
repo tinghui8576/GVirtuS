@@ -312,6 +312,7 @@ void CudnnHandler::Initialize() {
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(SaveAlgorithm));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(RestoreAlgorithm));
 #endif
+    // Part of libcudnn_adv, make sure you link your .cu with -lcudnn_adv
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(CreateRNNDataDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(DestroyRNNDataDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(SetRNNDataDescriptor));
@@ -337,8 +338,11 @@ void CudnnHandler::Initialize() {
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(DestroyCTCLossDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(CTCLoss));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetCTCLossWorkspaceSize));
+    //
+
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(SetCallback));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetCallback));
+
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(CreateFusedOpsConstParamPack));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(DestroyFusedOpsConstParamPack));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(SetFusedOpsConstParamPackAttribute));
@@ -352,8 +356,6 @@ void CudnnHandler::Initialize() {
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(MakeFusedOpsPlan));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(FusedOpsExecute));
 }
-
-
 
 CUDNN_ROUTINE_HANDLER(GetConvolutionMathType) {
      Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetConvolutionMathType"));
@@ -541,9 +543,6 @@ CUDNN_ROUTINE_HANDLER(GetConvolution2dDescriptor) {
      //cout << "DEBUG - cudnnGetConvolution2dDescriptor Executed"<<endl;
      return std::make_shared<Result>(cs,out);
  }
-
-
-
 
 CUDNN_ROUTINE_HANDLER(SetConvolutionGroupCount) {
      Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetConvolutionGroupCount"));

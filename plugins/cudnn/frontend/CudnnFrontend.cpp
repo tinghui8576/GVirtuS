@@ -34,4 +34,3 @@ void * CudnnFrontend::handler = NULL;
 CudnnFrontend::CudnnFrontend() {
 Frontend::GetFrontend();
 }
-
