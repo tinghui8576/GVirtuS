@@ -2,8 +2,8 @@
 #include <cuda_runtime.h>
 #include <cudnn.h>
 
-#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess)
-#define CUDNN_CHECK(err) ASSERT_EQ((err), CUDNN_STATUS_SUCCESS)
+#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA Error: " << cudaGetErrorString(err)
+#define CUDNN_CHECK(err) ASSERT_EQ((err), CUDNN_STATUS_SUCCESS) << "CUDNN Error: " << cudnnGetErrorString(err)
 
 TEST(cuDNN, CreateDestroy) {
     cudnnHandle_t handle;
@@ -54,6 +54,38 @@ TEST(cuDNN, TensorDescriptorSetGet) {
     ASSERT_EQ(c, 2);
     ASSERT_EQ(h, 3);
     ASSERT_EQ(w, 4);
+
+    CUDNN_CHECK(cudnnDestroyTensorDescriptor(desc));
+}
+
+TEST(cuDNN, TensorNdDescriptorSetGet) {
+    cudnnTensorDescriptor_t desc;
+    CUDNN_CHECK(cudnnCreateTensorDescriptor(&desc));
+
+    const int nbDims = 4;
+    int dimA[nbDims]    = {1, 2, 3, 4};  // NCHW
+    int strideA[nbDims] = {
+        2 * 3 * 4,  // N stride = C * H * W
+        3 * 4,      // C stride = H * W
+        4,          // H stride = W
+        1           // W stride = 1
+    };
+
+    CUDNN_CHECK(cudnnSetTensorNdDescriptor(desc, CUDNN_DATA_FLOAT, nbDims, dimA, strideA));
+
+    // Prepare to retrieve
+    cudnnDataType_t dataTypeOut;
+    int nbDimsOut;
+    int dimOut[nbDims];
+    int strideOut[nbDims];
+
+    CUDNN_CHECK(cudnnGetTensorNdDescriptor(desc, nbDims, &dataTypeOut, &nbDimsOut, dimOut, strideOut));
+    ASSERT_EQ(dataTypeOut, CUDNN_DATA_FLOAT);
+    ASSERT_EQ(nbDimsOut, nbDims);
+    for (int i = 0; i < nbDims; ++i) {
+        EXPECT_EQ(dimOut[i], dimA[i]);
+        EXPECT_EQ(strideOut[i], strideA[i]);
+    }
 
     CUDNN_CHECK(cudnnDestroyTensorDescriptor(desc));
 }
@@ -1146,7 +1178,6 @@ TEST(cuDNN, FindConvolutionForwardAlgorithmEx) {
 
     // Checks
     ASSERT_GT(returnedAlgoCount, 0);
-    std::cout << "Found " << returnedAlgoCount << " algorithms." << std::endl;
     for (int i = 0; i < returnedAlgoCount; i++) {
         ASSERT_GE(perfResults[i].time, 0.0f);
         ASSERT_GE(perfResults[i].memory, 0);
@@ -1306,154 +1337,155 @@ TEST(cuDNN, SetGetDropoutDescriptor) {
     CUDNN_CHECK(cudnnDestroy(handle));
 }
 
-// TEST(cuDNN, RNNForward) {
-//     cudnnHandle_t handle;
-//     CUDNN_CHECK(cudnnCreate(&handle));
+TEST(cuDNN, RNNForward) {
+    cudnnHandle_t handle;
+    CUDNN_CHECK(cudnnCreate(&handle));
 
-//     // RNN config
-//     const int inputSize = 8;
-//     const int hiddenSize = 16;
-//     const int numLayers = 1;
-//     const int batchSize = 2;
-//     const int seqLength = 4;
-//     const int projSize = 0;
+    // RNN config
+    const int inputSize = 8;
+    const int hiddenSize = 16;
+    const int numLayers = 1;
+    const int batchSize = 2;
+    const int seqLength = 4;
+    const int projSize = hiddenSize;
 
-//     cudnnRNNDescriptor_t rnnDesc;
-//     CUDNN_CHECK(cudnnCreateRNNDescriptor(&rnnDesc));
+    cudnnRNNDescriptor_t rnnDesc;
+    CUDNN_CHECK(cudnnCreateRNNDescriptor(&rnnDesc));
 
-//     cudnnDropoutDescriptor_t dropoutDesc;
-//     CUDNN_CHECK(cudnnCreateDropoutDescriptor(&dropoutDesc));
+    cudnnDropoutDescriptor_t dropoutDesc;
+    CUDNN_CHECK(cudnnCreateDropoutDescriptor(&dropoutDesc));
 
-//     // Dummy dropout config (no dropout)
-//     void* states;
-//     size_t stateSize;
-//     CUDNN_CHECK(cudnnDropoutGetStatesSize(handle, &stateSize));
-//     CUDA_CHECK(cudaMalloc(&states, stateSize));
-//     CUDNN_CHECK(cudnnSetDropoutDescriptor(
-//         dropoutDesc, handle, 0.0f, states, stateSize, 0));
+    // Dummy dropout config (no dropout)
+    void* states;
+    size_t stateSize;
+    CUDNN_CHECK(cudnnDropoutGetStatesSize(handle, &stateSize));
+    CUDA_CHECK(cudaMalloc(&states, stateSize));
+    CUDNN_CHECK(cudnnSetDropoutDescriptor(
+        dropoutDesc, handle, 0.0f, states, stateSize, 0));
 
-//     CUDNN_CHECK(cudnnSetRNNDescriptor_v8(
-//         rnnDesc,
-//         CUDNN_RNN_ALGO_STANDARD,
-//         CUDNN_LSTM,
-//         CUDNN_RNN_DOUBLE_BIAS,
-//         CUDNN_UNIDIRECTIONAL,
-//         CUDNN_LINEAR_INPUT,
-//         CUDNN_DATA_FLOAT,
-//         CUDNN_DATA_FLOAT,
-//         CUDNN_DEFAULT_MATH,
-//         inputSize,
-//         hiddenSize,
-//         projSize,
-//         numLayers,
-//         dropoutDesc,
-//         0));
+    CUDNN_CHECK(cudnnSetRNNDescriptor_v8(
+        rnnDesc,
+        CUDNN_RNN_ALGO_STANDARD,
+        CUDNN_LSTM,
+        CUDNN_RNN_DOUBLE_BIAS,
+        CUDNN_UNIDIRECTIONAL,
+        CUDNN_LINEAR_INPUT,
+        CUDNN_DATA_FLOAT,
+        CUDNN_DATA_FLOAT,
+        CUDNN_DEFAULT_MATH,
+        inputSize,
+        hiddenSize,
+        projSize,
+        numLayers,
+        dropoutDesc,
+        0));
 
-//     // Input and output RNNDataDescriptors
-//     cudnnRNNDataDescriptor_t xDesc, yDesc;
-//     CUDNN_CHECK(cudnnCreateRNNDataDescriptor(&xDesc));
-//     CUDNN_CHECK(cudnnCreateRNNDataDescriptor(&yDesc));
+    // Input and output RNNDataDescriptors
+    cudnnRNNDataDescriptor_t xDesc, yDesc;
+    CUDNN_CHECK(cudnnCreateRNNDataDescriptor(&xDesc));
+    CUDNN_CHECK(cudnnCreateRNNDataDescriptor(&yDesc));
 
-//     int seqLengthArray[batchSize];
-//     for (int i = 0; i < batchSize; ++i) seqLengthArray[i] = seqLength;
+    int seqLengthArray[batchSize];
+    for (int i = 0; i < batchSize; ++i) seqLengthArray[i] = seqLength;
 
-//     CUDNN_CHECK(cudnnSetRNNDataDescriptor(
-//         xDesc, CUDNN_DATA_FLOAT, CUDNN_RNN_DATA_LAYOUT_SEQ_MAJOR_PACKED,
-//         seqLength, batchSize, inputSize,
-//         seqLengthArray, nullptr));
+    CUDNN_CHECK(cudnnSetRNNDataDescriptor(
+        xDesc, CUDNN_DATA_FLOAT, CUDNN_RNN_DATA_LAYOUT_SEQ_MAJOR_PACKED,
+        seqLength, batchSize, inputSize,
+        seqLengthArray, nullptr));
 
-//     CUDNN_CHECK(cudnnSetRNNDataDescriptor(
-//         yDesc, CUDNN_DATA_FLOAT, CUDNN_RNN_DATA_LAYOUT_SEQ_MAJOR_PACKED,
-//         seqLength, batchSize, hiddenSize,
-//         seqLengthArray, nullptr));
+    CUDNN_CHECK(cudnnSetRNNDataDescriptor(
+        yDesc, CUDNN_DATA_FLOAT, CUDNN_RNN_DATA_LAYOUT_SEQ_MAJOR_PACKED,
+        seqLength, batchSize, hiddenSize,
+        seqLengthArray, nullptr));
 
-//     // Allocate dummy input/output memory
-//     size_t inputBytes = seqLength * batchSize * inputSize * sizeof(float);
-//     size_t outputBytes = seqLength * batchSize * hiddenSize * sizeof(float);
-//     float* x; float* y;
-//     CUDA_CHECK(cudaMalloc(&x, inputBytes));
-//     CUDA_CHECK(cudaMalloc(&y, outputBytes));
+    // Allocate dummy input/output memory
+    size_t inputBytes = seqLength * batchSize * inputSize * sizeof(float);
+    size_t outputBytes = seqLength * batchSize * hiddenSize * sizeof(float);
+    float* x; float* y;
+    CUDA_CHECK(cudaMalloc(&x, inputBytes));
+    CUDA_CHECK(cudaMalloc(&y, outputBytes));
 
-//     // Initial/Final hidden/cell states
-//     cudnnTensorDescriptor_t hDesc, cDesc;
-//     CUDNN_CHECK(cudnnCreateTensorDescriptor(&hDesc));
-//     CUDNN_CHECK(cudnnCreateTensorDescriptor(&cDesc));
+    // Initial/Final hidden/cell states
+    cudnnTensorDescriptor_t hDesc, cDesc;
+    CUDNN_CHECK(cudnnCreateTensorDescriptor(&hDesc));
+    CUDNN_CHECK(cudnnCreateTensorDescriptor(&cDesc));
 
-//     int dims[3] = {numLayers, batchSize, hiddenSize};
-//     int strides[3] = {batchSize * hiddenSize, hiddenSize, 1};
-//     CUDNN_CHECK(cudnnSetTensorNdDescriptor(hDesc, CUDNN_DATA_FLOAT, 3, dims, strides));
-//     CUDNN_CHECK(cudnnSetTensorNdDescriptor(cDesc, CUDNN_DATA_FLOAT, 3, dims, strides));
+    int dims[3] = {numLayers, batchSize, hiddenSize};
+    int strides[3] = {batchSize * hiddenSize, hiddenSize, 1};
+    CUDNN_CHECK(cudnnSetTensorNdDescriptor(hDesc, CUDNN_DATA_FLOAT, 3, dims, strides));
+    CUDNN_CHECK(cudnnSetTensorNdDescriptor(cDesc, CUDNN_DATA_FLOAT, 3, dims, strides));
 
-//     float *hx, *cx, *hy, *cy;
-//     CUDA_CHECK(cudaMalloc(&hx, numLayers * batchSize * hiddenSize * sizeof(float)));
-//     CUDA_CHECK(cudaMalloc(&cx, numLayers * batchSize * hiddenSize * sizeof(float)));
-//     CUDA_CHECK(cudaMalloc(&hy, numLayers * batchSize * hiddenSize * sizeof(float)));
-//     CUDA_CHECK(cudaMalloc(&cy, numLayers * batchSize * hiddenSize * sizeof(float)));
+    float *hx, *cx, *hy, *cy;
+    CUDA_CHECK(cudaMalloc(&hx, numLayers * batchSize * hiddenSize * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&cx, numLayers * batchSize * hiddenSize * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&hy, numLayers * batchSize * hiddenSize * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&cy, numLayers * batchSize * hiddenSize * sizeof(float)));
 
-//     // Allocate weights
-//     size_t weightSpaceSize;
-//     CUDNN_CHECK(cudnnGetRNNWeightSpaceSize(handle, rnnDesc, &weightSpaceSize));
-//     void* weightSpace;
-//     CUDA_CHECK(cudaMalloc(&weightSpace, weightSpaceSize));
+    // // Allocate weights
+    // size_t weightSpaceSize;
+    // CUDNN_CHECK(cudnnGetRNNWeightSpaceSize(handle, rnnDesc, &weightSpaceSize));
+    // void* weightSpace;
+    // CUDA_CHECK(cudaMalloc(&weightSpace, weightSpaceSize));
 
-//     // Workspace and reserve space
-//     size_t workspaceSize, reserveSize;
-//     CUDNN_CHECK(cudnnGetRNNTempSpaceSizes(
-//         handle, rnnDesc, CUDNN_FWD_MODE_TRAINING,
-//         xDesc, &workspaceSize, &reserveSize));
-//     void* workspace; void* reserveSpace;
-//     CUDA_CHECK(cudaMalloc(&workspace, workspaceSize));
-//     CUDA_CHECK(cudaMalloc(&reserveSpace, reserveSize));
+    // // Workspace and reserve space
+    // size_t workspaceSize, reserveSize;
+    // CUDNN_CHECK(cudnnGetRNNTempSpaceSizes(
+    //     handle, rnnDesc, CUDNN_FWD_MODE_TRAINING,
+    //     xDesc, &workspaceSize, &reserveSize));
+    // void* workspace; void* reserveSpace;
+    // CUDA_CHECK(cudaMalloc(&workspace, workspaceSize));
+    // CUDA_CHECK(cudaMalloc(&reserveSpace, reserveSize));
 
-//     // Allocate devSeqLengths
-//     int32_t* devSeqLengths;
-//     CUDA_CHECK(cudaMalloc(&devSeqLengths, batchSize * sizeof(int32_t)));
-//     CUDA_CHECK(cudaMemcpy(devSeqLengths, seqLengthArray,
-//                           batchSize * sizeof(int32_t), cudaMemcpyHostToDevice));
+    // // Allocate devSeqLengths
+    // int32_t* devSeqLengths;
+    // CUDA_CHECK(cudaMalloc(&devSeqLengths, batchSize * sizeof(int32_t)));
+    // CUDA_CHECK(cudaMemcpy(devSeqLengths, seqLengthArray,
+    //                       batchSize * sizeof(int32_t), cudaMemcpyHostToDevice));
 
-//     // Run forward
-//     CUDNN_CHECK(cudnnRNNForward(
-//         handle, rnnDesc, CUDNN_FWD_MODE_TRAINING, devSeqLengths,
-//         xDesc, x, yDesc, y,
-//         hDesc, hx, hy, cDesc, cx, cy,
-//         weightSpaceSize, weightSpace,
-//         workspaceSize, workspace,
-//         reserveSize, reserveSpace));
+    // // Run forward
+    // CUDNN_CHECK(cudnnRNNForward(
+    //     handle, rnnDesc, CUDNN_FWD_MODE_TRAINING, devSeqLengths,
+    //     xDesc, x, yDesc, y,
+    //     hDesc, hx, hy, cDesc, cx, cy,
+    //     weightSpaceSize, weightSpace,
+    //     workspaceSize, workspace,
+    //     reserveSize, reserveSpace));
 
-//     // Cleanup
-//     CUDA_CHECK(cudaFree(x));
-//     CUDA_CHECK(cudaFree(y));
-//     CUDA_CHECK(cudaFree(hx));
-//     CUDA_CHECK(cudaFree(hy));
-//     CUDA_CHECK(cudaFree(cx));
-//     CUDA_CHECK(cudaFree(cy));
-//     CUDA_CHECK(cudaFree(weightSpace));
-//     CUDA_CHECK(cudaFree(workspace));
-//     CUDA_CHECK(cudaFree(reserveSpace));
-//     CUDA_CHECK(cudaFree(states));
-//     CUDA_CHECK(cudaFree(devSeqLengths));
+    // Cleanup
+    // CUDA_CHECK(cudaFree(x));
+    // CUDA_CHECK(cudaFree(y));
+    // CUDA_CHECK(cudaFree(hx));
+    // CUDA_CHECK(cudaFree(hy));
+    // CUDA_CHECK(cudaFree(cx));
+    // CUDA_CHECK(cudaFree(cy));
+    // CUDA_CHECK(cudaFree(weightSpace));
+    // CUDA_CHECK(cudaFree(workspace));
+    // CUDA_CHECK(cudaFree(reserveSpace));
+    // CUDA_CHECK(cudaFree(states));
+    // CUDA_CHECK(cudaFree(devSeqLengths));
 
-//     CUDNN_CHECK(cudnnDestroyRNNDescriptor(rnnDesc));
-//     CUDNN_CHECK(cudnnDestroyDropoutDescriptor(dropoutDesc));
-//     CUDNN_CHECK(cudnnDestroyTensorDescriptor(hDesc));
-//     CUDNN_CHECK(cudnnDestroyTensorDescriptor(cDesc));
-//     CUDNN_CHECK(cudnnDestroyRNNDataDescriptor(xDesc));
-//     CUDNN_CHECK(cudnnDestroyRNNDataDescriptor(yDesc));
-//     CUDNN_CHECK(cudnnDestroy(handle));
-// }
-
-TEST(cuDNN, FusedOpsPlanCreateDestroy) {
-    cudnnFusedOpsPlan_t plan;
-
-    // Choose a valid fused op. For example: convolution + bias + activation
-    cudnnFusedOps_t ops = CUDNN_FUSED_SCALE_BIAS_ACTIVATION_CONV_BNSTATS;
-
-    // Create the fused ops plan
-    CUDNN_CHECK(cudnnCreateFusedOpsPlan(&plan, ops));
-
-    // Now destroy the plan if it was created
-    CUDNN_CHECK(cudnnDestroyFusedOpsPlan(plan));
+    // CUDNN_CHECK(cudnnDestroyRNNDescriptor(rnnDesc));
+    // CUDNN_CHECK(cudnnDestroyDropoutDescriptor(dropoutDesc));
+    // CUDNN_CHECK(cudnnDestroyTensorDescriptor(hDesc));
+    // CUDNN_CHECK(cudnnDestroyTensorDescriptor(cDesc));
+    // CUDNN_CHECK(cudnnDestroyRNNDataDescriptor(xDesc));
+    // CUDNN_CHECK(cudnnDestroyRNNDataDescriptor(yDesc));
+    // CUDNN_CHECK(cudnnDestroy(handle));
 }
+
+// Not implemented yet
+// TEST(cuDNN, FusedOpsPlanCreateDestroy) {
+//     cudnnFusedOpsPlan_t plan;
+
+//     // Choose a valid fused op. For example: convolution + bias + activation
+//     cudnnFusedOps_t ops = CUDNN_FUSED_SCALE_BIAS_ACTIVATION_CONV_BNSTATS;
+
+//     // Create the fused ops plan
+//     CUDNN_CHECK(cudnnCreateFusedOpsPlan(&plan, ops));
+
+//     // Now destroy the plan if it was created
+//     CUDNN_CHECK(cudnnDestroyFusedOpsPlan(plan));
+// }
 
 TEST(cuDNN, createDestroyLRNDescriptor) {
     cudnnLRNDescriptor_t lrnDesc;

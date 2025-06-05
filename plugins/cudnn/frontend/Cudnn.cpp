@@ -56,16 +56,15 @@ bool isFloatDescriptor(const void* desc) {
 
 extern "C" size_t CUDNNWINAPI cudnnGetVersion() {
     CudnnFrontend::Prepare();
-    
     CudnnFrontend::Execute("cudnnGetVersion");
-    return CudnnFrontend::GetExitCode();
+    return CudnnFrontend::GetExitCode(); // Instead of exit code, we return the version directly!
 }
 
 extern "C" const char * CUDNNWINAPI cudnnGetErrorString(cudnnStatus_t status) {
     CudnnFrontend::Prepare();
     CudnnFrontend::AddVariableForArguments<cudnnStatus_t>(status);
     CudnnFrontend::Execute("cudnnGetErrorString");
-    return CudnnFrontend::GetOutputVariable<const char *>();
+    return CudnnFrontend::GetOutputString();
 }
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateTensorDescriptor(cudnnTensorDescriptor_t *tensorDesc) {
@@ -175,14 +174,12 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensorNdDescriptor( cudnnTensorDesc
     CudnnFrontend::AddDevicePointerForArguments(tensorDesc);
     CudnnFrontend::AddVariableForArguments<cudnnDataType_t>(dataType);
     CudnnFrontend::AddVariableForArguments<int>(nbDims);
-    CudnnFrontend::AddHostPointerForArguments<int>((int*)dimA);
-    CudnnFrontend::AddHostPointerForArguments<int>((int*)strideA);
+    CudnnFrontend::AddHostPointerForArguments<const int>(dimA, nbDims);
+    CudnnFrontend::AddHostPointerForArguments<const int>(strideA, nbDims);
 
     CudnnFrontend::Execute("cudnnSetTensorNdDescriptor");
-    if (CudnnFrontend::Success()) {
-        tensorDesc = CudnnFrontend::GetOutputVariable<cudnnTensorDescriptor_t>();
+    if (CudnnFrontend::Success())
         registerDescriptorType(tensorDesc, dataType);
-    }
     return CudnnFrontend::GetExitCode();
 }
 
@@ -206,12 +203,60 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensorNdDescriptorEx(cudnnTensorDes
     return CudnnFrontend::GetExitCode();      
 }
 
+// Method F1: This method is compatible with the method B1 of the backend.
+// In this method, we do not pass uninitialized pointers from frontend (e.g., dataType, nbDims, dimA, strideA),
+// as these are all outputs.
+// For these variables, the backend uses arrays and variables allocated in the stack.
+// The Backend sends the dataType and nbDims as values, so we need to
+// read the buffer as values as well (e.g., GetOutputVariable) and not as pointers!.
+// Note: If we try to read these variables as pointers and dereference them it will not work.
+// For example, doing:
+// *dataType = *CudnnFrontend::GetOutputHostVariable<cudnnDataType_t>()
+// will not work. The same applies for nbDims as well.
+// extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetTensorNdDescriptor(const cudnnTensorDescriptor_t tensorDesc,
+//                             int nbDimsRequested,
+//                             cudnnDataType_t *dataType,
+//                             int *nbDims,
+//                             int dimA[],
+//                             int strideA[]) {
+
+//     CudnnFrontend::Prepare();
+
+//     CudnnFrontend::AddDevicePointerForArguments(tensorDesc);
+//     CudnnFrontend::AddVariableForArguments<int>(nbDimsRequested);
+//     CudnnFrontend::Execute("cudnnGetTensorNdDescriptor");
+//     if (CudnnFrontend::Success()) {
+//         *dataType = CudnnFrontend::GetOutputVariable<cudnnDataType_t>();
+//         *nbDims = CudnnFrontend::GetOutputVariable<int>();
+//         int *dimA_backend = CudnnFrontend::GetOutputHostPointer<int>(nbDimsRequested);
+//         std::memcpy(dimA, dimA_backend, nbDimsRequested * sizeof(int));
+//         int *strideA_backend = CudnnFrontend::GetOutputHostPointer<int>(nbDimsRequested);
+//         std::memcpy(strideA, strideA_backend, nbDimsRequested * sizeof(int));
+//     }
+//     return CudnnFrontend::GetExitCode();
+// }
+
+// Method F2: This method is compatible with the method B2 of the backend.
+// In this method, again, we do not pass any uninitialized pointers from frontend (e.g., dataType, nbDims, dimA, strideA),
+// as these are all outputs.
+// For these variables, the backend uses arrays and variables allocated in the heap.
+// More specifically, the backend uses the Delegate Method to dynamically allocate memory for these variables
+// and directly write them into the output buffer.
+// The Backend sends the dataType and nbDims as pointers, so we need to
+// read the buffer as host pointers (e.g., GetOutputHostPointer) and dereference them to get the values.
+// For example, we do:
+// *dataType = *CudnnFrontend::GetOutputHostPointer<cudnnDataType_t>();
+// and the same applies for nbDims as well.
+// Note: If we try to read these variables as variables directly, it will not work.
+// For example, doing:
+// *dataType = CudnnFrontend::GetOutputVariable<cudnnDataType_t>()
+// will not work. The same applies for nbDims as well.
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetTensorNdDescriptor(const cudnnTensorDescriptor_t tensorDesc,
                             int nbDimsRequested,
                             cudnnDataType_t *dataType,
                             int *nbDims,
-                            int *dimA,
-                            int *strideA) {
+                            int dimA[],
+                            int strideA[]) {
 
     CudnnFrontend::Prepare();
 
@@ -219,13 +264,48 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetTensorNdDescriptor(const cudnnTenso
     CudnnFrontend::AddVariableForArguments<int>(nbDimsRequested);
     CudnnFrontend::Execute("cudnnGetTensorNdDescriptor");
     if (CudnnFrontend::Success()) {
-        *dataType = CudnnFrontend::GetOutputVariable<cudnnDataType_t>();
-        *nbDims = CudnnFrontend::GetOutputVariable<int>();
-        dimA = CudnnFrontend::GetOutputHostPointer<int>();
-        strideA = CudnnFrontend::GetOutputHostPointer<int>();
+        *dataType = *CudnnFrontend::GetOutputHostPointer<cudnnDataType_t>(); // Important!
+        *nbDims = *CudnnFrontend::GetOutputHostPointer<int>(); // Important!
+        int *dimA_backend = CudnnFrontend::GetOutputHostPointer<int>(nbDimsRequested);
+        std::memcpy(dimA, dimA_backend, nbDimsRequested * sizeof(int));
+        int *strideA_backend = CudnnFrontend::GetOutputHostPointer<int>(nbDimsRequested);
+        std::memcpy(strideA, strideA_backend, nbDimsRequested * sizeof(int));
     }
     return CudnnFrontend::GetExitCode();
 }
+
+// Method F3: This method is compatible with the method B3 of the backend.
+// In this method, we pass uninitialized pointers for all output arguments (e.g., dataType, nbDims, dimA, strideA)
+// For these variables, the backend uses Get function to allocate memory for these variables, then the function
+// manipulates their values and writes them into the output buffer.
+// Because the buffer writes the values of these variables, we need to read them as variables and not as pointers,
+// similar to Method F1.
+// extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetTensorNdDescriptor(const cudnnTensorDescriptor_t tensorDesc,
+//                             int nbDimsRequested,
+//                             cudnnDataType_t *dataType,
+//                             int *nbDims,
+//                             int dimA[],
+//                             int strideA[]) {
+
+//     CudnnFrontend::Prepare();
+
+//     CudnnFrontend::AddDevicePointerForArguments(tensorDesc);
+//     CudnnFrontend::AddVariableForArguments<int>(nbDimsRequested);
+//     CudnnFrontend::AddHostPointerForArguments<cudnnDataType_t>(dataType);
+//     CudnnFrontend::AddHostPointerForArguments<int>(nbDims);
+//     CudnnFrontend::AddHostPointerForArguments<int>(dimA, nbDimsRequested);
+//     CudnnFrontend::AddHostPointerForArguments<int>(strideA, nbDimsRequested);
+//     CudnnFrontend::Execute("cudnnGetTensorNdDescriptor");
+//     if (CudnnFrontend::Success()) {
+//         *dataType = CudnnFrontend::GetOutputVariable<cudnnDataType_t>();
+//         *nbDims = CudnnFrontend::GetOutputVariable<int>();
+//         int *dimA_backend = CudnnFrontend::GetOutputHostPointer<int>(nbDimsRequested);
+//         std::memcpy(dimA, dimA_backend, nbDimsRequested * sizeof(int));
+//         int *strideA_backend = CudnnFrontend::GetOutputHostPointer<int>(nbDimsRequested);
+//         std::memcpy(strideA, strideA_backend, nbDimsRequested * sizeof(int));
+//     }
+//     return CudnnFrontend::GetExitCode();
+// }
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetTensorSizeInBytes(const cudnnTensorDescriptor_t tensorDesc,
                                                                size_t *size) {
@@ -244,7 +324,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetTensorSizeInBytes(const cudnnTensor
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnDestroyTensorDescriptor(cudnnTensorDescriptor_t tensorDesc) {
     CudnnFrontend::Prepare();
 
-    CudnnFrontend::AddDevicePointerForArguments( tensorDesc);
+    CudnnFrontend::AddDevicePointerForArguments(tensorDesc);
     CudnnFrontend::Execute("cudnnDestroyTensorDescriptor");
     return CudnnFrontend::GetExitCode();
 }
@@ -3551,7 +3631,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetRNNDescriptor_v8(cudnnRNNDescriptor
 
     CudnnFrontend::Prepare();
 
-
     CudnnFrontend::AddDevicePointerForArguments(rnnDesc);
     CudnnFrontend::AddVariableForArguments<cudnnRNNAlgo_t>(algo);
     CudnnFrontend::AddVariableForArguments<cudnnRNNMode_t>(cellMode);
@@ -3563,17 +3642,14 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetRNNDescriptor_v8(cudnnRNNDescriptor
     CudnnFrontend::AddVariableForArguments<cudnnDataType_t>(mathPrec);
     CudnnFrontend::AddVariableForArguments<cudnnMathType_t>(mathType);
 
-    CudnnFrontend::AddVariableForArguments<int>(inputSize);
-    CudnnFrontend::AddVariableForArguments<int>(hiddenSize);
-    CudnnFrontend::AddVariableForArguments<int>(projSize);
-    CudnnFrontend::AddVariableForArguments<int>(numLayers);
+    CudnnFrontend::AddVariableForArguments<int32_t>(inputSize);
+    CudnnFrontend::AddVariableForArguments<int32_t>(hiddenSize);
+    CudnnFrontend::AddVariableForArguments<int32_t>(projSize);
+    CudnnFrontend::AddVariableForArguments<int32_t>(numLayers);
     CudnnFrontend::AddDevicePointerForArguments(dropoutDesc);
-    CudnnFrontend::AddVariableForArguments<int>(auxFlags);
+    CudnnFrontend::AddVariableForArguments<uint32_t>(auxFlags);
 
     CudnnFrontend::Execute("cudnnSetRNNDescriptor_v8");
-    if (CudnnFrontend::Success()) {
-        rnnDesc = CudnnFrontend::GetOutputVariable<cudnnRNNDescriptor_t>();
-    }
     return CudnnFrontend::GetExitCode();
 }
 

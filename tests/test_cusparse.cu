@@ -2,8 +2,8 @@
 #include <cusparse.h>
 #include <cuda_runtime.h>
 
-#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess)
-#define CUSPARSE_CHECK(err) ASSERT_EQ((err), CUSPARSE_STATUS_SUCCESS)
+#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA error: " << cudaGetErrorString(err)
+#define CUSPARSE_CHECK(err) ASSERT_EQ((err), CUSPARSE_STATUS_SUCCESS) << "CuSPARSE error: " << cusparseGetErrorString(err)
 
 TEST(CuSPARSE, CreateDestroy) {
     cusparseHandle_t handle;
@@ -21,7 +21,7 @@ TEST(CuSPARSE, GetVersion) {
     CUSPARSE_CHECK(cusparseCreate(&handle));
     int version;
     CUSPARSE_CHECK(cusparseGetVersion(handle, &version));
-    ASSERT_GT(version, 0);
+    ASSERT_GT(version, 999); // Version should be greater than 1.0
     CUSPARSE_CHECK(cusparseDestroy(handle));
 }
 

@@ -100,3 +100,9 @@ Restart the backend and re-run the tests using the scripts above.
 
 > [!IMPORTANT]
 > If you make **any changes** to the test files, you must restart the GVirtuS backend using `make stop-gvirtus` followed by `make run-gvirtus-backend-dev`. Otherwise, your test changes will not be picked up.
+
+# ⚠️ Disclaimers
+
+> [!IMPORTANT] GVirtuS is currently not production-ready.
+> It is **not thread-safe** and has known **memory leaks**. Use it with caution in experimental or non-critical environments.
+

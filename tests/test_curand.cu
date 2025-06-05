@@ -2,6 +2,9 @@
 #include <iostream>
 #include <curand.h>
 
+#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA error: " << cudaGetErrorString(err)
+#define CURAND_CHECK(err) ASSERT_EQ((err), CURAND_STATUS_SUCCESS)
+
 TEST(cuRAND, CreateDestroyGenerator) {
     curandGenerator_t generator;
     ASSERT_EQ(curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT), CURAND_STATUS_SUCCESS);

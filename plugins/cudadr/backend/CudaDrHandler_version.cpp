@@ -29,8 +29,8 @@
 
 /*Return the Cuda Driver Version */
 CUDA_DRIVER_HANDLER(DriverGetVersion) {
-    int *driverVersion = input_buffer->Assign<int>();
-    CUresult exit_code = cuDriverGetVersion(driverVersion);
+    int driverVersion;
+    CUresult exit_code = cuDriverGetVersion(&driverVersion);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->Add(driverVersion);
     return std::make_shared<Result>((cudaError_t) exit_code, out);

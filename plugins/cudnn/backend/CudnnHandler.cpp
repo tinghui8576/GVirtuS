@@ -1160,7 +1160,7 @@ CUDNN_ROUTINE_HANDLER(GetVersion) {
 
     size_t version = cudnnGetVersion();
     LOG4CPLUS_DEBUG(logger,"cudnnGetVersion Executed, version: " << version);
-    return std::make_shared<Result>(version);
+    return std::make_shared<Result>(version); // Return the version as an exit code!
 }
 
 CUDNN_ROUTINE_HANDLER(GetErrorString) {
@@ -1169,9 +1169,9 @@ CUDNN_ROUTINE_HANDLER(GetErrorString) {
     const char* s = cudnnGetErrorString(cs);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-        out->AddConst(s);
+        out->AddString(s);
     } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+        LOG4CPLUS_DEBUG(logger, e);
         return std::make_shared<Result>(CUDNN_STATUS_EXECUTION_FAILED);
     }
     LOG4CPLUS_DEBUG(logger,"cudnnGetErrorString Executed");
@@ -1342,18 +1342,10 @@ CUDNN_ROUTINE_HANDLER(SetTensorNdDescriptor) {
     cudnnTensorDescriptor_t tensorDesc = in->Get<cudnnTensorDescriptor_t>();
     cudnnDataType_t dataType = in->Get<cudnnDataType_t>();
     int nbDims = in->Get<int>();
-    int *dimA = in->Assign<int>();
-    int *strideA = in->Assign<int>();
+    int *dimA = in->Assign<int>(nbDims);
+    int *strideA = in->Assign<int>(nbDims);
 
-    cudnnStatus_t cs = cudnnSetTensorNdDescriptor(tensorDesc,dataType,nbDims,dimA,strideA);
-   
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try {
-         out->Add<cudnnTensorDescriptor_t>(tensorDesc);
-    } catch (string e) {
-         LOG4CPLUS_DEBUG(logger,e);
-         return std::make_shared<Result>(cs);
-    }
+    cudnnStatus_t cs = cudnnSetTensorNdDescriptor(tensorDesc, dataType, nbDims, dimA, strideA);
     
     LOG4CPLUS_DEBUG(logger, "cudnnSetTensorNdDescriptor Executed");
     registerDescriptorType(tensorDesc, dataType);
@@ -1383,52 +1375,113 @@ CUDNN_ROUTINE_HANDLER(SetTensorNdDescriptorEx) {
     return std::make_shared<Result>(cs);  
 }
 
+// Method B1: This method is compatible with Method F1 of frontend.
+// Use static arrays for all host pointers. Do not pass uninitialized pointers from frontend.
+// For dataType and nbDims which are simple types, we pass their values directly,
+// So, the frontend reads the variables directly from the output buffer.
+// CUDNN_ROUTINE_HANDLER(GetTensorNdDescriptor) {
+//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetTensorNdDescriptor"));
+
+//     const cudnnTensorDescriptor_t tensorDesc = in->Get<cudnnTensorDescriptor_t>();
+//     int nbDimsRequested = in->Get<int>();
+//     cudnnDataType_t dataType;
+//     int nbDims;
+//     int dimA[nbDimsRequested];
+//     int strideA[nbDimsRequested];
+
+//     cudnnStatus_t cs = cudnnGetTensorNdDescriptor(tensorDesc, nbDimsRequested, &dataType, &nbDims, dimA, strideA);
+//     LOG4CPLUS_DEBUG(logger, "cudnnGetTensorNdDescriptor: nbDims = " << nbDims);
+//     LOG4CPLUS_DEBUG(logger, "cudnnGetTensorNdDescriptor Executed");
+
+//     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+//     try {
+//         out->Add<cudnnDataType_t>(dataType);
+//         out->Add<int>(nbDims);
+//         out->Add<int>(dimA, nbDimsRequested);
+//         out->Add<int>(strideA, nbDimsRequested);
+//     } catch (string e) {
+//         LOG4CPLUS_DEBUG(logger, e);
+//         return std::make_shared<Result>(cs);
+//     }
+    
+//     return std::make_shared<Result>(cs, out);
+// }
+
+// Method B2: This method is compatible with Method F2 of frontend.
+// Use dynamic arrays for all host pointers. Do not pass uninitialized pointers from frontend.
+// Use the "Delegate" function to allocate memory for pointers.
+// However, Delegate allocates memory to the output buffer, so 
+// the frontend needs to appropriately read the pointers and dereference them.
 CUDNN_ROUTINE_HANDLER(GetTensorNdDescriptor) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetTensorNdDescriptor"));
-
-    cudnnTensorDescriptor_t tensorDesc = in->Get<cudnnTensorDescriptor_t>();
-    int nbDimsRequested = in->Get<int>();
-    cudnnDataType_t dataType;
-    int *nbDims;
-    int *dimA;
-    int *strideA = in->Assign<int>();
-
-    cudnnStatus_t cs = cudnnGetTensorNdDescriptor(tensorDesc,nbDimsRequested,&dataType,nbDims,dimA,strideA);
-
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try {
-        out->Add<cudnnDataType_t>(dataType);
-        out->Add<int>(nbDims);
-        out->Add<int>(dimA);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
-        return std::make_shared<Result>(cs);
-    }
-    
+
+    const cudnnTensorDescriptor_t tensorDesc = in->Get<cudnnTensorDescriptor_t>();
+    int nbDimsRequested = in->Get<int>();
+    cudnnDataType_t* dataType = out->Delegate<cudnnDataType_t>();
+    int* nbDims = out->Delegate<int>();
+    int* dimA = out->Delegate<int>(nbDimsRequested);
+    int* strideA = out->Delegate<int>(nbDimsRequested);
+
+    cudnnStatus_t cs = cudnnGetTensorNdDescriptor(tensorDesc, nbDimsRequested, dataType, nbDims, dimA, strideA);
+    LOG4CPLUS_DEBUG(logger, "cudnnGetTensorNdDescriptor: nbDims = " << nbDims);
     LOG4CPLUS_DEBUG(logger, "cudnnGetTensorNdDescriptor Executed");
-    
-    return std::make_shared<Result>(cs,out);
+
+    return std::make_shared<Result>(cs, out);
 }
 
+// Method B3: This method is compatible with Method F3 of frontend.
+// In this method, we allocate memory for the host pointers in the backend using Get from the input buffer.
+// This means that the frontend should pass the pointers to the backend, but the pointers do not contain valid data.
+// It is just a trick to allocate the amount of memory needed to store values for the arguments that are initially non-valid.
+// We then send the values back to the frontend in the output buffer similar to Method B1.
+// CUDNN_ROUTINE_HANDLER(GetTensorNdDescriptor) {
+//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetTensorNdDescriptor"));
+
+//     const cudnnTensorDescriptor_t tensorDesc = in->Get<cudnnTensorDescriptor_t>();
+//     int nbDimsRequested = in->Get<int>();
+//     cudnnDataType_t dataType = in->Get<cudnnDataType_t>();
+//     int nbDims = in->Get<int>();
+//     int* dimA = in->Assign<int>(nbDimsRequested);
+//     int* strideA = in->Assign<int>(nbDimsRequested);
+
+//     cudnnStatus_t cs = cudnnGetTensorNdDescriptor(tensorDesc, nbDimsRequested, &dataType, &nbDims, dimA, strideA);
+//     LOG4CPLUS_DEBUG(logger, "cudnnGetTensorNdDescriptor: nbDims = " << nbDims);
+//     LOG4CPLUS_DEBUG(logger, "cudnnGetTensorNdDescriptor Executed");
+
+//     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+//     try {
+//         out->Add<cudnnDataType_t>(dataType);
+//         out->Add<int>(nbDims);
+//         out->Add<int>(dimA, nbDimsRequested);
+//         out->Add<int>(strideA, nbDimsRequested);
+//     } catch (string e) {
+//         LOG4CPLUS_DEBUG(logger, e);
+//         return std::make_shared<Result>(cs);
+//     }
+    
+//     return std::make_shared<Result>(cs, out);
+// }
+
 CUDNN_ROUTINE_HANDLER(GetTensorSizeInBytes) {
-   Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetTensorSizeInBytes"));
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetTensorSizeInBytes"));
 
-   cudnnTensorDescriptor_t tensorDesc = in->Get<cudnnTensorDescriptor_t>();
-   size_t size = in->Get<size_t>();
+    cudnnTensorDescriptor_t tensorDesc = in->Get<cudnnTensorDescriptor_t>();
+    size_t size = in->Get<size_t>();
 
-   cudnnStatus_t cs = cudnnGetTensorSizeInBytes(tensorDesc, &size);
+    cudnnStatus_t cs = cudnnGetTensorSizeInBytes(tensorDesc, &size);
   
-   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-   try {
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
         out->Add<size_t>(size);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
-       return std::make_shared<Result>(cs);
-   }
-   
-   LOG4CPLUS_DEBUG(logger, "cudnnGetTensorSizeInBytes Executed");
-   
-   return std::make_shared<Result>(cs, out);
+    } catch(string e) {
+        LOG4CPLUS_DEBUG(logger, e);
+        return std::make_shared<Result>(cs);
+    }
+
+    LOG4CPLUS_DEBUG(logger, "cudnnGetTensorSizeInBytes Executed");
+
+    return std::make_shared<Result>(cs, out);
 }
 
 CUDNN_ROUTINE_HANDLER(DestroyTensorDescriptor) {
@@ -4135,12 +4188,12 @@ CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v8) {
     cudnnDataType_t dataType= in->Get<cudnnDataType_t>();
     cudnnDataType_t mathPrec= in->Get<cudnnDataType_t>();
     cudnnMathType_t mathType= in->Get<cudnnMathType_t>();
-    int32_t inputSize= in->Get<int>();
-    int32_t hiddenSize= in->Get<int>();
-    int32_t projSize= in->Get<int>();
-    int32_t numLayers= in->Get<int>();
+    int32_t inputSize= in->Get<int32_t>();
+    int32_t hiddenSize= in->Get<int32_t>();
+    int32_t projSize= in->Get<int32_t>();
+    int32_t numLayers= in->Get<int32_t>();
     cudnnDropoutDescriptor_t dropoutDesc= in->Get<cudnnDropoutDescriptor_t>();
-    uint32_t auxFlags= in->Get<int>();
+    uint32_t auxFlags= in->Get<uint32_t>();
 
     cudnnStatus_t cs = cudnnSetRNNDescriptor_v8(rnnDesc, algo,
              cellMode,
@@ -4157,17 +4210,9 @@ CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v8) {
              dropoutDesc,
              auxFlags);
 
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try {
-        out->Add<cudnnRNNDescriptor_t>(rnnDesc);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
-        return std::make_shared<Result>(cs);
-    }
-
     LOG4CPLUS_DEBUG(logger, "cudnnSetRNNDescriptor_v8 Executed");
     
-    return std::make_shared<Result>(cs, out);
+    return std::make_shared<Result>(cs);
 }
 
 CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v8) {

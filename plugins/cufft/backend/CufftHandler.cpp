@@ -1152,9 +1152,9 @@ CUFFT_ROUTINE_HANDLER(XtSetCallback){
 CUFFT_ROUTINE_HANDLER(GetVersion) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetVersion"));
 
-    int* version = in->Assign<int>();  // This will just hold a pointer address, not an actual value
+    int version;
 
-    cufftResult exit_code = cufftGetVersion(version);
+    cufftResult exit_code = cufftGetVersion(&version);
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
@@ -1164,8 +1164,8 @@ CUFFT_ROUTINE_HANDLER(GetVersion) {
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 
-    std::cout << "DEBUG - Version: " << *version << "\n";
-    std::cout << "DEBUG - cufftGetVersion Executed\n";
+    LOG4CPLUS_DEBUG(logger, "cufftGetVersion: " << version);
+    LOG4CPLUS_DEBUG(logger, "cufftGetVersion Executed");
 
     return std::make_shared<Result>(exit_code, out);
 }

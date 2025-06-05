@@ -35,9 +35,8 @@ using namespace std;
 /*Return the Cuda Driver Version */
 extern CUresult cuDriverGetVersion(int *driverVersion) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddHostPointerForArguments(driverVersion);
     CudaDrFrontend::Execute("cuDriverGetVersion");
     if (CudaDrFrontend::Success())
-        *driverVersion = *(CudaDrFrontend::GetOutputHostPointer<int>());
+        *driverVersion = CudaDrFrontend::GetOutputVariable<int>();
     return (CUresult) (CudaDrFrontend::GetExitCode());
 }

@@ -92,7 +92,7 @@ CUSPARSE_ROUTINE_HANDLER(GetVersion) {
     cusparseStatus_t cs = cusparseGetVersion(handle, &version);
     LOG4CPLUS_DEBUG(logger, "cusparseGetVersion Executed");
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    out->Add<int>(&version);
+    out->Add<int>(version);
     return std::make_shared<Result>(cs, out);
 }
 
@@ -102,7 +102,7 @@ CUSPARSE_ROUTINE_HANDLER(GetErrorString) {
     const char *s = cusparseGetErrorString(cs);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-        out->AddConst(s);
+        out->AddString(s);
     } catch (string e) {
         LOG4CPLUS_DEBUG(logger, e);
         return std::make_shared<Result>(CUSPARSE_STATUS_EXECUTION_FAILED);

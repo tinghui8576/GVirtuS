@@ -719,10 +719,9 @@ extern "C" cufftResult cufftXtSetCallback(cufftHandle plan,
 
 extern "C" cufftResult cufftGetVersion(int *version) {
   CufftFrontend::Prepare();
-  CufftFrontend::AddHostPointerForArguments<int>(version);
   CufftFrontend::Execute("cufftGetVersion");
   if (CufftFrontend::Success())
-    *version = *(CufftFrontend::GetOutputHostPointer<int>());
+    *version = CufftFrontend::GetOutputVariable<int>();
   return (cufftResult) CufftFrontend::GetExitCode();
 }
 

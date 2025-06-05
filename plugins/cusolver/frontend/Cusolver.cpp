@@ -32,17 +32,9 @@
 using namespace std;
 
 
-size_t CUSOLVERAPI cusolverDnGetVersion(){
+size_t CUSOLVERAPI cusolverDnGetVersion() {
     CusolverFrontend::Prepare();
 
     CusolverFrontend::Execute("cusolverDnGetVersion");
     return CusolverFrontend::GetExitCode();
-}
-
-extern "C" const char * CUSOLVERAPI cusolverDnGetErrorString(cusolverStatus_t status) {
-    CusolverFrontend::Prepare();
-
-    CusolverFrontend::AddVariableForArguments<cusolverStatus_t>(status);
-    CusolverFrontend::Execute("cusolverDnGetErrorString");
-    return (const char *) CusolverFrontend::GetOutputHostPointer<char *>();
 }

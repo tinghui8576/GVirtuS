@@ -2,7 +2,7 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 
-#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess)
+#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA error: " << cudaGetErrorString(err)
 #define CUBLAS_CHECK(err) ASSERT_EQ((err), CUBLAS_STATUS_SUCCESS)
 
 TEST(cuBLAS, CreateDestroy) {

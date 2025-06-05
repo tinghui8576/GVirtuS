@@ -37,8 +37,6 @@ extern "C" cusparseStatus_t cusparseGetVersion(cusparseHandle_t handle, int* ver
     CusparseFrontend::Execute("cusparseGetVersion");
     if (CusparseFrontend::Success())
         *version = CusparseFrontend::GetOutputVariable<int>();
-    else
-        *version = 0; // Default version in case of failure
     return CusparseFrontend::GetExitCode();
 }
 
@@ -46,5 +44,5 @@ extern "C" const char* cusparseGetErrorString(cusparseStatus_t status) {
     CusparseFrontend::Prepare();
     CusparseFrontend::AddVariableForArguments<cusparseStatus_t>(status);
     CusparseFrontend::Execute("cusparseGetErrorString");
-    return CusparseFrontend::GetOutputVariable<const char *>();
+    return CusparseFrontend::GetOutputString();
 }

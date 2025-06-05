@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 
-#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess)
+#define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA error: " << cudaGetErrorString(err)
 #define CUFFT_CHECK(err) ASSERT_EQ((err), CUFFT_SUCCESS)
 
 TEST(cuFFT, cufftCreateDestroy) {

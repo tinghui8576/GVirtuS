@@ -59,7 +59,7 @@ CUBLAS_ROUTINE_HANDLER(GetVersion_v2){
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     LOG4CPLUS_DEBUG(logger, "cublasGetVersion_v2 executed with status: " << cs << " and version: " << version);
     try {
-        out->Add(&version);
+        out->Add(version);
     } catch (string e) {
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cs);

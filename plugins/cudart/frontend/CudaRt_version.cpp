@@ -30,19 +30,17 @@ using namespace std;
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaDriverGetVersion(int *driverVersion) {
   CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(driverVersion);
   CudaRtFrontend::Execute("cudaDriverGetVersion");
   if (CudaRtFrontend::Success())
-    *driverVersion = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    *driverVersion = CudaRtFrontend::GetOutputVariable<int>();
   return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaRuntimeGetVersion(int *runtimeVersion) {
   CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(runtimeVersion);
   CudaRtFrontend::Execute("cudaDriverGetVersion");
   if (CudaRtFrontend::Success())
-    *runtimeVersion = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    *runtimeVersion = CudaRtFrontend::GetOutputVariable<int>();
   return CudaRtFrontend::GetExitCode();
 }
