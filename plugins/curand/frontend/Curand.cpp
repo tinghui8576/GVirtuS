@@ -152,6 +152,30 @@ extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, floa
     return CurandFrontend::GetExitCode();
 }
 
+// Alternative implementation for curandGenerateNormal. Use only with the alternative implementation
+// of backend also. The only difference is that here,
+// in case of a host generator, we pass the whole output array to the backend.
+// This is more clear, but we do not really need to pass the whole array, as the array before the execution
+// of the function does not contain any meaningful data and also the backend
+// will either way need to allocate a new array locally
+// extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, float *outputPtr, size_t num, float mean, float stddev) {
+//     CurandFrontend::Prepare();
+//     CurandFrontend::AddDevicePointerForArguments(generator);
+//     CurandFrontend::AddVariableForArguments<size_t>(num);
+//     CurandFrontend::AddVariableForArguments<float>(mean);
+//     CurandFrontend::AddVariableForArguments<float>(stddev);
+//     isHostGenerator(generator)
+//     ? CurandFrontend::AddHostPointerForArguments<float>(outputPtr, num)
+//     : CurandFrontend::AddDevicePointerForArguments(outputPtr);
+//     CurandFrontend::Execute("curandGenerateNormal");
+    
+//     if (isHostGenerator(generator) && CurandFrontend::Success()) {
+//         float* backend_output = CurandFrontend::GetOutputHostPointer<float>(num);
+//         std::memcpy(outputPtr, backend_output, sizeof(float) * num);
+//     }
+//     return CurandFrontend::GetExitCode();
+// }
+
 extern "C" curandStatus_t curandGenerateLogNormal(curandGenerator_t generator, float *outputPtr, size_t num, float mean, float stddev) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);

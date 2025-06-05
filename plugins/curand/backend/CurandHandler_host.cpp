@@ -166,6 +166,27 @@ CURAND_ROUTINE_HANDLER(GenerateNormal) {
     return isHost ? std::make_shared<Result>(cs, out) : std::make_shared<Result>(cs);
 }
 
+// alternative implementation of GenerateNormal without using Delegate
+// CURAND_ROUTINE_HANDLER(GenerateNormal) {
+//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateNormal"));
+
+//     curandStatus_t cs;
+//     curandGenerator_t generator = in->Get<curandGenerator_t>();
+//     size_t num = in->Get<size_t>();
+//     float mean = in->Get<float>();
+//     float stddev = in->Get<float>();
+//     bool isHost = isHostGenerator(generator);
+//     float* outputPtr = isHost ? in->Get<float>(num) : in->Get<float*>();
+
+//     cs = curandGenerateNormal(generator, outputPtr, num, mean, stddev);
+//     if (isHost) {
+//         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+//         out->Add<float>(outputPtr, num);
+//         return std::make_shared<Result>(cs, out);
+//     }
+//     return std::make_shared<Result>(cs);
+// }
+
 CURAND_ROUTINE_HANDLER(GenerateLogNormal) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLogNormal"));
 
