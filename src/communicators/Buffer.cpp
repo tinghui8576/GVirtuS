@@ -100,7 +100,7 @@ void Buffer::Reset() {
 void Buffer::Reset(Communicator *c) {
   c->Read((char *)&mLength, sizeof(size_t));
 #ifdef DEBUG
-  std::cout << "readed size of buffer " << mLength << std::endl;
+  std::cout << "Read " << mLength << " bytes from the buffer" << std::endl;
 #endif
   mOffset = 0;
   mBackOffset = mLength;
@@ -109,11 +109,7 @@ void Buffer::Reset(Communicator *c) {
     if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
       throw "Can't reallocate memory.";
   }
-#ifdef DEBUG
-  for(int i = 0; i < mLength; i++)
-      printf("%c", mpBuffer[i]);
-  printf("\n");
-#endif
+
   c->Read(mpBuffer, mLength);
 }
 
