@@ -48,7 +48,7 @@ Buffer::Buffer(size_t initial_size, size_t block_size) {
   if (mSize == 0) mSize = 0;
   if ((mSize = (mSize / mBlockSize) * mBlockSize) == 0) mSize = mBlockSize;
   if ((mpBuffer = (char *)malloc(mSize)) == NULL)
-    throw "Can't allocate memory.";
+    throw runtime_error("Can't allocate memory.");
   mBackOffset = mLength;
 }
 
@@ -60,7 +60,7 @@ Buffer::Buffer(const Buffer &orig) {
   mLength = orig.mLength;
   mOwnBuffer = true;
   if ((mpBuffer = (char *)malloc(mSize)) == NULL)
-    throw "Can't allocate memory.";
+    throw runtime_error("Can't allocate memory.");
   memmove(mpBuffer, orig.mpBuffer, mLength);
   mBackOffset = mLength;
 }
@@ -72,7 +72,7 @@ Buffer::Buffer(istream &in) {
   mOffset = 0;
   mOwnBuffer = true;
   if ((mpBuffer = (char *)malloc(mSize)) == NULL)
-    throw "Can't allocate memory.";
+    throw runtime_error("Can't allocate memory.");
   in.read(mpBuffer, mSize);
   mBackOffset = mLength;
 }
@@ -100,14 +100,14 @@ void Buffer::Reset() {
 void Buffer::Reset(Communicator *c) {
   c->Read((char *)&mLength, sizeof(size_t));
 #ifdef DEBUG
-  std::cout << "Read " << mLength << " bytes from the buffer" << std::endl;
+  cout << "Read " << mLength << " bytes from the buffer" << endl;
 #endif
   mOffset = 0;
   mBackOffset = mLength;
   if (mLength >= mSize) {
     mSize = (mLength / mBlockSize + 1) * mBlockSize;
     if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-      throw "Can't reallocate memory.";
+      throw runtime_error("Can't reallocate memory.");
   }
 
   c->Read(mpBuffer, mLength);

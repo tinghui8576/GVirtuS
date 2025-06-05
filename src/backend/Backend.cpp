@@ -146,4 +146,3 @@ void Backend::EventOccurred(std::string &event, void *object) {
     LOG4CPLUS_DEBUG(logger, "✓ - EventOccurred: " << event);
 }
 
-
