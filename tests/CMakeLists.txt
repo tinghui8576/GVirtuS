@@ -27,7 +27,6 @@ if (NOT GTest_FOUND)
     set(GTEST_LIBRARIES gtest gtest_main)
 endif()
 
-
 # Add your CUDA source files manually
 set(TEST_SOURCES
     test_cudart.cu

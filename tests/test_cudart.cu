@@ -17,7 +17,7 @@ TEST(cudaRT, MemcpySync) {
 
     CUDA_CHECK(cudaMemcpy(d_ptr, &h_src, sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(&h_dst, d_ptr, sizeof(int), cudaMemcpyDeviceToHost));
-    EXPECT_EQ(h_dst, 42);
+    ASSERT_EQ(h_dst, 42);
 
     CUDA_CHECK(cudaFree(d_ptr));
 }
@@ -34,7 +34,7 @@ TEST(cudaRT, MemcpyAsync) {
     CUDA_CHECK(cudaMemcpyAsync(&h_dst, d_ptr, sizeof(int), cudaMemcpyDeviceToHost, stream));
 
     CUDA_CHECK(cudaStreamSynchronize(stream));
-    EXPECT_EQ(h_dst, 24);
+    ASSERT_EQ(h_dst, 24);
 
     CUDA_CHECK(cudaStreamDestroy(stream));
     CUDA_CHECK(cudaFree(d_ptr));
@@ -47,7 +47,7 @@ TEST(cudaRT, Memset) {
 
     int h_val = 1;
     CUDA_CHECK(cudaMemcpy(&h_val, d_ptr, sizeof(int), cudaMemcpyDeviceToHost));
-    EXPECT_EQ(h_val, 0);
+    ASSERT_EQ(h_val, 0);
 
     CUDA_CHECK(cudaFree(d_ptr));
 }
@@ -109,24 +109,21 @@ TEST(CudaRT, KernelLaunchWithTripletSyntax) {
     int h_out = 0;
 
     // Allocate memory on device
-    cudaError_t err = cudaMalloc(&d_out, sizeof(int));
-    ASSERT_EQ(err, cudaSuccess);
+    CUDA_CHECK(cudaMalloc(&d_out, sizeof(int)));
 
     // Launch kernel with <<<>>> syntax
     simpleKernel<<<1, 1>>>(d_out);
 
     // Wait for kernel to complete
-    err = cudaDeviceSynchronize();
-    ASSERT_EQ(err, cudaSuccess);
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     // Copy result back to host
-    err = cudaMemcpy(&h_out, d_out, sizeof(int), cudaMemcpyDeviceToHost);
-    ASSERT_EQ(err, cudaSuccess);
+    CUDA_CHECK(cudaMemcpy(&h_out, d_out, sizeof(int), cudaMemcpyDeviceToHost));
 
     // Verify kernel result
     ASSERT_EQ(h_out, 123);
 
-    cudaFree(d_out);
+    CUDA_CHECK(cudaFree(d_out));
 }
 
 TEST(cudaRT, EventCreateRecordSynchronizeElapsedTimeDestroy) {

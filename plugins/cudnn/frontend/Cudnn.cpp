@@ -4781,77 +4781,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnFindRNNBackwardWeightsAlgorithmEx(cudn
     return CudnnFrontend::GetExitCode();
 }
 
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateRNNDataDescriptor(cudnnRNNDataDescriptor_t *rnnDataDesc) {
-    CudnnFrontend::Prepare();
-    CudnnFrontend::Execute("cudnnCreateRNNDataDescriptor");
-    if (CudnnFrontend::Success()) {
-        *rnnDataDesc = CudnnFrontend::GetOutputVariable<cudnnRNNDataDescriptor_t>();
-    }
-    return CudnnFrontend::GetExitCode();
-}
- 
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnDestroyRNNDataDescriptor(cudnnRNNDataDescriptor_t rnnDataDesc) {
-    CudnnFrontend::Prepare();
-    CudnnFrontend::AddDevicePointerForArguments(rnnDataDesc);
-    CudnnFrontend::Execute("cudnnDestroyRNNDataDescriptor");
-    return CudnnFrontend::GetExitCode();
-}
-
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetRNNDataDescriptor(cudnnRNNDataDescriptor_t rnnDataDesc,
-                          				      cudnnDataType_t dataType,
-                          				      cudnnRNNDataLayout_t layout,
-                          				      int maxSeqLength,
-                          				      int batchSize,
-                          				      int vectorSize,
-                          				      const int *seqLengthArray,
-                          				      void *paddingFill) {
-
-    CudnnFrontend::Prepare();
-
-    CudnnFrontend::AddDevicePointerForArguments(rnnDataDesc);
-    CudnnFrontend::AddVariableForArguments<cudnnDataType_t>(dataType);
-    CudnnFrontend::AddVariableForArguments<cudnnRNNDataLayout_t>(layout);
-    CudnnFrontend::AddVariableForArguments<int>(maxSeqLength);
-    CudnnFrontend::AddVariableForArguments<int>(batchSize);
-    CudnnFrontend::AddVariableForArguments<int>(vectorSize);
-    CudnnFrontend::AddHostPointerForArguments<int>((int*)seqLengthArray);
-    CudnnFrontend::AddHostPointerForArguments(paddingFill);
-
-    CudnnFrontend::Execute("cudnnSetRNNDataDescriptor");
-    if (CudnnFrontend::Success()) {
-        rnnDataDesc = CudnnFrontend::GetOutputVariable<cudnnRNNDataDescriptor_t>();
-    }
-    return CudnnFrontend::GetExitCode();
-}
-
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNDataDescriptor(cudnnRNNDataDescriptor_t rnnDataDesc,
-                          				       cudnnDataType_t *dataType,
-                          				       cudnnRNNDataLayout_t *layout,
-                          				       int *maxSeqLength,
-                          				       int *batchSize,
-                          				       int *vectorSize,
-                          				       int arrayLengthRequested,
-                          				       int *seqLengthArray,
-                          				       void *paddingFill) {
-
-    CudnnFrontend::Prepare();
-
-    CudnnFrontend::AddDevicePointerForArguments(rnnDataDesc);
-    CudnnFrontend::AddVariableForArguments<int>(arrayLengthRequested);
-
-    CudnnFrontend::Execute("cudnnGetRNNDataDescriptor");
-    if (CudnnFrontend::Success()) {
-        *dataType = CudnnFrontend::GetOutputVariable<cudnnDataType_t>();
-        *layout   = CudnnFrontend::GetOutputVariable<cudnnRNNDataLayout_t>();
-        *maxSeqLength = CudnnFrontend::GetOutputVariable<int>();
-        *batchSize    = CudnnFrontend::GetOutputVariable<int>();
-        *vectorSize   = CudnnFrontend::GetOutputVariable<int>();
-        *seqLengthArray = CudnnFrontend::GetOutputVariable<int>();
-        paddingFill    = CudnnFrontend::GetOutputDevicePointer();
-    }
-    return CudnnFrontend::GetExitCode();
-}
-
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateAlgorithmDescriptor(cudnnAlgorithmDescriptor_t *algoDesc) {
 
     CudnnFrontend::Prepare();
@@ -5026,6 +4955,77 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnRestoreAlgorithm(cudnnHandle_t handle,
     return CudnnFrontend::GetExitCode();
 }
 #endif
+
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateRNNDataDescriptor(cudnnRNNDataDescriptor_t *rnnDataDesc) {
+    CudnnFrontend::Prepare();
+    CudnnFrontend::Execute("cudnnCreateRNNDataDescriptor");
+    if (CudnnFrontend::Success()) {
+        *rnnDataDesc = CudnnFrontend::GetOutputVariable<cudnnRNNDataDescriptor_t>();
+    }
+    return CudnnFrontend::GetExitCode();
+}
+ 
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnDestroyRNNDataDescriptor(cudnnRNNDataDescriptor_t rnnDataDesc) {
+    CudnnFrontend::Prepare();
+    CudnnFrontend::AddDevicePointerForArguments(rnnDataDesc);
+    CudnnFrontend::Execute("cudnnDestroyRNNDataDescriptor");
+    return CudnnFrontend::GetExitCode();
+}
+
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetRNNDataDescriptor(cudnnRNNDataDescriptor_t rnnDataDesc,
+                          				      cudnnDataType_t dataType,
+                          				      cudnnRNNDataLayout_t layout,
+                          				      int maxSeqLength,
+                          				      int batchSize,
+                          				      int vectorSize,
+                          				      const int *seqLengthArray,
+                          				      void *paddingFill) {
+
+    CudnnFrontend::Prepare();
+
+    CudnnFrontend::AddDevicePointerForArguments(rnnDataDesc);
+    CudnnFrontend::AddVariableForArguments<cudnnDataType_t>(dataType);
+    CudnnFrontend::AddVariableForArguments<cudnnRNNDataLayout_t>(layout);
+    CudnnFrontend::AddVariableForArguments<int>(maxSeqLength);
+    CudnnFrontend::AddVariableForArguments<int>(batchSize);
+    CudnnFrontend::AddVariableForArguments<int>(vectorSize);
+    CudnnFrontend::AddHostPointerForArguments<int>((int*)seqLengthArray);
+    CudnnFrontend::AddHostPointerForArguments(paddingFill);
+
+    CudnnFrontend::Execute("cudnnSetRNNDataDescriptor");
+    if (CudnnFrontend::Success()) {
+        rnnDataDesc = CudnnFrontend::GetOutputVariable<cudnnRNNDataDescriptor_t>();
+    }
+    return CudnnFrontend::GetExitCode();
+}
+
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNDataDescriptor(cudnnRNNDataDescriptor_t rnnDataDesc,
+                          				       cudnnDataType_t *dataType,
+                          				       cudnnRNNDataLayout_t *layout,
+                          				       int *maxSeqLength,
+                          				       int *batchSize,
+                          				       int *vectorSize,
+                          				       int arrayLengthRequested,
+                          				       int *seqLengthArray,
+                          				       void *paddingFill) {
+
+    CudnnFrontend::Prepare();
+
+    CudnnFrontend::AddDevicePointerForArguments(rnnDataDesc);
+    CudnnFrontend::AddVariableForArguments<int>(arrayLengthRequested);
+
+    CudnnFrontend::Execute("cudnnGetRNNDataDescriptor");
+    if (CudnnFrontend::Success()) {
+        *dataType = CudnnFrontend::GetOutputVariable<cudnnDataType_t>();
+        *layout   = CudnnFrontend::GetOutputVariable<cudnnRNNDataLayout_t>();
+        *maxSeqLength = CudnnFrontend::GetOutputVariable<int>();
+        *batchSize    = CudnnFrontend::GetOutputVariable<int>();
+        *vectorSize   = CudnnFrontend::GetOutputVariable<int>();
+        *seqLengthArray = CudnnFrontend::GetOutputVariable<int>();
+        paddingFill    = CudnnFrontend::GetOutputDevicePointer();
+    }
+    return CudnnFrontend::GetExitCode();
+}
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateSeqDataDescriptor(cudnnSeqDataDescriptor_t *seqDataDesc) {
 

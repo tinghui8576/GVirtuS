@@ -83,8 +83,8 @@ TEST(cuDNN, TensorNdDescriptorSetGet) {
     ASSERT_EQ(dataTypeOut, CUDNN_DATA_FLOAT);
     ASSERT_EQ(nbDimsOut, nbDims);
     for (int i = 0; i < nbDims; ++i) {
-        EXPECT_EQ(dimOut[i], dimA[i]);
-        EXPECT_EQ(strideOut[i], strideA[i]);
+        ASSERT_EQ(dimOut[i], dimA[i]);
+        ASSERT_EQ(strideOut[i], strideA[i]);
     }
 
     CUDNN_CHECK(cudnnDestroyTensorDescriptor(desc));

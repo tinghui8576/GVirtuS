@@ -290,7 +290,7 @@ CUDNN_ROUTINE_HANDLER(GetAlgorithmSpaceSize);
 CUDNN_ROUTINE_HANDLER(SaveAlgorithm);
 CUDNN_ROUTINE_HANDLER(RestoreAlgorithm);
 #endif
-// Part of libcudnn_adv, make sure you link your .cu with -lcudnn_adv
+
 CUDNN_ROUTINE_HANDLER(CreateRNNDataDescriptor);
 CUDNN_ROUTINE_HANDLER(DestroyRNNDataDescriptor);
 CUDNN_ROUTINE_HANDLER(SetRNNDataDescriptor);
