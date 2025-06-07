@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.18)
 project("protocol-generator")
 
 find_library(LIBCLANG_CPP_LIBRARY clang)

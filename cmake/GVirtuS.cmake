@@ -5,8 +5,6 @@ if(NOT ${PROJECT_NAME} STREQUAL "gvirtus-common")
     link_directories(${GVIRTUS_HOME}/lib)
 endif()
 
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGVIRTUS_HOME=\\\"${GVIRTUS_HOME}\\\"")
 set(CMAKE_SKIP_RPATH ON)
 

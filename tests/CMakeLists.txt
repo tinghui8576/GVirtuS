@@ -1,15 +1,5 @@
-cmake_minimum_required(VERSION 3.17)
-project(gvirtus-tests LANGUAGES CXX CUDA)
-
-cmake_policy(SET CMP0104 NEW)
-
-# Set required CUDA architectures
-if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-    set(CMAKE_CUDA_ARCHITECTURES 75 86 89)
-endif()
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+enable_language(CUDA)
+set(CMAKE_CUDA_STANDARD 17)
 
 # Find GoogleTest package (make sure it is installed or handled otherwise)
 find_package(GTest QUIET)
@@ -49,17 +39,11 @@ foreach(TEST_SRC ${TEST_SOURCES})
     add_executable(${TEST_NAME} ${TEST_SRC})
     
     set_target_properties(${TEST_NAME} PROPERTIES
-        CUDA_RUNTIME_LIBRARY Shared
         CUDA_SEPARABLE_COMPILATION ON
     )
 
     target_include_directories(${TEST_NAME} PRIVATE
         ${GTEST_INCLUDE_DIRS}
-        $ENV{GVIRTUS_HOME}/include
-    )
-
-    target_link_directories(${TEST_NAME} PRIVATE
-        $ENV{GVIRTUS_HOME}/lib/frontend
     )
 
     target_link_libraries(${TEST_NAME} PRIVATE
@@ -71,7 +55,6 @@ foreach(TEST_SRC ${TEST_SOURCES})
         cublas
         cufft
         cudnn
-        cudnn_adv # This includes RNNs, CTC loss, and multihead attention functions
         cusolver
         cusparse
     )
