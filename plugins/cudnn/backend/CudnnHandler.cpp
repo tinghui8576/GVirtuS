@@ -1497,7 +1497,7 @@ CUDNN_ROUTINE_HANDLER(DestroyTensorDescriptor) {
 CUDNN_ROUTINE_HANDLER(InitTransformDest) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("InitTransformDest"));
     
-    cudnnTensorTransformDescriptor_t transformDesc = (cudnnTensorTransformDescriptor_t)in->Get<long long int >();
+    cudnnTensorTransformDescriptor_t transformDesc = in->Get<cudnnTensorTransformDescriptor_t>();
     cudnnTensorDescriptor_t srcDesc = in->Get<cudnnTensorDescriptor_t>();
     cudnnTensorDescriptor_t destDesc;
     size_t destSizeInBytes;
@@ -1567,7 +1567,7 @@ CUDNN_ROUTINE_HANDLER(SetTensorTransformDescriptor) {
 CUDNN_ROUTINE_HANDLER(GetTensorTransformDescriptor) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetTensorTransformDescriptor"));
 
-    cudnnTensorTransformDescriptor_t transformDesc = (cudnnTensorTransformDescriptor_t)in->Get<long long int >();
+    cudnnTensorTransformDescriptor_t transformDesc = in->Get<cudnnTensorTransformDescriptor_t>();
     uint32_t nbDimsRequested = in->Get<uint32_t>();
     cudnnTensorFormat_t destFormat;
     int32_t padBeforeA;
@@ -2166,7 +2166,7 @@ CUDNN_ROUTINE_HANDLER(GetFilter4dDescriptor_v3) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
     try {
-        out->Add<long long int>((long long int)dataType);
+        out->Add<cudnnDataType_t>(dataType);
         out->Add<int>(k);
         out->Add<int>(c);
         out->Add<int>(h);
@@ -2213,8 +2213,8 @@ CUDNN_ROUTINE_HANDLER(GetFilter4dDescriptor_v4) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
     try {
-        out->Add<long long int>((long long int)dataType);
-        out->Add<long long int>((long long int)format);
+        out->Add<cudnnDataType_t>(dataType);
+        out->Add<cudnnTensorFormat_t>(format);
         out->Add<int>(k);
         out->Add<int>(c);
         out->Add<int>(h);
@@ -2261,7 +2261,7 @@ CUDNN_ROUTINE_HANDLER(GetFilterNdDescriptor) {
     std:shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
     try {
-        out->Add<long long int>(format);
+        out->Add<cudnnTensorFormat_t>(format);
     } catch (string e) {
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cs);
@@ -2332,14 +2332,14 @@ CUDNN_ROUTINE_HANDLER(GetFilterNdDescriptor_v4) {
     int *nbDims = in->Assign<int>();
     int *filterDimA = in->Assign<int>();
 
-    cudnnTensorFormat_t  format;
+    cudnnTensorFormat_t format;
 
     cudnnStatus_t cs = cudnnGetFilterNdDescriptor_v4(wDesc,nbDimsRequested,dataType,&format,nbDims,filterDimA);
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
     try {
-        out->Add<long long int>(format);
+        out->Add<cudnnTensorFormat_t>(format);
     } catch (string e) {
         LOG4CPLUS_DEBUG(logger,e);
         return std::make_shared<Result>(cs);
@@ -4217,7 +4217,7 @@ CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v8) {
 CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v8) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetRNNDescriptor_v8"));
 
-    cudnnRNNDescriptor_t rnnDesc = (cudnnRNNDescriptor_t) in->Get<long long int>();
+    cudnnRNNDescriptor_t rnnDesc =  in->Get<cudnnRNNDescriptor_t>();
 
     cudnnRNNAlgo_t algo;
     cudnnRNNMode_t cellMode;
@@ -4993,7 +4993,7 @@ CUDNN_ROUTINE_HANDLER(RNNBackwardWeightsEx) {
      cudnnFilterDescriptor_t dwDesc = in->Get<cudnnFilterDescriptor_t>();
      void *dw = in->Assign<void>(); //INPUT/OUTPUT
      void *reserveSpace = in->Assign<void>();
-     size_t reserveSpaceSizeInBytes = in->Get<long long int>();
+     size_t reserveSpaceSizeInBytes = in->Get<size_t>();
     
      cudnnStatus_t cs = cudnnRNNBackwardWeightsEx(handle, rnnDesc, xDesc, x, hxDesc, hx, yDesc, y, workSpace, workSpaceSizeInBytes, dwDesc, dw, reserveSpace, reserveSpaceSizeInBytes);
 
@@ -5554,57 +5554,37 @@ CUDNN_ROUTINE_HANDLER(SetRNNDataDescriptor) {
      int maxSeqLength = in->Get<int>();
      int batchSize = in->Get<int>();
      int vectorSize = in->Get<int>();
-     int *seqLengthArray = in->Assign<int>();
-     void *paddingFill = in->Assign<void>();
+     int *seqLengthArray = in->Assign<int>(batchSize);
+     void *paddingFill = isFloatDescriptor(rnnDataDesc)
+        ? static_cast<void*>(in->Assign<float>())
+        : static_cast<void*>(in->Assign<double>());
     
      cudnnStatus_t cs = cudnnSetRNNDataDescriptor(rnnDataDesc, dataType, layout, maxSeqLength, batchSize, vectorSize, seqLengthArray, paddingFill);
-
-     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-      try {
-          out->Add<cudnnRNNDataDescriptor_t>(rnnDataDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
-         return std::make_shared<Result>(cs);
-    }
     
     LOG4CPLUS_DEBUG(logger, "cudnnSetRNNDataDescriptor Executed");
     
-    return std::make_shared<Result>(cs, out);
+    return std::make_shared<Result>(cs);
 }
 
 CUDNN_ROUTINE_HANDLER(GetRNNDataDescriptor) {
-     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetRNNDataDescriptor"));
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetRNNDataDescriptor"));
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-     cudnnRNNDataDescriptor_t rnnDataDesc = in->Get<cudnnRNNDataDescriptor_t>();
-     cudnnDataType_t dataType;
-     cudnnRNNDataLayout_t layout;
-     int maxSeqLength;
-     int batchSize;
-     int vectorSize;
-     int arrayLengthRequested = in->Get<int>();
-     int *seqLengthArray = in->Assign<int>();
-     void *paddingFill = in->Assign<void>();
+    cudnnRNNDataDescriptor_t rnnDataDesc = in->Get<cudnnRNNDataDescriptor_t>();
+    cudnnDataType_t *dataType = out->Delegate<cudnnDataType_t>();
+    cudnnRNNDataLayout_t *layout = out->Delegate<cudnnRNNDataLayout_t>();
+    int *maxSeqLength = out->Delegate<int>();
+    int *batchSize = out->Delegate<int>();
+    int *vectorSize = out->Delegate<int>();
+    int arrayLengthRequested = in->Get<int>();
+    int *seqLengthArray = out->Delegate<int>(arrayLengthRequested);
+    void *paddingFill = isFloatDescriptor(rnnDataDesc)
+        ? static_cast<void*>(out->Delegate<float>())
+        : static_cast<void*>(out->Delegate<double>());
 
-     cudnnStatus_t cs = cudnnGetRNNDataDescriptor(rnnDataDesc, &dataType, &layout, &maxSeqLength, &batchSize, &vectorSize, arrayLengthRequested, seqLengthArray, paddingFill);
-
-     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-      try {
-          out->Add<cudnnDataType_t>(dataType);
-          out->Add<cudnnRNNDataLayout_t>(layout);
-          out->Add<int>(maxSeqLength);
-          out->Add<int>(batchSize);
-          out->Add<int>(vectorSize);
-          out->Add<int>(seqLengthArray);
-          out->Add<void>(paddingFill);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
-         return std::make_shared<Result>(cs);
-    }
-    
-
-     LOG4CPLUS_DEBUG(logger, "cudnnGetRNNDataDescriptor Executed");
-     
-    return std::make_shared<Result>(cs, out);    
+    cudnnStatus_t cs = cudnnGetRNNDataDescriptor(rnnDataDesc, dataType, layout, maxSeqLength, batchSize, vectorSize, arrayLengthRequested, seqLengthArray, paddingFill);
+    LOG4CPLUS_DEBUG(logger, "cudnnGetRNNDataDescriptor Executed");
+    return std::make_shared<Result>(cs, out);
 }
 
 CUDNN_ROUTINE_HANDLER(CreateSeqDataDescriptor) {

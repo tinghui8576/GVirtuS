@@ -341,7 +341,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnInitTransformDest(const cudnnTensorTra
     CudnnFrontend::Execute("cudnnInitTransformDest");
     
     if (CudnnFrontend::Success()) {
-       destDesc = (cudnnTensorDescriptor_t)CudnnFrontend::GetOutputVariable<long long int>();
+       destDesc = CudnnFrontend::GetOutputVariable<cudnnTensorDescriptor_t>();
        *destSizeInBytes = CudnnFrontend::GetOutputVariable<size_t>();
     }
     return CudnnFrontend::GetExitCode();
@@ -4989,13 +4989,12 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetRNNDataDescriptor(cudnnRNNDataDescr
     CudnnFrontend::AddVariableForArguments<int>(maxSeqLength);
     CudnnFrontend::AddVariableForArguments<int>(batchSize);
     CudnnFrontend::AddVariableForArguments<int>(vectorSize);
-    CudnnFrontend::AddHostPointerForArguments<int>((int*)seqLengthArray);
-    CudnnFrontend::AddHostPointerForArguments(paddingFill);
+    CudnnFrontend::AddHostPointerForArguments<const int>(seqLengthArray, batchSize);
+    isFloatDescriptor(rnnDataDesc)
+        ? CudnnFrontend::AddHostPointerForArguments<float>(reinterpret_cast<float*>(paddingFill))
+        : CudnnFrontend::AddHostPointerForArguments<double>(reinterpret_cast<double*>(paddingFill));
 
     CudnnFrontend::Execute("cudnnSetRNNDataDescriptor");
-    if (CudnnFrontend::Success()) {
-        rnnDataDesc = CudnnFrontend::GetOutputVariable<cudnnRNNDataDescriptor_t>();
-    }
     return CudnnFrontend::GetExitCode();
 }
 
@@ -5006,7 +5005,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNDataDescriptor(cudnnRNNDataDescr
                           				       int *batchSize,
                           				       int *vectorSize,
                           				       int arrayLengthRequested,
-                          				       int *seqLengthArray,
+                          				       int seqLengthArray[],
                           				       void *paddingFill) {
 
     CudnnFrontend::Prepare();
@@ -5016,13 +5015,21 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNDataDescriptor(cudnnRNNDataDescr
 
     CudnnFrontend::Execute("cudnnGetRNNDataDescriptor");
     if (CudnnFrontend::Success()) {
-        *dataType = CudnnFrontend::GetOutputVariable<cudnnDataType_t>();
-        *layout   = CudnnFrontend::GetOutputVariable<cudnnRNNDataLayout_t>();
-        *maxSeqLength = CudnnFrontend::GetOutputVariable<int>();
-        *batchSize    = CudnnFrontend::GetOutputVariable<int>();
-        *vectorSize   = CudnnFrontend::GetOutputVariable<int>();
-        *seqLengthArray = CudnnFrontend::GetOutputVariable<int>();
-        paddingFill    = CudnnFrontend::GetOutputDevicePointer();
+        *dataType = *CudnnFrontend::GetOutputHostPointer<cudnnDataType_t>();
+        *layout   = *CudnnFrontend::GetOutputHostPointer<cudnnRNNDataLayout_t>();
+        *maxSeqLength = *CudnnFrontend::GetOutputHostPointer<int>();
+        *batchSize    = *CudnnFrontend::GetOutputHostPointer<int>();
+        *vectorSize   = *CudnnFrontend::GetOutputHostPointer<int>();
+        int *seqLengthArray_ptr = CudnnFrontend::GetOutputHostPointer<int>(arrayLengthRequested);
+        memcpy(seqLengthArray, seqLengthArray_ptr, sizeof(int) * arrayLengthRequested);
+        if (isFloatDescriptor(rnnDataDesc)) {
+            void *ptr = static_cast<void*>(CudnnFrontend::GetOutputHostPointer<float>());
+            memcpy(paddingFill, ptr, sizeof(float));
+        }
+        else {
+            void *ptr = static_cast<void*>(CudnnFrontend::GetOutputHostPointer<double>());
+            memcpy(paddingFill, ptr, sizeof(double));
+        }
     }
     return CudnnFrontend::GetExitCode();
 }

@@ -627,8 +627,8 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNGetRNNPaddingMode`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNGetRNNDescriptor_v8` instead | 
 | `cuDNNCreateRNNDataDescriptor`                             | ✅          | ✅      | ✅      |                          | 
 | `cuDNNDestroyRNNDataDescriptor`                            | ✅          | ✅      | ✅      |                          | 
-| `cuDNNSetRNNDataDescriptor`                                | ✅          | ✅      | ❌      |                          | 
-| `cuDNNGetRNNDataDescriptor`                                | ✅          | ✅      | ❌      |                          | 
+| `cuDNNSetRNNDataDescriptor`                                | ✅          | ✅      | ✅      |                          | 
+| `cuDNNGetRNNDataDescriptor`                                | ✅          | ✅      | ✅      |                          | 
 | `cuDNNRNNForwardTrainingEx`                                | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
 | `cuDNNRNNForwardInferenceEx`                               | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
 | `cuDNNRNNBackwardDataEx`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 
