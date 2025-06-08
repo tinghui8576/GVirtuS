@@ -270,8 +270,6 @@
 | `cublasDrotm`           | ✅          | ❌      | ❓      |                         |
 | `cublasSrotmg`          | ✅          | ❌      | ❓      |                         |
 | `cublasDrotmg`          | ✅          | ❌      | ❓      |                         |
-| `cublasSgemv`           | ✅          | ❌      | ❓      |                         |
-| `cublasDgemv`           | ✅          | ❌      | ❓      |                         |
 | `cublasCgemv`           | ✅          | ❌      | ❓      |                         |
 | `cublasZgemv`           | ✅          | ❌      | ❓      |                         |
 | `cublasSgbmv`           | ✅          | ❌      | ❓      |                         |
@@ -346,8 +344,6 @@
 | `cublasDgemmBatched`    | ✅          | ❌      | ❓      |                         |
 | `cublasCgemmBatched`    | ✅          | ❌      | ❓      |                         |
 | `cublasZgemmBatched`    | ✅          | ❌      | ❓      |                         |
-| `cublasSnrm2`           | ✅          | ❌      | ❓      |                         |
-| `cublasDnrm2`           | ✅          | ❌      | ❓      |                         |
 | `cublasScnrm2`          | ✅          | ❌      | ❓      |                         |
 | `cublasDznrm2`          | ✅          | ❌      | ❓      |                         |
 | `cublasSsyrk`           | ✅          | ❌      | ❓      |                         |
