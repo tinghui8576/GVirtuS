@@ -5034,6 +5034,43 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNDataDescriptor(cudnnRNNDataDescr
     return CudnnFrontend::GetExitCode();
 }
 
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNWeightSpaceSize(cudnnHandle_t handle,
+    cudnnRNNDescriptor_t rnnDesc,
+    size_t *weightSpaceSize) {
+
+    CudnnFrontend::Prepare();
+    CudnnFrontend::AddDevicePointerForArguments(handle);
+    CudnnFrontend::AddDevicePointerForArguments(rnnDesc);
+
+    CudnnFrontend::Execute("cudnnGetRNNWeightSpaceSize");
+    if (CudnnFrontend::Success())
+        *weightSpaceSize = CudnnFrontend::GetOutputVariable<size_t>();
+
+    return CudnnFrontend::GetExitCode();
+}
+
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNTempSpaceSizes(cudnnHandle_t handle,
+    cudnnRNNDescriptor_t rnnDesc,
+    cudnnForwardMode_t fMode,
+    cudnnRNNDataDescriptor_t xDesc,
+    size_t *workSpaceSize,
+    size_t *reserveSpaceSize) {
+
+    CudnnFrontend::Prepare();
+
+    CudnnFrontend::AddDevicePointerForArguments(handle);
+    CudnnFrontend::AddDevicePointerForArguments(rnnDesc);
+    CudnnFrontend::AddVariableForArguments<cudnnForwardMode_t>(fMode);
+    CudnnFrontend::AddDevicePointerForArguments(xDesc);
+    
+    CudnnFrontend::Execute("cudnnGetRNNTempSpaceSizes");
+    if (CudnnFrontend::Success()) {
+        *workSpaceSize = CudnnFrontend::GetOutputVariable<size_t>();
+        *reserveSpaceSize = CudnnFrontend::GetOutputVariable<size_t>();
+    }
+    return CudnnFrontend::GetExitCode();
+}
+
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateSeqDataDescriptor(cudnnSeqDataDescriptor_t *seqDataDesc) {
 
 

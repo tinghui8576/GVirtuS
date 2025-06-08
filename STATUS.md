@@ -613,8 +613,8 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNCreatePersistentRNNPlan`                             | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnBuildRNNDynamic` instead | 
 | `cuDNNDestroyPersistentRNNPlan`                            | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnBuildRNNDynamic` instead | 
 | `cuDNNSetPersistentRNNPlan`                                | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnBuildRNNDynamic` instead | 
-| `cuDNNGetRNNWorkspaceSize`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use  `cudnnGetRNNTempSpaceSize` instead | 
-| `cuDNNGetRNNTrainingReserveSize`                           | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use  `cudnnGetRNNTempSpaceSize` instead | 
+| `cuDNNGetRNNWorkspaceSize`                                 | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use  `cudnnGetRNNTempSpaceSizes` instead | 
+| `cuDNNGetRNNTrainingReserveSize`                           | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use  `cudnnGetRNNTempSpaceSizes` instead | 
 | `cuDNNGetRNNParamsSize`                                    | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use  `cudnnGetRNNWeightSpaceSize` instead | 
 | `cuDNNGetRNNLinLayerMatrixParams`                          | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnGetRNNWeightParams` instead | 
 | `cuDNNGetRNNLinLayerBiasParams`                            | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnGetRNNWeightParams` instead | 
@@ -625,10 +625,12 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cuDNNRNNBackwardWeights`                                  | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9 | 
 | `cuDNNSetRNNPaddingMode`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 
 | `cuDNNGetRNNPaddingMode`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNGetRNNDescriptor_v8` instead | 
-| `cuDNNCreateRNNDataDescriptor`                             | ✅          | ✅      | ✅      |                          | 
-| `cuDNNDestroyRNNDataDescriptor`                            | ✅          | ✅      | ✅      |                          | 
-| `cuDNNSetRNNDataDescriptor`                                | ✅          | ✅      | ✅      |                          | 
-| `cuDNNGetRNNDataDescriptor`                                | ✅          | ✅      | ✅      |                          | 
+| `cuDNNCreateRNNDataDescriptor`                             | ✅          | ✅      | ✅      |                          |
+| `cuDNNDestroyRNNDataDescriptor`                            | ✅          | ✅      | ✅      |                          |
+| `cuDNNSetRNNDataDescriptor`                                | ✅          | ✅      | ✅      |                          |
+| `cuDNNGetRNNDataDescriptor`                                | ✅          | ✅      | ✅      |                          |
+| `cudnnGetRNNTempSpaceSizes`                                | ✅          | ✅      | ✅      |                          |
+| `cudnnGetRNNWeightSpaceSize`                               | ✅          | ✅      | ✅      |                          |
 | `cuDNNRNNForwardTrainingEx`                                | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
 | `cuDNNRNNForwardInferenceEx`                               | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cudnnRNNForward` instead | 
 | `cuDNNRNNBackwardDataEx`                                   | ✅          | ❌      | ❓      | Deprecated in v8, Removed in v9, Use `cuDNNRNNBackwardData_v8` instead | 

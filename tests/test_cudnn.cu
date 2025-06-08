@@ -1421,26 +1421,26 @@ TEST(cuDNN, RNNForward) {
     CUDA_CHECK(cudaMalloc(&hy, numLayers * batchSize * hiddenSize * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&cy, numLayers * batchSize * hiddenSize * sizeof(float)));
 
-    // // Allocate weights
-    // size_t weightSpaceSize;
-    // CUDNN_CHECK(cudnnGetRNNWeightSpaceSize(handle, rnnDesc, &weightSpaceSize));
-    // void* weightSpace;
-    // CUDA_CHECK(cudaMalloc(&weightSpace, weightSpaceSize));
+    // Allocate weights
+    size_t weightSpaceSize;
+    CUDNN_CHECK(cudnnGetRNNWeightSpaceSize(handle, rnnDesc, &weightSpaceSize));
+    void* weightSpace;
+    CUDA_CHECK(cudaMalloc(&weightSpace, weightSpaceSize));
 
-    // // Workspace and reserve space
-    // size_t workspaceSize, reserveSize;
-    // CUDNN_CHECK(cudnnGetRNNTempSpaceSizes(
-    //     handle, rnnDesc, CUDNN_FWD_MODE_TRAINING,
-    //     xDesc, &workspaceSize, &reserveSize));
-    // void* workspace; void* reserveSpace;
-    // CUDA_CHECK(cudaMalloc(&workspace, workspaceSize));
-    // CUDA_CHECK(cudaMalloc(&reserveSpace, reserveSize));
+    // Workspace and reserve space
+    size_t workspaceSize, reserveSize;
+    CUDNN_CHECK(cudnnGetRNNTempSpaceSizes(
+        handle, rnnDesc, CUDNN_FWD_MODE_TRAINING,
+        xDesc, &workspaceSize, &reserveSize));
+    void* workspace; void* reserveSpace;
+    CUDA_CHECK(cudaMalloc(&workspace, workspaceSize));
+    CUDA_CHECK(cudaMalloc(&reserveSpace, reserveSize));
 
-    // // Allocate devSeqLengths
-    // int32_t* devSeqLengths;
-    // CUDA_CHECK(cudaMalloc(&devSeqLengths, batchSize * sizeof(int32_t)));
-    // CUDA_CHECK(cudaMemcpy(devSeqLengths, seqLengthArray,
-    //                       batchSize * sizeof(int32_t), cudaMemcpyHostToDevice));
+    // Allocate devSeqLengths
+    int32_t* devSeqLengths;
+    CUDA_CHECK(cudaMalloc(&devSeqLengths, batchSize * sizeof(int32_t)));
+    CUDA_CHECK(cudaMemcpy(devSeqLengths, seqLengthArray,
+                          batchSize * sizeof(int32_t), cudaMemcpyHostToDevice));
 
     // // Run forward
     // CUDNN_CHECK(cudnnRNNForward(

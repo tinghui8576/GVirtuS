@@ -337,6 +337,8 @@ void CudnnHandler::Initialize() {
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(DestroyRNNDataDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(SetRNNDataDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetRNNDataDescriptor));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetRNNWeightSpaceSize));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetRNNTempSpaceSizes));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(CreateSeqDataDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(DestroySeqDataDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(SetSeqDataDescriptor));
@@ -5584,6 +5586,51 @@ CUDNN_ROUTINE_HANDLER(GetRNNDataDescriptor) {
 
     cudnnStatus_t cs = cudnnGetRNNDataDescriptor(rnnDataDesc, dataType, layout, maxSeqLength, batchSize, vectorSize, arrayLengthRequested, seqLengthArray, paddingFill);
     LOG4CPLUS_DEBUG(logger, "cudnnGetRNNDataDescriptor Executed");
+    return std::make_shared<Result>(cs, out);
+}
+
+CUDNN_ROUTINE_HANDLER(GetRNNWeightSpaceSize) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetRNNWeightSpaceSize"));
+
+    cudnnHandle_t handle = in->Get<cudnnHandle_t>();
+    cudnnRNNDescriptor_t rnnDesc = in->Get<cudnnRNNDescriptor_t>();
+    size_t weightSpaceSize;
+
+    cudnnStatus_t cs = cudnnGetRNNWeightSpaceSize(handle, rnnDesc, &weightSpaceSize);
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<size_t>(weightSpaceSize);
+    } catch(string e) {
+        LOG4CPLUS_DEBUG(logger, e);
+        return std::make_shared<Result>(cs);
+    }
+    
+    LOG4CPLUS_DEBUG(logger, "cudnnGetRNNWeightSpaceSize Executed");
+    
+    return std::make_shared<Result>(cs, out);
+}
+CUDNN_ROUTINE_HANDLER(GetRNNTempSpaceSizes) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetRNNTempSpaceSizes"));
+
+    cudnnHandle_t handle = in->Get<cudnnHandle_t>();
+    cudnnRNNDescriptor_t rnnDesc = in->Get<cudnnRNNDescriptor_t>();
+    cudnnForwardMode_t fMode = in->Get<cudnnForwardMode_t>();
+    cudnnRNNDataDescriptor_t xDesc = in->Get<cudnnRNNDataDescriptor_t>();
+    size_t workSpaceSize;
+    size_t reserveSpaceSize;
+
+    cudnnStatus_t cs = cudnnGetRNNTempSpaceSizes(handle, rnnDesc, fMode, xDesc, &workSpaceSize, &reserveSpaceSize);
+    LOG4CPLUS_DEBUG(logger, "cudnnGetRNNTempSpaceSizes Executed");
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<size_t>(workSpaceSize);
+        out->Add<size_t>(reserveSpaceSize);
+    } catch(string e) {
+        LOG4CPLUS_DEBUG(logger, e);
+        return std::make_shared<Result>(cs);
+    }
     return std::make_shared<Result>(cs, out);
 }
 
