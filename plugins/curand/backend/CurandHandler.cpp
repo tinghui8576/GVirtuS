@@ -23,10 +23,6 @@
 #include "CurandHandler.h"
 #include "CurandHandler_host.cpp"
 
-#include <cstring>
-#include <map>
-#include <errno.h>
-
 using namespace std;
 using namespace log4cplus;
 
@@ -56,18 +52,16 @@ std::shared_ptr<Result> CurandHandler::Execute(std::string routine, std::shared_
         throw runtime_error(std::string("No handler for '") + routine + std::string("' found!"));
     try {
         return it->second(this, in);
-    } catch (const char *ex) {
-        cout << ex << endl;
-        cout << strerror(errno) << endl;
+    } catch (const std::exception &ex) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << ex.what());
     }
     return NULL;
 }
 
-
 void CurandHandler::Initialize() {
     if (mspHandlers != NULL)
         return;
-    mspHandlers = new map<string, CurandHandler::CurandRoutineHandler> ();
+    mspHandlers = new map<string, CurandHandler::CurandRoutineHandler>();
 
     /* CurandHandler Query Platform Info */
     mspHandlers->insert(CURAND_ROUTINE_HANDLER_PAIR(CreateGenerator));

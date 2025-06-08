@@ -23,9 +23,6 @@
  *                       *             Department of Science and Technologies
  *                        */
 
-#include <iostream>
-#include <cstdio>
-#include <string>
 
 #include "CusparseFrontend.h"
 

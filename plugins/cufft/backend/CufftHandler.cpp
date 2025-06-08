@@ -23,11 +23,6 @@
  *             Department of Applied Science
  */
 
-#include <map>
-#include <errno.h>
-#include <bits/stl_map.h>
-#include <memory>
-
 /**
  * @file   Backend.cpp
  * @author Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>
@@ -74,9 +69,8 @@ std::shared_ptr<Result> CufftHandler::Execute(std::string routine, std::shared_p
         throw std::runtime_error(std::string("No handler for '") + routine + std::string("' found!"));
     try {
         return it->second(this, input_buffer);
-    } catch (const char *ex) {
-        cout << ex << endl;
-        cout << strerror(errno) << endl;
+    } catch (const std::exception &ex) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << ex.what());
     }
     return NULL;
 }

@@ -27,8 +27,8 @@
 #define _CURANDHANDLER_H
 
 #include <gvirtus/backend/Handler.h>
-
 #include <gvirtus/communicators/Result.h>
+
 #include <curand.h>
 
 #include "log4cplus/logger.h"
@@ -42,25 +42,13 @@ public:
     bool CanExecute(std::string routine);
     std::shared_ptr<gvirtus::communicators::Result> Execute(std::string routine,
         std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
-
-    /*void * RegisterPointer(void *,size_t);
-
-    void RegisterMapObject(char *,char *);
-    char * GetMapObject(char *);
-    */
+        
 private:
     log4cplus::Logger logger;
     void Initialize();
     typedef std::shared_ptr<gvirtus::communicators::Result> (*CurandRoutineHandler)(CurandHandler *,
         std::shared_ptr<gvirtus::communicators::Buffer>);
     static std::map<std::string, CurandRoutineHandler> * mspHandlers;
-    //void **pointers;
-    //int nPointers;
-    
-    //std::map<std::string, std::string> * mpMapObject;
-
-    //void *mpShm;
-    //int mShmFd;
 };
 
 #define CURAND_ROUTINE_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CurandHandler * pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)

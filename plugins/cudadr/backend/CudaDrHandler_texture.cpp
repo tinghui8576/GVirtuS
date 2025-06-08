@@ -23,10 +23,10 @@
  *             Department of Applied Science
  */
 
-
-#include <cuda.h>
 #include "CudaDrHandler.h"
-#include <driver_types.h>
+
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 /*Binds an address as a texture reference. */
 CUDA_DRIVER_HANDLER(TexRefSetArray) {

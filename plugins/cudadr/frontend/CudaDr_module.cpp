@@ -24,19 +24,15 @@
  */
 
 #include <fstream>
-#include <iostream>
-#include <string>
 #include <sstream>
-#include <iomanip>
-#include <cstring>
-#include "CudaDrFrontend.h"
-#include "CudaUtil.h"
-#include "CudaDr.h"
-#include <cuda.h>
 
-#include "util/Encoder.h"
+#include "CudaDr.h"
+
+#include <gvirtus/common/Encoder.h>
 
 using namespace std;
+
+using gvirtus::common::Encoder;
 
 /*Load a module's data. */
 extern CUresult cuModuleLoadData(CUmodule *module, const void *image) {

@@ -23,15 +23,9 @@
  *             Department of Applied Science
  */
 
-#include <iostream>
-#include <cstdio>
-#include <string>
-
-#include <gvirtus/frontend/Frontend.h>
 #include "CublasFrontend.h"
 
 using namespace std;
-
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSdot_v2(cublasHandle_t handle, int n, const float *x, int incx, const float *y, int incy, float *result){
     CublasFrontend::Prepare();

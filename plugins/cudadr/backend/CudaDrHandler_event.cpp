@@ -24,11 +24,10 @@
  */
 
 
-#include <cuda.h>
 #include "CudaDrHandler.h"
-#include <driver_types.h>
-#include <stdio.h>
-#include <string.h>
+
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 /*Creates an event.*/
 CUDA_DRIVER_HANDLER(EventCreate) {

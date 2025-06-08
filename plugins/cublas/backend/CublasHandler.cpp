@@ -20,20 +20,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-
+ 
 #include "CublasHandler.h"
 #include "CublasHandler_Helper.cpp"
 #include "CublasHandler_Level1.cpp"
 #include "CublasHandler_Level2.cpp"
 #include "CublasHandler_Level3.cpp"
-#include <cstring>
-#include <bits/stl_map.h>
-#include <errno.h>
 
-using namespace std;
-using namespace log4cplus;
-
-using namespace gvirtus::communicators;
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 std::map<string, CublasHandler::CublasRoutineHandler> *CublasHandler::mspHandlers = NULL;
 
@@ -58,13 +53,11 @@ void CublasHandler::setLogLevel(Logger *logger) {
 	logger->setLogLevel(logLevel);
 }
 
-bool
-CublasHandler::CanExecute(std::string routine) {
+bool CublasHandler::CanExecute(std::string routine) {
   return mspHandlers->find(routine) != mspHandlers->end();
 }
 
-std::shared_ptr<Result>
-CublasHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
+std::shared_ptr<Result> CublasHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
  LOG4CPLUS_DEBUG(logger, "Called " << routine);
   map<string, CublasHandler::CublasRoutineHandler>::iterator it;
   it = mspHandlers->find(routine);
@@ -72,51 +65,16 @@ CublasHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer
     throw runtime_error("No handler for '" + routine + "' found!");
   try {
     return it->second(this, input_buffer);
-  } catch (const char *ex) {
-    cout << ex << endl;
-    cout << strerror(errno) << endl;
+  } catch (const std::exception &ex) {
+    std::cerr << "Error: " << ex.what() << std::endl;
   }
   return NULL;
 }
 
-/*void* CublasHandler::RegisterPointer(void* pointer,size_t bytes){
-    if (nPointers==1){
-        pointers[0] = (char *)malloc(bytes);
-        memcpy(pointers[0],(char *)pointer,bytes);
-        nPointers = nPointers + 1;
-        return pointers[0];
-    }else{
-        pointers = (void**)realloc(pointers,nPointers * sizeof(void*));
-        pointers[nPointers-1] = (char *)malloc(bytes);
-        memcpy(pointers[nPointers-1],pointer,bytes);
-        nPointers = nPointers + 1;
-        return pointers[nPointers-2];
-    }
-}
-
-void CublasHandler::RegisterMapObject(char * key,char * value){
-
-    mpMapObject->insert(make_pair(key, value));
-
-}
-
-char * CublasHandler::GetMapObject(char * key){
-    for (map<string, string>::iterator it = mpMapObject->begin();
-        it != mpMapObject->end(); it++)
-    if (it->first == key)
-        return (char *)(it->second.c_str());
-    return NULL;
-}*/
-
-void
-CublasHandler::Initialize() {
+void CublasHandler::Initialize() {
   if (mspHandlers != NULL)
     return;
   mspHandlers = new map<string, CublasHandler::CublasRoutineHandler>();
-
-  // pointers = (void **)malloc(sizeof(void*));
-  // mpMapObject = new map<string, string>();
-  // nPointers = 1;
 
   /* CublasHandler Helper functions */
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(GetVersion_v2));
@@ -189,7 +147,7 @@ CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Drotmg_v2));
 
   /* CublasHandler Level2 functions */
-  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Sgemv_v2));
+  // mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Sgemv_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Dgemv_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Cgemv_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Zgemv_v2));
@@ -271,6 +229,7 @@ CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Dspr2_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Chpr2_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Zhpr2_v2));
+
   /* CublasHandler Level3 functions */
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Sgemm_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Dgemm_v2));
@@ -318,183 +277,3 @@ CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Ctrmm_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Ztrmm_v2));
 }
-
-/*
-extern "C" int HandlerInit() {
-    return 0;
-}
-
-extern "C" Handler *GetHandler() {
-    return new OpenclHandler();
-}
-
-OpenclHandler::OpenclHandler() {
-    mpFatBinary = new map<string, void **>();
-    mpDeviceFunction = new map<string, string > ();
-    mpVar = new map<string, string > ();
-    //mpTexture = new map<string, cudaTextureObject_t*>();
-    Initialize();
-}
-
-OpenclHandler::~OpenclHandler() {
-
-}
-
-bool OpenclHandler::CanExecute(std::string routine) {
-    map<string, OpenclHandler::OpenclRoutineHandler>::iterator it;
-    it = mspHandlers->find(routine);
-    if (it == mspHandlers->end())
-        return false;
-    return true;
-}
-
-Result * OpenclHandler::Execute(std::string routine, Buffer * input_buffer) {
-    map<string, OpenclHandler::OpenclRoutineHandler>::iterator it;
-    it = mspHandlers->find(routine);
-    if (it == mspHandlers->end())
-        throw "No handler for '" + routine + "' found!";
-    return it->second(this, input_buffer);
-}
-
-void OpenclHandler::RegisterFatBinary(std::string& handler, void ** fatCubinHandle) {
-    map<string, void **>::iterator it = mpFatBinary->find(handler);
-    if (it != mpFatBinary->end()) {
-        mpFatBinary->erase(it);
-    }
-    mpFatBinary->insert(make_pair(handler, fatCubinHandle));
-    cout << "Registered FatBinary " << fatCubinHandle << " with handler " << handler << endl;
-}
-
-void OpenclHandler::RegisterFatBinary(const char* handler, void ** fatCubinHandle) {
-    string tmp(handler);
-    RegisterFatBinary(tmp, fatCubinHandle);
-}
-
-void ** OpenclHandler::GetFatBinary(string & handler) {
-    map<string, void **>::iterator it = mpFatBinary->find(handler);
-    if (it == mpFatBinary->end())
-        throw "Fat Binary '" + handler + "' not found";
-    return it->second;
-}
-
-void ** OpenclHandler::GetFatBinary(const char * handler) {
-    string tmp(handler);
-    return GetFatBinary(tmp);
-}
-
-void OpenclHandler::UnregisterFatBinary(std::string& handler) {
-    map<string, void **>::iterator it = mpFatBinary->find(handler);
-    if (it == mpFatBinary->end())
-        return;
-    // FIXME: think about freeing memory
-    cout << "Unregistered FatBinary " << it->second << " with handler "
-            << handler << endl;
-    mpFatBinary->erase(it);
-}
-
-void OpenclHandler::UnregisterFatBinary(const char * handler) {
-    string tmp(handler);
-    UnregisterFatBinary(tmp);
-}
-
-void OpenclHandler::RegisterDeviceFunction(std::string & handler, std::string & function) {
-    map<string, string>::iterator it = mpDeviceFunction->find(handler);
-    if (it != mpDeviceFunction->end())
-        mpDeviceFunction->erase(it);
-    mpDeviceFunction->insert(make_pair(handler, function));
-    cout << "Registered DeviceFunction " << function << " with handler " << handler << endl;
-}
-
-void OpenclHandler::RegisterDeviceFunction(const char * handler, const char * function) {
-    string tmp1(handler);
-    string tmp2(function);
-    RegisterDeviceFunction(tmp1, tmp2);
-}
-
-const char *OpenclHandler::GetDeviceFunction(std::string & handler) {
-    map<string, string>::iterator it = mpDeviceFunction->find(handler);
-    if (it == mpDeviceFunction->end())
-        throw "Device Function '" + handler + "' not fount";
-    return it->second.c_str();
-}
-
-const char *OpenclHandler::GetDeviceFunction(const char * handler) {
-    string tmp(handler);
-    return GetDeviceFunction(tmp);
-}
-
-void OpenclHandler::RegisterVar(string & handler, string & symbol) {
-    mpVar->insert(make_pair(handler, symbol));
-    cout << "Registered Var " << symbol << " with handler " << handler << endl;
-}
-
-void OpenclHandler::RegisterVar(const char* handler, const char* symbol) {
-    string tmp1(handler);
-    string tmp2(symbol);
-    RegisterVar(tmp1, tmp2);
-}
-
-const char *OpenclHandler::GetVar(string & handler) {
-    map<string, string>::iterator it = mpVar->find(handler);
-    if (it == mpVar->end())
-        return NULL;
-    return it->second.c_str();
-}
-
-const char * OpenclHandler::GetVar(const char* handler) {
-    string tmp(handler);
-    return GetVar(tmp);
-}
-*/
-
-/*
-void OpenclHandler::RegisterTexture(string& handler, textureReference* texref) {
-    mpTexture->insert(make_pair(handler, texref));
-    cout << "Registered Texture " << texref << " with handler " << handler
-            << endl;
-}
-
-void OpenclHandler::RegisterTexture(const char* handler,
-        textureReference* texref) {
-    string tmp(handler);
-    RegisterTexture(tmp, texref);
-}
-
-cudaTextureObject_t* OpenclHandler::GetTexture(string & handler) {
-    map<string, cudaTextureObject_t*>::iterator it = mpTexture->find(handler);
-    if (it == mpTexture->end())
-        return NULL;
-    return it->second;
-}
-
-cudaTextureObject_t* OpenclHandler::GetTexture(const char* handler) {
-    string tmp(handler);
-    return GetTexture(tmp);
-}
-
-const char *OpenclHandler::GetTextureHandler(textureReference* texref) {
-    for (map<string, cudaTextureObject_t*>::iterator it = mpTexture->begin();
-            it != mpTexture->end(); it++)
-        if (it->second == texref)
-            return it->first.c_str();
-    return NULL;
-}
-
-const char *OpenclHandler::GetSymbol(Buffer* in) {
-    char *symbol_handler = in->AssignString();
-    char *symbol = in->AssignString();
-    char *our_symbol = const_cast<char *> (GetVar(symbol_handler));
-    if (our_symbol != NULL)
-        symbol = const_cast<char *> (our_symbol);
-    return symbol;
-}
-
-void OpenclHandler::Initialize() {
-    if (mspHandlers != NULL)
-        return;
-    mspHandlers = new map<string, OpenclHandler::OpenclRoutineHandler > ();
-
-    // OpenclHandler_Platform
-    mspHandlers->insert(OPENCL_ROUTINE_HANDLER_PAIR(GetPlatformIDs));
-
-}*/

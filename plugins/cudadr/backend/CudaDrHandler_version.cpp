@@ -23,9 +23,10 @@
  *             Department of Applied Science
  */
 
-#include <cuda.h>
 #include "CudaDrHandler.h"
-#include <driver_types.h>
+
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 /*Return the Cuda Driver Version */
 CUDA_DRIVER_HANDLER(DriverGetVersion) {

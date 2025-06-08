@@ -23,9 +23,10 @@
  *             Department of Applied Science
  */
 
-#include <cuda.h>
 #include "CudaDrHandler.h"
-#include <driver_types.h>
+
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 CUDA_DRIVER_HANDLER(Init) {
     unsigned int flags = input_buffer->Get<unsigned int>();

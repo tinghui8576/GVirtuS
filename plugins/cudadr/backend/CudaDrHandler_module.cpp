@@ -23,18 +23,17 @@
  *             Department of Applied Science
  */
 
-#include <cuda.h>
+ #include <fstream>
+
+#include <gvirtus/common/Decoder.h>
 #include "CudaDrHandler.h"
-#include <driver_types.h>
-#include <stdio.h>
-#include <string.h>
-#include <fstream>
-
-
-#include "util/Decoder.h"
 
 using namespace std;
 using namespace log4cplus;
+
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
+using gvirtus::common::Decoder;
 
 /*Load a module's data. */
 CUDA_DRIVER_HANDLER(ModuleLoadData) {

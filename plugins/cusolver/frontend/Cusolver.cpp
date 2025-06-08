@@ -23,14 +23,9 @@
  * Department of Applied Science
  */
 
-#include <iostream>
-#include <cstdio>
-#include <string>
-
 #include "CusolverFrontend.h"
 
 using namespace std;
-
 
 size_t CUSOLVERAPI cusolverDnGetVersion() {
     CusolverFrontend::Prepare();

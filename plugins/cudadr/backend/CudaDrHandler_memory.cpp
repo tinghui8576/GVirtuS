@@ -23,13 +23,12 @@
  *             Department of Applied Science
  */
 
-#include <cuda.h>
-#include "CudaUtil.h"
 #include "CudaDrHandler.h"
-#include <stdio.h>
-#include <vector>
 
 using namespace std;
+
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 /*Frees device memory.*/
 CUDA_DRIVER_HANDLER(MemFree) {

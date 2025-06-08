@@ -24,12 +24,8 @@
  */
 
 #include "CudaRtHandler.h"
-
 #include "CudaUtil.h"
 
-#include <string.h>
-#include <iostream>
-#include <string>
 //#define DEBUG
 using namespace std;
 

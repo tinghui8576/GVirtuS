@@ -35,8 +35,6 @@
 
 #pragma once
 
-#include <iostream>
-#include <memory>
 #include "Buffer.h"
 
 namespace gvirtus::communicators {

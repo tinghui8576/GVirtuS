@@ -25,8 +25,6 @@
 
 #include "CublasFrontend.h"
 
-using namespace std;
-
 CublasFrontend msInstance __attribute_used__;
 void * CublasFrontend::handler = NULL;
 

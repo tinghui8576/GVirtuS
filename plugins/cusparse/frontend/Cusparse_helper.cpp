@@ -23,10 +23,6 @@
  *                       *             Department of Applied Science
  *                        */
 
-#include <iostream>
-#include <cstdio>
-#include <string>
-
 #include "CusparseFrontend.h"
 
 using namespace std;

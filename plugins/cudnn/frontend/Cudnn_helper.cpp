@@ -23,13 +23,7 @@
  *             Department of Applied Science
  */
 
-#include <iostream>
-#include <cstdio>
-#include <string>
-
 #include "CudnnFrontend.h"
-
-using namespace std;
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreate(cudnnHandle_t *handle) {
     CudnnFrontend::Prepare();

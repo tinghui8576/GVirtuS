@@ -34,26 +34,31 @@
 #include <memory>
 #include <string>
 #include <cstdio>
-#include <host_defines.h>
 #include <builtin_types.h>
 #include <driver_types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "communicator/Result.h"
 #include <cuda.h>
-#include "Handler.h"
+
+#include <gvirtus/backend/Handler.h>
+#include <gvirtus/communicators/Result.h>
 
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
 #include "log4cplus/configurator.h"
 
-class CudaDrHandler : public Handler{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+using namespace log4cplus;
+
+class CudaDrHandler : public gvirtus::backend::Handler {
 public:
     CudaDrHandler();
     virtual ~CudaDrHandler();
     bool CanExecute(std::string routine);
-    std::shared_ptr<Result> Execute(std::string routine, std::shared_ptr<Buffer> input_buffer);
+    std::shared_ptr<gvirtus::communicators::Result> Execute(std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
 
     void RegisterFatBinary(std::string & handler, void **fatCubinHandle);
     void RegisterFatBinary(const char * handler, void **fatCubinHandle);
@@ -78,7 +83,7 @@ public:
     // cudaTextureObject_t* GetTexture(const char *handler);
     // const char *GetTextureHandler(cudaTextureObject_t* texref);
 
-    // const char *GetSymbol(Buffer * in);
+    const char *GetSymbol(gvirtus::communicators::Buffer * in);
 
     void RegisterSharedMemory(const char *name) {
         mShmFd = shm_open(name, O_RDWR, S_IRWXU);
@@ -122,7 +127,7 @@ public:
 private:
     log4cplus::Logger logger;
     void Initialize();
-    typedef std::shared_ptr<Result> (*CudaDriverHandler)(CudaDrHandler *, std::shared_ptr<Buffer>);
+    typedef std::shared_ptr<gvirtus::communicators::Result> (*CudaDriverHandler)(CudaDrHandler *, std::shared_ptr<gvirtus::communicators::Buffer>);
     static std::map<std::string, CudaDriverHandler> * mspHandlers;
     std::map<std::string, void **> * mpFatBinary;
     std::map<std::string, std::string> * mpDeviceFunction;
@@ -133,7 +138,7 @@ private:
 };
 
 
-#define CUDA_DRIVER_HANDLER(name) std::shared_ptr<Result> handle##name(CudaDrHandler * pThis, std::shared_ptr<Buffer> input_buffer)
+#define CUDA_DRIVER_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CudaDrHandler * pThis, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer)
 #define CUDA_DRIVER_HANDLER_PAIR(name) make_pair("cu" #name, handle##name)
 
 /*CudaDrHandler_initialization*/
@@ -142,8 +147,8 @@ CUDA_DRIVER_HANDLER(Init);
 /*CudaDrHandler_context*/
 CUDA_DRIVER_HANDLER(CtxCreate);
 CUDA_DRIVER_HANDLER(CtxDestroy);
-// CUDA_DRIVER_HANDLER(CtxAttach);
-// CUDA_DRIVER_HANDLER(CtxDetach);
+CUDA_DRIVER_HANDLER(CtxAttach);
+CUDA_DRIVER_HANDLER(CtxDetach);
 CUDA_DRIVER_HANDLER(CtxGetDevice);
 CUDA_DRIVER_HANDLER(CtxPopCurrent);
 CUDA_DRIVER_HANDLER(CtxPushCurrent);

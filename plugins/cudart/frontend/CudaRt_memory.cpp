@@ -23,10 +23,6 @@
  *             Department of Applied Science
  */
 
-#include <string.h>
-#include <algorithm>
-#include <cstdio>
-#include <log4cplus/tchar.h>
 #include "CudaRt.h"
 
 #ifndef CUDART_VERSION

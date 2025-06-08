@@ -23,12 +23,10 @@
  *             Department of Applied Science
  */
 
-
-#include <cuda.h>
 #include "CudaDrHandler.h"
-#include <driver_types.h>
-#include <stdio.h>
-#include <vector>
+
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 using namespace log4cplus;
 

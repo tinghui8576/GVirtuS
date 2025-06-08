@@ -23,18 +23,17 @@
  *             Department of Applied Science
  */
 //#define DEBUG
-#include <host_defines.h>
 #include <builtin_types.h>
-#include <driver_types.h>
 #include <GL/gl.h>
 #include <cuda_runtime_api.h>
 #include <cstring>
-#include "CudaUtil.h"
 #include "CudaDrHandler.h"
-#include <cuda.h>
 
 using namespace std;
 using namespace log4cplus;
+
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 map<string, CudaDrHandler::CudaDriverHandler> *CudaDrHandler::mspHandlers = NULL;
 
@@ -291,8 +290,7 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleLoad));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleLoadFatBinary));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleUnload));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleGetTexRef));
-
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleGetTexRef));
 
     /*CudaDrHandler_version*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DriverGetVersion));
@@ -312,15 +310,15 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(EventSynchronize));
 
     /*CudaDrHandler_texture*/
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetArray));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddressMode));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFilterMode));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFlags));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFormat));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetAddress));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetArray));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetFlags));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddress));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetArray));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddressMode));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFilterMode));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFlags));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFormat));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetAddress));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetArray));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetFlags));
+    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddress));
     
     /*New Cuda 4.0 functions*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(LaunchKernel));

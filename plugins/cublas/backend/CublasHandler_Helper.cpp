@@ -22,11 +22,11 @@
  * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
  */
+ 
+ #include "CublasHandler.h"
 
-#include "CublasHandler.h"
-#include <iostream>
-#include <cstdio>
-#include <string>
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 // cublasStatus_t is a typedef to cublasContext*
 // "The cublasHandle_t type is a pointer type to an opaque structure holding the cuBLAS library context."
@@ -170,6 +170,7 @@ CUBLAS_ROUTINE_HANDLER(GetMatrix) {
     cout << "DEBUG - cublasGetMatrix Executed"<<endl;
     return std::make_shared<Result>(cs,out);
 }
+
 CUBLAS_ROUTINE_HANDLER(SetStream_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("SetStream"));
     
@@ -235,38 +236,3 @@ CUBLAS_ROUTINE_HANDLER(SetPointerMode_v2){
     cout << "DEBUG - cublasSetPointerMode_v2 Executed"<<endl;
     return std::make_shared<Result>(cs,out);
 }
-
-
-/*CUBLAS_ROUTINE_HANDLER(SetMatrix) {
-    int rows=in->Assign<int>();
-    int cols=in->Assign<int>();
-    int elemSize=in->Assign<int>();
-    const void *A=in->Get<void *>();
-    int lda=in->Assign<int>();
-    void *B=in->Assign<void *>();
-    int ldb=in->Assign<int>();
-    cublasStatus_t cublas_status=cublasSetMatrix(rows,cols,elemSize,A,lda,B,ldb);
-    Buffer *out=new Buffer();
-    return std::make_shared<Result>(cublas_status, out);
-}
-
-CUBLAS_ROUTINE_HANDLER(GetMatrix) {
-    /*int rows=in->Assign<int>();
-    int cols=in->Assign<int>();
-    int elemSize=in->Assign<int>();
-    const void *A=in->Get<void *>();
-    int lda=in->Assign<int>();
-    void *B=in->Assign<void *>();
-    int ldb=in->Assign<int>();
-    cublasStatus_t cublas_status=cublasGetMatrix(rows,cols,elemSize,A,lda,B,ldb);
-    Buffer *out=new Buffer();
-    return std::make_shared<Result>(cublas_status, out);   
-}
-
-CUBLAS_ROUTINE_HANDLER(Destroy) {
-    cublasHandle_t handle=in->Get<cublasHandle_t>();
-    cublasStatus_t cublas_status=cublasDestroy(handle);
-
-    Buffer *out=new Buffer();
-    return std::make_shared<Result>(cublas_status, out);
-}*/ 

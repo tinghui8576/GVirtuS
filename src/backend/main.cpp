@@ -15,13 +15,6 @@
  * nodes.
  */
 
-#include <cstdlib> /* getenv */
-#include <unistd.h>
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <string>
-
 #include "gvirtus/backend/Backend.h"
 #include "gvirtus/backend/Property.h"
 

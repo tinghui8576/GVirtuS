@@ -3,10 +3,10 @@
 #include <gvirtus/common/LD_Lib.h>
 #include <gvirtus/common/Observable.h>
 #include <gvirtus/communicators/Communicator.h>
-#include <memory>
+
 #include <string>
-#include <tuple>
 #include <vector>
+
 #include "Handler.h"
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"

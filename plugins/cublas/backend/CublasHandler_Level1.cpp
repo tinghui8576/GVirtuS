@@ -24,24 +24,9 @@
  */
 
 #include "CublasHandler.h"
-#include <iostream>
-#include <cstdio>
-#include <string>
-using namespace std;
 
-/*CUBLAS_ROUTINE_HANDLER(GetMatrix) {
-    int rows=input_buffer->Assign<int>();
-    int cols=input_buffer->Assign<int>();
-    int elemSize=input_buffer->Assign<int>();
-    const void *A=input_buffer->Get<void *>();
-    int lda=input_buffer->Assign<int>();
-    void *B=input_buffer->Assign<void *>();
-    int ldb=input_buffer->Assign<int>();
-    cublasStatus_t cublas_status=cublasGetMatrix(rows,cols,elemSize,A,lda,B,ldb);
-    Buffer *out=new Buffer();
-    return std::make_shared<Result>(cublas_status, out);   
-}
-*/
+using gvirtus::communicators::Buffer;
+using gvirtus::communicators::Result;
 
 CUBLAS_ROUTINE_HANDLER(Sdot_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sdot_v2"));
@@ -206,7 +191,7 @@ CUBLAS_ROUTINE_HANDLER(Zdscal_v2) {
 CUBLAS_ROUTINE_HANDLER(Saxpy_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Saxpy_v2"));
     
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+    cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n=in->Get<int>();
     float * alpha = in->Assign<float>();
     float * x = in->GetFromMarshal<float*>();

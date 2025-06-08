@@ -36,12 +36,7 @@
 
 #endif
 
-#include <iostream>
-#include <map>
-#include <string>
-#include <memory>
-
-#include "cublas_v2.h"
+#include <cublas_v2.h>
 
 #include <gvirtus/backend/Handler.h>
 #include <gvirtus/communicators/Result.h>
@@ -52,36 +47,20 @@
 
 using namespace std;
 using namespace log4cplus;
-using gvirtus::communicators::Buffer;
-using gvirtus::communicators::Result;
 
 class CublasHandler : public gvirtus::backend::Handler {
-public:
-  CublasHandler();
-  virtual ~CublasHandler();
-  bool CanExecute(std::string routine);
-  std::shared_ptr<Result> Execute(std::string routine, std::shared_ptr<Buffer> input_buffer);
-  static void setLogLevel(Logger *logger);
+    public:
+        CublasHandler();
+        virtual ~CublasHandler();
+        bool CanExecute(std::string routine);
+        std::shared_ptr<gvirtus::communicators::Result> Execute(std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
+        static void setLogLevel(Logger *logger);
 
-
-  /*void * RegisterPointer(void *,size_t);
-
-  void RegisterMapObject(char *,char *);
-  char * GetMapObject(char *);
-*/
-private:
-  log4cplus::Logger logger;
-  void Initialize();
-  typedef std::shared_ptr<Result>(*CublasRoutineHandler)(CublasHandler *, std::shared_ptr<Buffer>);
-  static std::map<std::string, CublasRoutineHandler> *mspHandlers;
-
-  // void **pointers;
-  // int nPointers;
-
-  // std::map<std::string, std::string> * mpMapObject;
-
-  // void *mpShm;
-  // int mShmFd;
+    private:
+        log4cplus::Logger logger;
+        void Initialize();
+        typedef std::shared_ptr<gvirtus::communicators::Result>(*CublasRoutineHandler)(CublasHandler *, std::shared_ptr<gvirtus::communicators::Buffer>);
+        static std::map<std::string, CublasRoutineHandler> *mspHandlers;
 };
 
 #define CUBLAS_ROUTINE_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CublasHandler *pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)

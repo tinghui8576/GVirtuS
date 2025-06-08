@@ -23,11 +23,6 @@
  *
  */
 
- #include <cstring>
- #include <map>
- #include <errno.h>
- #include <cuda_runtime_api.h>
-
  #include "CusolverHandler.h"
 
 using namespace std;
@@ -78,9 +73,8 @@ std::shared_ptr<Result> CusolverHandler::Execute(std::string routine, std::share
         throw runtime_error("No handler for '" + routine + "' found!");
     try {
         return it->second(this, input_buffer);
-    } catch (const char *ex) {
-        LOG4CPLUS_DEBUG(logger,ex);
-        LOG4CPLUS_DEBUG(logger, strerror(errno));
+    } catch (const std::exception &ex) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << ex.what());
     }
     return NULL;
 }

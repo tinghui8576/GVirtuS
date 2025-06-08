@@ -23,13 +23,7 @@
  *             Department of Applied Science
  */
 
-#include <cstring>
-#include "CudaDrFrontend.h"
-#include "CudaUtil.h"
 #include "CudaDr.h"
-#include <cuda.h>
-#include <stdio.h>
-
 
 using namespace std;
 
@@ -138,4 +132,3 @@ extern CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUdevice
         *canAccessPeer = *(CudaDrFrontend::GetOutputHostPointer<int>());
     return (CUresult) (CudaDrFrontend::GetExitCode());
 }
-

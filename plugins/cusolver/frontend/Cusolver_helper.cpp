@@ -23,10 +23,6 @@
  *              Department of Science andTechnology
  */
 
-#include <iostream>
-#include <cstdio>
-#include <string>
-
 #include "CusolverFrontend.h"
 
 using namespace std;

@@ -8,6 +8,7 @@
         "port": "9999"
       },
       "plugins": [
+        "cuda",
         "cudart",
         "cublas",
         "curand",

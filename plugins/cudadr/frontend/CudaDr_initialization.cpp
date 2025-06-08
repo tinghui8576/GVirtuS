@@ -23,11 +23,7 @@
  *             Department of Applied Science
  */
 
-
-#include <cstring>
-#include "CudaDrFrontend.h"
-#include "CudaUtil.h"
-#include <cuda.h>
+#include "CudaDr.h"
 
 using namespace std;
 

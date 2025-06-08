@@ -23,11 +23,6 @@
  *             Department of Science and Technologies
  */
 
-#include <iostream>
-#include <cstdio>
-#include <string>
-
-#include <gvirtus/frontend/Frontend.h>
 #include "CublasFrontend.h"
 
 using namespace std;

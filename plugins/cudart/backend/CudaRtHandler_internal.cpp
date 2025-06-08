@@ -26,11 +26,6 @@
 
 #include "CudaRtHandler.h"
 
-#include <cstdio>
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include "CudaUtil.h"
 
 using namespace std;
@@ -516,14 +511,6 @@ CUDA_ROUTINE_HANDLER(RegisterShared) {
 
 #if (CUDART_VERSION >= 9020)
 
-
-#if (CUDART_VERSION >= 11000)
-#define __CUDACC__
-// #define cudaPushCallConfiguration __cudaPushCallConfiguration
-#endif
-
-
-// #include "crt/device_functions.h"
 #include "CudaRt_internal.h"
 
 CUDA_ROUTINE_HANDLER(PushCallConfiguration) {

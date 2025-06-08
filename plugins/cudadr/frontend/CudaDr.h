@@ -26,11 +26,9 @@
 #ifndef CUDADR_H_
 #define CUDADR_H_
 
-#include <host_defines.h>
 #include <builtin_types.h>
 #include <driver_types.h>
 #include <GL/gl.h>
-#include "CudaUtil.h"
 #include <cuda.h>
 #include "CudaDrFrontend.h"
 

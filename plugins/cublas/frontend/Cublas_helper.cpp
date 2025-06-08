@@ -23,10 +23,6 @@
  *             Department of Applied Science
  */
 
-#include <iostream>
-#include <cstdio>
-#include <string>
-
 #include "CublasFrontend.h"
 
 using namespace std;

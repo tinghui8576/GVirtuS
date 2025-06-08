@@ -34,12 +34,10 @@
 
 #endif
 
-#include <cublas_api.h>
-#include "cublas_v2.h"
+#include <cublas_v2.h>
 #include <cuda_runtime_api.h>
 
 #include <gvirtus/frontend/Frontend.h>
-//#include "Cublas.h"
 
 class CublasFrontend {
 public:

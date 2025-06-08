@@ -5,7 +5,7 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <unistd.h>
+
 #include "Process.h"
 #include "Property.h"
 #include "log4cplus/configurator.h"
