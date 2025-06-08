@@ -1442,36 +1442,36 @@ TEST(cuDNN, RNNForward) {
     CUDA_CHECK(cudaMemcpy(devSeqLengths, seqLengthArray,
                           batchSize * sizeof(int32_t), cudaMemcpyHostToDevice));
 
-    // // Run forward
-    // CUDNN_CHECK(cudnnRNNForward(
-    //     handle, rnnDesc, CUDNN_FWD_MODE_TRAINING, devSeqLengths,
-    //     xDesc, x, yDesc, y,
-    //     hDesc, hx, hy, cDesc, cx, cy,
-    //     weightSpaceSize, weightSpace,
-    //     workspaceSize, workspace,
-    //     reserveSize, reserveSpace));
+    // Run forward
+    CUDNN_CHECK(cudnnRNNForward(
+        handle, rnnDesc, CUDNN_FWD_MODE_TRAINING, devSeqLengths,
+        xDesc, x, yDesc, y,
+        hDesc, hx, hy, cDesc, cx, cy,
+        weightSpaceSize, weightSpace,
+        workspaceSize, workspace,
+        reserveSize, reserveSpace));
 
     // Cleanup
-    // CUDA_CHECK(cudaFree(x));
-    // CUDA_CHECK(cudaFree(y));
-    // CUDA_CHECK(cudaFree(hx));
-    // CUDA_CHECK(cudaFree(hy));
-    // CUDA_CHECK(cudaFree(cx));
-    // CUDA_CHECK(cudaFree(cy));
-    // CUDA_CHECK(cudaFree(weightSpace));
-    // CUDA_CHECK(cudaFree(workspace));
-    // CUDA_CHECK(cudaFree(reserveSpace));
-    // CUDA_CHECK(cudaFree(states));
-    // CUDA_CHECK(cudaFree(devSeqLengths));
+    CUDA_CHECK(cudaFree(x));
+    CUDA_CHECK(cudaFree(y));
+    CUDA_CHECK(cudaFree(hx));
+    CUDA_CHECK(cudaFree(hy));
+    CUDA_CHECK(cudaFree(cx));
+    CUDA_CHECK(cudaFree(cy));
+    CUDA_CHECK(cudaFree(weightSpace));
+    CUDA_CHECK(cudaFree(workspace));
+    CUDA_CHECK(cudaFree(reserveSpace));
+    CUDA_CHECK(cudaFree(states));
+    CUDA_CHECK(cudaFree(devSeqLengths));
 
-    // CUDNN_CHECK(cudnnDestroyRNNDescriptor(rnnDesc));
-    // CUDNN_CHECK(cudnnDestroyDropoutDescriptor(dropoutDesc));
-    // CUDNN_CHECK(cudnnDestroyTensorDescriptor(hDesc));
-    // CUDNN_CHECK(cudnnDestroyTensorDescriptor(cDesc));
-    // CUDNN_CHECK(cudnnDestroyRNNDataDescriptor(xDesc));
-    // CUDNN_CHECK(cudnnDestroyRNNDataDescriptor(yDesc));
-    // CUDNN_CHECK(cudnnDestroy(handle));
-// }
+    CUDNN_CHECK(cudnnDestroyRNNDescriptor(rnnDesc));
+    CUDNN_CHECK(cudnnDestroyDropoutDescriptor(dropoutDesc));
+    CUDNN_CHECK(cudnnDestroyTensorDescriptor(hDesc));
+    CUDNN_CHECK(cudnnDestroyTensorDescriptor(cDesc));
+    CUDNN_CHECK(cudnnDestroyRNNDataDescriptor(xDesc));
+    CUDNN_CHECK(cudnnDestroyRNNDataDescriptor(yDesc));
+    CUDNN_CHECK(cudnnDestroy(handle));
+}
 
 // Not implemented yet
 // TEST(cuDNN, FusedOpsPlanCreateDestroy) {
@@ -1485,7 +1485,7 @@ TEST(cuDNN, RNNForward) {
 
 //     // Now destroy the plan if it was created
 //     CUDNN_CHECK(cudnnDestroyFusedOpsPlan(plan));
-}
+// }
 
 TEST(cuDNN, createDestroyLRNDescriptor) {
     cudnnLRNDescriptor_t lrnDesc;
