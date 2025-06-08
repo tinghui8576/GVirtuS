@@ -102,13 +102,15 @@ add_executable(gvirtus-backend
 target_link_libraries(gvirtus-backend gvirtus-communicators Threads::Threads rdmacm ibverbs)
 gvirtus_install_target(gvirtus-backend)
 
-add_subdirectory(plugins/cublas)
-add_subdirectory(plugins/cudart)
-add_subdirectory(plugins/cufft)
-add_subdirectory(plugins/curand)
-add_subdirectory(plugins/cudnn)
-add_subdirectory(plugins/cusolver)
-add_subdirectory(plugins/cusparse)
+add_subdirectory(plugins/cudart) # Assuming this plugin is always available
+
+maybe_add_cuda_plugin(cublas plugins/cublas) # part of CUDA toolkit
+maybe_add_cuda_plugin(cufft plugins/cufft) # part of CUDA toolkit
+maybe_add_cuda_plugin(cusolver plugins/cusolver) # part of CUDA toolkit
+maybe_add_cuda_plugin(cusparse plugins/cusparse) # part of CUDA toolkit
+maybe_add_cuda_plugin(curand plugins/curand) # part of CUDA toolkit
+
+add_subdirectory(plugins/cudnn) # CUDNN is not part of CUDA toolkit. Internally, we check if cudnn is available
 
 add_subdirectory(tests)
 

@@ -1,12 +1,16 @@
 project(gvirtus-plugin-curand)
-find_package(CUDA REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 
-include_directories(${CUDA_INCLUDE_DIRS})
+include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
-gvirtus_add_backend(curand ${CUDA_VERSION}
+resolve_cuda_library_version(curand CURAND_VERSION)
+
+gvirtus_add_backend(curand ${CURAND_VERSION}
         backend/CurandHandler.cpp)
-target_link_libraries(${PROJECT_NAME} ${CUDA_curand_LIBRARY} ${CUDA_CUDART_LIBRARY})
+target_link_libraries(${PROJECT_NAME}
+    CUDA::curand
+)
 
-gvirtus_add_frontend(curand ${CUDA_VERSION}
+gvirtus_add_frontend(curand ${CURAND_VERSION}
         frontend/Curand.cpp
         frontend/CurandFrontend.cpp)

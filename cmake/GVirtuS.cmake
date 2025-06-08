@@ -26,10 +26,10 @@ endif()
 
 macro(gvirtus_install_target target_name)
     install(TARGETS ${target_name}
-            LIBRARY DESTINATION ${GVIRTUS_HOME}/lib
-            ARCHIVE DESTINATION ${GVIRTUS_HOME}/lib
-            RUNTIME DESTINATION ${GVIRTUS_HOME}/bin
-            INCLUDES DESTINATION ${GVIRTUS_HOME}/include)
+        LIBRARY DESTINATION ${GVIRTUS_HOME}/lib
+        ARCHIVE DESTINATION ${GVIRTUS_HOME}/lib
+        RUNTIME DESTINATION ${GVIRTUS_HOME}/bin
+        INCLUDES DESTINATION ${GVIRTUS_HOME}/include)
 endmacro()
 
 function(gvirtus_add_backend)
@@ -58,15 +58,53 @@ function(gvirtus_add_frontend)
     list(REMOVE_AT ARGV 0)
     list(GET ARGV 0 version)
     list(REMOVE_AT ARGV 0)
-    add_library(${wrapped_library} SHARED
-            ${ARGV})
+    add_library(${wrapped_library} SHARED ${ARGV})
     target_link_libraries(${wrapped_library} ${LIBLOG4CPLUS} gvirtus-common gvirtus-communicators gvirtus-frontend)
+
+    # Version properties
     set_target_properties(${wrapped_library} PROPERTIES VERSION ${version})
     string(REGEX REPLACE "\\..*" "" soversion ${version})
     set_target_properties(${wrapped_library} PROPERTIES SOVERSION ${soversion})
-    string(TOUPPER "LIB${wrapped_library}_${version}" script)
-    set(script "${script} {\n local:\n*;\n};")
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/lib${wrapped_library}.map "${script}")
+
+    # Generate and apply linker version script
+    set(version_tag "lib${wrapped_library}.so.${soversion}")
+    set(version_script_body "${version_tag} {\n global:\n*;\n};")
+    set(version_script_path "${CMAKE_CURRENT_BINARY_DIR}/lib${wrapped_library}.ver")
+    file(WRITE "${version_script_path}" "${version_script_body}")
+    target_link_options(${wrapped_library} PRIVATE
+        "-Wl,--version-script=${version_script_path}"
+    )
     install(TARGETS ${wrapped_library}
-            LIBRARY DESTINATION ${GVIRTUS_HOME}/lib/frontend)
+        LIBRARY DESTINATION ${GVIRTUS_HOME}/lib/frontend)
+endfunction()
+
+# Version detection
+function(resolve_cuda_library_version target out_var)
+    find_package(CUDAToolkit REQUIRED)
+    get_target_property(lib_path CUDA::${target} IMPORTED_LOCATION)
+    set(version "UNKNOWN")
+    if(lib_path)
+        set(resolved "${lib_path}")
+        while(IS_SYMLINK "${resolved}")
+            execute_process(
+            COMMAND readlink "${resolved}"
+            OUTPUT_VARIABLE resolved
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        endwhile()
+        string(REGEX REPLACE ".*\\.so\\.([0-9]+(\\.[0-9]+)*)" "\\1" version "${resolved}")
+    endif()
+    set(${out_var} "${version}" PARENT_SCOPE)
+    message(STATUS "Resolved version for ${target}: ${version}")
+endfunction()
+
+function(maybe_add_cuda_plugin libname subdir)
+    find_package(CUDAToolkit REQUIRED)
+    if(TARGET CUDA::${libname})
+        get_target_property(lib_location CUDA::${libname} IMPORTED_LOCATION)
+        message(STATUS "CUDA library ${libname} found at ${lib_location}, adding ${subdir}")
+        add_subdirectory(${subdir})
+    else()
+        message(WARNING "CUDA library ${libname} not found, skipping ${subdir}")
+    endif()
 endfunction()

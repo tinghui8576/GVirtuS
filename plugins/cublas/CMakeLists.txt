@@ -1,15 +1,21 @@
 project(gvirtus-plugin-cublas)
-find_package(CUDA REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 
-include_directories(${CUDA_INCLUDE_DIRS})
+include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
-gvirtus_add_backend(cublas ${CUDA_VERSION}
+resolve_cuda_library_version(cublas CUBLAS_VERSION)
+
+gvirtus_add_backend(cublas ${CUBLAS_VERSION}
         backend/CublasHandler.cpp)
-target_link_libraries(${PROJECT_NAME} ${CUDA_cublas_LIBRARY} ${CUDA_CUDART_LIBRARY})
 
-gvirtus_add_frontend(cublas ${CUDA_VERSION}
-        frontend/Cublas_helper.cpp
-        frontend/Cublas_level1.cpp
-        frontend/Cublas_level2.cpp
-        frontend/Cublas_level3.cpp
-        frontend/CublasFrontend.cpp)
+target_link_libraries(${PROJECT_NAME}
+    CUDA::cublas
+)
+
+gvirtus_add_frontend(cublas ${CUBLAS_VERSION}
+    frontend/Cublas_helper.cpp
+    frontend/Cublas_level1.cpp
+    frontend/Cublas_level2.cpp
+    frontend/Cublas_level3.cpp
+    frontend/CublasFrontend.cpp
+)

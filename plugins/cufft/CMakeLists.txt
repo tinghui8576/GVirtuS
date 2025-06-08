@@ -1,40 +1,16 @@
 project(gvirtus-plugin-cufft)
-find_package(CUDA REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 
-include_directories(${CUDA_INCLUDE_DIRS})
+include_directories(${CUDAToolkit_INCLUDE_DIRS})
 
-# find_path(CUFFT_INCLUDE_DIRECTORY
-#         cufft.h
-#         PATHS ${CUDA_INCLUDE_DIRS})
-# if(NOT CUFFT_INCLUDE_DIRECTORY)
-#     message(FATAL_ERROR "cufft.h not found")
-# endif()
-# include_directories(${CUFFT_INCLUDE_DIRECTORY} ${CUDA_INCLUDE_DIRS} util 3rdparty/include)
+resolve_cuda_library_version(cufft CUFFT_VERSION)
 
-# get_filename_component(CUDA_LIBRARIES_PATH ${CUDA_CUDART_LIBRARY} DIRECTORY FALSE)
-# find_library(CUFFT_LIBRARY
-#         cufft
-#         PATHS ${CUDA_LIBRARIES_PATH})
-# if(NOT CUFFT_LIBRARY)
-#     message(FATAL_ERROR "cufft library not found")
-# endif()
-# message(STATUS "Found cuFFT library: ${CUFFT_LIBRARY}")
-
-# set(CUFFT_VERSION "${CUFFT_LIBRARY}")
-# while(IS_SYMLINK "${CUFFT_VERSION}")
-#     message(STATUS "${CUFFT_VERSION}")
-#     execute_process(COMMAND readlink "${CUFFT_VERSION}"
-#             OUTPUT_VARIABLE CUFFT_VERSION
-#             OUTPUT_STRIP_TRAILING_WHITESPACE)
-# endwhile()
-# string(REGEX REPLACE ".*\\.so\\.([0-9]+\\.[0-9]+\\.[0-9]+)" "\\1" CUFFT_VERSION "${CUFFT_VERSION}")
-
-# message(STATUS "Found cuFFT: ${CUFFT_VERSION} (${CUFFT_INCLUDE_DIRECTORY}/cufft.h, ${CUFFT_LIBRARY})")
-
-gvirtus_add_backend(cufft ${CUDA_VERSION}
+gvirtus_add_backend(cufft ${CUFFT_VERSION}
         backend/CufftHandler.cpp)
-target_link_libraries(${PROJECT_NAME} ${CUDA_cufft_LIBRARY} ${CUDA_CUDART_LIBRARY})
+target_link_libraries(${PROJECT_NAME}
+    CUDA::cufft
+)
 
-gvirtus_add_frontend(cufft ${CUDA_VERSION}
-        frontend/Cufft.cpp
-        frontend/CufftFrontend.cpp)
+gvirtus_add_frontend(cufft ${CUFFT_VERSION}
+    frontend/Cufft.cpp
+    frontend/CufftFrontend.cpp)
