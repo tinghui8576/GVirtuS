@@ -38,8 +38,8 @@ CUDA_ROUTINE_HANDLER(EventCreate) {
     cudaError_t exit_code = cudaEventCreate(&event);
     out->Add((pointer_t)event);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 #else
@@ -48,8 +48,8 @@ CUDA_ROUTINE_HANDLER(EventCreate) {
       cudaEvent_t *event = input_buffer->Assign<cudaEvent_t>();
       cudaError_t exit_code = cudaEventCreate(event);
       out->Add(event);
-    } catch (string e) {
-      cerr << e << endl;
+    } catch (const std::exception& e) {
+      cerr << e.what() << endl;
       return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 #endif
@@ -66,8 +66,8 @@ CUDA_ROUTINE_HANDLER(EventCreateWithFlags) {
     cudaError_t exit_code = cudaEventCreateWithFlags(&event, flags);
     out->Add((pointer_t)event);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 #else
@@ -76,8 +76,8 @@ CUDA_ROUTINE_HANDLER(EventCreateWithFlags) {
       int flags = input_buffer->Get<int>();
       cudaError_t exit_code = cudaEventCreateWithFlags(event, flags);
       out->Add(event);
-    } catch (string e) {
-      cerr << e << endl;
+    } catch (const std::exception& e) {
+      cerr << e.what() << endl;
       return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 #endif
@@ -88,8 +88,8 @@ CUDA_ROUTINE_HANDLER(EventDestroy) {
   try {
     cudaEvent_t event = input_buffer->Get<cudaEvent_t>();
     return std::make_shared<Result>(cudaEventDestroy(event));
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -104,8 +104,8 @@ CUDA_ROUTINE_HANDLER(EventElapsedTime) {
 
     out->Add(ms);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -114,8 +114,8 @@ CUDA_ROUTINE_HANDLER(EventQuery) {
   try {
     cudaEvent_t event = input_buffer->Get<cudaEvent_t>();
     return std::make_shared<Result>(cudaEventQuery(event));
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -125,8 +125,8 @@ CUDA_ROUTINE_HANDLER(EventRecord) {
     cudaEvent_t event = input_buffer->Get<cudaEvent_t>();
     cudaStream_t stream = input_buffer->Get<cudaStream_t>();
     return std::make_shared<Result>(cudaEventRecord(event, stream));
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -135,8 +135,8 @@ CUDA_ROUTINE_HANDLER(EventSynchronize) {
   try {
     cudaEvent_t event = input_buffer->Get<cudaEvent_t>();
     return std::make_shared<Result>(cudaEventSynchronize(event));
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }

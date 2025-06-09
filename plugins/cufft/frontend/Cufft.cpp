@@ -469,7 +469,6 @@ extern "C" cufftResult cufftExecD2Z(cufftHandle plan, cufftDoubleReal *idata,
                                     cufftDoubleComplex *odata) {
   CufftFrontend::Prepare();
   CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
-  //cout << "idata: "<< idata << "odata: "<<odata<<endl;
   CufftFrontend::AddDevicePointerForArguments((void *) idata);
   CufftFrontend::AddDevicePointerForArguments((void *) odata);
   CufftFrontend::Execute("cufftExecD2Z");
@@ -484,7 +483,6 @@ extern "C" cufftResult cufftExecZ2D(cufftHandle plan, cufftDoubleComplex *idata,
   CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
   CufftFrontend::AddDevicePointerForArguments((void *) idata);
   CufftFrontend::AddDevicePointerForArguments((void *) odata);
-  //cout << "idata: "<< idata << "odata: "<<odata<<endl;
   CufftFrontend::Execute("cufftExecZ2D");
   if (CufftFrontend::Success())
     odata = (cufftDoubleReal *) (CufftFrontend::GetOutputDevicePointer());
@@ -576,7 +574,6 @@ extern "C" cufftResult cufftXtSetGPUs(cufftHandle plan, int nGPUs, int *whichGPU
   return CufftFrontend::GetExitCode();
 }
 
-// tgasla attempt to fix the problem with the malloc function
 extern "C" cufftResult cufftXtMalloc(cufftHandle plan,
                                      cudaLibXtDesc** descriptorPtr,
                                      cufftXtSubFormat format) {
@@ -587,27 +584,10 @@ extern "C" cufftResult cufftXtMalloc(cufftHandle plan,
 
   if (CufftFrontend::Success()) {
     *descriptorPtr = static_cast<cudaLibXtDesc*>(CufftFrontend::GetOutputDevicePointer());
-    // *descriptorPtr = CufftFrontend::GetOutputHostPointer<cudaLibXtDesc>();
   }
-
-  // CufftFrontend::addDevicePointer((void*)(*descriptorPtr));
 
   return CufftFrontend::GetExitCode();
 }
-
-// original gvirtus code
-// extern "C" cufftResult cufftXtMalloc(cufftHandle plan, cudaLibXtDesc **descriptor, cufftXtSubFormat format) {
-//   CufftFrontend::Prepare();
-//   //Passing arguments
-//   CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
-//   CufftFrontend::AddHostPointerForArguments<cudaLibXtDesc *>(descriptor);
-//   CufftFrontend::AddVariableForArguments<cufftXtSubFormat>(format);
-
-//   CufftFrontend::Execute("cufftXtMalloc");
-//   if (CufftFrontend::Success())
-//     descriptor = CufftFrontend::GetOutputHostPointer<cudaLibXtDesc *>();
-//   return CufftFrontend::GetExitCode();
-// }
 
 /*Da testare*/
 // slightly modified gvirtus code
@@ -637,38 +617,6 @@ extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *s
 
   return CufftFrontend::GetExitCode();
 }
-
-
-// tgasla attempt to fix the problem with the memcpy function
-// extern "C" cufftResult cufftXtMemcpy(cufftHandle plan, void *dstPointer, void *srcPointer, cufftXtCopyType type) {
-//   CufftFrontend::Prepare();
-//   CufftFrontend::AddVariableForArguments(plan);
-//   CufftFrontend::AddVariableForArguments(type);
-
-//   switch (type) {
-//     case CUFFT_COPY_HOST_TO_DEVICE:
-//       CufftFrontend::AddDevicePointerForArguments(dstPointer);
-//       CufftFrontend::AddHostPointerForArguments(srcPointer);
-//       break;
-
-//     case CUFFT_COPY_DEVICE_TO_HOST:
-//       CufftFrontend::AddHostPointerForArguments(dstPointer);
-//       CufftFrontend::AddDevicePointerForArguments(srcPointer);
-//       break;
-
-//     case CUFFT_COPY_DEVICE_TO_DEVICE:
-//       CufftFrontend::AddDevicePointerForArguments(dstPointer);
-//       CufftFrontend::AddDevicePointerForArguments(srcPointer);
-//       break;
-
-//     default:
-//       return CUFFT_INVALID_TYPE;
-//   }
-
-//   CufftFrontend::Execute("cufftXtMemcpy");
-
-//   return static_cast<cufftResult>(CufftFrontend::GetExitCode());
-// }
 
 /*Da testare*/
 extern "C" cufftResult cufftXtExecDescriptorC2C(cufftHandle plan,
@@ -704,17 +652,9 @@ extern "C" cufftResult cufftXtSetCallback(cufftHandle plan,
                                           void **callbackRoutine,
                                           cufftXtCallbackType type,
                                           void **callerInfo) {
-  /*CufftFrontend::Prepare();
-  //Passing arguments
-  CufftFrontend::AddVariableForArguments<cufftHandle>(plan);
-  CufftFrontend::AddHostPointerForArguments(callbackRoutine);
-  CufftFrontend::AddVariableForArguments<cufftXtCallbackType>(type);
-  CufftFrontend::AddDevicePointerForArguments(callerInfo);
-  cout<<"callerinfo: "<<callerInfo<< "plan: "<<plan<<endl;
-  CufftFrontend::Execute("cufftXtSetCallback");*/
   /* Avoiding useless communication because GVIRTUS does not support statically linked libraries */
-  cout << "EXCEPTION - function cufftXtSetCallback not supported in GVIRTUS" << endl;
-  return (cufftResult) CUFFT_NOT_IMPLEMENTED;//CufftFrontend::GetExitCode();
+  cerr << "EXCEPTION - function cufftXtSetCallback not supported in GVIRTUS" << endl;
+  return CUFFT_NOT_IMPLEMENTED;
 }
 
 extern "C" cufftResult cufftGetVersion(int *version) {
@@ -739,6 +679,6 @@ extern "C" cufftResult CUFFTAPI cufftXtMakePlanMany(cufftHandle plan,
                                                     long long int batch,
                                                     size_t *workSize,
                                                     cudaDataType executiontype) {
-  cout << "EXCEPTION - function cufftXtMakePlanMany not supported in GVIRTUS" << endl;
-  return (cufftResult) CUFFT_NOT_IMPLEMENTED;//CufftFrontend::GetExitCode();
+  cerr << "EXCEPTION - function cufftXtMakePlanMany not supported in GVIRTUS" << endl;
+  return CUFFT_NOT_IMPLEMENTED;
 }

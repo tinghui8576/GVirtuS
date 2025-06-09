@@ -36,14 +36,14 @@
 using namespace std;
 
 CUDA_ROUTINE_HANDLER(GLSetGLDevice) {
-  try {
-    int device = input_buffer->Get<int>();
-    cudaError_t exit_code = cudaGLSetGLDevice(device);
-    return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    try {
+        int device = input_buffer->Get<int>();
+        cudaError_t exit_code = cudaGLSetGLDevice(device);
+        return std::make_shared<Result>(exit_code);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(GraphicsGLRegisterBuffer) {
@@ -57,8 +57,8 @@ CUDA_ROUTINE_HANDLER(GraphicsGLRegisterBuffer) {
 
     out->Add((pointer_t)resource);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+        cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -72,8 +72,8 @@ CUDA_ROUTINE_HANDLER(GraphicsMapResources) {
     cudaStream_t stream = (cudaStream_t)input_buffer->Get<pointer_t>();
     cudaError_t exit_code = cudaGraphicsMapResources(count, resources, stream);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+        cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -96,8 +96,8 @@ CUDA_ROUTINE_HANDLER(GraphicsResourceGetMappedPointer) {
     }
 
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+        cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -112,8 +112,8 @@ CUDA_ROUTINE_HANDLER(GraphicsUnmapResources) {
     cudaError_t exit_code =
         cudaGraphicsUnmapResources(count, resources, stream);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+        cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -123,8 +123,8 @@ CUDA_ROUTINE_HANDLER(GraphicsUnregisterResource) {
     cudaGraphicsResource_t resource =
         (cudaGraphicsResource_t)input_buffer->Get<pointer_t>();
     return std::make_shared<Result>(cudaGraphicsUnregisterResource(resource));
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+        cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -136,8 +136,8 @@ CUDA_ROUTINE_HANDLER(GraphicsResourceSetMapFlags) {
     unsigned int flags = input_buffer->Get<unsigned int>();
     return std::make_shared<Result>(
         cudaGraphicsResourceSetMapFlags(resource, flags));
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+        cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }

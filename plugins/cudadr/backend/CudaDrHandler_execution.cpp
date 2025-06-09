@@ -172,31 +172,13 @@ CUDA_DRIVER_HANDLER(LaunchKernel){
     LOG4CPLUS_DEBUG(logger,"LaunchKernel: BBB");
     unsigned int sharedMemBytes = input_buffer->Get<unsigned int>();
     CUstream hstream = input_buffer->Get<CUstream>();
-    /*
-    void **optionValues = new void*[4];
-    for (unsigned int i = 0; i < 4; i++) {
-        //std::cout<<"i sta a -> "<<i<<std::endl;
-        //LOG4CPLUS_DEBUG(logger,"i:"<<i);   
-        *(optionValues + i) =(void *) input_buffer->Assign<char>();
-    }
-    */
+
     LOG4CPLUS_DEBUG(logger,"LaunchKernel: CCC");
     void *kernelParams = input_buffer->Get<void *>();
     LOG4CPLUS_DEBUG(logger,"LaunchKernel: DDD");
     void *extra = input_buffer->Get<void *>();
     LOG4CPLUS_DEBUG(logger,"LaunchKernel: all parameters read");
     CUresult exit_code = cuLaunchKernel((CUfunction)f,gridDimX,gridDimY,gridDimZ,blockDimX,blockDimY,blockDimZ,sharedMemBytes,hstream,NULL,(void **) &extra);
-    /*
-    if (config != NULL){
-        std::cout<<"CONFIG IS NOT NULL "<<std::endl;
-        exit_code= cuLaunchKernel((CUfunction)f,gridDimX,gridDimY,gridDimZ,blockDimX,blockDimY,blockDimZ,sharedMemBytes,hstream,NULL,(void **) &extra);
-    }
-    else{
-        std::cout<<"CONFIG IS NULL"<<std::endl;
-        exit_code= cuLaunchKernel((CUfunction)f,gridDimX,gridDimY,gridDimZ,blockDimX,blockDimY,blockDimZ,sharedMemBytes,hstream,extras,NULL);
-        std::cout<<"cuLaunchKernel back a result!"<<std::endl;
-    }
-    */
     LOG4CPLUS_DEBUG(logger,"End LaunchKernel");
     return std::make_shared<Result>((cudaError_t) exit_code);
 }

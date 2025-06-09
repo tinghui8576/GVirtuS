@@ -65,8 +65,8 @@ std::shared_ptr<Result> CublasHandler::Execute(std::string routine, std::shared_
     throw runtime_error("No handler for '" + routine + "' found!");
   try {
     return it->second(this, input_buffer);
-  } catch (const std::exception &ex) {
-    std::cerr << "Error: " << ex.what() << std::endl;
+  } catch (const std::exception& e) {
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
   }
   return NULL;
 }

@@ -130,9 +130,6 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMalloc(void **devPtr,
 
   if (CudaRtFrontend::Success()) {
     *devPtr = CudaRtFrontend::GetOutputDevicePointer();
-#ifdef DEBUG
-    cout << "Adding Pointer" << endl;
-#endif
     CudaRtFrontend::addDevicePointer(*devPtr);
   }
 

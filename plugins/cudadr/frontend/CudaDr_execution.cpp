@@ -170,8 +170,6 @@ extern CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) {
 
 // new Cuda 4.0 functions
 extern CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hstream , void** kernelParams, void** extra){
-    cout << "cuLaunchKernel\n";
-    
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) f);
     CudaDrFrontend::AddVariableForArguments(gridDimX);

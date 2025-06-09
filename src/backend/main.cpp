@@ -65,8 +65,8 @@ int main(int argc, char **argv) {
     catch (std::string & exc) {
         LOG4CPLUS_ERROR(logger, "✖ - Exception:" << exc);
     }
-    catch (const char * exc) {
-        LOG4CPLUS_ERROR(logger, "✖ - Exception:" << exc);
+    catch (const std::exception& e) {
+        LOG4CPLUS_ERROR(logger, "✖ - Exception:" << e.what());
     }
 
     LOG4CPLUS_INFO(logger, "🛈  - [Process " << getpid() << "] Shutdown");

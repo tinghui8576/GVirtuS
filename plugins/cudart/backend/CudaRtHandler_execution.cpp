@@ -38,8 +38,8 @@ CUDA_ROUTINE_HANDLER(ConfigureCall) {
     cudaError_t exit_code =
         cudaConfigureCall(gridDim, blockDim, sharedMem, stream);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -58,8 +58,8 @@ CUDA_ROUTINE_HANDLER(FuncGetAttributes) {
     memmove(attr, guestAttr, sizeof(cudaFuncAttributes));
     cudaError_t exit_code = cudaFuncGetAttributes(attr, handler);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -73,8 +73,8 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
 
     cudaError_t exit_code = cudaFuncSetCacheConfig(handler, cacheConfig);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -183,8 +183,8 @@ CUDA_ROUTINE_HANDLER(SetDoubleForDevice) {
     memmove(d, guestD, sizeof(double));
     cudaError_t exit_code = cudaSetDoubleForDevice(d);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -198,8 +198,8 @@ CUDA_ROUTINE_HANDLER(SetDoubleForHost) {
     memmove(d, guestD, sizeof(double));
     cudaError_t exit_code = cudaSetDoubleForHost(d);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -211,8 +211,8 @@ CUDA_ROUTINE_HANDLER(SetupArgument) {
     void *arg = input_buffer->Assign<char>(size);
     cudaError_t exit_code = cudaSetupArgument(arg, size, offset);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }

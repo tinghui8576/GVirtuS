@@ -66,8 +66,8 @@ CUDA_ROUTINE_HANDLER(GetSymbolSize) {
     const char *symbol = pThis->GetSymbol(input_buffer);
     cudaError_t exit_code = cudaGetSymbolSize(size, symbol);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -88,8 +88,8 @@ CUDA_ROUTINE_HANDLER(MemcpyPeerAsync) {
     cudaError_t exit_code =
         cudaMemcpyPeerAsync(dst, dstDevice, src, srcDevice, count, stream);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -108,10 +108,8 @@ CUDA_ROUTINE_HANDLER(MallocManaged) {
         void *devPtr;
 
         cudaError_t exit_code = cudaMallocManaged(&devPtr, size, flags);
-#ifdef DEBUG
-    std::cout << "Allocated DevicePointer " << devPtr << " with a size of "
-              << size << std::endl;
-#endif
+        LOG4CPLUS_DEBUG(logger, "cudaMallocManaged returned: " << exit_code);
+    
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
         gvirtus::common::mappedPointer host;
@@ -120,13 +118,11 @@ CUDA_ROUTINE_HANDLER(MallocManaged) {
 
         out->AddMarshal(devPtr);
         return std::make_shared<Result>(exit_code, out);
-      } catch (string e) {
-        LOG4CPLUS_DEBUG(logger, e);
-
+      } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
       }
 }
-
 
 CUDA_ROUTINE_HANDLER(Malloc3DArray) {
   cudaArray *array = NULL;
@@ -139,8 +135,8 @@ CUDA_ROUTINE_HANDLER(Malloc3DArray) {
 
   try {
     out->Add(&array);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -160,8 +156,8 @@ CUDA_ROUTINE_HANDLER(Malloc) {
 
     out->AddMarshal(devPtr);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -177,10 +173,9 @@ CUDA_ROUTINE_HANDLER(MallocArray) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
     out->AddMarshal(arrayPtr);
-    cout << hex << arrayPtr << endl;
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -201,8 +196,8 @@ CUDA_ROUTINE_HANDLER(MallocPitch) {
     out->AddMarshal(devPtr);
     out->Add(pitch);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -231,8 +226,8 @@ CUDA_ROUTINE_HANDLER(Memcpy) {
         try {
           dst = input_buffer->GetFromMarshal<void *>();
           src = input_buffer->AssignAll<char>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpy(dst, src, count, kind);
@@ -245,16 +240,16 @@ CUDA_ROUTINE_HANDLER(Memcpy) {
         try {
           input_buffer->Assign<char>();
           src = input_buffer->GetFromMarshal<void *>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpy(dst, src, count, kind);
         try {
           out = std::make_shared<Buffer>();
           out->Add<char>((char *)dst, count);
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         delete[](char *) dst;
@@ -264,8 +259,8 @@ CUDA_ROUTINE_HANDLER(Memcpy) {
         try {
           dst = input_buffer->GetFromMarshal<void *>();
           src = input_buffer->GetFromMarshal<void *>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpy(dst, src, count, kind);
@@ -273,8 +268,8 @@ CUDA_ROUTINE_HANDLER(Memcpy) {
         break;
     }
     return result;
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -313,8 +308,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2DFromArray) {
           hOffset = input_buffer->Get<size_t>();
           width = input_buffer->Get<size_t>();
           height = input_buffer->Get<size_t>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         dst = new char[dpitch * height];
@@ -323,8 +318,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2DFromArray) {
         try {
           out = std::make_shared<Buffer>();
           out->Add<char>((char *)dst, dpitch * height);
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         delete[](char *) dst;
@@ -339,8 +334,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2DFromArray) {
           hOffset = input_buffer->Get<size_t>();
           width = input_buffer->Get<size_t>();
           height = input_buffer->Get<size_t>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpy2DFromArray(dst, dpitch, src, wOffset, hOffset,
@@ -349,8 +344,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2DFromArray) {
         break;
     }
     return result;
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -388,8 +383,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2DToArray) {
           width = input_buffer->BackGet<size_t>();
           spitch = input_buffer->BackGet<size_t>();
           src = input_buffer->AssignAll<char>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         break;
@@ -402,16 +397,16 @@ CUDA_ROUTINE_HANDLER(Memcpy2DToArray) {
           spitch = input_buffer->Get<size_t>();
           width = input_buffer->Get<size_t>();
           height = input_buffer->Get<size_t>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
     }
     exit_code = cudaMemcpy2DToArray(dst, wOffset, hOffset, src, spitch, width,
                                     height, kind);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -430,8 +425,8 @@ CUDA_ROUTINE_HANDLER(Memcpy3D) {
 
     out->Add(p, 1);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -465,8 +460,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2D) {
           spitch = input_buffer->Get<size_t>();
           width = input_buffer->Get<size_t>();
           height = input_buffer->Get<size_t>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpy2D(dst, dpitch, src, spitch, width, height, kind);
@@ -482,8 +477,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2D) {
           spitch = input_buffer->Get<size_t>();
           width = input_buffer->Get<size_t>();
           height = input_buffer->Get<size_t>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         dst = new char[dpitch * height];
@@ -491,8 +486,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2D) {
         try {
           out = std::make_shared<Buffer>();
           out->Add<char>((char *)dst, dpitch * height);
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         delete[](char *) dst;
@@ -506,8 +501,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2D) {
           spitch = input_buffer->Get<size_t>();
           width = input_buffer->Get<size_t>();
           height = input_buffer->Get<size_t>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpy2D(dst, dpitch, src, spitch, width, height, kind);
@@ -515,8 +510,8 @@ CUDA_ROUTINE_HANDLER(Memcpy2D) {
         break;
     }
     return result;
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -542,14 +537,14 @@ CUDA_ROUTINE_HANDLER(MemcpyAsync) {
       case cudaMemcpyHostToDevice:
         try {
           dst = input_buffer->GetFromMarshal<void *>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         try {
           src = input_buffer->AssignAll<char>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpyAsync(dst, src, count, kind, stream);
@@ -562,16 +557,16 @@ CUDA_ROUTINE_HANDLER(MemcpyAsync) {
         try {
           input_buffer->Assign<char>();
           src = input_buffer->GetFromMarshal<void *>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpyAsync(dst, src, count, kind, stream);
         try {
           out = std::make_shared<Buffer>();
           out->Add<char>((char *)dst, count);
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         delete[](char *) dst;
@@ -585,8 +580,8 @@ CUDA_ROUTINE_HANDLER(MemcpyAsync) {
         break;
     }
     return result;
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -626,8 +621,8 @@ CUDA_ROUTINE_HANDLER(MemcpyFromSymbol) {
         try {
           out = std::make_shared<Buffer>(count);
           dst = out->Delegate<char>(count);
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpyFromSymbol(dst, symbol, count, offset, kind);
@@ -639,8 +634,8 @@ CUDA_ROUTINE_HANDLER(MemcpyFromSymbol) {
         break;
     }
     return result;
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -671,8 +666,8 @@ CUDA_ROUTINE_HANDLER(MemcpyToArray) {
          */
         try {
           src = input_buffer->AssignAll<char>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpyToArray(dst, wOffset, hOffset, src, count, kind);
@@ -689,8 +684,8 @@ CUDA_ROUTINE_HANDLER(MemcpyToArray) {
         break;
     }
     return result;
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -812,8 +807,8 @@ CUDA_ROUTINE_HANDLER(MemcpyToSymbol) {
       case cudaMemcpyHostToDevice:
         try {
           src = input_buffer->AssignAll<char>();
-        } catch (string e) {
-          cerr << e << endl;
+        } catch (const std::exception& e) {
+            cerr << e.what() << endl;
           return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
         exit_code = cudaMemcpyToSymbol(symbol, src, count, offset, kind);
@@ -830,8 +825,8 @@ CUDA_ROUTINE_HANDLER(MemcpyToSymbol) {
         break;
     }
     return result;
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -843,8 +838,8 @@ CUDA_ROUTINE_HANDLER(Memset) {
     size_t count = input_buffer->Get<size_t>();
     cudaError_t exit_code = cudaMemset(devPtr, value, count);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -858,8 +853,8 @@ CUDA_ROUTINE_HANDLER(Memset2D) {
     size_t height = input_buffer->Get<size_t>();
     cudaError_t exit_code = cudaMemset2D(devPtr, pitch, value, width, height);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+            cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }

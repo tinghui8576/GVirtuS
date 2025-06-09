@@ -43,8 +43,8 @@ CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessor) {
 
   try {
     out->Add(numBlocks);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -68,8 +68,8 @@ CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessorWithFlags) {
 
   try {
     out->Add(numBlocks);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 

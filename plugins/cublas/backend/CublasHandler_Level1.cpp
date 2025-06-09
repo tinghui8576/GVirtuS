@@ -41,7 +41,7 @@ CUBLAS_ROUTINE_HANDLER(Sdot_v2){
     
     cublasStatus_t cs = cublasSdot_v2(handle,n,x,incx,y,incy,result);
     
-    cout << "DEBUG - cublasSdot_v2 Executed"<<endl;    
+    LOG4CPLUS_DEBUG(logger, "cublasSdot_v2 Executed");
     return std::make_shared<Result>(cs);
 }
 
@@ -59,7 +59,7 @@ CUBLAS_ROUTINE_HANDLER(Ddot_v2){
     
     cublasStatus_t cs = cublasDdot_v2(handle,n,x,incx,y,incy,result);
     
-    cout << "DEBUG - cublasDdot_v2 Executed"<<endl;    
+    LOG4CPLUS_DEBUG(logger, "cublasDdot_v2 Executed");
     return std::make_shared<Result>(cs);
 }
 
@@ -76,7 +76,7 @@ CUBLAS_ROUTINE_HANDLER(Cdotu_v2){
     
     cublasStatus_t cs = cublasCdotu_v2(handle,n,x,incx,y,incy,result);
     
-    cout << "DEBUG - cublasCdotu_v2 Executed"<<endl;    
+   LOG4CPLUS_DEBUG(logger, "cublasCdotu_v2 Executed");  
     return std::make_shared<Result>(cs);
 }
 
@@ -92,7 +92,7 @@ CUBLAS_ROUTINE_HANDLER(Cdotc_v2){
     
     cublasStatus_t cs = cublasCdotc_v2(handle,n,x,incx,y,incy,result);
     
-    cout << "DEBUG - cublasCdotc_v2 Executed"<<endl;    
+    LOG4CPLUS_DEBUG(logger, "cublasCdotc_v2 Executed");  
     return std::make_shared<Result>(cs);
 }
 
@@ -108,7 +108,7 @@ CUBLAS_ROUTINE_HANDLER(Zdotu_v2){
     
     cublasStatus_t cs = cublasZdotu_v2(handle,n,x,incx,y,incy,result);
     
-    cout << "DEBUG - cublasZdotu_v2 Executed"<<endl;    
+    LOG4CPLUS_DEBUG(logger, "cublasZdotu_v2 Executed");
     return std::make_shared<Result>(cs);
 }
 
@@ -124,7 +124,7 @@ CUBLAS_ROUTINE_HANDLER(Zdotc_v2){
     
     cublasStatus_t cs = cublasZdotc_v2(handle,n,x,incx,y,incy,result);
     
-    cout << "DEBUG - cublasZdotc_v2 Executed"<<endl;    
+    LOG4CPLUS_DEBUG(logger, "cublasZdotc_v2 Executed");  
     return std::make_shared<Result>(cs);
 }
 

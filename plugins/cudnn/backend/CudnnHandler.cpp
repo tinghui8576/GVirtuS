@@ -91,8 +91,8 @@ std::shared_ptr<Result> CudnnHandler::Execute(std::string routine, std::shared_p
         throw runtime_error("No handler for '" + routine + "' found!");
     try {
         return it->second(this, input_buffer);
-    } catch (const std::exception &ex) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << ex.what());
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     }
     return NULL;
 }
@@ -381,8 +381,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionMathType) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
      try {
         out->Add<cudnnMathType_t>(mathType);
-     } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+     } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
      }
      return std::make_shared<Result>(cs, out);
@@ -419,8 +419,8 @@ CUDNN_ROUTINE_HANDLER(FindConvolutionBackwardFilterAlgorithm) {
     try {
         out->Add<int>(returnedAlgoCount);
         out->Add<cudnnConvolutionBwdFilterAlgoPerf_t>(perfResults, returnedAlgoCount);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);  
@@ -438,8 +438,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionForwardAlgorithmMaxCount) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<int>(count);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);
@@ -466,26 +466,26 @@ CUDNN_ROUTINE_HANDLER(SetConvolutionNdDescriptor) {
 
 
 CUDNN_ROUTINE_HANDLER(GetConvolutionNdForwardOutputDim) {
-     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetConvolutionNdForwardOutputDim"));
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetConvolutionNdForwardOutputDim"));
 
-     cudnnConvolutionDescriptor_t convDesc = in->Get<cudnnConvolutionDescriptor_t>();
-     cudnnTensorDescriptor_t inputTensorDesc = in->Get<cudnnTensorDescriptor_t>();
-     cudnnFilterDescriptor_t filterDesc = in->Get<cudnnFilterDescriptor_t>();
-     int nbDims = in->Get<int>();
-     int *tensorOutputDimA = in->Assign<int>();
+    cudnnConvolutionDescriptor_t convDesc = in->Get<cudnnConvolutionDescriptor_t>();
+    cudnnTensorDescriptor_t inputTensorDesc = in->Get<cudnnTensorDescriptor_t>();
+    cudnnFilterDescriptor_t filterDesc = in->Get<cudnnFilterDescriptor_t>();
+    int nbDims = in->Get<int>();
+    int *tensorOutputDimA = in->Assign<int>();
 
-     cudnnStatus_t cs = cudnnGetConvolutionNdForwardOutputDim(convDesc, inputTensorDesc, filterDesc, nbDims, tensorOutputDimA);
+    cudnnStatus_t cs = cudnnGetConvolutionNdForwardOutputDim(convDesc, inputTensorDesc, filterDesc, nbDims, tensorOutputDimA);
 
-     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-     try {
-         out->Add<int>(tensorOutputDimA);
-     } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
-         return std::make_shared<Result>(cs);
-     }
-     LOG4CPLUS_DEBUG(logger, "cudnnGetConvolutionNdForwardOutputDim Executed");
-     
-     return std::make_shared<Result>(cs, out);
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<int>(tensorOutputDimA);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
+    }
+    LOG4CPLUS_DEBUG(logger, "cudnnGetConvolutionNdForwardOutputDim Executed");
+    
+    return std::make_shared<Result>(cs, out);
  }
 
 CUDNN_ROUTINE_HANDLER(FindConvolutionBackwardFilterAlgorithmEx) {
@@ -512,8 +512,8 @@ CUDNN_ROUTINE_HANDLER(FindConvolutionBackwardFilterAlgorithmEx) {
         out->AddMarshal<void*>(dw);
         out->Add<int>(returnedAlgoCount);
         out->Add<cudnnConvolutionBwdFilterAlgoPerf_t>(perfResults, returnedAlgoCount); 
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);
@@ -534,18 +534,18 @@ CUDNN_ROUTINE_HANDLER(GetConvolution2dDescriptor) {
 
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-     try {
-         out->Add(padh);
-         out->Add(padw);
-         out->Add(u);
-         out->Add(v);
-         out->Add(upscalex);
-         out->Add(upscaley);
-     } catch(string e) {
-         LOG4CPLUS_DEBUG(logger,e);
-         return std::make_shared<Result>(cs);
-     }
-     return std::make_shared<Result>(cs,out);
+    try {
+        out->Add(padh);
+        out->Add(padw);
+        out->Add(u);
+        out->Add(v);
+        out->Add(upscalex);
+        out->Add(upscaley);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
+    }
+    return std::make_shared<Result>(cs,out);
  }
 
 CUDNN_ROUTINE_HANDLER(SetConvolutionGroupCount) {
@@ -585,8 +585,8 @@ CUDNN_ROUTINE_HANDLER(FindConvolutionForwardAlgorithmEx) {
         out->AddMarshal<void *>(y);
         out->Add<int>(returnedAlgoCount);
         out->Add<cudnnConvolutionFwdAlgoPerf_t>(perfResults, returnedAlgoCount);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);
@@ -608,15 +608,15 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionNdDescriptor) {
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-         out->Add<cudnnConvolutionDescriptor_t>(convDesc);
-         out->Add<int>(arrayLength);
-         out->Add<int>(padA);
-         out->Add<int>(filterStrideA);
-         out->Add<int>(dilationA);
-         out->Add<cudnnConvolutionMode_t>(mode);
-         out->Add<cudnnDataType_t>(dataType);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+        out->Add<cudnnConvolutionDescriptor_t>(convDesc);
+        out->Add<int>(arrayLength);
+        out->Add<int>(padA);
+        out->Add<int>(filterStrideA);
+        out->Add<int>(dilationA);
+        out->Add<cudnnConvolutionMode_t>(mode);
+        out->Add<cudnnDataType_t>(dataType);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger,"cudnnGetConvolutionNdDescriptor Executed");
@@ -644,8 +644,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionForwardAlgorithm) {
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->Add<cudnnConvolutionFwdAlgo_t>(algo);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger,"cudnnGetConvolutionForwardAlgorithm  Executed");
@@ -673,8 +673,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionForwardAlgorithm_v7) {
     try {
         out->Add<int>(returnedAlgoCount);
         out->Add<cudnnConvolutionFwdAlgoPerf_t>(perfResults, returnedAlgoCount);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);
@@ -692,8 +692,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionReorderType) {
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->Add<cudnnReorderType_t>(reorderType);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger,"cudnnGetConvolutionReorderType  Executed");
@@ -744,8 +744,8 @@ CUDNN_ROUTINE_HANDLER(ConvolutionBiasActivationForward) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->AddMarshal<void *>(y);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);  
@@ -763,8 +763,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardFilterAlgorithmMaxCount) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<int>(count);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);
@@ -789,8 +789,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardFilterAlgorithm) {
     try {
          out->Add<int>(returnedAlgoCount);
          out->Add<cudnnConvolutionBwdFilterAlgoPerf_t>(perfResults);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger,"GetConvolutionBackwardFilterAlgorithm  Executed");
@@ -818,8 +818,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardFilterAlgorithm_v7) {
     try {
         out->Add<int>(returnedAlgoCount);
         out->Add<cudnnConvolutionBwdFilterAlgoPerf_t>(perfResults, returnedAlgoCount);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);   
@@ -844,8 +844,8 @@ CUDNN_ROUTINE_HANDLER(FindConvolutionForwardAlgorithm) {
     try {
          out->Add<int>(returnedAlgoCount);
          out->Add<cudnnConvolutionFwdAlgoPerf_t>(perfResults);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger,"FindConvolutionForwardAlgorithm  Executed");
@@ -863,8 +863,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionGroupCount) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->Add<int>(groupCount);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger,"cudnnGetConvolutionGroupCount  Executed");
@@ -903,8 +903,8 @@ CUDNN_ROUTINE_HANDLER(ConvolutionBackwardBias) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->AddMarshal<void *>(db);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs,out);
@@ -938,8 +938,8 @@ CUDNN_ROUTINE_HANDLER(ConvolutionForward) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
             out->AddMarshal<void*>(y);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);  
@@ -973,8 +973,8 @@ CUDNN_ROUTINE_HANDLER(ConvolutionBackwardFilter) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void *>(dw);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs,out);  
@@ -999,8 +999,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolution2dForwardOutputDim) {
          out->Add<int>(c);
          out->Add<int>(h);
          out->Add<int>(w);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     //LOG4CPLUS_DEBUG(logger,"cudnnGetConvolution2dForwardOutputDim  Executed");
@@ -1024,8 +1024,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardFilterWorkspaceSize) {
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<size_t>(sizeInBytes);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     //LOG4CPLUS_DEBUG(logger,"cudnnGetConvolutionBackwardFilterWorkspaceSize  Executed");
@@ -1042,8 +1042,8 @@ CUDNN_ROUTINE_HANDLER(CreateConvolutionDescriptor) {
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnConvolutionDescriptor_t>(convDesc);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     //LOG4CPLUS_DEBUG(logger,"cudnnCreateConvolutionDescriptor  Executed");
@@ -1068,8 +1068,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardFilterAlgorithm) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnConvolutionBwdFilterAlgo_t>(algo);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     //LOG4CPLUS_DEBUG(logger,"cudnnGetConvolutionBackwardFilterAlgorithm  Executed");
@@ -1113,8 +1113,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionForwardAlgorithm) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnConvolutionFwdAlgo_t>(algo);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     //LOG4CPLUS_DEBUG(logger,"cudnnGetConvolutionForwardAlgorithm  Executed");
@@ -1138,8 +1138,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionForwardWorkspaceSize) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<size_t>(sizeInBytes);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     //LOG4CPLUS_DEBUG(logger,"cudnnGetConvolutionForwardWorkspaceSize  Executed");
@@ -1161,8 +1161,8 @@ CUDNN_ROUTINE_HANDLER(GetErrorString) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddString(s);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(CUDNN_STATUS_EXECUTION_FAILED);
     }
     LOG4CPLUS_DEBUG(logger,"cudnnGetErrorString Executed");
@@ -1177,8 +1177,8 @@ CUDNN_ROUTINE_HANDLER(Create) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->Add<cudnnHandle_t>(handle);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(CUDNN_STATUS_EXECUTION_FAILED);
     }
     LOG4CPLUS_DEBUG(logger,"cudnnCreate Executed");
@@ -1214,10 +1214,10 @@ CUDNN_ROUTINE_HANDLER(GetStream) {
     cudnnStatus_t cs = cudnnGetStream(handle, &streamId);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-         out->Add<cudaStream_t>(streamId);
-    } catch (string e) {
-         LOG4CPLUS_DEBUG(logger,e);
-         return std::make_shared<Result>(cs);
+        out->Add<cudaStream_t>(streamId);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
     }
     
     LOG4CPLUS_DEBUG(logger, "cudnnGetStream Executed");
@@ -1230,12 +1230,12 @@ CUDNN_ROUTINE_HANDLER(CreateTensorDescriptor) {
     cudnnStatus_t cs = cudnnCreateTensorDescriptor(&tensorDesc);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-         out->Add<cudnnTensorDescriptor_t>(tensorDesc);
-    } catch (string e) {
-         LOG4CPLUS_DEBUG(logger,e);
-         return std::make_shared<Result>(cs);
+        out->Add<cudnnTensorDescriptor_t>(tensorDesc);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
     }
-    //LOG4CPLUS_DEBUG(logger,"cudnnCreateTensorDescriptor Executed");
+    LOG4CPLUS_DEBUG(logger,"cudnnCreateTensorDescriptor Executed");
     return std::make_shared<Result>(cs,out);
 }
 
@@ -1255,8 +1255,8 @@ CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->Add<cudnnTensorDescriptor_t>(tensorDesc);
-    } catch (string e) {
-         LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }                      
     registerDescriptorType(tensorDesc, dataType);
@@ -1285,8 +1285,8 @@ CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptorEx) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->Add<cudnnTensorDescriptor_t>(tensorDesc);
-    } catch (string e) {
-         LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -1316,8 +1316,8 @@ CUDNN_ROUTINE_HANDLER(GetTensor4dDescriptor) {
         out->Add<int>(cStride);
         out->Add<int>(hStride);
         out->Add<int>(wStride);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -1354,8 +1354,8 @@ CUDNN_ROUTINE_HANDLER(SetTensorNdDescriptorEx) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
          out->Add<cudnnTensorDescriptor_t>(tensorDesc);
-    } catch (string e) {
-         LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -1388,8 +1388,8 @@ CUDNN_ROUTINE_HANDLER(SetTensorNdDescriptorEx) {
 //         out->Add<int>(nbDims);
 //         out->Add<int>(dimA, nbDimsRequested);
 //         out->Add<int>(strideA, nbDimsRequested);
-//     } catch (string e) {
-//         LOG4CPLUS_DEBUG(logger, e);
+//     } catch (const std::exception& e) {
+//         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
 //         return std::make_shared<Result>(cs);
 //     }
     
@@ -1444,8 +1444,8 @@ CUDNN_ROUTINE_HANDLER(GetTensorNdDescriptor) {
 //         out->Add<int>(nbDims);
 //         out->Add<int>(dimA, nbDimsRequested);
 //         out->Add<int>(strideA, nbDimsRequested);
-//     } catch (string e) {
-//         LOG4CPLUS_DEBUG(logger, e);
+//     } catch (const std::exception& e) {
+//         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
 //         return std::make_shared<Result>(cs);
 //     }
     
@@ -1463,8 +1463,8 @@ CUDNN_ROUTINE_HANDLER(GetTensorSizeInBytes) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<size_t>(size);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
 
@@ -1498,8 +1498,8 @@ CUDNN_ROUTINE_HANDLER(InitTransformDest) {
     try {
         out->Add<cudnnTensorDescriptor_t>(destDesc);
         out->Add<size_t>(destSizeInBytes);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -1518,8 +1518,8 @@ CUDNN_ROUTINE_HANDLER(CreateTensorTransformDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnTensorTransformDescriptor_t>(transformDesc);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -1544,8 +1544,8 @@ CUDNN_ROUTINE_HANDLER(SetTensorTransformDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnTensorTransformDescriptor_t>(transformDesc);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -1573,8 +1573,8 @@ CUDNN_ROUTINE_HANDLER(GetTensorTransformDescriptor) {
         out->Add<int32_t>(padAfterA);
         out->Add<uint32_t>(foldA);
         out->Add<cudnnFoldingDirection_t>(direction);   
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return make_shared<Result>(cs);
     }
     
@@ -1616,8 +1616,8 @@ CUDNN_ROUTINE_HANDLER(TransformTensor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void*>(y);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return make_shared<Result>(cs);
     }
     
@@ -1646,8 +1646,8 @@ CUDNN_ROUTINE_HANDLER(TransformTensorEx) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
             out->AddMarshal<void*>(destData);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 
@@ -1691,8 +1691,8 @@ CUDNN_ROUTINE_HANDLER(GetFoldedConvBackwardDataDescriptors) {
         out->Add<cudnnTensorTransformDescriptor_t>(diffPadTransDesc);
         out->Add<cudnnTensorTransformDescriptor_t>(gradFoldTransDesc);
         out->Add<cudnnTensorTransformDescriptor_t>(gradUnfoldTransDesc);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -1723,8 +1723,8 @@ CUDNN_ROUTINE_HANDLER(AddTensor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void*>(C);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
 
@@ -1741,8 +1741,8 @@ CUDNN_ROUTINE_HANDLER(CreateOpTensorDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnOpTensorDescriptor_t>(opTensorDesc);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -1764,8 +1764,8 @@ CUDNN_ROUTINE_HANDLER(SetOpTensorDescriptor) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->Add<cudnnOpTensorDescriptor_t>(opTensorDesc);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    
@@ -1776,24 +1776,24 @@ CUDNN_ROUTINE_HANDLER(SetOpTensorDescriptor) {
 }
 
 CUDNN_ROUTINE_HANDLER(GetOpTensorDescriptor) {
-   Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetOpTensorDescriptor"));
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetOpTensorDescriptor"));
    
-   cudnnOpTensorDescriptor_t opTensorDesc = in->Get<cudnnOpTensorDescriptor_t>();
-   cudnnOpTensorOp_t opTensorOp;
-   cudnnDataType_t opTensorCompType;
-   cudnnNanPropagation_t opTensorNanOpt;
+    cudnnOpTensorDescriptor_t opTensorDesc = in->Get<cudnnOpTensorDescriptor_t>();
+    cudnnOpTensorOp_t opTensorOp;
+    cudnnDataType_t opTensorCompType;
+    cudnnNanPropagation_t opTensorNanOpt;
 
-   cudnnStatus_t cs = cudnnGetOpTensorDescriptor(opTensorDesc, &opTensorOp, &opTensorCompType, &opTensorNanOpt);
-   
-   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-   try {
-       out->Add<cudnnOpTensorOp_t>(opTensorOp);
-       out->Add<cudnnDataType_t>(opTensorCompType);
-       out->Add<cudnnNanPropagation_t>(opTensorNanOpt);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
-       return std::make_shared<Result>(cs);
-   }
+    cudnnStatus_t cs = cudnnGetOpTensorDescriptor(opTensorDesc, &opTensorOp, &opTensorCompType, &opTensorNanOpt);
+    
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<cudnnOpTensorOp_t>(opTensorOp);
+        out->Add<cudnnDataType_t>(opTensorCompType);
+        out->Add<cudnnNanPropagation_t>(opTensorNanOpt);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
+    }
    
    LOG4CPLUS_DEBUG(logger, "cudnnGetOpTensorDescriptor");
    
@@ -1839,8 +1839,8 @@ CUDNN_ROUTINE_HANDLER(OpTensor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void*>(C);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
 
@@ -1857,8 +1857,8 @@ CUDNN_ROUTINE_HANDLER(CreateReduceTensorDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnReduceTensorDescriptor_t>(reduceTensorDesc);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -1882,8 +1882,8 @@ CUDNN_ROUTINE_HANDLER(SetReduceTensorDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnReduceTensorDescriptor_t>(reduceTensorDesc);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -1909,8 +1909,8 @@ CUDNN_ROUTINE_HANDLER(GetReduceTensorDescriptor) {
         out->Add<cudnnDataType_t>(reduceTensorCompType);
         out->Add<cudnnReduceTensorIndices_t>(reduceTensorIndices);
         out->Add<cudnnIndicesType_t>(reduceTensorIndicesType);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
  
@@ -1944,8 +1944,8 @@ CUDNN_ROUTINE_HANDLER(GetReductionIndicesSize) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<size_t>(sizeInBytes);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
    
@@ -1968,8 +1968,8 @@ CUDNN_ROUTINE_HANDLER(GetReductionWorkspaceSize) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->Add<size_t>(sizeInBytes);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
     LOG4CPLUS_DEBUG(logger, "cudnnGetReductionWorkspaceSize Executed");
@@ -2004,8 +2004,8 @@ CUDNN_ROUTINE_HANDLER(ReduceTensor) {
    try {
        out->AddMarshal<void*>(indices);
        out->AddMarshal<void*>(C);
-   } catch(string e) {
-      LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
       return std::make_shared<Result>(cs);
    }
    
@@ -2025,8 +2025,8 @@ CUDNN_ROUTINE_HANDLER(SetTensor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<void>(y);
-   } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
     
@@ -2051,8 +2051,8 @@ CUDNN_ROUTINE_HANDLER(ScaleTensor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void*>(y);
-   } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
 
@@ -2069,8 +2069,8 @@ CUDNN_ROUTINE_HANDLER(CreateFilterDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnFilterDescriptor_t>(filterDesc);
-   } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
    //LOG4CPLUS_DEBUG(logger,"cudnnCreateFilterDescriptor Executed");
@@ -2116,8 +2116,8 @@ CUDNN_ROUTINE_HANDLER(GetFilter4dDescriptor) {
        out->Add<int>(c);
        out->Add<int>(h);
        out->Add<int>(w);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    
@@ -2161,7 +2161,7 @@ CUDNN_ROUTINE_HANDLER(GetFilter4dDescriptor) {
             out->Add<int>(c);
             out->Add<int>(h);
             out->Add<int>(w);
-        } catch (string e) {
+        } catch (const std::exception& e) {
             LOG4CPLUS_DEBUG(logger,e);
             return std::make_shared<Result>(cs);
         }
@@ -2209,7 +2209,7 @@ CUDNN_ROUTINE_HANDLER(GetFilter4dDescriptor) {
             out->Add<int>(c);
             out->Add<int>(h);
             out->Add<int>(w);
-        } catch (string e) {
+        } catch (const std::exception& e) {
             LOG4CPLUS_DEBUG(logger,e);
             return std::make_shared<Result>(cs);
         }
@@ -2252,8 +2252,8 @@ CUDNN_ROUTINE_HANDLER(GetFilterNdDescriptor) {
 
     try {
         out->Add<cudnnTensorFormat_t>(format);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -2330,8 +2330,8 @@ CUDNN_ROUTINE_HANDLER(GetFilterNdDescriptor_v4) {
 
     try {
         out->Add<cudnnTensorFormat_t>(format);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -2353,8 +2353,8 @@ CUDNN_ROUTINE_HANDLER(GetFilterSizeInBytes) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<size_t>(size);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -2397,8 +2397,8 @@ CUDNN_ROUTINE_HANDLER(TransformFilter) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->AddMarshal<void*>(destData);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    
@@ -2424,8 +2424,8 @@ CUDNN_ROUTINE_HANDLER(ReorderFilterAndBias) {
     try {
          out->AddMarshal<void*>(reorderedFilterData);
          out->AddMarshal<void*>(reorderedBiasData);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
   return std::make_shared<Result>(cs, out);
@@ -2443,8 +2443,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardDataAlgorithmMaxCount) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<int>(count);
-    }  catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    }  catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
 
@@ -2470,8 +2470,8 @@ CUDNN_ROUTINE_HANDLER(FindConvolutionBackwardDataAlgorithm) {
     try {
         out->Add<int>(returnedAlgoCount);
         out->Add<cudnnConvolutionBwdDataAlgoPerf_t>(perfResults, returnedAlgoCount);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
  
@@ -2503,8 +2503,8 @@ CUDNN_ROUTINE_HANDLER(FindConvolutionBackwardDataAlgorithmEx) {
         out->AddMarshal<void*>(dx);
         out->Add<int>(returnedAlgoCount);
         out->Add<cudnnConvolutionBwdDataAlgoPerf_t>(perfResults, returnedAlgoCount);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
 
@@ -2529,8 +2529,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardDataAlgorithm) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->Add<cudnnConvolutionBwdDataAlgo_t>(algo);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    //LOG4CPLUS_DEBUG(logger, "cudnnGetConvolutionBackwardDataAlgorithm Executed");
@@ -2558,8 +2558,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardDataAlgorithm_v7) {
     try {
         out->Add<int>(returnedAlgoCount);
         out->Add<cudnnConvolutionBwdDataAlgoPerf_t>(perfResults, returnedAlgoCount);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
 
@@ -2583,8 +2583,8 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionBackwardDataWorkspaceSize) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->Add<size_t>(sizeInBytes);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    //LOG4CPLUS_DEBUG(logger, "cudnnGetConvolutionBackwardDataWorkspaceSize Executed");
@@ -2618,8 +2618,8 @@ CUDNN_ROUTINE_HANDLER(ConvolutionBackwardData) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->AddMarshal<void *>(dx);
-   } catch(string e) {
-      LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
       return std::make_shared<Result>(cs);
    }
    return std::make_shared<Result>(cs, out);  
@@ -2641,8 +2641,8 @@ CUDNN_ROUTINE_HANDLER(Im2Col) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
         out->Add<void>(colBuffer);
-   } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
    
@@ -2672,8 +2672,8 @@ CUDNN_ROUTINE_HANDLER(SoftmaxForward) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
         out->AddMarshal<void *>(y);
-   } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
    
@@ -2705,8 +2705,8 @@ CUDNN_ROUTINE_HANDLER(SoftmaxBackward) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->AddMarshal<void *>(dx);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    
@@ -2723,8 +2723,8 @@ CUDNN_ROUTINE_HANDLER(CreatePoolingDescriptor) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
         out->Add<cudnnPoolingDescriptor_t>(poolingDesc);
-   } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
    //LOG4CPLUS_DEBUG(logger, "cudnnCreatePoolingDescriptor Executed");
@@ -2750,8 +2750,8 @@ CUDNN_ROUTINE_HANDLER(SetPooling2dDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cudnnPoolingDescriptor_t>(poolingDesc);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
    return std::make_shared<Result>(cs, out); 
@@ -2782,8 +2782,8 @@ CUDNN_ROUTINE_HANDLER(GetPooling2dDescriptor) {
        out->Add<int>(horizontalPadding);
        out->Add<int>(verticalStride);
        out->Add<int>(horizontalStride);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    
@@ -2832,8 +2832,8 @@ CUDNN_ROUTINE_HANDLER(GetPoolingNdDescriptor) {
         out->Add<int>(windowDimA);
         out->Add<int>(paddingA);
         out->Add<int>(strideA);
-    } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
     }
     
@@ -2855,8 +2855,8 @@ CUDNN_ROUTINE_HANDLER(GetPoolingNdForwardOutputDim) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<int>(outputTensorDimA);
-    }catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    }catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -2883,8 +2883,8 @@ CUDNN_ROUTINE_HANDLER(GetPooling2dForwardOutputDim) {
        out->Add<int>(c);
        out->Add<int>(h);
        out->Add<int>(w);
-   } catch(string e) {  
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    
@@ -2927,8 +2927,8 @@ CUDNN_ROUTINE_HANDLER(PoolingForward) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
             out->AddMarshal<void *>(y);
-    } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
     }  
     return std::make_shared<Result>(cs, out);  
@@ -2960,8 +2960,8 @@ CUDNN_ROUTINE_HANDLER(PoolingBackward) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->AddMarshal<void *>(dx);  
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
    return std::make_shared<Result>(cs, out);
@@ -2977,8 +2977,8 @@ CUDNN_ROUTINE_HANDLER(CreateActivationDescriptor) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
        out->Add<cudnnActivationDescriptor_t>(activationDesc);
-   } catch(string e) {
-       LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
        return std::make_shared<Result>(cs);
    }
     //LOG4CPLUS_DEBUG(logger, "cudnnCreateActivationDescriptor Executed");
@@ -2999,8 +2999,8 @@ CUDNN_ROUTINE_HANDLER(SetActivationDescriptor) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
    try {
         out->Add<cudnnActivationDescriptor_t>(activationDesc);
-   } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
    //LOG4CPLUS_DEBUG(logger, "cudnnSetActivationDescriptor Executed");
@@ -3023,8 +3023,8 @@ CUDNN_ROUTINE_HANDLER(GetActivationDescriptor) {
         out->Add<cudnnActivationMode_t>(mode);
         out->Add<cudnnNanPropagation_t>(reluNanOpt);
         out->Add<double>(coef);
-   } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+   } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
    }
    
@@ -3064,8 +3064,8 @@ CUDNN_ROUTINE_HANDLER(ActivationForward) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void *>(y);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);
@@ -3097,8 +3097,8 @@ CUDNN_ROUTINE_HANDLER(ActivationBackward) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
      try {
          out->AddMarshal<void *>(dx);
-     } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+     } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
      }
 
@@ -3106,18 +3106,18 @@ CUDNN_ROUTINE_HANDLER(ActivationBackward) {
 }
 
 CUDNN_ROUTINE_HANDLER(CreateLRNDescriptor) {
-     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("CreateLRNDescriptor"));
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("CreateLRNDescriptor"));
 
-     cudnnLRNDescriptor_t normDesc;
+    cudnnLRNDescriptor_t normDesc;
      
-     cudnnStatus_t cs = cudnnCreateLRNDescriptor(&normDesc);
+    cudnnStatus_t cs = cudnnCreateLRNDescriptor(&normDesc);
 
-     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-     try {
-          out->Add<cudnnLRNDescriptor_t>(normDesc);
-     } catch(string e) {
-          LOG4CPLUS_DEBUG(logger, e);
-          return std::make_shared<Result>(cs);
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<cudnnLRNDescriptor_t>(normDesc);
+     } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
      }
      
      LOG4CPLUS_DEBUG(logger, "cudnnCreateLRNDescriptor Executed");
@@ -3157,8 +3157,8 @@ CUDNN_ROUTINE_HANDLER(GetLRNDescriptor) {
          out->Add<double>(lrnAlpha);  
          out->Add<double>(lrnBeta);
          out->Add<double>(lrnK);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3202,8 +3202,8 @@ CUDNN_ROUTINE_HANDLER(LRNCrossChannelForward) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void*>(y);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
  
@@ -3237,8 +3237,8 @@ CUDNN_ROUTINE_HANDLER(LRNCrossChannelBackward) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
          out->AddMarshal<void*>(dx);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3271,8 +3271,8 @@ CUDNN_ROUTINE_HANDLER(DivisiveNormalizationForward) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
          out->AddMarshal<void*>(y);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3308,8 +3308,8 @@ CUDNN_ROUTINE_HANDLER(DivisiveNormalizationBackward) {
       try {
          out->AddMarshal<void*>(dx);
          out->AddMarshal<void*>(dMeans);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
       
@@ -3328,8 +3328,8 @@ CUDNN_ROUTINE_HANDLER(DeriveBNTensorDescriptor) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
          out->Add<cudnnTensorDescriptor_t>(derivedBnDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3356,8 +3356,8 @@ CUDNN_ROUTINE_HANDLER(GetBatchNormalizationForwardTrainingExWorkspaceSize) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
          out->Add<size_t>(sizeInBytes);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3386,8 +3386,8 @@ CUDNN_ROUTINE_HANDLER(GetBatchNormalizationBackwardExWorkspaceSize) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
          out->Add<size_t>(sizeInBytes);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
    
@@ -3412,8 +3412,8 @@ CUDNN_ROUTINE_HANDLER(GetBatchNormalizationTrainingExReserveSpaceSize) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<size_t>(sizeInBytes);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -3455,8 +3455,8 @@ CUDNN_ROUTINE_HANDLER(BatchNormalizationForwardTraining) {
         out->AddMarshal<void*>(resultRunningVariance);
         out->AddMarshal<void*>(resultSaveMean);
         out->AddMarshal<void*>(resultSaveInvVariance);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -3505,8 +3505,8 @@ CUDNN_ROUTINE_HANDLER(BatchNormalizationForwardTrainingEx) {
             out->AddMarshal<void*>(resultRunningVariance);
             out->AddMarshal<void*>(saveMean);
             out->AddMarshal<void*>(saveInvVariance);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 
@@ -3541,8 +3541,8 @@ CUDNN_ROUTINE_HANDLER(BatchNormalizationForwardInference) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void*>(y);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
   
@@ -3587,8 +3587,8 @@ CUDNN_ROUTINE_HANDLER(BatchNormalizationBackward) {
       try {
           out->AddMarshal<void*>(resultBnScaleDiff);
           out->AddMarshal<void*>(resultBnBiasDiff);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);    
@@ -3643,8 +3643,8 @@ CUDNN_ROUTINE_HANDLER(BatchNormalizationBackwardEx) {
       try {
           out->AddMarshal<void*>(dzData);
           out->AddMarshal<void*>(dxData);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3661,8 +3661,8 @@ CUDNN_ROUTINE_HANDLER(CreateSpatialTransformerDescriptor) {
        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnSpatialTransformerDescriptor_t>(stDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3686,8 +3686,8 @@ CUDNN_ROUTINE_HANDLER(SetSpatialTransformerNdDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnSpatialTransformerDescriptor_t>(stDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3723,8 +3723,8 @@ CUDNN_ROUTINE_HANDLER(SpatialTfGridGeneratorForward) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<void>(grid);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3748,8 +3748,8 @@ CUDNN_ROUTINE_HANDLER(SpatialTfGridGeneratorBackward) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<void>(dtheta);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3781,8 +3781,8 @@ CUDNN_ROUTINE_HANDLER(SpatialTfSamplerForward) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddMarshal<void*>(y);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3822,8 +3822,8 @@ CUDNN_ROUTINE_HANDLER(SpatialTfSamplerBackward) {
     try {
         out->AddMarshal<void*>(dx);
         out->AddMarshal<void*>(dgrid);
-    } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
     }
 
@@ -3840,8 +3840,8 @@ CUDNN_ROUTINE_HANDLER(CreateDropoutDescriptor) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnDropoutDescriptor_t>(dropoutDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3874,8 +3874,8 @@ CUDNN_ROUTINE_HANDLER(DropoutGetStatesSize) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<size_t>(sizeInBytes);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger, "cudnnDropoutGetStatesSize Executed");
@@ -3894,8 +3894,8 @@ CUDNN_ROUTINE_HANDLER(DropoutGetReserveSpaceSize) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<size_t>(sizeInBytes);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger, "cudnnDropoutGetReserveSpaceSize Executed");
@@ -3920,8 +3920,8 @@ CUDNN_ROUTINE_HANDLER(SetDropoutDescriptor) {
     try {
         out->Add<cudnnDropoutDescriptor_t>(dropoutDesc);
         out->AddMarshal<void*>(states);
-    } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
     }
     
@@ -3943,8 +3943,8 @@ CUDNN_ROUTINE_HANDLER(RestoreDropoutDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnDropoutDescriptor_t>(dropoutDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -3971,8 +3971,8 @@ CUDNN_ROUTINE_HANDLER(GetDropoutDescriptor) {
         out->Add<float>(dropout);
         out->AddMarshal<void*>(states);
         out->Add<unsigned long long>(seed);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -3997,8 +3997,8 @@ CUDNN_ROUTINE_HANDLER(DropoutForward) {
       try {
           out->Add<void>(y);
           out->Add<void>(reserveSpace);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4008,25 +4008,25 @@ CUDNN_ROUTINE_HANDLER(DropoutForward) {
 }
 
 CUDNN_ROUTINE_HANDLER(DropoutBackward) {
-   Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DropoutBackward"));
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DropoutBackward"));
 
-   cudnnHandle_t handle = in->Get<cudnnHandle_t>();
-   cudnnDropoutDescriptor_t dropoutDesc = in->Get<cudnnDropoutDescriptor_t>();
-   cudnnTensorDescriptor_t dydesc = in->Get<cudnnTensorDescriptor_t>();
-   void *dy = in->Assign<void>();
-   cudnnTensorDescriptor_t dxdesc = in->Get<cudnnTensorDescriptor_t>();
-   void *dx = in->Assign<void>(); //OUTPUT
-   void *reserveSpace = in->Assign<void>();
-   size_t reserveSpaceSizeInBytes = in->Get<size_t>();
+    cudnnHandle_t handle = in->Get<cudnnHandle_t>();
+    cudnnDropoutDescriptor_t dropoutDesc = in->Get<cudnnDropoutDescriptor_t>();
+    cudnnTensorDescriptor_t dydesc = in->Get<cudnnTensorDescriptor_t>();
+    void *dy = in->Assign<void>();
+    cudnnTensorDescriptor_t dxdesc = in->Get<cudnnTensorDescriptor_t>();
+    void *dx = in->Assign<void>(); //OUTPUT
+    void *reserveSpace = in->Assign<void>();
+    size_t reserveSpaceSizeInBytes = in->Get<size_t>();
 
-   cudnnStatus_t cs = cudnnDropoutBackward(handle, dropoutDesc, dydesc, dy, dxdesc, dx, reserveSpace, reserveSpaceSizeInBytes);
+    cudnnStatus_t cs = cudnnDropoutBackward(handle, dropoutDesc, dydesc, dy, dxdesc, dx, reserveSpace, reserveSpaceSizeInBytes);
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-      try {
-          out->Add<void>(dx);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
-         return std::make_shared<Result>(cs);
+    try {
+        out->Add<void>(dx);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
     }
     
     LOG4CPLUS_DEBUG(logger, "cudnnDropoutBackward Executed");
@@ -4044,8 +4044,8 @@ CUDNN_ROUTINE_HANDLER(CreateRNNDescriptor) {
    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnRNNDescriptor_t>(rnnDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
    
@@ -4085,8 +4085,8 @@ CUDNN_ROUTINE_HANDLER(DestroyRNNDescriptor) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnRNNDescriptor_t>(rnnDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 
@@ -4181,8 +4181,8 @@ CUDNN_ROUTINE_HANDLER(DestroyRNNDescriptor) {
             out->Add<cudnnDropoutDescriptor_t>(dropoutDesc);
             out->Add<int>(auxFlags);
 
-        } catch (string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 
@@ -4230,8 +4230,8 @@ CUDNN_ROUTINE_HANDLER(CreateRNNDataDescriptor) {
       std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnRNNDataDescriptor_t>(rnnDataDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4307,8 +4307,8 @@ CUDNN_ROUTINE_HANDLER(GetRNNWeightSpaceSize) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<size_t>(weightSpaceSize);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     
@@ -4333,8 +4333,8 @@ CUDNN_ROUTINE_HANDLER(GetRNNTempSpaceSizes) {
     try {
         out->Add<size_t>(workSpaceSize);
         out->Add<size_t>(reserveSpaceSize);
-    } catch(string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
     return std::make_shared<Result>(cs, out);
@@ -4350,8 +4350,8 @@ CUDNN_ROUTINE_HANDLER(CreateSeqDataDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnSeqDataDescriptor_t>(seqDataDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4390,8 +4390,8 @@ CUDNN_ROUTINE_HANDLER(SetSeqDataDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnSeqDataDescriptor_t>(seqDataDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4425,8 +4425,8 @@ CUDNN_ROUTINE_HANDLER(GetSeqDataDescriptor) {
           out->Add<int>(seqLengthArraySize);
           out->Add<int>(seqLengthArray);
           out->Add<void>(paddingFill);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4445,8 +4445,8 @@ CUDNN_ROUTINE_HANDLER(CreateAttnDescriptor) {
       std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnAttnDescriptor_t>(attnDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4498,8 +4498,8 @@ CUDNN_ROUTINE_HANDLER(SetAttnDescriptor) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnAttnDescriptor_t>(attnDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4555,8 +4555,8 @@ CUDNN_ROUTINE_HANDLER(GetAttnDescriptor) {
           out->Add<int>(kvMaxSeqLength);
           out->Add<int>(maxBatchSize);
           out->Add<int>(maxBeamSize);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4581,8 +4581,8 @@ CUDNN_ROUTINE_HANDLER(GetMultiHeadAttnBuffers) {
           out->Add<size_t>(weightSizeInBytes);
           out->Add<size_t>(workSpaceSizeInBytes);
           out->Add<size_t>(reserveSpaceSizeInBytes);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4608,8 +4608,8 @@ CUDNN_ROUTINE_HANDLER(GetMultiHeadAttnWeights) {
       try {
           out->Add<cudnnTensorDescriptor_t>(wDesc);
           out->Add<void>(wAddr);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4651,8 +4651,8 @@ CUDNN_ROUTINE_HANDLER(MultiHeadAttnForward) {
           out->Add<void>(output);
           out->Add<void>(workSpace);
           out->Add<void>(reserveSpace);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4697,8 +4697,8 @@ CUDNN_ROUTINE_HANDLER(MultiHeadAttnBackwardData) {
           out->Add<void>(dvalues);
           out->Add<void>(workSpace);
           out->Add<void>(reserveSpace);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4736,8 +4736,8 @@ CUDNN_ROUTINE_HANDLER(MultiHeadAttnBackwardWeights) {
           out->Add<void>(dweights);
           out->Add<void>(workSpace);
           out->Add<void>(reserveSpace);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
       
@@ -4756,8 +4756,8 @@ CUDNN_ROUTINE_HANDLER(CreateCTCLossDescriptor) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnCTCLossDescriptor_t>(ctcLossDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4777,8 +4777,8 @@ CUDNN_ROUTINE_HANDLER(SetCTCLossDescriptor) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnCTCLossDescriptor_t>(ctcLossDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4800,8 +4800,8 @@ CUDNN_ROUTINE_HANDLER(SetCTCLossDescriptorEx) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnCTCLossDescriptor_t>(ctcLossDesc);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4821,8 +4821,8 @@ CUDNN_ROUTINE_HANDLER(GetCTCLossDescriptor) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<cudnnDataType_t>(compType);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4846,8 +4846,8 @@ CUDNN_ROUTINE_HANDLER(GetCTCLossDescriptorEx) {
           out->Add<cudnnDataType_t>(compType);
           out->Add<cudnnLossNormalizationMode_t>(normMode);
           out->Add<cudnnNanPropagation_t>(gradMode);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -4893,8 +4893,8 @@ CUDNN_ROUTINE_HANDLER(CTCLoss) {
       try {
           out->Add<void>(costs);
           out->Add<void>(gradients);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
      
@@ -4921,8 +4921,8 @@ CUDNN_ROUTINE_HANDLER(GetCTCLossWorkspaceSize) {
        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<size_t>(sizeInBytes);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
      
@@ -4960,8 +4960,8 @@ CUDNN_ROUTINE_HANDLER(GetCallback) {
           out->Add<unsigned>(mask);
           out->Add<void>(udata);
           out->Add<cudnnCallback_t>(fptr);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -5024,8 +5024,8 @@ CUDNN_ROUTINE_HANDLER(GetFusedOpsConstParamPackAttribute) {
       std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<int>(isNULL);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -5087,8 +5087,8 @@ CUDNN_ROUTINE_HANDLER(GetFusedOpsVariantParamPackAttribute) {
      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
       try {
           out->Add<void>(ptr);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
          return std::make_shared<Result>(cs);
     }
     
@@ -5124,26 +5124,26 @@ CUDNN_ROUTINE_HANDLER(DestroyFusedOpsPlan) {
 }
 
 CUDNN_ROUTINE_HANDLER(MakeFusedOpsPlan) {
-     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MakeFusedOpsPlan"));
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MakeFusedOpsPlan"));
 
-     cudnnHandle_t handle = in->Get<cudnnHandle_t>();
-     cudnnFusedOpsPlan_t plan = in->Get<cudnnFusedOpsPlan_t>();
-     cudnnFusedOpsConstParamPack_t constPack = in->Get<cudnnFusedOpsConstParamPack_t>();
-     size_t workspaceSizeInBytes;
+    cudnnHandle_t handle = in->Get<cudnnHandle_t>();
+    cudnnFusedOpsPlan_t plan = in->Get<cudnnFusedOpsPlan_t>();
+    cudnnFusedOpsConstParamPack_t constPack = in->Get<cudnnFusedOpsConstParamPack_t>();
+    size_t workspaceSizeInBytes;
 
-     cudnnStatus_t cs = cudnnMakeFusedOpsPlan(handle, plan, constPack, &workspaceSizeInBytes);
+    cudnnStatus_t cs = cudnnMakeFusedOpsPlan(handle, plan, constPack, &workspaceSizeInBytes);
 
-      std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-      try {
-          out->Add<size_t>(workspaceSizeInBytes);
-    } catch(string e) {
-         LOG4CPLUS_DEBUG(logger, e);
-         return std::make_shared<Result>(cs);
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<size_t>(workspaceSizeInBytes);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
     }
-    
-     LOG4CPLUS_DEBUG(logger, "cudnnMakeFusedOpsPlan Executed");
-    
-    return std::make_shared<Result>(cs, out);   
+
+    LOG4CPLUS_DEBUG(logger, "cudnnMakeFusedOpsPlan Executed");
+
+return std::make_shared<Result>(cs, out);   
 }
 
 CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
@@ -5186,8 +5186,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnMathType_t>(mType);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5207,8 +5207,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnRNNDescriptor_t>(rnnDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5228,8 +5228,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnRNNBiasMode_t>(biasMode);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5253,8 +5253,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnRNNDescriptor_t>(rnnDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5281,8 +5281,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<cudnnNanPropagation_t>(clipNanOpt);
             out->Add<double>(lclip);
             out->Add<double>(rclip);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5322,8 +5322,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         try {
             out->Add<int>(recProjSize);
             out->Add<int>(outProjSize);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5345,8 +5345,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnPersistentRNNPlan_t>(plan);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5396,8 +5396,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<size_t>(sizeInBytes);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5420,8 +5420,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<size_t>(sizeInBytes);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5444,8 +5444,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<size_t>(sizeInBytes);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5473,8 +5473,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         try {
             out->Add<cudnnFilterDescriptor_t>(linLayerMatDesc);
             out->Add<void>(linLayerMat);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5502,8 +5502,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         try {
             out->Add<cudnnFilterDescriptor_t>(linLayerBiasDesc);
             out->Add<void>(linLayerBias);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5542,8 +5542,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<void>(y);
             out->Add<void>(hy);
             out->Add<void>(cy);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5585,8 +5585,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<void>(hy);
             out->Add<void>(cy);
             out->Add<void>(reserveSpace);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5634,8 +5634,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<void>(dhx);
             out->Add<void>(dcx);
             out->Add<void>(reserveSpace);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5668,8 +5668,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<void>(dw);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5689,8 +5689,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnRNNDescriptor_t>(rnnDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5710,8 +5710,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnRNNDescriptor_t>(rnnDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         LOG4CPLUS_DEBUG(logger, "cudnnGetRNNPaddingMode Executed");
@@ -5759,8 +5759,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<void>(hy);
             out->Add<void>(cy);
             out->Add<void>(reserveSpace);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5806,8 +5806,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<void>(y);
             out->Add<void>(hy);
             out->Add<void>(cy);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5858,8 +5858,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<void>(dhx);
             out->Add<void>(dcx);
             out->Add<void>(reserveSpace);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5891,8 +5891,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<void>(dw);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5914,8 +5914,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnAlgorithmDescriptor_t>(algoDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5935,8 +5935,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<int>(count);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -5980,8 +5980,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->AddMarshal<void*>(cy);
             out->Add<int>(returnedAlgoCount);
             out->Add<cudnnAlgorithmPerformance_t>(perfResults, returnedAlgoCount);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
             
@@ -6001,8 +6001,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<int>(count);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 
@@ -6049,9 +6049,9 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
                 out->AddMarshal<int>(returnedAlgoCount);
                 out->Add<cudnnAlgorithmPerformance_t>(perfResults, returnedAlgoCount);
                 out->AddMarshal<void*>(reserveSpace);
-        } catch(string e) {
-                LOG4CPLUS_DEBUG(logger, e);
-                return std::make_shared<Result>(cs);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+            return std::make_shared<Result>(cs);
         }
 
         return std::make_shared<Result>(cs, out);    
@@ -6070,8 +6070,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<int>(count);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 
@@ -6124,8 +6124,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<int>(returnedAlgoCount);
             out->AddMarshal<cudnnAlgorithmPerformance_t>(perfResults, returnedAlgoCount);
             out->AddMarshal<void*>(reserveSpace);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 
@@ -6145,8 +6145,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<int>(count);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         return std::make_shared<Result>(cs, out);
@@ -6183,8 +6183,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<int>(returnedAlgoCount);
             out->Add<cudnnAlgorithmPerformance_t>(perfResults, returnedAlgoCount);
             out->AddMarshal<void*>(dw);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 
@@ -6201,8 +6201,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnAlgorithmDescriptor_t>(algoDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -6222,8 +6222,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnAlgorithmDescriptor_t>(algoDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -6300,8 +6300,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnAlgorithmPerformance_t>(algoPerf);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -6328,8 +6328,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<cudnnStatus_t>(status);
             out->Add<float>(time);
             out->Add<size_t>(memory);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -6361,8 +6361,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<size_t>(algoSpaceSizeInBytes);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -6423,8 +6423,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         try {
             out->Add<cudnnRNNDescriptor_t>(rnnDesc);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
         
@@ -6459,8 +6459,8 @@ CUDNN_ROUTINE_HANDLER(FusedOpsExecute) {
             out->Add<cudnnRNNMode_t>(mode);
             out->Add<cudnnRNNAlgo_t>(algo);
             out->Add<cudnnDataType_t>(mathPrec);
-        } catch(string e) {
-            LOG4CPLUS_DEBUG(logger, e);
+        } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
             return std::make_shared<Result>(cs);
         }
 

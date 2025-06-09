@@ -45,9 +45,8 @@ CUDA_ROUTINE_HANDLER(DeviceSetCacheConfig) {
     cudaFuncCache cacheConfig = input_buffer->Get<cudaFuncCache>();
     cudaError_t exit_code = cudaDeviceSetCacheConfig(cacheConfig);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);  //???
   }
 }
@@ -60,9 +59,8 @@ CUDA_ROUTINE_HANDLER(DeviceSetLimit) {
     size_t value = input_buffer->Get<size_t>();
     cudaError_t exit_code = cudaDeviceSetLimit(limit, value);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+      LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);  //???
   }
 }
@@ -79,9 +77,8 @@ CUDA_ROUTINE_HANDLER(IpcOpenMemHandle) {
 
     out->AddMarshal(devPtr);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -118,9 +115,8 @@ CUDA_ROUTINE_HANDLER(DeviceCanAccessPeer) {
 
   try {
     out->Add(canAccessPeer);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -143,9 +139,8 @@ CUDA_ROUTINE_HANDLER(DeviceGetStreamPriorityRange) {
   try {
     out->Add(leastPriority);
     out->Add(greatestPriority);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -164,9 +159,8 @@ CUDA_ROUTINE_HANDLER(DeviceGetAttribute) {
 
   try {
     out->Add(value);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -186,9 +180,8 @@ CUDA_ROUTINE_HANDLER(IpcGetMemHandle) {
 
   try {
     out->Add(handle);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -208,9 +201,8 @@ CUDA_ROUTINE_HANDLER(IpcGetEventHandle) {
 
   try {
     out->Add(handle);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -228,9 +220,8 @@ CUDA_ROUTINE_HANDLER(ChooseDevice) {
 
   try {
     out->Add(device);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -250,8 +241,8 @@ CUDA_ROUTINE_HANDLER(GetDevice) {
     out->Add<int>(device);
     LOG4CPLUS_DEBUG(logger, "added device to out buffer");
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    LOG4CPLUS_DEBUG(logger, "Error" << e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -286,8 +277,8 @@ CUDA_ROUTINE_HANDLER(GetDeviceCount) {
 
     out->Add(count);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -310,8 +301,8 @@ CUDA_ROUTINE_HANDLER(GetDeviceProperties) {
 
     out->Add(prop, 1);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -325,8 +316,8 @@ CUDA_ROUTINE_HANDLER(SetDevice) {
     LOG4CPLUS_DEBUG(logger, "SetDevice: " << device);
     cudaError_t exit_code = cudaSetDevice(device);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -344,9 +335,8 @@ CUDA_ROUTINE_HANDLER(SetDeviceFlags) {
     int flags = input_buffer->Get<int>();
     cudaError_t exit_code = cudaSetDeviceFlags(flags);
     return std::make_shared<Result>(exit_code);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -362,9 +352,8 @@ CUDA_ROUTINE_HANDLER(IpcOpenEventHandle) {
     cudaIpcEventHandle_t handle = input_buffer->Get<cudaIpcEventHandle_t>();
     cudaError_t exit_code = cudaIpcOpenEventHandle(event, handle);
     out->Add(event);
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
   }
   return std::make_shared<Result>(cudaErrorMemoryAllocation);
 }
@@ -382,9 +371,8 @@ CUDA_ROUTINE_HANDLER(SetValidDevices) {
     out->Add(device_arr, len);
     return std::make_shared<Result>(exit_code, out);
 
-  } catch (string e) {
-    // cerr << e << endl;
-    LOG4CPLUS_DEBUG(logger, e);
+  } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }

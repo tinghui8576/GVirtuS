@@ -73,8 +73,8 @@ std::shared_ptr<Result> CusparseHandler::Execute(std::string routine, std::share
         throw runtime_error("No handler for '" + routine + "' found!");
     try {
         return it->second(this, input_buffer);
-    } catch (const std::exception &ex) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << ex.what());
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     }
     return NULL;
 }
@@ -98,8 +98,8 @@ CUSPARSE_ROUTINE_HANDLER(GetErrorString) {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddString(s);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(CUSPARSE_STATUS_EXECUTION_FAILED);
     }
     LOG4CPLUS_DEBUG(logger, "cusparseGetErrorString Executed");
@@ -113,9 +113,9 @@ CUSPARSE_ROUTINE_HANDLER(Create) {
     cusparseStatus_t cs = cusparseCreate(&handle);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-         out->Add<cusparseHandle_t>(handle);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger,e);
+        out->Add<cusparseHandle_t>(handle);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(CUSPARSE_STATUS_EXECUTION_FAILED);
     }
     LOG4CPLUS_DEBUG(logger, "cusparseCreate Executed");
@@ -149,10 +149,10 @@ CUSPARSE_ROUTINE_HANDLER(GetStream) {
     cusparseStatus_t cs = cusparseGetStream(handle, &streamId);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-         out->Add<cudaStream_t>(streamId);
-    } catch (string e){
-         LOG4CPLUS_DEBUG(logger, e);
-         return std::make_shared<Result>(cs);
+        out->Add<cudaStream_t>(streamId);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger, "cusparseGetStream Executed");
     return std::make_shared<Result>(cs, out);

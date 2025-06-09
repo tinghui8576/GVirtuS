@@ -82,29 +82,28 @@ public:
     void RegisterSharedMemory(const char *name) {
         mShmFd = shm_open(name, O_RDWR, S_IRWXU);
 
-	if((mpShm = mmap(NULL, 256 * 1024 * 1024, PROT_READ | PROT_WRITE, MAP_SHARED, mShmFd,
-            0)) == MAP_FAILED) {
-		std::cout << "Failed to mmap" << std::endl;
-                mpShm = NULL;
+        if((mpShm = mmap(NULL, 256 * 1024 * 1024, PROT_READ | PROT_WRITE, MAP_SHARED, mShmFd,
+                0)) == MAP_FAILED) {
+            std::cerr << "Failed to mmap" << std::endl;
+            mpShm = NULL;
         }
     }
 
     void RequestSharedMemory(char *name, size_t *size) {
         sprintf(name, "/gvirtus-%d", getpid());
         *size = 128 * 1024 * 1024;
-        std::cout << "SHM name " << name << std::endl;
 
         mShmFd = shm_open(name, O_RDWR | O_CREAT, 00666);
 
         if(ftruncate(mShmFd, *size) != 0) {
-            std::cout << "Failed to truncate" << std::endl;
+            std::cerr << "Failed to truncate" << std::endl;
             mpShm = NULL;
             return;
         }
 
 	if((mpShm = mmap(NULL, *size, PROT_READ | PROT_WRITE, MAP_SHARED, mShmFd,
             0)) == MAP_FAILED) {
-		std::cout << "Failed to mmap" << std::endl;
+		std::cerr << "Failed to mmap" << std::endl;
                 mpShm = NULL;
         }
     }
@@ -197,6 +196,7 @@ CUDA_DRIVER_HANDLER(ModuleUnload);
 CUDA_DRIVER_HANDLER(ModuleGetFunction);
 CUDA_DRIVER_HANDLER(ModuleGetGlobal);
 CUDA_DRIVER_HANDLER(ModuleLoadDataEx);
+CUDA_DRIVER_HANDLER(ModuleGetTexRef);
 
 /*CudaDrHandler_version*/
 CUDA_DRIVER_HANDLER(DriverGetVersion);
@@ -214,6 +214,17 @@ CUDA_DRIVER_HANDLER(EventElapsedTime);
 CUDA_DRIVER_HANDLER(EventQuery);
 CUDA_DRIVER_HANDLER(EventRecord);
 CUDA_DRIVER_HANDLER(EventSynchronize);
+
+/*CudaDrHandler_texture*/
+CUDA_DRIVER_HANDLER(TexRefSetArray);
+CUDA_DRIVER_HANDLER(TexRefSetAddressMode);
+CUDA_DRIVER_HANDLER(TexRefSetFilterMode);
+CUDA_DRIVER_HANDLER(TexRefSetFlags);
+CUDA_DRIVER_HANDLER(TexRefSetFormat);
+CUDA_DRIVER_HANDLER(TexRefGetAddress);
+CUDA_DRIVER_HANDLER(TexRefGetArray);
+CUDA_DRIVER_HANDLER(TexRefGetFlags);
+CUDA_DRIVER_HANDLER(TexRefSetAddress);
 
 /*New Cuda 6.5 functions*/
 CUDA_DRIVER_HANDLER(LaunchKernel);

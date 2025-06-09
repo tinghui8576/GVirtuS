@@ -35,19 +35,19 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaStreamCreate(cudaStream_t *pStream
   return CudaRtFrontend::GetExitCode();
 }
 
-/*
-extern "C" __host__ cudaError_t CUDARTAPI cudaStreamAddCallback ( cudaStream_t
-stream, cudaStreamCallback_t callback, void* userData, unsigned int  flags )
-{
-    CudaRtFrontend::Prepare();
-    CudaRtFrontend::AddDevicePointerForArguments(stream);
-    CudaRtFrontend::AddDevicePointerForArguments(callback);
-    //CudaRtFrontend::AddDevicePointerForArguments(userData);
-    CudaRtFrontend::AddDevicePointerForArguments(userData);
-    CudaRtFrontend::AddVariableForArguments(flags);
-    CudaRtFrontend::Execute("cudaStreamAddCallback");
-    return CudaRtFrontend::GetExitCode();
-}*/
+
+// extern "C" __host__ cudaError_t CUDARTAPI cudaStreamAddCallback(cudaStream_t
+//   stream, cudaStreamCallback_t callback, void* userData, unsigned int  flags)
+// {
+//     CudaRtFrontend::Prepare();
+//     CudaRtFrontend::AddDevicePointerForArguments(stream);
+//     CudaRtFrontend::AddDevicePointerForArguments(callback);
+//     //CudaRtFrontend::AddDevicePointerForArguments(userData);
+//     CudaRtFrontend::AddDevicePointerForArguments(userData);
+//     CudaRtFrontend::AddVariableForArguments(flags);
+//     CudaRtFrontend::Execute("cudaStreamAddCallback");
+//     return CudaRtFrontend::GetExitCode();
+// }
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaStreamCreateWithFlags(cudaStream_t *pStream, unsigned int flags) {

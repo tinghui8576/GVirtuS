@@ -29,8 +29,8 @@ CUBLAS_ROUTINE_HANDLER(Sgemm_v2) {
     try{
         cs = cublasSgemm(handle,transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc);
         out->AddMarshal<float *>(C);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasSgemm_v2 Executed");
@@ -65,8 +65,8 @@ CUBLAS_ROUTINE_HANDLER(SgemmBatched_v2){
     try{
         cs = cublasSgemmBatched(handle,transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc,batchSize);
         out->AddMarshal<float **>(C);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasSgemmBatched_v2 Executed");
@@ -99,8 +99,8 @@ CUBLAS_ROUTINE_HANDLER(Dgemm_v2) {
     try{
         cs = cublasDgemm(handle,transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc);
         out->AddMarshal<double *>(C);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasDgemm_v2 Executed");
@@ -135,8 +135,8 @@ CUBLAS_ROUTINE_HANDLER(DgemmBatched_v2){
     try{
         cs = cublasDgemmBatched(handle,transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc,batchSize);
         out->AddMarshal<double **>(C);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
    LOG4CPLUS_DEBUG(logger, "cublasDgemmBatched_v2 Executed");
@@ -170,8 +170,8 @@ CUBLAS_ROUTINE_HANDLER(Cgemm_v2) {
     try{
         cs = cublasCgemm(handle,transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc);
         out->AddMarshal<cuComplex *>(C);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasCgemm_v2 Executed");
@@ -206,8 +206,8 @@ CUBLAS_ROUTINE_HANDLER(CgemmBatched_v2){
     try{
         cs = cublasCgemmBatched(handle,transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc,batchSize);
         out->AddMarshal<cuComplex **>(C);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasCgemmBatched_v2 Executed");
@@ -241,8 +241,8 @@ CUBLAS_ROUTINE_HANDLER(Zgemm_v2) {
     try{
         cs = cublasZgemm(handle,transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc);
         out->AddMarshal<cuDoubleComplex *>(C);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasZgemm_v2 Executed");
@@ -277,8 +277,8 @@ CUBLAS_ROUTINE_HANDLER(ZgemmBatched_v2){
     try{
         cs = cublasZgemmBatched(handle,transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc,batchSize);
         out->AddMarshal<cuDoubleComplex **>(C);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasZgemmBatched_v2 Executed");
@@ -301,8 +301,8 @@ CUBLAS_ROUTINE_HANDLER(Snrm2_v2){
 
     try{
         out->Add<float>(*result);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasSnrm2_v2 Executed");
@@ -324,8 +324,8 @@ CUBLAS_ROUTINE_HANDLER(Dnrm2_v2){
 
     try{
         out->Add<double>(*result);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasDnrm2_v2 Executed");
@@ -347,8 +347,8 @@ CUBLAS_ROUTINE_HANDLER(Scnrm2_v2){
 
     try{
         out->Add<float>(*result);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasScnrm2_v2 Executed");
@@ -370,8 +370,8 @@ CUBLAS_ROUTINE_HANDLER(Dznrm2_v2){
 
     try{
         out->Add<double>(*result);
-    } catch (string e){
-        LOG4CPLUS_DEBUG(logger,e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(logger, "cublasDznrm2_v2 Executed");

@@ -40,8 +40,8 @@ CUDA_ROUTINE_HANDLER(GetChannelDesc) {
     memmove(desc, guestDesc, sizeof(cudaChannelFormatDesc));
     cudaError_t exit_code = cudaGetChannelDesc(desc, array);
     return std::make_shared<Result>(exit_code, out);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+    cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -62,8 +62,8 @@ CUDA_ROUTINE_HANDLER(CreateTextureObject) {
     out->Add<cudaTextureObject_t>(tex);
     return std::make_shared<Result>(exit_code, out);
 
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+    cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorUnknown);
   }
 }

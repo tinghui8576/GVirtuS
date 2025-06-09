@@ -73,8 +73,8 @@ std::shared_ptr<Result> CusolverHandler::Execute(std::string routine, std::share
         throw runtime_error("No handler for '" + routine + "' found!");
     try {
         return it->second(this, input_buffer);
-    } catch (const std::exception &ex) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << ex.what());
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     }
     return NULL;
 }
@@ -85,10 +85,10 @@ CUSOLVER_ROUTINE_HANDLER(DnCreate) {
     cusolverDnHandle_t handle;
     cusolverStatus_t cs = cusolverDnCreate(&handle);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try{
+    try {
         out->Add<cusolverDnHandle_t>(handle);
-    } catch (string e) {
-        LOG4CPLUS_DEBUG(logger, e);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(CUSOLVER_STATUS_EXECUTION_FAILED);
     }
     LOG4CPLUS_DEBUG(logger, "cusolverDnCreate Executed");
@@ -121,10 +121,10 @@ CUSOLVER_ROUTINE_HANDLER(DnGetStream) {
     cusolverStatus_t cs = cusolverDnGetStream(handle, &streamId);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-         out->Add<cudaStream_t>(streamId);
-    } catch (string e) {
-         LOG4CPLUS_DEBUG(logger, e);
-         return std::make_shared<Result>(cs);
+        out->Add<cudaStream_t>(streamId);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
     }
     LOG4CPLUS_DEBUG(logger, "cusolverDnGetStream Executed");
     return std::make_shared<Result>(cs, out);

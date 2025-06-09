@@ -48,6 +48,7 @@ function(configure_cudadr_plugin)
         backend/CudaDrHandler_memory.cpp
         backend/CudaDrHandler_module.cpp
         backend/CudaDrHandler_stream.cpp
+        backend/CudaDrHandler_texture.cpp
         backend/CudaDrHandler_version.cpp
         backend/CudaDrHandler.cpp
     )
@@ -63,6 +64,7 @@ function(configure_cudadr_plugin)
         frontend/CudaDr_memory.cpp
         frontend/CudaDr_module.cpp
         frontend/CudaDr_stream.cpp
+        frontend/CudaDr_texture.cpp
         frontend/CudaDr_version.cpp
         frontend/CudaDr.cpp
         frontend/CudaDrFrontend.cpp

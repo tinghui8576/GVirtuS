@@ -95,10 +95,6 @@ void CudaRtHandler::RegisterFatBinary(std::string &handler,
     mpFatBinary->erase(it);
   }
   mpFatBinary->insert(make_pair(handler, fatCubinHandle));
-  //#ifdef DEBUG
-  //    cout << "Registered FatBinary " << fatCubinHandle << " with handler " <<
-  //    handler << endl;
-  //#endif
   LOG4CPLUS_DEBUG(logger, "Registered FatBinary "
                               << fatCubinHandle << " with handler " << handler);
 }
@@ -124,10 +120,6 @@ void CudaRtHandler::UnregisterFatBinary(std::string &handler) {
   map<string, void **>::iterator it = mpFatBinary->find(handler);
   if (it == mpFatBinary->end()) return;
   /* FIXME: think about freeing memory */
-  //#ifdef DEBUG
-  //    cout << "Unregistered FatBinary " << it->second << " with handler "<<
-  //    handler << endl;
-  //#endif
   LOG4CPLUS_DEBUG(logger, "Unregistered FatBinary "
                               << it->second << " with handler " << handler);
   mpFatBinary->erase(it);
@@ -143,10 +135,6 @@ void CudaRtHandler::RegisterDeviceFunction(std::string &handler,
   map<string, string>::iterator it = mpDeviceFunction->find(handler);
   if (it != mpDeviceFunction->end()) mpDeviceFunction->erase(it);
   mpDeviceFunction->insert(make_pair(handler, function));
-  //#ifdef DEBUG
-  //    cout << "Registered DeviceFunction " << function << " with handler " <<
-  //    handler << endl;
-  //#endif
   LOG4CPLUS_DEBUG(logger, "Registered DeviceFunction "
                               << function << " with handler " << handler);
 }
@@ -172,10 +160,6 @@ const char *CudaRtHandler::GetDeviceFunction(const char *handler) {
 
 void CudaRtHandler::RegisterVar(string &handler, string &symbol) {
   mpVar->insert(make_pair(handler, symbol));
-  //#ifdef DEBUG
-  //    cout << "Registered Var " << symbol << " with handler " << handler <<
-  //    endl;
-  //#endif
   LOG4CPLUS_DEBUG(logger,
                   "Registered Var " << symbol << " with handler " << handler);
 }
@@ -199,10 +183,6 @@ const char *CudaRtHandler::GetVar(const char *handler) {
 
 // void CudaRtHandler::RegisterTexture(string &handler, cudaTextureObject_t* texref) {
 //   mpTexture->insert(make_pair(handler, texref));
-//   //#ifdef DEBUG
-//   //    cout << "Registered Texture " << texref << " with handler " << handler<<
-//   //    endl;
-//   //#endif
 //   LOG4CPLUS_DEBUG(
 //       logger, "Registered Texture " << texref << " with handler " << handler);
 // }
@@ -216,10 +196,6 @@ const char *CudaRtHandler::GetVar(const char *handler) {
 // void CudaRtHandler::RegisterSurface(string &handler,
 //                                     cudaSurfaceObject_t* surfref) {
 //   mpSurface->insert(make_pair(handler, surfref));
-//   //#ifdef DEBUG
-//   //    cout << "Registered Surface " << surfref << " with handler " <<
-//   //    handler<< endl;
-//   //#endif
 //   LOG4CPLUS_DEBUG(
 //       logger, "Registered Surface " << surfref << " with handler " << handler);
 // }

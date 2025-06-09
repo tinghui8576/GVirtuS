@@ -128,9 +128,6 @@ extern CUresult cuModuleLoad(CUmodule *module, const char *fname) {
     //input >> std::noskipws;
     
     std::string moduleLoad = res.str();
-    cout << "Encoded module:\n"; 
-    cout << moduleLoad;
-    cout << "--------------\n";
 
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddStringForArguments((char *) fname);

@@ -35,11 +35,12 @@ CUDA_ROUTINE_HANDLER(GetErrorString) {
 
     output_buffer->AddString(error_string);
     return std::make_shared<Result>(cudaSuccess, output_buffer);
-  } catch (string e) {
-    cerr << e << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
+      return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
+
 CUDA_ROUTINE_HANDLER(PeekAtLastError) {
   /* cudaError_t  cudaPeekAtLastError(void) */
   return std::make_shared<Result>(cudaPeekAtLastError());

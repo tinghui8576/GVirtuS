@@ -118,8 +118,8 @@ void Frontend::Init(Communicator *c) {
         mpFrontends->find(tid)->second->_communicator = CommunicatorFactory::get_communicator(endpoint);
         mpFrontends->find(tid)->second->_communicator->obj_ptr()->Connect();
     }
-    catch (const string & ex) {
-        LOG4CPLUS_ERROR(logger, "✖ - " << fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Exception occurred: " << ex);
+    catch (const std::exception& e) {
+        LOG4CPLUS_ERROR(logger, "✖ - " << fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Exception occurred: " << e.what());
         exit(EXIT_FAILURE);
     }
 
@@ -196,8 +196,8 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
             mpFrontends->insert(make_pair(tid, f));
         }
     }
-    catch (const char *e) {
-        cerr << "Error: cannot create Frontend ('" << e << "')" << endl;
+    catch (const std::exception& e) {
+        cerr << "Error: cannot create Frontend ('" << e.what() << "')" << endl;
         delete f;  // Clean up on failure
         return nullptr;
     }

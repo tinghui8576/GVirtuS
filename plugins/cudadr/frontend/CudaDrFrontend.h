@@ -33,9 +33,6 @@ class CudaDrFrontend {
 public:
 
     static inline void Execute(const char *routine, const gvirtus::communicators::Buffer * input_buffer = nullptr) {
-#ifdef DEBUG
-        std::cout<<"Called "<<routine<<std::endl;
-#endif
         gvirtus::frontend::Frontend::GetFrontend()->Execute(routine, input_buffer);
     }
 

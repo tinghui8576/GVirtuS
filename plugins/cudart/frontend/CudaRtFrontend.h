@@ -57,11 +57,8 @@ class CudaRtFrontend {
       try {
           gvirtus::frontend::Frontend::GetFrontend()->Execute(routine, input_buffer);
       }
-      catch (std::string e) {
-          cerr << "Execution exception: " << e << endl;
-      }
-      catch (const char * e) {
-          cerr << "Execution exception: " << e << endl;
+      catch (const std::exception& e) {
+          cerr << "Execution exception: " << e.what() << endl;
       }
   }
 

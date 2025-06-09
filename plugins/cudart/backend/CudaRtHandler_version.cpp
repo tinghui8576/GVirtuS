@@ -35,8 +35,8 @@ CUDA_ROUTINE_HANDLER(DriverGetVersion) {
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
   try {
     out->Add(driverVersion);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+    cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
   return std::make_shared<Result>(exit_code, out);
@@ -48,8 +48,8 @@ CUDA_ROUTINE_HANDLER(RuntimeGetVersion) {
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
   try {
     out->Add(runtimeVersion);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+    cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
   return std::make_shared<Result>(exit_code, out);

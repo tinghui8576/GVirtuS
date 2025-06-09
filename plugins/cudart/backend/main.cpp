@@ -87,10 +87,8 @@ int main(int argc, char** argv) {
         CudaRtBackend b;
         b.Start(c);
         delete c;
-    } catch (string &e) {
-        cerr << "Exception: " << e << endl;
-    } catch(const char *e) {
-        cerr << "Exception: " << e << endl;
+    } catch (const std::exception& e) {
+        cerr << "Exception: " << e.what() << endl;
     }
     return 0;
 }

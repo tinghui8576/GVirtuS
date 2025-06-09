@@ -1136,7 +1136,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnTransformFilter(cudnnHandle_t handle,
     return CudnnFrontend::GetExitCode();
 }
 
-#if 0
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnReorderFilterAndBias(cudnnHandle_t handle,
                                                                const cudnnFilterDescriptor_t filterDesc,
                                                                cudnnReorderType_t reorderType,
@@ -1166,7 +1165,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnReorderFilterAndBias(cudnnHandle_t han
    
    return CudnnFrontend::GetExitCode();
 }
-#endif
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateConvolutionDescriptor(cudnnConvolutionDescriptor_t *convDesc) {
     CudnnFrontend::Prepare();
@@ -1228,7 +1226,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetConvolutionGroupCount(cudnnConvolut
      return CudnnFrontend::GetExitCode();
 }
 
-#if 0
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetConvolutionReorderType(cudnnConvolutionDescriptor_t convDesc,
                                                                     cudnnReorderType_t reorderType) {
 
@@ -1255,7 +1252,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetConvolutionReorderType(cudnnConvolu
     }
     return CudnnFrontend::GetExitCode();
 }
-#endif
 
 extern "C" cudnnStatus_t CUDNNWINAPI  cudnnSetConvolution2dDescriptor( cudnnConvolutionDescriptor_t convDesc,
                                                                     int pad_h,

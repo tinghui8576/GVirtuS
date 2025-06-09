@@ -109,32 +109,6 @@ const char *get_const_string(const char *s) {
     return constStrings[constStrings_length++];
 }
 
-#if 0
-    void addFatBinary(void **handler, void *bin) {
-        if (!initialized)
-            init();
-        int i;
-        for (i = 0; fatCubinHandlers[i] != NULL && i < 2048; i++);
-        if (i >= 2048)
-            throw runtime_error("Exceeded maximum number of fat binaries");
-        fatCubinHandlers[i] = handler;
-        fatCubins[i] = bin;
-    }
-
-    void removeFatBinary(void **handler) {
-        int i;
-        for (i = 0; i < 2048; i++) {
-            if (fatCubinHandlers[i] == handler) {
-                free(fatCubins[i]);
-                fatCubinHandlers[i] = NULL;
-                return;
-            }
-        }
-
-    }
-
-#endif
-
 CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterFatBinary"));
     LOG4CPLUS_DEBUG(logger, "Entering in RegisterFatBinary");
@@ -220,8 +194,8 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
     }
 #endif
     return std::make_shared<Result>(cudaSuccess);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -233,8 +207,8 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinaryEnd) {
     __cudaRegisterFatBinaryEnd(fatCubinHandle);
     cudaError_t error = cudaGetLastError();
     return std::make_shared<Result>(error);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -247,8 +221,8 @@ CUDA_ROUTINE_HANDLER(UnregisterFatBinary) {
     __cudaUnregisterFatBinary(fatCubinHandle);
     pThis->UnregisterFatBinary(handler);
     return std::make_shared<Result>(cudaSuccess);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -289,8 +263,8 @@ CUDA_ROUTINE_HANDLER(RegisterFunction) {
     pThis->addHost2DeviceFunc((void *) hostfun, deviceFun);
 
     return std::make_shared<Result>(cudaSuccess, output_buffer);
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -316,8 +290,8 @@ CUDA_ROUTINE_HANDLER(RegisterVar) {
            << endl;
     }
 #endif
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -337,14 +311,12 @@ CUDA_ROUTINE_HANDLER(RegisterSharedVar) {
 #ifdef DEBUG
     cout << "Registered SharedVar " << (char *)devicePtr << endl;
     cudaError_t error = cudaGetLastError();
-    if (error != 0) {
-      cerr << "error executing RegisterSharedVar: " << _cudaGetErrorEnum(error)
-           << endl;
-    }
+    if (error != 0)
+      cerr << "error executing RegisterSharedVar: " << _cudaGetErrorEnum(error) << endl;
 #endif
 
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -368,8 +340,8 @@ CUDA_ROUTINE_HANDLER(RegisterShared) {
     }
 #endif
 
-  } catch (string e) {
-    cerr << e << endl;
+  } catch (const std::exception& e) {
+      cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -385,8 +357,8 @@ CUDA_ROUTINE_HANDLER(RegisterShared) {
             cudaStream_t stream = input_buffer->Get<cudaStream_t>();
             cudaError_t exit_code = static_cast<cudaError_t>(__cudaPushCallConfiguration(gridDim, blockDim, sharedMem, stream));
             return std::make_shared<Result>(exit_code);
-        } catch (string e) {
-            cerr << e << endl;
+        } catch (const std::exception& e) {
+      cerr << e.what() << endl;
             return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
 
@@ -406,8 +378,8 @@ CUDA_ROUTINE_HANDLER(RegisterShared) {
             out->AddMarshal(stream);
 
             return std::make_shared<Result>(exit_code, out);
-        } catch (string e) {
-            cerr << e << endl;
+        } catch (const std::exception& e) {
+      cerr << e.what() << endl;
             return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
 

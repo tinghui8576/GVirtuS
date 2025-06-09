@@ -62,9 +62,6 @@ bool CudaDrHandler::CanExecute(std::string routine) {
 
 std::shared_ptr<Result> CudaDrHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
     map<string, CudaDrHandler::CudaDriverHandler>::iterator it;
-//#ifdef DEBUG
-//    std::cout<<"Called "<<routine<<std::endl;
-//#endif    
     LOG4CPLUS_DEBUG(logger, "Called " << routine);
 
     it = mspHandlers->find(routine);
@@ -79,9 +76,6 @@ void CudaDrHandler::RegisterFatBinary(std::string& handler, void ** fatCubinHand
         mpFatBinary->erase(it);
     }
     mpFatBinary->insert(make_pair(handler, fatCubinHandle));
-//#ifdef DEBUG
-//    cout << "Registered FatBinary " << fatCubinHandle << " with handler " << handler << endl;
-//#endif 
     LOG4CPLUS_DEBUG(logger, "Registered FatBinary " << fatCubinHandle << " with handler " << handler);
 }
 
@@ -107,9 +101,6 @@ void CudaDrHandler::UnregisterFatBinary(std::string& handler) {
     if (it == mpFatBinary->end())
         return;
     /* FIXME: think about freeing memory */
-//#ifdef DEBUG
-//    cout << "Unregistered FatBinary " << it->second << " with handler "<< handler << endl;
-//#endif
     LOG4CPLUS_DEBUG(logger, "Unregistered FatBinary " << it->second << " with handler "<< handler);
     mpFatBinary->erase(it);
 }
@@ -124,9 +115,6 @@ void CudaDrHandler::RegisterDeviceFunction(std::string & handler, std::string & 
     if (it != mpDeviceFunction->end())
         mpDeviceFunction->erase(it);
     mpDeviceFunction->insert(make_pair(handler, function));
-//#ifdef DEBUG
-//    cout << "Registered DeviceFunction " << function << " with handler " << handler << endl;
-//#endif
     LOG4CPLUS_DEBUG(logger, "Registered DeviceFunction " << function << " with handler " << handler);
 }
 
@@ -150,9 +138,6 @@ const char *CudaDrHandler::GetDeviceFunction(const char * handler) {
 
 void CudaDrHandler::RegisterVar(string & handler, string & symbol) {
     mpVar->insert(make_pair(handler, symbol));
-//#ifdef DEBUG
-//    cout << "Registered Var " << symbol << " with handler " << handler << endl;
-//#endif
     LOG4CPLUS_DEBUG(logger,"Registered Var " << symbol << " with handler " << handler );
 }
 
@@ -176,9 +161,6 @@ const char * CudaDrHandler::GetVar(const char* handler) {
 
 // void CudaDrHandler::RegisterTexture(string& handler, textureReference* texref) {
 //     mpTexture->insert(make_pair(handler, texref));
-// //#ifdef DEBUG
-// //    cout << "Registered Texture " << texref << " with handler " << handler<< endl;
-// //#endif
 //     LOG4CPLUS_DEBUG(logger,"Registered Texture " << texref << " with handler " << handler);
 // }
 
@@ -287,7 +269,7 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleLoad));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleLoadFatBinary));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleUnload));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleGetTexRef));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleGetTexRef));
 
     /*CudaDrHandler_version*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DriverGetVersion));
@@ -307,15 +289,15 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(EventSynchronize));
 
     /*CudaDrHandler_texture*/
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetArray));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddressMode));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFilterMode));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFlags));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFormat));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetAddress));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetArray));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetFlags));
-    // mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddress));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetArray));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddressMode));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFilterMode));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFlags));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetFormat));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetAddress));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetArray));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetFlags));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddress));
     
     /*New Cuda 4.0 functions*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(LaunchKernel));

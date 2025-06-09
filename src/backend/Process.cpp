@@ -70,11 +70,8 @@ bool getstring(Communicator *c, string &s) {
                 return true;
             }
         }
-        catch (std::string & exc) {
-            cerr << exc;
-        }
-        catch (const char * exc) {
-            cerr << std::string(exc);
+        catch (const std::exception& e) {
+            cerr << e.what() << endl;
         }
         return false;
     }

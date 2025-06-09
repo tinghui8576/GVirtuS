@@ -72,14 +72,8 @@ Backend::Backend(const fs::path &path) {
         }
          */
     }
-    catch (const char * exc) {
-        LOG4CPLUS_ERROR(logger, "🛈  - Exception during process setup: " << exc);
-    }
-    catch (std::string & exc) {
-        LOG4CPLUS_ERROR(logger, "🛈  - Exception during process setup: " << exc);
-    }
-    catch (std::logic_error & exc) {
-        LOG4CPLUS_ERROR(logger, "🛈  - Exception during process setup: " << exc.what());
+    catch (const std::exception& e) {
+        LOG4CPLUS_ERROR(logger, "🛈  - Exception during process setup: " << e.what());
     }
 
 

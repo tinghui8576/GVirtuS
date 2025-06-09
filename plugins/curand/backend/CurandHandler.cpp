@@ -52,8 +52,8 @@ std::shared_ptr<Result> CurandHandler::Execute(std::string routine, std::shared_
         throw runtime_error(std::string("No handler for '") + routine + std::string("' found!"));
     try {
         return it->second(this, in);
-    } catch (const std::exception &ex) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << ex.what());
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     }
     return NULL;
 }
