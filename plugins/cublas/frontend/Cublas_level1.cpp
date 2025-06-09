@@ -30,31 +30,32 @@ using namespace std;
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSdot_v2(cublasHandle_t handle, int n, const float *x, int incx, const float *y, int incy, float *result){
     CublasFrontend::Prepare();
     
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+    CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddDevicePointerForArguments(x);
     CublasFrontend::AddVariableForArguments<int>(incx);
     CublasFrontend::AddDevicePointerForArguments(y);
     CublasFrontend::AddVariableForArguments<int>(incy);
-    CublasFrontend::AddHostPointerForArguments<float>(result);
-    
     CublasFrontend::Execute("cublasSdot_v2");
-    
+
+    if (CublasFrontend::Success)
+        *result = CublasFrontend::GetOutputVariable<float>();
     return CublasFrontend::GetExitCode();
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDdot_v2(cublasHandle_t handle, int n, const double *x, int incx, const double *y, int incy, double *result){
     CublasFrontend::Prepare();
     
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+    CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddDevicePointerForArguments(x);
     CublasFrontend::AddVariableForArguments<int>(incx);
     CublasFrontend::AddDevicePointerForArguments(y);
     CublasFrontend::AddVariableForArguments<int>(incy);
-    CublasFrontend::AddHostPointerForArguments<double>(result);
     
     CublasFrontend::Execute("cublasDdot_v2");
+    if (CublasFrontend::Success)
+        *result = CublasFrontend::GetOutputVariable<double>();
     
     return CublasFrontend::GetExitCode();
 }
@@ -284,7 +285,7 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZaxpy_v2(cublasHandle_t h
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasScopy_v2(cublasHandle_t handle, int n, const float *x, int incx, float *y, int incy){
     CublasFrontend::Prepare();
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+    CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddDevicePointerForArguments(x);
     CublasFrontend::AddVariableForArguments<int>(incx);
@@ -297,7 +298,7 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasScopy_v2(cublasHandle_t h
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDcopy_v2(cublasHandle_t handle, int n, const double *x, int incx, double *y, int incy){
     CublasFrontend::Prepare();
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+    CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddDevicePointerForArguments(x);
     CublasFrontend::AddVariableForArguments<int>(incx);

@@ -31,36 +31,48 @@ using gvirtus::communicators::Result;
 CUBLAS_ROUTINE_HANDLER(Sdot_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sdot_v2"));
     
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+    cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
     int incx = in->Get<int>();
     float * y = in->GetFromMarshal<float*>();
     int incy = in->Get<int>();
-    float * result = in->Assign<float>();
+    float result;
     
-    cublasStatus_t cs = cublasSdot_v2(handle,n,x,incx,y,incy,result);
-    
+    cublasStatus_t cs = cublasSdot_v2(handle, n, x, incx, y, incy, &result);
     LOG4CPLUS_DEBUG(logger, "cublasSdot_v2 Executed");
-    return std::make_shared<Result>(cs);
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<float>(result);
+    } catch (const std::exception &e) {
+        LOG4CPLUS_ERROR(logger, "Error assigning result: " << e.what());
+        return std::make_shared<Result>(CUBLAS_STATUS_EXECUTION_FAILED);
+    }
+    return std::make_shared<Result>(cs, out);
 }
 
 
 CUBLAS_ROUTINE_HANDLER(Ddot_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ddot_v2"));
     
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+    cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
     int incx = in->Get<int>();
     double * y = in->GetFromMarshal<double*>();
     int incy = in->Get<int>();
-    double * result = in->Assign<double>();
+    double result;
     
-    cublasStatus_t cs = cublasDdot_v2(handle,n,x,incx,y,incy,result);
-    
+    cublasStatus_t cs = cublasDdot_v2(handle, n, x, incx, y, incy, &result);
     LOG4CPLUS_DEBUG(logger, "cublasDdot_v2 Executed");
-    return std::make_shared<Result>(cs);
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<double>(result);
+    } catch (const std::exception &e) {
+        LOG4CPLUS_ERROR(logger, "Error assigning result: " << e.what());
+        return std::make_shared<Result>(CUBLAS_STATUS_EXECUTION_FAILED);
+    }
+    return std::make_shared<Result>(cs, out);
 }
 
 
@@ -248,26 +260,26 @@ CUBLAS_ROUTINE_HANDLER(Zaxpy_v2){
 CUBLAS_ROUTINE_HANDLER(Scopy_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Scopy_v2"));
     
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+    cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
     int incx = in->Get<int>();
     float * y = in->GetFromMarshal<float*>();
     int incy = in->Get<int>();
-    cublasStatus_t cs = cublasScopy_v2(handle,n,x,incx,y,incy);
+    cublasStatus_t cs = cublasScopy_v2(handle, n, x, incx, y, incy);
     return std::make_shared<Result>(cs);
 }
 
 CUBLAS_ROUTINE_HANDLER(Dcopy_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dcopy_v2"));
     
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+    cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
     int incx = in->Get<int>();
     double * y = in->GetFromMarshal<double*>();
     int incy = in->Get<int>();
-    cublasStatus_t cs = cublasDcopy_v2(handle,n,x,incx,y,incy);
+    cublasStatus_t cs = cublasDcopy_v2(handle, n, x, incx, y, incy);
     return std::make_shared<Result>(cs);
 }
 

@@ -147,7 +147,7 @@ void CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Drotmg_v2));
 
   /* CublasHandler Level2 functions */
-  // mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Sgemv_v2));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Sgemv_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Dgemv_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Cgemv_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Zgemv_v2));

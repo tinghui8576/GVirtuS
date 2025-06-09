@@ -211,29 +211,29 @@
 | `cublasCreate`          | ✅          | ✅      | ✅      |                         |
 | `cublasDestroy`         | ✅          | ✅      | ✅      |                         |
 | `cublasGetVersion`      | ✅          | ✅      | ✅      |                         |
-| `cublasSetStream`       | ✅          | ✅      | ❌      |     broke in CUDA 12    |
+| `cublasSetStream`       | ✅          | ✅      | ✅      |                         |
 | `cublasSetVector`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetVector`       | ✅          | ❌      | ❓      |                         |
 | `cublasSetMatrix`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetMatrix`       | ✅          | ❌      | ❓      |                         |
 | `cublasGetPointerMode`  | ✅          | ❌      | ❓      |                         |
 | `cublasSetPointerMode`  | ✅          | ❌      | ❓      |                         |
-| `cublasSaxpy`           | ✅          | ✅      | ✅      |                         |
-| `cublasDaxpy`           | ✅          | ✅      | ❌      |     broke in CUDA 12    |
+| `cublasSaxpy`           | ✅          | ✅      | ✅      | works only if alpha is host pointer |
+| `cublasDaxpy`           | ✅          | ✅      | ✅      | works only if alpha is host pointer |
 | `cublasCaxpy`           | ✅          | ❌      | ❓      |                         |
 | `cublasZaxpy`           | ✅          | ❌      | ❓      |                         |
 | `cublasScopy`           | ✅          | ✅      | ✅      |                         |
 | `cublasDcopy`           | ✅          | ✅      | ✅      |                         |
 | `cublasCcopy`           | ✅          | ❌      | ❓      |                         |
 | `cublasZcopy`           | ✅          | ❌      | ❓      |                         |
-| `cublasSnrm2`           | ✅          | ✅      | ❌      |     broke in CUDA 12    |
-| `cublasDnrm2`           | ✅          | ✅      | ❌      |     broke in CUDA 12    |
-| `cublasSgemm`           | ✅          | ✅      | ❌      |                         |
-| `cublasDgemm`           | ✅          | ✅      | ❌      |                         |
-| `cublasSgemv`           | ✅          | ✅      | ❌      |                         |
-| `cublasDgemv`           | ✅          | ✅      | ❌      |                         |
-| `cublasSdot`            | ✅          | ✅      | ❌      |                         |
-| `cublasDdot`            | ✅          | ✅      | ❌      |                         |
+| `cublasSnrm2`           | ✅          | ✅      | ✅      | works only if result is host pointer |
+| `cublasDnrm2`           | ✅          | ✅      | ✅      | works only if result is host pointer |
+| `cublasSgemm`           | ✅          | ✅      | ✅      | works only if alpha, beta are host pointers |
+| `cublasDgemm`           | ✅          | ✅      | ✅      | works only if alpha, beta are host pointers |
+| `cublasSgemv`           | ✅          | ✅      | ✅      | works only if alpha, beta are host pointers |
+| `cublasDgemv`           | ✅          | ✅      | ✅      | works only if alpha, beta are host pointers |
+| `cublasSdot`            | ✅          | ✅      | ✅      | works only if result is host pointer        |
+| `cublasDdot`            | ✅          | ✅      | ✅      | works only if result is host pointer        |
 | `cublasCdotu`           | ✅          | ❌      | ❓      |                         |
 | `cublasCdotc`           | ✅          | ❌      | ❓      |                         |
 | `cublasZdotu`           | ✅          | ❌      | ❓      |                         |

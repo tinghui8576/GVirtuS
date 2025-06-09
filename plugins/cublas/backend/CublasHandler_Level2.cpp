@@ -32,7 +32,7 @@ CUBLAS_ROUTINE_HANDLER(Sgemv_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sgemv"));
     
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = in->Get<cublasHandle_t>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
     int m  = in->Get<int>();
     int n  = in->Get<int>();
@@ -45,25 +45,17 @@ CUBLAS_ROUTINE_HANDLER(Sgemv_v2){
     const float * beta = in->Assign<float>();
     float * y = in->GetFromMarshal<float*>();
     int incy = in->Get<int>();
-    cublasStatus_t cs;
-        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-    try{
-        cs = cublasSgemv_v2(handle,trans,m,n,alpha,A,lda,x,incx,beta,y,incy);
-        out->AddMarshal<float *>(y);
-    } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
-        return std::make_shared<Result>(cudaErrorMemoryAllocation);
-    }
+    cublasStatus_t cs = cublasSgemv_v2(handle, trans, m, n, alpha, A, lda, x, incx, beta, y, incy);
     LOG4CPLUS_DEBUG(logger, "cublasSgemv_v2 Executed");
-    return std::make_shared<Result>(cs,out);
+    return std::make_shared<Result>(cs);
 }
 
 CUBLAS_ROUTINE_HANDLER(Dgemv_v2){
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dgemv"));
     
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = in->Get<cublasHandle_t>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
     int m  = in->Get<int>();
     int n  = in->Get<int>();
@@ -76,18 +68,10 @@ CUBLAS_ROUTINE_HANDLER(Dgemv_v2){
     const double * beta = in->Assign<double>();
     double * y = in->GetFromMarshal<double*>();
     int incy = in->Get<int>();
-    cublasStatus_t cs;
-        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-    try{
-        cs = cublasDgemv_v2(handle,trans,m,n,alpha,A,lda,x,incx,beta,y,incy);
-        out->AddMarshal<double *>(y);
-    } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
-        return std::make_shared<Result>(cudaErrorMemoryAllocation);
-    }
+    cublasStatus_t cs = cublasDgemv_v2(handle, trans, m, n, alpha, A, lda, x, incx, beta, y, incy);
     LOG4CPLUS_DEBUG(logger, "cublasDgemv_v2 Executed");
-    return std::make_shared<Result>(cs,out);
+    return std::make_shared<Result>(cs);
 }
 
 CUBLAS_ROUTINE_HANDLER(Cgemv_v2){

@@ -27,43 +27,41 @@
 
 using namespace std;
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemm_v2 (cublasHandle_t handle, 
-                                                      cublasOperation_t transa,
-                                                      cublasOperation_t transb, 
-                                                      int m,
-                                                      int n,
-                                                      int k,
-                                                      const float *alpha, /* host or device pointer */  
-                                                      const float *A, 
-                                                      int lda,
-                                                      const float *B,
-                                                      int ldb, 
-                                                      const float *beta, /* host or device pointer */  
-                                                      float *C,
-                                                      int ldc){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemm_v2(cublasHandle_t handle, 
+                                                    cublasOperation_t transa,
+                                                    cublasOperation_t transb, 
+                                                    int m,
+                                                    int n,
+                                                    int k,
+                                                    const float *alpha, /* host or device pointer */  
+                                                    const float *A, 
+                                                    int lda,
+                                                    const float *B,
+                                                    int ldb, 
+                                                    const float *beta, /* host or device pointer */  
+                                                    float *C,
+                                                    int ldc) {
+    // TODO: For now, it only works if alpha, beta are host pointers.
+    // If they are device pointers, we need to add a check in the frontend to handle them correctly.
+    // If the function cublasSetPointerMode is called with CUBLAS_POINTER_MODE_DEVICE,
+    // then alpha and beta should be device pointers, otherwise they should be host pointers.
+    // We need to keep track of the pointer mode in the frontend and handle it accordingly.
     CublasFrontend::Prepare();
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+    CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transb);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(k);
-    float * _alpha = const_cast<float *>(alpha);
-    CublasFrontend::AddHostPointerForArguments(_alpha);
-    
+    CublasFrontend::AddHostPointerForArguments<const float>(alpha);
     CublasFrontend::AddDevicePointerForArguments(A);
     CublasFrontend::AddVariableForArguments<int>(lda);
     CublasFrontend::AddDevicePointerForArguments(B);
     CublasFrontend::AddVariableForArguments<int>(ldb);
-    float * _beta = const_cast<float *>(beta);
-    CublasFrontend::AddHostPointerForArguments(_beta);
-    
+    CublasFrontend::AddHostPointerForArguments<const float>(beta);
     CublasFrontend::AddDevicePointerForArguments(C);
     CublasFrontend::AddVariableForArguments<int>(ldc);
-    
     CublasFrontend::Execute("cublasSgemm_v2");
-    if (CublasFrontend::Success())
-        C = (float *)CublasFrontend::GetOutputDevicePointer();
     return CublasFrontend::GetExitCode();
 }
 
@@ -125,53 +123,46 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemm_v2 (cublasHandle_t 
                                                       int ldb, 
                                                       const double *beta, /* host or device pointer */  
                                                       double *C,
-                                                      int ldc){
+                                                      int ldc) {
     CublasFrontend::Prepare();
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+
+    CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transb);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(k);
-    double * _alpha = const_cast<double *>(alpha);
-    CublasFrontend::AddHostPointerForArguments(_alpha);
-    
+    CublasFrontend::AddHostPointerForArguments<const double>(alpha);
     CublasFrontend::AddDevicePointerForArguments(A);
     CublasFrontend::AddVariableForArguments<int>(lda);
     CublasFrontend::AddDevicePointerForArguments(B);
     CublasFrontend::AddVariableForArguments<int>(ldb);
-    double * _beta = const_cast<double *>(beta);
-    CublasFrontend::AddHostPointerForArguments(_beta);
-    
+    CublasFrontend::AddHostPointerForArguments<const double>(beta);
     CublasFrontend::AddDevicePointerForArguments(C);
     CublasFrontend::AddVariableForArguments<int>(ldc);
     
     CublasFrontend::Execute("cublasDgemm_v2");
-    if (CublasFrontend::Success())
-        C = (double *)CublasFrontend::GetOutputDevicePointer();
     return CublasFrontend::GetExitCode();
 }
 
 #if CUDART_VERSION <= 9000
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmBatched(cublasHandle_t handle,
-                                                                cublasOperation_t transa, cublasOperation_t transb,
-                                                                int m, int n, int k,
-                                                                const double *alpha, const double *Aarray[], int lda,
-                                                                const double *Barray[], int ldb,
-                                                                const double *beta, double *Carray[], int ldc,
-                                                                int batchCount){
+    extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmBatched(cublasHandle_t handle,
+                                                                    cublasOperation_t transa, cublasOperation_t transb,
+                                                                    int m, int n, int k,
+                                                                    const double *alpha, const double *Aarray[], int lda,
+                                                                    const double *Barray[], int ldb,
+                                                                    const double *beta, double *Carray[], int ldc,
+                                                                    int batchCount) {
 
 #elif CUDART_VERSION > 9000
-
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmBatched(cublasHandle_t handle,
-                                                                cublasOperation_t transa, cublasOperation_t transb,
-                                                                int m, int n, int k,
-                                                                const double *alpha, const double *const Aarray[], int lda,
-                                                                const double *const Barray[], int ldb,
-                                                                const double *beta, double *const Carray[], int ldc,
-                                                                int batchCount){
-
+    extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmBatched(cublasHandle_t handle,
+                                                                    cublasOperation_t transa, cublasOperation_t transb,
+                                                                    int m, int n, int k,
+                                                                    const double *alpha, const double *const Aarray[], int lda,
+                                                                    const double *const Barray[], int ldb,
+                                                                    const double *beta, double *const Carray[], int ldc,
+                                                                    int batchCount) {
 #endif
 
     CublasFrontend::Prepare();
@@ -377,24 +368,24 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgemmBatched(cublasHandle
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSnrm2_v2 (cublasHandle_t handle,int n, const float *x, int incx, float *result){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSnrm2_v2(cublasHandle_t handle, int n, const float *x, int incx, float *result) {
     CublasFrontend::Prepare();
     
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+    CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddDevicePointerForArguments(x);
     CublasFrontend::AddVariableForArguments<int>(incx);
     
     CublasFrontend::Execute("cublasSnrm2_v2");
-    if(CublasFrontend::Success())
+    if (CublasFrontend::Success())
         *result = CublasFrontend::GetOutputVariable<float>();
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDnrm2_v2 (cublasHandle_t handle,int n, const double *x, int incx, double *result){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDnrm2_v2(cublasHandle_t handle, int n, const double *x, int incx, double *result) {
     CublasFrontend::Prepare();
     
-    CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
+    CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddDevicePointerForArguments(x);
     CublasFrontend::AddVariableForArguments<int>(incx);
