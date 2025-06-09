@@ -1,16 +1,15 @@
-#include "gvirtus/backend/Process.h"
-
-#include <gvirtus/common/JSON.h>
-#include <gvirtus/common/SignalException.h>
-#include <gvirtus/common/SignalState.h>
-
-#include <gvirtus/backend/Process.h>
 #include <pthread.h>
 #include <signal.h>
 #include <unistd.h>
 #include <functional>
 #include <thread>
 #include <iostream>
+
+#include <gvirtus/common/JSON.h>
+#include <gvirtus/common/SignalException.h>
+#include <gvirtus/common/SignalState.h>
+
+#include <gvirtus/backend/Process.h>
 
 #define DEBUG
 
@@ -68,8 +67,6 @@ bool getstring(Communicator *c, string &s) {
             // if read, return true
             if (size > 0) {
                 s += std::string(buf);
-                printf("append\n");
-                //free(buf);
                 return true;
             }
         }

@@ -83,13 +83,9 @@ typedef struct {
     uint8_t b;
 } NvInfoKParam;
 
-
-
 typedef struct __infoFunction {
     std::vector<NvInfoKParam> params;
 } NvInfoFunction;
-
-
 
 typedef struct __infoFunctionEx {
     NvInfoFunction infoFunction;
@@ -97,9 +93,5 @@ typedef struct __infoFunctionEx {
     bool adHocStream;
     void **args;
 } NvInfoFunctionEx;
-
-
-
-
 
 #endif //GVIRTUS_CUDART_INTERNAL_H

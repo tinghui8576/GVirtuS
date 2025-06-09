@@ -35,7 +35,6 @@
 #endif
 
 #include <cublas_v2.h>
-#include <cuda_runtime_api.h>
 
 #include <gvirtus/frontend/Frontend.h>
 
@@ -119,7 +118,7 @@ public:
     }
 
     static inline bool Success() {
-        return gvirtus::frontend::Frontend::GetFrontend()->Success(cudaSuccess);
+        return gvirtus::frontend::Frontend::GetFrontend()->Success(CUBLAS_STATUS_SUCCESS);
     }
 
     template <class T> static inline T GetOutputVariable() {

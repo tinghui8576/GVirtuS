@@ -25,10 +25,6 @@
 #ifndef CUDNNFRONTEND_H
 #define	CUDNNFRONTEND_H
 
-#include <map>
-#include <set>
-#include <stack>
-#include <list>
 #include <iostream>
 
 #include <cudnn.h>
@@ -115,7 +111,7 @@ public:
         /* TODO: implement AddSymbolForArguments
          * AddStringForArguments(CudaUtil::MarshalHostPointer((void *) symbol));
          * AddStringForArguments(symbol);
-         * */
+         */
     }
 
     static inline cudnnStatus_t GetExitCode() {

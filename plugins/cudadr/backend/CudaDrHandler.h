@@ -77,12 +77,6 @@ public:
     const char *GetVar(std::string & handler);
     const char *GetVar(const char *handler);
 
-    // void RegisterTexture(std::string & handler, cudaTextureObject_t* texref);
-    // void RegisterTexture(const char *handler, cudaTextureObject_t* texref);
-    // cudaTextureObject_t* GetTexture(std::string & handler);
-    // cudaTextureObject_t* GetTexture(const char *handler);
-    // const char *GetTextureHandler(cudaTextureObject_t* texref);
-
     const char *GetSymbol(gvirtus::communicators::Buffer * in);
 
     void RegisterSharedMemory(const char *name) {
@@ -203,7 +197,6 @@ CUDA_DRIVER_HANDLER(ModuleUnload);
 CUDA_DRIVER_HANDLER(ModuleGetFunction);
 CUDA_DRIVER_HANDLER(ModuleGetGlobal);
 CUDA_DRIVER_HANDLER(ModuleLoadDataEx);
-// CUDA_DRIVER_HANDLER(ModuleGetTexRef);
 
 /*CudaDrHandler_version*/
 CUDA_DRIVER_HANDLER(DriverGetVersion);
@@ -221,17 +214,6 @@ CUDA_DRIVER_HANDLER(EventElapsedTime);
 CUDA_DRIVER_HANDLER(EventQuery);
 CUDA_DRIVER_HANDLER(EventRecord);
 CUDA_DRIVER_HANDLER(EventSynchronize);
-
-/*CudaDrHandler_texture*/
-// CUDA_DRIVER_HANDLER(TexRefSetArray);
-// CUDA_DRIVER_HANDLER(TexRefSetAddressMode);
-// CUDA_DRIVER_HANDLER(TexRefSetFilterMode);
-// CUDA_DRIVER_HANDLER(TexRefSetFlags);
-// CUDA_DRIVER_HANDLER(TexRefSetFormat);
-// CUDA_DRIVER_HANDLER(TexRefGetAddress);
-// CUDA_DRIVER_HANDLER(TexRefGetArray);
-// CUDA_DRIVER_HANDLER(TexRefGetFlags);
-// CUDA_DRIVER_HANDLER(TexRefSetAddress);
 
 /*New Cuda 6.5 functions*/
 CUDA_DRIVER_HANDLER(LaunchKernel);

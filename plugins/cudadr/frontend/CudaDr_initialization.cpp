@@ -29,17 +29,8 @@ using namespace std;
 
 /* Initialize the CUDA driver API */
 extern CUresult cuInit(unsigned int flags) {
-/*
-    CudaDrFrontend *pFrontEnd=FrontEndFactory.newFrontEnd();
-    pFrontEnd->Prepare();
-    pFrontEnd->AddVariableForArguments(flags);
-    pFrontEnd->Execute("cuInit");
-    CUresult result=pFrontEnd->GetExitCode();   
-    FrontEndFactory.deleteFrontEnd(pFrontEnd);
-    return result;   
-*/
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(flags);
     CudaDrFrontend::Execute("cuInit");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }

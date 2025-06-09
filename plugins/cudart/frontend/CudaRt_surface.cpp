@@ -29,37 +29,3 @@
 #include "CudaRt.h"
 
 using namespace std;
-
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaBindSurfaceToArray(const cudaSurfaceObject_t*surfref, const cudaArray *array,
-                       const cudaChannelFormatDesc *desc) {
-  CudaRtFrontend::Prepare();
-
-  //    cerr << CudaUtil::MarshalHostPointer(surfref) << " " << hex << array <<
-  //    endl;
-
-  // Achtung: passing the address and the content of the textureReference
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(surfref));
-  CudaRtFrontend::AddHostPointerForArguments(surfref);
-  CudaRtFrontend::AddDevicePointerForArguments((void *)array);
-  CudaRtFrontend::AddHostPointerForArguments(desc);
-  CudaRtFrontend::Execute("cudaBindSurfaceToArray");
-  return CudaRtFrontend::GetExitCode();
-}
-
-// extern "C" __host__ cudaError_t CUDARTAPI cudaGetTextureReference(const
-// cudaTextureObject_t**texref,
-//        const void *symbol) {
-//    CudaRtFrontend::Prepare();
-//    // Achtung: skipping to add texref
-//    // Achtung: passing the address and the content of symbol
-//    CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(symbol));
-//    CudaRtFrontend::AddStringForArguments((char*)symbol);
-//    CudaRtFrontend::Execute("cudaGetTextureReference");
-//    if (CudaRtFrontend::Success()) {
-//        char *texrefHandler = CudaRtFrontend::GetOutputString();
-//        *texref = (cudaTextureObject_t*) strtoul(texrefHandler, NULL, 16);
-//    }
-//    return CudaRtFrontend::GetExitCode();
-//}
-//

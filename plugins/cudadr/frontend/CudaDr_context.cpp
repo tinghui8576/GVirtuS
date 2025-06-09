@@ -37,7 +37,7 @@ extern CUresult cuCtxCreate(CUcontext *pctx, unsigned int flags, CUdevice dev) {
         *pctx = (CUcontext) (CudaDrFrontend::GetOutputDevicePointer());
 
     }
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Increment a context's usage-count*/
@@ -48,7 +48,7 @@ extern CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
     CudaDrFrontend::Execute("cuCtxAttach");
     if (CudaDrFrontend::Success())
         *pctx = (CUcontext) CudaDrFrontend::GetOutputDevicePointer();
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Destroy the current context or a floating CUDA context*/
@@ -109,7 +109,7 @@ extern CUresult cuCtxDisablePeerAccess(CUcontext peerContext) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) peerContext);
     CudaDrFrontend::Execute("cuCtxDisablePeerAccess");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /* Enable peer access */
@@ -118,7 +118,7 @@ extern CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int flags)
     CudaDrFrontend::AddDevicePointerForArguments((void*) peerContext);
     CudaDrFrontend::AddVariableForArguments(flags);
     CudaDrFrontend::Execute("cuCtxEnablePeerAccess");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /* Check if two devices could be connected using peer to peer */
@@ -130,5 +130,5 @@ extern CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUdevice
     CudaDrFrontend::Execute("cuDeviceCanAccessPeer");
     if (CudaDrFrontend::Success())
         *canAccessPeer = *(CudaDrFrontend::GetOutputHostPointer<int>());
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }

@@ -27,63 +27,6 @@
 
 using namespace std;
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaBindTexture(
-    size_t *offset, const cudaTextureObject_t *texref, const void *devPtr,
-    const cudaChannelFormatDesc *desc, size_t size) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(offset);
-  // Achtung: passing the address and the content of the textureReference
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(texref));
-  CudaRtFrontend::AddHostPointerForArguments(texref);
-  CudaRtFrontend::AddDevicePointerForArguments(devPtr);
-  CudaRtFrontend::AddHostPointerForArguments(desc);
-  CudaRtFrontend::AddVariableForArguments(size);
-  CudaRtFrontend::Execute("cudaBindTexture");
-  if (CudaRtFrontend::Success())
-    *offset = *(CudaRtFrontend::GetOutputHostPointer<size_t>());
-  return CudaRtFrontend::GetExitCode();
-}
-
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaBindTexture2D(size_t *offset, const cudaTextureObject_t *texref,
-                  const void *devPtr, const cudaChannelFormatDesc *desc,
-                  size_t width, size_t height, size_t pitch) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(offset);
-  // Achtung: passing the address and the content of the textureReference
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(texref));
-  CudaRtFrontend::AddHostPointerForArguments(texref);
-  CudaRtFrontend::AddDevicePointerForArguments(devPtr);
-  CudaRtFrontend::AddHostPointerForArguments(desc);
-  CudaRtFrontend::AddVariableForArguments(width);
-  CudaRtFrontend::AddVariableForArguments(height);
-  CudaRtFrontend::AddVariableForArguments(pitch);
-  CudaRtFrontend::Execute("cudaBindTexture2D");
-  size_t tempOffset;
-
-  if (CudaRtFrontend::Success())
-    tempOffset = *(CudaRtFrontend::GetOutputHostPointer<size_t>());
-
-  if (offset != NULL) {
-    *offset = tempOffset;
-  }
-
-  return CudaRtFrontend::GetExitCode();
-}
-
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaBindTextureToArray(const cudaTextureObject_t *texref, const cudaArray *array,
-                       const cudaChannelFormatDesc *desc) {
-  CudaRtFrontend::Prepare();
-  // Achtung: passing the address and the content of the textureReference
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(texref));
-  CudaRtFrontend::AddHostPointerForArguments(texref);
-  CudaRtFrontend::AddDevicePointerForArguments((void *)array);
-  CudaRtFrontend::AddHostPointerForArguments(desc);
-  CudaRtFrontend::Execute("cudaBindTextureToArray");
-  return CudaRtFrontend::GetExitCode();
-}
-
 extern "C" __host__ cudaChannelFormatDesc CUDARTAPI
 cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) {
   cudaChannelFormatDesc desc;
@@ -104,40 +47,6 @@ cudaGetChannelDesc(cudaChannelFormatDesc *desc, const cudaArray *array) {
   if (CudaRtFrontend::Success())
     memmove(desc, CudaRtFrontend::GetOutputHostPointer<cudaChannelFormatDesc>(),
             sizeof(cudaChannelFormatDesc));
-  return CudaRtFrontend::GetExitCode();
-}
-
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaGetTextureAlignmentOffset(size_t *offset, const cudaTextureObject_t *texref) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(offset);
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(texref));
-  CudaRtFrontend::Execute("cudaGetTextureAlignmentOffset");
-  if (CudaRtFrontend::Success())
-    *offset = *(CudaRtFrontend::GetOutputHostPointer<size_t>());
-  return CudaRtFrontend::GetExitCode();
-}
-
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaGetTextureReference(const cudaTextureObject_t**texref, const void *symbol) {
-  CudaRtFrontend::Prepare();
-  // Achtung: skipping to add texref
-  // Achtung: passing the address and the content of symbol
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(symbol));
-  CudaRtFrontend::AddStringForArguments((char *)symbol);
-  CudaRtFrontend::Execute("cudaGetTextureReference");
-  if (CudaRtFrontend::Success()) {
-    char *texrefHandler = CudaRtFrontend::GetOutputString();
-    *texref = (cudaTextureObject_t*)strtoul(texrefHandler, NULL, 16);
-  }
-  return CudaRtFrontend::GetExitCode();
-}
-
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaUnbindTexture(const cudaTextureObject_t *texref) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(texref));
-  CudaRtFrontend::Execute("cudaUnbindTexture");
   return CudaRtFrontend::GetExitCode();
 }
 

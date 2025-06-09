@@ -82,7 +82,7 @@ extern CUresult cuTexRefGetAddress(CUdeviceptr *pdptr, CUtexref hTexRef) {
     CudaDrFrontend::Execute("cuTexRefGetAddress");
     if (CudaDrFrontend::Success())
         *pdptr = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Gets the array bound to a texture reference.*/
@@ -92,7 +92,7 @@ extern CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
     CudaDrFrontend::Execute("cuTexRefGetArray");
     if (CudaDrFrontend::Success())
         *phArray = (CUarray) (CudaDrFrontend::GetOutputDevicePointer());
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Gets the flags used by a texture reference. */
@@ -102,7 +102,7 @@ extern CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
     CudaDrFrontend::Execute("cuTexRefGetFlags");
     if (CudaDrFrontend::Success())
         *pFlags = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Binds an address as a texture reference.*/
@@ -114,7 +114,7 @@ extern CUresult cuTexRefSetAddress(size_t *ByteOffset, CUtexref hTexRef, CUdevic
     CudaDrFrontend::Execute("cuTexRefSetAddress");
     if (CudaDrFrontend::Success())
         *ByteOffset = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 extern CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef, int dim) {

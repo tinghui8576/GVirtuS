@@ -32,7 +32,7 @@ extern CUresult cuMemFree(CUdeviceptr dptr) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(dptr);
     CudaDrFrontend::Execute("cuMemFree");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Allocates device memory.*/
@@ -42,7 +42,7 @@ extern CUresult cuMemAlloc(CUdeviceptr *dptr, size_t bytesize) {
     CudaDrFrontend::Execute("cuMemAlloc");
     if (CudaDrFrontend::Success())
         *dptr = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Copies memory from Device to Host. */
@@ -53,7 +53,7 @@ extern CUresult cuMemcpyDtoH(void *dstHost, CUdeviceptr srcDevice, size_t ByteCo
     CudaDrFrontend::Execute("cuMemcpyDtoH");
     if (CudaDrFrontend::Success())
         memmove(dstHost, CudaDrFrontend::GetOutputHostPointer<char>(ByteCount), ByteCount);
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Copies memory from Host to Device.*/
@@ -63,7 +63,7 @@ extern CUresult cuMemcpyHtoD(CUdeviceptr dstDevice, const void *srcHost, size_t 
     CudaDrFrontend::AddVariableForArguments(dstDevice);
     CudaDrFrontend::AddHostPointerForArguments<char>(static_cast<char *>(const_cast<void *> (srcHost)), ByteCount);
     CudaDrFrontend::Execute("cuMemcpyHtoD");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 
 }
 
@@ -74,7 +74,7 @@ extern CUresult cuArrayCreate(CUarray *pHandle, const CUDA_ARRAY_DESCRIPTOR *pAl
     CudaDrFrontend::Execute("cuArrayCreate");
     if (CudaDrFrontend::Success())
         *pHandle = (CUarray) CudaDrFrontend::GetOutputDevicePointer();
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Creates a 3D CUDA array.*/
@@ -84,7 +84,7 @@ extern CUresult cuArray3DCreate(CUarray *pHandle, const CUDA_ARRAY3D_DESCRIPTOR 
     CudaDrFrontend::Execute("cuArrayCreate");
     if (CudaDrFrontend::Success())
         *pHandle = (CUarray) CudaDrFrontend::GetOutputDevicePointer();
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Copies memory for 2D arrays.*/
@@ -101,7 +101,7 @@ extern CUresult cuMemcpy2D(const CUDA_MEMCPY2D *pCopy) {
         CudaDrFrontend::AddVariableForArguments(flag);
     }
     CudaDrFrontend::Execute("cuMemcpy2D");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Destroys a CUDA array.*/
@@ -109,7 +109,7 @@ extern CUresult cuArrayDestroy(CUarray hArray) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments(hArray);
     CudaDrFrontend::Execute("cuArrayDestroy");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Allocates pitched device memory.*/
@@ -123,7 +123,7 @@ extern CUresult cuMemAllocPitch(CUdeviceptr *dptr, size_t *pPitch, size_t WidthI
         *dptr = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
         *pPitch = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
     }
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Get information on memory allocations.*/
@@ -135,7 +135,7 @@ extern CUresult cuMemGetAddressRange(CUdeviceptr *pbase, size_t *psize, CUdevice
         *pbase = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
         *psize = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
     }
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Gets free and total memory.*/
@@ -146,7 +146,7 @@ extern CUresult cuMemGetInfo(size_t *free, size_t *total) {
         *free = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
         *total = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
     }
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 extern CUresult cuArray3DGetDescriptor(CUDA_ARRAY3D_DESCRIPTOR *pArrayDescriptor, CUarray hArray) {

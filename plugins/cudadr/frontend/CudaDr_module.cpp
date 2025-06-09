@@ -41,7 +41,7 @@ extern CUresult cuModuleLoadData(CUmodule *module, const void *image) {
     CudaDrFrontend::Execute("cuModuleLoadData");
     if (CudaDrFrontend::Success())
         *module = (CUmodule) (CudaDrFrontend::GetOutputDevicePointer());
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 
 }
 
@@ -56,7 +56,7 @@ extern CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const char
         tmp = (CUfunction) (CudaDrFrontend::GetOutputDevicePointer());
         *hfunc = (CUfunction) tmp;
     }
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns a global pointer from a module.*/
@@ -69,7 +69,7 @@ extern CUresult cuModuleGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUmodule hmo
         *dptr = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
         *bytes = (size_t) (CudaDrFrontend::GetOutputDevicePointer());
     }
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns a handle to a texture-reference.*/
@@ -81,7 +81,7 @@ extern CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const char *
     if (CudaDrFrontend::Success()) {
         *pTexRef = (CUtexref) (CudaDrFrontend::GetOutputDevicePointer());
     }
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Load a module's data with options.*/
@@ -103,25 +103,21 @@ extern CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsigned
             switch (options[i]) {
                 case CU_JIT_INFO_LOG_BUFFER:
                     len_str = CudaDrFrontend::GetOutputVariable<int>();
-                    if (len_str >0){
+                    if (len_str >0) {
                         tmp = CudaDrFrontend::GetOutputHostPointer<char>(len_str);
-                    strcpy((char *) *(optionValues + i), tmp);
+                        strcpy((char *) *(optionValues + i), tmp);
                     }
-                 
                     break;
                 case CU_JIT_ERROR_LOG_BUFFER:
                     tmp2 = (CudaDrFrontend::GetOutputString());
                     strcpy((char *) *(optionValues + i), tmp2);
                     break;
-
                 default:
-                    *(optionValues + i) = (void *) (*(CudaDrFrontend::GetOutputHostPointer<unsigned int>()));
-
+                    *(optionValues + i) = (void *)(CudaDrFrontend::GetOutputHostPointer<unsigned int>());
             }
-            
         }
     }
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 extern CUresult cuModuleLoad(CUmodule *module, const char *fname) {
@@ -142,7 +138,7 @@ extern CUresult cuModuleLoad(CUmodule *module, const char *fname) {
     CudaDrFrontend::Execute("cuModuleLoad");
     if (CudaDrFrontend::Success())
         *module = (CUmodule) (CudaDrFrontend::GetOutputDevicePointer());
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 
     // FIXME: implement
     //cerr << "*** Error: cuModuleLoad not yet implemented!" << endl;
@@ -155,7 +151,7 @@ extern CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin) {
     CudaDrFrontend::Execute("cuModuleLoadFatBinary");
     if (CudaDrFrontend::Success())
         *module = (CUmodule) (CudaDrFrontend::GetOutputDevicePointer());
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
     // FIXME: implement
     //cerr << "*** Error: cuModuleLoadFatBinary not yet implemented!" << endl;
     //return (CUresult) 1;
@@ -165,7 +161,7 @@ extern CUresult cuModuleUnload(CUmodule hmod) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((char *)hmod);
     CudaDrFrontend::Execute("cuModuleUnload");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
     // FIXME: implement
     //cerr << "*** Error: cuModuleUnload not yet implemented!" << endl;
     //return (CUresult) 1;

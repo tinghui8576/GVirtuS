@@ -35,8 +35,6 @@
 
 #ifndef _WIN32
 
-#include "../config.h"
-
 #ifdef HAVE_VMCI_VMCI_SOCKETS_H
 
 #include <cstring>

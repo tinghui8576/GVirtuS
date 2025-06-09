@@ -81,8 +81,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensor4dDescriptor( cudnnTensorDesc
                             int c, int h, int w ) {
     CudnnFrontend::Prepare();
 
-    //printf("[cudnnSetTensor4dDescriptor] N, C, H, W: %d %d %d %d\n", n, c, h, w);
-
     CudnnFrontend::AddDevicePointerForArguments(tensorDesc);
     CudnnFrontend::AddVariableForArguments<cudnnTensorFormat_t>(format);
     CudnnFrontend::AddVariableForArguments<cudnnDataType_t>(dataType);

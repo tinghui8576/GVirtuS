@@ -33,11 +33,9 @@
  *
  */
 
-#include "CudaUtil.h"
-
 #include <cstdio>
-#include <iostream>
 
+#include <CudaUtil.h>
 #include <cuda.h>
 
 using namespace std;
@@ -196,21 +194,7 @@ __fatBinC_Wrapper_t * CudaUtil::UnmarshalFatCudaBinaryV2(Buffer* marshal) {
     bin->magic = marshal->Get<int>();
     bin->version = marshal->Get<int>();
     size = marshal->Get<size_t>();
-//    bin->data = marshal->Get<unsigned long long int>(size);
     bin->data = (const long long unsigned int*)marshal->Get<char>(size);
-    //bin->data= NULL;
-    /*
-    cerr << "**********DATA**********" << endl; 
-    fprintf(stderr, "data pointer: %p\n", bin->data);
-    if (bin->data == NULL)
-        throw "Error allocating";
-
-    char* data = (char*)bin->data;
-    for (int i = 0; i < (size * sizeof(long long int)); i++) {
-        fprintf(stderr, "%x ", *(data + i));
-    }
-    cerr << endl << "********** END DATA**********" << endl;
-     */
     bin->filename_or_fatbins = NULL;
     return bin;
 }

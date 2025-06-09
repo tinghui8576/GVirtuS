@@ -111,7 +111,7 @@ typedef struct {
  * translator can provide an emulation. 
  */
 typedef struct {
-    char*            gpuProfileName;            
+    char*            gpuProfileName;
     char*            ptx;
 } __cudaFatPtxEntry;
 
@@ -123,14 +123,14 @@ typedef struct {
  * will contain their own debugging information) 
  */
 typedef struct __cudaFatDebugEntryRec {
-    char*                   gpuProfileName;            
+    char*                   gpuProfileName;
     char*                   debug;
     struct __cudaFatDebugEntryRec *next;
     unsigned int                   size;
 } __cudaFatDebugEntry;
 
 typedef struct __cudaFatElfEntryRec {
-    char*                 gpuProfileName;            
+    char*                 gpuProfileName;
     char*                 elf;
     struct __cudaFatElfEntryRec *next;
     unsigned int                 size;

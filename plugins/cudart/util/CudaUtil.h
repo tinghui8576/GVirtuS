@@ -53,7 +53,6 @@
 #include <gvirtus/communicators/Buffer.h>
 
 using gvirtus::communicators::Buffer;
-//#define DEBUG
 
 /**
  * CudaUtil contains facility functions used by gVirtuS. These functions

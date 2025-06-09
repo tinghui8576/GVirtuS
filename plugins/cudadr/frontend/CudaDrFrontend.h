@@ -26,7 +26,7 @@
 #ifndef CUDADRFRONTEND_H
 #define	CUDADRFRONTEND_H
 
-#include <cuda_runtime_api.h>
+#include <cuda.h>
 #include <gvirtus/frontend/Frontend.h>
 
 class CudaDrFrontend {
@@ -106,12 +106,12 @@ public:
         // AddStringForArguments(symbol);
     }
 
-    static inline cudaError_t GetExitCode() {
-        return (cudaError_t) gvirtus::frontend::Frontend::GetFrontend()->GetExitCode();
+    static inline CUresult GetExitCode() {
+        return (CUresult) gvirtus::frontend::Frontend::GetFrontend()->GetExitCode();
     }
 
     static inline bool Success() {
-        return gvirtus::frontend::Frontend::GetFrontend()->Success(cudaSuccess);
+        return gvirtus::frontend::Frontend::GetFrontend()->Success(CUDA_SUCCESS);
     }
 
     template <class T> static inline T GetOutputVariable() {

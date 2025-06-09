@@ -26,16 +26,10 @@
 #ifndef CUSALVERFRONTEND_H
 #define CUSOLVERFRONTEND_H
 
-#include <map>
-#include <set>
-#include <stack>
-#include <list>
-#include <iostream>
-
-#include <cuda_runtime_api.h>
 #include <cusolverDn.h>
 
 #include <gvirtus/frontend/Frontend.h>
+
 using gvirtus::communicators::Buffer;
 using gvirtus::frontend::Frontend;
 

@@ -33,20 +33,18 @@
  *
  */
 
-#include "CudaUtil.h"
-
 #include <cstdio>
 #include <iostream>
 
+#include <CudaUtil.h>
 #include <cuda.h>
 
 #if CUDART_VERSION >= 11000
-struct __align__(8) fatBinaryHeader
-{
-  unsigned int           magic;
-  unsigned short         version;
-  unsigned short         headerSize;
-  unsigned long long int fatSize;
+struct __align__(8) fatBinaryHeader {
+    unsigned int           magic;
+    unsigned short         version;
+    unsigned short         headerSize;
+    unsigned long long int fatSize;
 };
 #endif
 
@@ -66,159 +64,139 @@ char* CudaUtil::MarshalHostPointer(const void* ptr) {
 
 void CudaUtil::MarshalHostPointer(const void* ptr, char* marshal) {
 #ifdef _WIN32
-  sprintf_s(marshal, 10, "%p", ptr);
+    sprintf_s(marshal, 10, "%p", ptr);
 #else
-  sprintf(marshal, "%p", ptr);
+    sprintf(marshal, "%p", ptr);
 #endif
 }
 
 char* CudaUtil::MarshalDevicePointer(const void* devPtr) {
-  char* marshal = new char[CudaUtil::MarshaledDevicePointerSize];
-  MarshalDevicePointer(devPtr, marshal);
-  return marshal;
+    char* marshal = new char[CudaUtil::MarshaledDevicePointerSize];
+    MarshalDevicePointer(devPtr, marshal);
+    return marshal;
 }
 
 void CudaUtil::MarshalDevicePointer(const void* devPtr, char* marshal) {
 #ifdef _WIN32
-  sprintf_s(marshal, 10, "%p", devPtr);
+    sprintf_s(marshal, 10, "%p", devPtr);
 #else
-  sprintf(marshal, "%p", devPtr);
+    sprintf(marshal, "%p", devPtr);
 #endif
 }
 
 Buffer* CudaUtil::MarshalFatCudaBinary(__cudaFatCudaBinary* bin,
                                        Buffer* marshal) {
-  if (marshal == NULL) marshal = new Buffer();
-  size_t size;
-  int count;
+    if (marshal == NULL) marshal = new Buffer();
+    size_t size;
+    int count;
 
-  marshal->Add(bin->magic);
-  marshal->Add(bin->version);
-  marshal->Add(bin->gpuInfoVersion);
+    marshal->Add(bin->magic);
+    marshal->Add(bin->version);
+    marshal->Add(bin->gpuInfoVersion);
 
-  size = strlen(bin->key) + 1;
-  marshal->Add(size);
-  marshal->Add(bin->key, size);
-
-  size = strlen(bin->ident) + 1;
-  marshal->Add(size);
-  marshal->Add(bin->ident, size);
-
-  size = strlen(bin->usageMode) + 1;
-  marshal->Add(size);
-  marshal->Add(bin->usageMode, size);
-
-  for (count = 0; bin->ptx[count].gpuProfileName != NULL; count++)
-    ;
-  marshal->Add(count);
-  for (int i = 0; i < count; i++) {
-    size = strlen(bin->ptx[i].gpuProfileName) + 1;
+    size = strlen(bin->key) + 1;
     marshal->Add(size);
-    marshal->Add(bin->ptx[i].gpuProfileName, size);
+    marshal->Add(bin->key, size);
 
-    size = strlen(bin->ptx[i].ptx) + 1;
+    size = strlen(bin->ident) + 1;
     marshal->Add(size);
-    marshal->Add(bin->ptx[i].ptx, size);
-  }
+    marshal->Add(bin->ident, size);
 
-  for (count = 0; bin->cubin[count].gpuProfileName != NULL; count++)
-    ;
-  marshal->Add(count);
-  for (int i = 0; i < count; i++) {
-    size = strlen(bin->cubin[i].gpuProfileName) + 1;
+    size = strlen(bin->usageMode) + 1;
     marshal->Add(size);
-    marshal->Add(bin->cubin[i].gpuProfileName, size);
+    marshal->Add(bin->usageMode, size);
 
-    size = strlen(bin->cubin[i].cubin) + 1;
-    marshal->Add(size);
-    marshal->Add(bin->cubin[i].cubin, size);
-  }
+    for (count = 0; bin->ptx[count].gpuProfileName != NULL; count++);
+    marshal->Add(count);
+    for (int i = 0; i < count; i++) {
+        size = strlen(bin->ptx[i].gpuProfileName) + 1;
+        marshal->Add(size);
+        marshal->Add(bin->ptx[i].gpuProfileName, size);
 
-  /* Achtung: no debug is possible */
-  marshal->Add(0);
+        size = strlen(bin->ptx[i].ptx) + 1;
+        marshal->Add(size);
+        marshal->Add(bin->ptx[i].ptx, size);
+    }
 
-#if 0
-    for (count = 0; bin->exported != NULL && bin->exported[count].name != NULL; count++);
-#else
-  count = 0;
-#endif
-  marshal->Add(count);
-  for (int i = 0; i < count; i++) {
-    size = strlen(bin->exported[i].name) + 1;
-    marshal->Add(size);
-    marshal->Add(bin->exported[i].name, size);
-  }
+    for (count = 0; bin->cubin[count].gpuProfileName != NULL; count++);
+    marshal->Add(count);
+    for (int i = 0; i < count; i++) {
+        size = strlen(bin->cubin[i].gpuProfileName) + 1;
+        marshal->Add(size);
+        marshal->Add(bin->cubin[i].gpuProfileName, size);
 
-#if 0
-    for (count = 0; bin->imported != NULL && bin->imported[count].name != NULL; count++);
-#else
-  count = 0;
-#endif
-  marshal->Add(count);
-  for (int i = 0; i < count; i++) {
-    size = strlen(bin->imported[i].name) + 1;
-    marshal->Add(size);
-    marshal->Add(bin->imported[i].name, size);
-  }
+        size = strlen(bin->cubin[i].cubin) + 1;
+        marshal->Add(size);
+        marshal->Add(bin->cubin[i].cubin, size);
+    }
 
-  marshal->Add(bin->flags);
+    /* Achtung: no debug is possible */
+    marshal->Add(0);
 
-  /* Achtung: no dependends added */
-  marshal->Add(0);
+    #if 0
+        for (count = 0; bin->exported != NULL && bin->exported[count].name != NULL; count++);
+    #else
+        count = 0;
+    #endif
 
-#ifndef CUDA_VERSION
-#error CUDA_VERSION not defined
-#endif
-#if CUDA_VERSION >= 2030
-  marshal->Add(bin->characteristic);
-#endif
+    marshal->Add(count);
+    for (int i = 0; i < count; i++) {
+        size = strlen(bin->exported[i].name) + 1;
+        marshal->Add(size);
+        marshal->Add(bin->exported[i].name, size);
+    }
 
-  return marshal;
+    #if 0
+        for (count = 0; bin->imported != NULL && bin->imported[count].name != NULL; count++);
+    #else
+    count = 0;
+    #endif
+    marshal->Add(count);
+    for (int i = 0; i < count; i++) {
+        size = strlen(bin->imported[i].name) + 1;
+        marshal->Add(size);
+        marshal->Add(bin->imported[i].name, size);
+    }
+
+    marshal->Add(bin->flags);
+
+    /* Achtung: no dependends added */
+    marshal->Add(0);
+
+    #ifndef CUDA_VERSION
+    #error CUDA_VERSION not defined
+    #endif
+    #if CUDA_VERSION >= 2030
+    marshal->Add(bin->characteristic);
+    #endif
+
+    return marshal;
 }
 
 Buffer* CudaUtil::MarshalFatCudaBinary(__fatBinC_Wrapper_t* bin,
                                        Buffer* marshal) {
   if (marshal == NULL) marshal = new Buffer();
-  // size_t size = (unsigned long long*)&(bin->magic) - bin->data;
 
   marshal->Add(bin->magic);
   marshal->Add(bin->version);
 
   struct fatBinaryHeader* header = (fatBinaryHeader*)bin->data;
-  //    size_t size = (header->fatSize / sizeof(unsigned long long)) + 2;
-  //    size_t size = header->fatSize;
   size_t size = header->fatSize + (unsigned long long)header->headerSize;
 
   marshal->Add(size);
-  //    marshal->Add((bin->data), size);
   marshal->Add((char*)(bin->data), size);
 
   return marshal;
 }
 
 __fatBinC_Wrapper_t* CudaUtil::UnmarshalFatCudaBinaryV2(Buffer* marshal) {
-  __fatBinC_Wrapper_t* bin = new __fatBinC_Wrapper_t; // aligned is ignored
-      // new __fatBinC_Wrapper_t __attribute__((aligned(8)));
+  __fatBinC_Wrapper_t* bin = new __fatBinC_Wrapper_t;
   size_t size;
 
   bin->magic = marshal->Get<int>();
   bin->version = marshal->Get<int>();
   size = marshal->Get<size_t>();
-  //    bin->data = marshal->Get<unsigned long long int>(size);
   bin->data = (const long long unsigned int*)marshal->Get<char>(size);
-  // bin->data= NULL;
-  /*
-  cerr << "**********DATA**********" << endl;
-  fprintf(stderr, "data pointer: %p\n", bin->data);
-  if (bin->data == NULL)
-      throw "Error allocating";
-
-  char* data = (char*)bin->data;
-  for (int i = 0; i < (size * sizeof(long long int)); i++) {
-      fprintf(stderr, "%x ", *(data + i));
-  }
-  cerr << endl << "********** END DATA**********" << endl;
-   */
   bin->filename_or_fatbins = NULL;
   return bin;
 }

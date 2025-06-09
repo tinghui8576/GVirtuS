@@ -26,11 +26,11 @@
 #include "CudaRtHandler.h"
 
 // deprecated
-// CUDA_ROUTINE_HANDLER(ThreadExit) {
-//   return std::make_shared<Result>(cudaThreadExit());
-// }
+CUDA_ROUTINE_HANDLER(ThreadExit) {
+  return std::make_shared<Result>(cudaThreadExit());
+}
 
 // deprecated
-// CUDA_ROUTINE_HANDLER(ThreadSynchronize) {
-//   return std::make_shared<Result>(cudaThreadSynchronize());
-// }
+CUDA_ROUTINE_HANDLER(ThreadSynchronize) {
+  return std::make_shared<Result>(cudaThreadSynchronize());
+}

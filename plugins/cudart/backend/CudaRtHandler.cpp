@@ -32,13 +32,8 @@
  *
  *
  */
-//#define DEBUG
-#include "CudaRtHandler.h"
-#include "CudaUtil.h"
 
-#include <cstring>
-#include <cuda_runtime_api.h>
-#include <dlfcn.h>
+#include "CudaRtHandler.h"
 
 using namespace std;
 using namespace log4cplus;
@@ -392,7 +387,7 @@ void CudaRtHandler::Initialize() {
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyPeerAsync));
 
   /* CudaRtHandler_opengl */
-  // mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GLSetGLDevice)); // deprecated
+  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GLSetGLDevice)); // deprecated
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsGLRegisterBuffer));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsMapResources));
   mspHandlers->insert(

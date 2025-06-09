@@ -42,11 +42,8 @@
 #include <fatBinaryCtl.h>
 #include <fatbinary.h>
 #include <texture_types.h>
-#include "__cudaFatFormat.h"
 
-#include "communicator/Buffer.h"
-
-//#define DEBUG
+#include <gvirtus/communicators/Buffer.h>
 
 /**
  * CudaUtil contains facility functions used by gVirtuS. These functions

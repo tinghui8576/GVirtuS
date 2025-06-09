@@ -112,4 +112,3 @@ CUDA_DRIVER_HANDLER(TexRefSetAddress) {
     out->Add(ByteOffset);
     return std::make_shared<Result>((cudaError_t) exit_code, out);
 }
-

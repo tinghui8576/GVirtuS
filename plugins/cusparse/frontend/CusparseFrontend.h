@@ -27,15 +27,7 @@
 #ifndef CUSPARSEFRONTEND_H
 #define CUSPARSEFRONTEND_H
 
-#include <map>
-#include <set>
-#include <stack>
-#include <list>
-#include <iostream>
-
-#include <cuda_runtime_api.h>
 #include <cusparse.h>
-
 #include <gvirtus/frontend/Frontend.h>
 
 using gvirtus::communicators::Buffer;
@@ -114,10 +106,10 @@ public:
  *                     * @param symbol the symbol to add as a parameter.
  *                          */
     static inline void AddSymbolForArguments(const char *symbol) {
-        /* TODO: implement AddSymbolForArguments
- *          * AddStringForArguments(CudaUtil::MarshalHostPointer((void *) symbol));
- *                   * AddStringForArguments(symbol);
- *                            * */
+    /* TODO: implement AddSymbolForArguments
+     * AddStringForArguments(CudaUtil::MarshalHostPointer((void *) symbol));
+     * AddStringForArguments(symbol);
+     */
     }
 
     static inline cusparseStatus_t GetExitCode() {

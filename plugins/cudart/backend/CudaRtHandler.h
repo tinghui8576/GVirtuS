@@ -51,18 +51,15 @@
 #include <unistd.h>
 
 #include <cuda_runtime_api.h>
+#include <CudaRt_internal.h>
+#include <CudaUtil.h>
 
 #include <gvirtus/backend/Handler.h>
 #include <gvirtus/communicators/Result.h>
-#include "CudaUtil.h"
 
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
-
-#include "../3rdparty/include/CudaRt_internal.h"
-
-//#define DEBUG
 
 /**
  * CudaRtHandler is used by Backend's Process(es) for storing and retrieving
@@ -103,20 +100,6 @@ class CudaRtHandler : public gvirtus::backend::Handler {
   void RegisterVar(const char *handler, const char *deviceName);
   const char *GetVar(std::string &handler);
   const char *GetVar(const char *handler);
-
-// textures and surfaces have become obsolete
-//   void RegisterTexture(std::string &handler, cudaTextureObject_t *texref);
-//   void RegisterTexture(const char *handler, cudaTextureObject_t *texref);
-//   void RegisterSurface(std::string &handler, cudaSurfaceObject_t *surref);
-//   void RegisterSurface(const char *handler, cudaSurfaceObject_t *surref);
-//   cudaTextureObject_t* GetTexture(std::string &handler);
-//   cudaTextureObject_t* GetTexture(pointer_t handler);
-//   cudaTextureObject_t* GetTexture(const char *handler);
-//   const char *GetTextureHandler(cudaTextureObject_t *texref);
-//   cudaSurfaceObject_t*GetSurface(std::string &handler);
-//   cudaSurfaceObject_t*GetSurface(pointer_t handler);
-//   cudaSurfaceObject_t*GetSurface(const char *handler);
-//   const char *GetSurfaceHandler(cudaSurfaceObject_t *texref);
 
   const char *GetSymbol(std::shared_ptr<Buffer> in);
 
@@ -240,8 +223,6 @@ CUDA_ROUTINE_HANDLER(RegisterFunction);
 CUDA_ROUTINE_HANDLER(RegisterVar);
 CUDA_ROUTINE_HANDLER(RegisterSharedVar);
 CUDA_ROUTINE_HANDLER(RegisterShared);
-// CUDA_ROUTINE_HANDLER(RegisterTexture);
-// CUDA_ROUTINE_HANDLER(RegisterSurface);
 CUDA_ROUTINE_HANDLER(RegisterSharedMemory);
 CUDA_ROUTINE_HANDLER(RequestSharedMemory);
 
@@ -271,7 +252,7 @@ CUDA_ROUTINE_HANDLER(Malloc3DArray);
 CUDA_ROUTINE_HANDLER(MemcpyPeerAsync);
 
 /* CudaRtHandler_opengl */
-// CUDA_ROUTINE_HANDLER(GLSetGLDevice); // deprecated
+CUDA_ROUTINE_HANDLER(GLSetGLDevice);
 CUDA_ROUTINE_HANDLER(GraphicsGLRegisterBuffer);
 CUDA_ROUTINE_HANDLER(GraphicsMapResources);
 CUDA_ROUTINE_HANDLER(GraphicsResourceGetMappedPointer);

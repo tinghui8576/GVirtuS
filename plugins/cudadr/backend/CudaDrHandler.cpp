@@ -23,10 +23,7 @@
  *             Department of Applied Science
  */
 //#define DEBUG
-#include <builtin_types.h>
-#include <GL/gl.h>
-#include <cuda_runtime_api.h>
-#include <cstring>
+
 #include "CudaDrHandler.h"
 
 using namespace std;

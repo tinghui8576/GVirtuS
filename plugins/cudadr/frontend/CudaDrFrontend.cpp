@@ -32,4 +32,3 @@ CudaDrFrontend msInstance __attribute_used__;
 CudaDrFrontend::CudaDrFrontend() {
     gvirtus::frontend::Frontend::GetFrontend();
 }
-

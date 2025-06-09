@@ -31,7 +31,6 @@ using namespace std;
 
 CUDA_ROUTINE_HANDLER(Free) {
   void *devPtr = input_buffer->GetFromMarshal<void *>();
-    //printf("cudaFree: 0x%x\n",devPtr);
   cudaError_t exit_code = cudaFree(devPtr);
 
   return std::make_shared<Result>(exit_code);
@@ -108,8 +107,6 @@ CUDA_ROUTINE_HANDLER(MallocManaged) {
         unsigned flags = input_buffer->Get<unsigned>();
         void *devPtr;
 
-
-        //printf("devPtr:%x size: %ld flags:%d\n",devPtr,size,flags);
         cudaError_t exit_code = cudaMallocManaged(&devPtr, size, flags);
 #ifdef DEBUG
     std::cout << "Allocated DevicePointer " << devPtr << " with a size of "
@@ -122,7 +119,6 @@ CUDA_ROUTINE_HANDLER(MallocManaged) {
         host.size = size;
 
         out->AddMarshal(devPtr);
-        //printf("cudaMallocManaged: cudaError: %d devPtr: 0x%x size: %ld\n", exit_code, devPtr, size);
         return std::make_shared<Result>(exit_code, out);
       } catch (string e) {
         LOG4CPLUS_DEBUG(logger, e);
@@ -138,22 +134,7 @@ CUDA_ROUTINE_HANDLER(Malloc3DArray) {
   cudaChannelFormatDesc *desc = input_buffer->Assign<cudaChannelFormatDesc>();
   cudaExtent extent = input_buffer->Get<cudaExtent>();
   unsigned int flags = input_buffer->Get<unsigned int>();
-#ifdef DEBUG
-  printf("x %d\n", desc->x);
-  printf("y %d\n", desc->y);
-  printf("z %d\n", desc->z);
-  printf("w %d\n", desc->w);
-  printf("f %d\n", desc->f);
-
-  printf("width %d\n", extent.width);
-  printf("height %d\n", extent.height);
-  printf("depth %d\n", extent.depth);
-
-  printf("flags %d\n", flags);
-  printf("array %x\n", array);
-#endif
   cudaError_t exit_code = cudaMalloc3DArray(&array, desc, extent, flags);
-  //    printf("array %x\n", array);
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
   try {
@@ -191,17 +172,6 @@ CUDA_ROUTINE_HANDLER(MallocArray) {
     cudaChannelFormatDesc *desc = input_buffer->Assign<cudaChannelFormatDesc>();
     size_t width = input_buffer->Get<size_t>();
     size_t height = input_buffer->Get<size_t>();
-
-#ifdef DEBUG
-    printf("x %d\n", desc->x);
-    printf("y %d\n", desc->y);
-    printf("z %d\n", desc->z);
-    printf("w %d\n", desc->w);
-    printf("f %d\n", desc->f);
-
-    printf("width %d\n", width);
-    printf("height %d\n", height);
-#endif
 
     cudaError_t exit_code = cudaMallocArray(&arrayPtr, desc, width, height);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
@@ -454,37 +424,6 @@ CUDA_ROUTINE_HANDLER(Memcpy3D) {
     src = input_buffer->AssignAll<char>();
     unsigned int width = p->extent.width;
     p->srcPtr.ptr = src;
-
-#ifdef DEBUG
-    printf("PARAMETRI BACKEND\n");
-    printf("dstArray %x\n\n", p->dstArray);
-
-    printf("dstPos x %d\n", p->dstPos.x);
-    printf("dstPos y %d\n", p->dstPos.y);
-    printf("dstPos z %d\n\n", p->dstPos.z);
-
-    printf("dstPtr pitch %d\n", p->dstPtr.pitch);
-    printf("dstPtr ptr %x\n", p->dstPtr.ptr);
-    printf("dstPtr x %d\n", p->dstPtr.xsize);
-    printf("dstPtr y %d\n\n", p->dstPtr.ysize);
-
-    printf("extent depth %d\n", p->extent.depth);
-    printf("extent height %d\n", p->extent.height);
-    printf("extent width %d\n\n", p->extent.width);
-
-    printf("kind %d\n\n", p->kind);
-
-    printf("srcArray %x\n\n", p->srcArray);
-
-    printf("srcPos x %d\n", p->srcPos.x);
-    printf("srcPos y %d\n", p->srcPos.y);
-    printf("srcPos z %d\n\n", p->srcPos.z);
-
-    printf("srcPtr pitch %d\n", p->srcPtr.pitch);
-    printf("srcPtr ptr %x\n", p->srcPtr.ptr);
-    printf("srcPtr x %d\n", p->srcPtr.xsize);
-    printf("srcPtr y  %d\n", p->srcPtr.ysize);
-#endif
 
     cudaError_t exit_code = cudaMemcpy3D(p);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();

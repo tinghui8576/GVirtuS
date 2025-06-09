@@ -34,13 +34,8 @@ using gvirtus::common::mappedPointer;
 using gvirtus::common::pointer_t;
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaFree(void *devPtr) {
-
-    //printf("cudaFree: 0x%x\n", devPtr);
-
-
   if (CudaRtFrontend::isMappedMemory(devPtr)) {
       void *hostPointer = devPtr;
-      //printf("cudaFree: 0x%x is a mapped pointer!\n", hostPointer);
 
 #ifdef DEBUG
     cerr << "Mapped pointer detected" << endl;
@@ -48,9 +43,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaFree(void *devPtr) {
 
     mappedPointer remotePointer = CudaRtFrontend::getMappedPointer(devPtr);
 
-    //printf("cudaFree: 0x%x -> 0x%x!\n",devPtr,remotePointer.pointer);
-
-    free (devPtr);
+    free(devPtr);
     devPtr=remotePointer.pointer;
   }
 
@@ -68,9 +61,6 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaFreeArray(cudaArray *array) {
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaFreeHost(void *ptr) {
-#ifdef DEBUG
-  printf("Requesting cudaFreeHost\n");
-#endif
   free(ptr);
   return cudaSuccess;
 }
@@ -156,18 +146,6 @@ cudaMalloc3D(cudaPitchedPtr *pitchedDevPtr, cudaExtent extent) {
   return cudaErrorUnknown;
 }
 
-//#if CUDART_VERSION >= 3000
-// extern "C" __host__ cudaError_t CUDARTAPI cudaMalloc3DArray(cudaArray
-// **array,
-//        const cudaChannelFormatDesc *desc,struct cudaExtent extent, unsigned
-//        int flags) {
-//#else
-// extern "C" __host__ cudaError_t CUDARTAPI cudaMalloc3DArray(cudaArray
-// **array,
-//       const cudaChannelFormatDesc *desc, cudaExtent extent, unsigned int
-//       flags) {
-//#endif
-
 extern "C" __host__ cudaError_t
 cudaMalloc3DArray(cudaArray_t *array, const cudaChannelFormatDesc *desc,
                   cudaExtent extent, unsigned int flags) {
@@ -176,63 +154,27 @@ cudaMalloc3DArray(cudaArray_t *array, const cudaChannelFormatDesc *desc,
   CudaRtFrontend::AddVariableForArguments(extent);
   CudaRtFrontend::AddVariableForArguments(flags);
 
-#ifdef DEBUG
-  printf("x %d\n", desc->x);
-  printf("y %d\n", desc->y);
-  printf("z %d\n", desc->z);
-  printf("w %d\n", desc->w);
-  printf("f %d\n", desc->f);
-
-  printf("width %d\n", extent.width);
-  printf("height %d\n", extent.height);
-  printf("depth %d\n", extent.depth);
-
-  printf("flags %d\n", flags);
-#endif
-
   CudaRtFrontend::Execute("cudaMalloc3DArray");
   if (CudaRtFrontend::Success())
     *array = *(CudaRtFrontend::GetOutputHostPointer<cudaArray_t>());
-  //*array = (cudaArray_t) CudaRtFrontend::GetOutputDevicePointer();
-
-  //    printf("%x\n", *array);
   return CudaRtFrontend::GetExitCode();
 }
 // FIXME: new mapping way
 
-#if CUDART_VERSION >= 3000
-
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaMallocArray(cudaArray **arrayPtr, const cudaChannelFormatDesc *desc,
                 size_t width, size_t height, unsigned int flags) {
-#else
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaMallocArray(cudaArray **arrayPtr, const cudaChannelFormatDesc *desc,
-                size_t width, size_t height) {
-#endif
   CudaRtFrontend::Prepare();
 
   CudaRtFrontend::AddHostPointerForArguments(desc);
   CudaRtFrontend::AddVariableForArguments(width);
   CudaRtFrontend::AddVariableForArguments(height);
 
-#ifdef DEBUG
-  printf("x %d\n", desc->x);
-  printf("y %d\n", desc->y);
-  printf("z %d\n", desc->z);
-  printf("w %d\n", desc->w);
-  printf("f %d\n", desc->f);
-
-  printf("width %d\n", width);
-  printf("height %d\n", height);
-#endif
-
   CudaRtFrontend::Execute("cudaMallocArray");
   if (CudaRtFrontend::Success())
     *arrayPtr = (cudaArray *)CudaRtFrontend::GetOutputDevicePointer();
 
-  //    printf("%x\n", *arrayPtr);
   return CudaRtFrontend::GetExitCode();
 }
 
@@ -289,7 +231,6 @@ extern "C" __host__ CUDARTAPI cudaError_t cudaMallocManaged(void **devPtr,
                                                             size_t size,
                                                             unsigned flags) {
 
-    //printf("MallocManaged: devPtr:%x size: %ld flags:%d\n",devPtr,size,flags);
     *devPtr = malloc(size);
 
     CudaRtFrontend::Prepare();
@@ -302,7 +243,6 @@ extern "C" __host__ CUDARTAPI cudaError_t cudaMallocManaged(void **devPtr,
 
 
         void *remotePointer = CudaRtFrontend::GetOutputDevicePointer();
-        //printf("MallocManaged: remotePointer: 0x%x\n",remotePointer);
 
         mappedPointer host;
         host.pointer = remotePointer;
@@ -311,7 +251,6 @@ extern "C" __host__ CUDARTAPI cudaError_t cudaMallocManaged(void **devPtr,
 #ifdef DEBUG
         cerr << "device: " << std::hex << hp << " host: " << *devPtr << endl;
 #endif
-        //printf("MallocManaged: *devPtr: 0x%x (local) -> hostPointer: 0x%x size: %ld flags:%d\n",devPtr, host.pointer,size);
         CudaRtFrontend::addMappedPointer(*devPtr, host);
     } else {
         free(*devPtr);
@@ -319,39 +258,6 @@ extern "C" __host__ CUDARTAPI cudaError_t cudaMallocManaged(void **devPtr,
 
     return CudaRtFrontend::GetExitCode();
 }
-
-/*
-
-extern "C" __host__ CUDARTAPI cudaError_t cudaMallocManaged(void **devPtr,
-                                                            size_t size,
-                                                            unsigned flags) {
-
-    printf("MallocManaged: devPtr:%x size: %ld flags:%d\n",devPtr,size,flags);
-
-    CudaRtFrontend::Prepare();
-    CudaRtFrontend::AddVariableForArguments(size);
-    CudaRtFrontend::Execute("cudaMalloc");
-
-    if (CudaRtFrontend::Success()) {
-
-        void *devicePointer = CudaRtFrontend::GetOutputDevicePointer();
-
-        *devPtr = malloc(size);
-
-        mappedPointer device;
-        device.pointer = devicePointer;
-        device.size = size;
-
-#ifdef DEBUG
-        cerr << "device: " << std::hex << hp << " host: " << *devPtr << endl;
-#endif
-        printf("MallocManaged: 0x%x (host) -> 0x%x (device)\n",*devPtr,device.pointer);
-        CudaRtFrontend::addMappedPointer(*devPtr, device);
-  }
-
-  return CudaRtFrontend::GetExitCode();
-}
-*/
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaMemcpy3D(const cudaMemcpy3DParms *p) {
@@ -364,16 +270,11 @@ cudaMemcpy3D(const cudaMemcpy3DParms *p) {
   unsigned int cubemap_size = width * width * num_faces;
   unsigned int size =
       cubemap_size * num_layers * (p->srcPtr.pitch / p->extent.width);
-  //    unsigned int size = cubemap_size * num_layers * sizeof(float);
-  // float *h_data = (float *) malloc(size);
 
   CudaRtFrontend::AddHostPointerForArguments<char>(
       static_cast<char *>(const_cast<void *>(p->srcPtr.ptr)), size);
   CudaRtFrontend::Execute("cudaMemcpy3D");
   if (CudaRtFrontend::Success()) {
-    // memmove(p, CudaRtFrontend::GetOutputHostPointer<cudaMemcpy3DParms>(),
-    //         sizeof(cudaMemcpy3DParms));
-    //*p = *(CudaRtFrontend::GetOutputHostPointer<cudaMemcpy3DParms>());
     return CudaRtFrontend::GetExitCode();
   }
   return CudaRtFrontend::GetExitCode();

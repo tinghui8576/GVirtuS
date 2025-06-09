@@ -72,8 +72,7 @@ CUDA_DRIVER_HANDLER(ModuleGetGlobal) {
 /*Load a module's data with options.*/
 CUDA_DRIVER_HANDLER(ModuleLoadDataEx) {
     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ModuleLoadDataEx"));
-    //std::cout <<"Start CULAUNCHKERNEL"<<std::endl;
-    LOG4CPLUS_DEBUG(logger,"Start ModuleLoadDataEx");
+    LOG4CPLUS_DEBUG(logger, "Start ModuleLoadDataEx");
     
     CUmodule module;
     unsigned int numOptions = input_buffer->Get<unsigned int>();
@@ -86,22 +85,23 @@ CUDA_DRIVER_HANDLER(ModuleLoadDataEx) {
         switch (options[i]) {
             case CU_JIT_INFO_LOG_BUFFER:
                 *(optionValues + i) = input_buffer->Assign<char>();
-                optionValues[i] = malloc(log_buffer_size_bytes * sizeof (char));
+                optionValues[i] = malloc(log_buffer_size_bytes * sizeof(char));
                 break;
             case CU_JIT_ERROR_LOG_BUFFER:
                 *(optionValues + i) = input_buffer->Assign<char>();
-                optionValues[i] = malloc(error_log_buffer_size_bytes * sizeof (char));
+                optionValues[i] = malloc(error_log_buffer_size_bytes * sizeof(char));
                 break;
             case CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES:
-                log_buffer_size_bytes = (*(input_buffer->Assign<unsigned int>()));
-                optionValues[i] = (void *) log_buffer_size_bytes;
+                log_buffer_size_bytes = *(input_buffer->Assign<unsigned int>());
+                optionValues[i] = &log_buffer_size_bytes;
                 break;
             case CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES:
-                error_log_buffer_size_bytes = (*(input_buffer->Assign<unsigned int>()));
-                optionValues[i] = (void *) log_buffer_size_bytes;
+                error_log_buffer_size_bytes = *(input_buffer->Assign<unsigned int>());
+                optionValues[i] = &log_buffer_size_bytes;
                 break;
-            default:   
-                optionValues[i] = (void *) (*(input_buffer->Assign<unsigned int>()));
+            default:
+                log_buffer_size_bytes = *(input_buffer->Assign<unsigned int>());
+                optionValues[i] = &log_buffer_size_bytes;
         }
     }
     CUresult exit_code = cuModuleLoadDataEx(&module, image, numOptions, options, optionValues);

@@ -42,18 +42,19 @@ void listFiles( const char* path )
          if ( !strcmp( hFile->d_name, "."  )) continue;
          if ( !strcmp( hFile->d_name, ".." )) continue;
          if ( strstr( hFile->d_name, ".ptx" ))
-            printf( "found an .ptx file: %s", hFile->d_name );
+            printf( "found a .ptx file: %s", hFile->d_name );
       } 
       closedir( dirFile );
    }
 }
+
 /*Sets the parameter size for the function.*/
 extern CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(numbytes);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
     CudaDrFrontend::Execute("cuParamSetSize");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Sets the block-dimensions for the function.*/
@@ -64,7 +65,7 @@ extern CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
     CudaDrFrontend::AddVariableForArguments(z);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
     CudaDrFrontend::Execute("cuFuncSetBlockShape");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Launches a CUDA function.*/
@@ -74,7 +75,7 @@ extern CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) {
     CudaDrFrontend::AddVariableForArguments(grid_height);
     CudaDrFrontend::AddDevicePointerForArguments((void*) f);
     CudaDrFrontend::Execute("cuLaunchGrid");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns information about a function.*/
@@ -103,7 +104,7 @@ extern CUresult cuLaunch(CUfunction f) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) f);
     CudaDrFrontend::Execute("cuLaunch");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Launches a CUDA function.*/
@@ -114,7 +115,7 @@ extern CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height,
     CudaDrFrontend::AddDevicePointerForArguments((void*) f);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
     CudaDrFrontend::Execute("cuLaunchGridAsync");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Adds a floating-point parameter to the function's argument list.*/
@@ -124,7 +125,7 @@ extern CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
     CudaDrFrontend::AddVariableForArguments(value);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
     CudaDrFrontend::Execute("cuParamSetf");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Adds an integer parameter to the function's argument list.*/
@@ -134,7 +135,7 @@ extern CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value) {
     CudaDrFrontend::AddVariableForArguments(value);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
     CudaDrFrontend::Execute("cuParamSeti");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Adds a texture-reference to the function's argument list.*/
@@ -144,7 +145,7 @@ extern CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef
     CudaDrFrontend::AddVariableForArguments(texunit);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
     CudaDrFrontend::Execute("cuParamSetTexRef");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Adds arbitrary data to the function's argument list.*/
@@ -155,7 +156,7 @@ extern CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigned in
     CudaDrFrontend::AddHostPointerForArguments((char *) ptr, numbytes);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
     CudaDrFrontend::Execute("cuParamSetv");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Sets the preferred cache configuration for a device function. */
@@ -164,7 +165,7 @@ extern CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) {
     CudaDrFrontend::AddVariableForArguments(config);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
     CudaDrFrontend::Execute("cuFuncSetCacheConfig");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 
 // new Cuda 4.0 functions
@@ -184,6 +185,6 @@ extern CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int
     CudaDrFrontend::AddDevicePointerForArguments(kernelParams);
     CudaDrFrontend::AddHostPointerForArguments(&extra);
     CudaDrFrontend::Execute("cuLaunchKernel");
-    return (CUresult) CudaDrFrontend::GetExitCode();
+    return CudaDrFrontend::GetExitCode();
 }
 

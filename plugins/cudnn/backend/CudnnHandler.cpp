@@ -1249,9 +1249,8 @@ CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptor) {
     int h = in->Get<int>();
     int w = in->Get<int>();
 
-    //printf("[BACKEND SetTensor4dDescriptor] N, C, H, W: %d %d %d %d\n", n, c, h, w);
-
     cudnnStatus_t cs = cudnnSetTensor4dDescriptor(tensorDesc,format,dataType,n,c,h,w);
+    LOG4CPLUS_DEBUG(logger,"cudnnSetTensor4dDescriptor Executed");
     
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
@@ -1260,7 +1259,6 @@ CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptor) {
          LOG4CPLUS_DEBUG(logger,e);
          return std::make_shared<Result>(cs);
     }                      
-    //LOG4CPLUS_DEBUG(logger,"cudnnSetTensor4dDescriptor Executed");
     registerDescriptorType(tensorDesc, dataType);
     return std::make_shared<Result>(cs,out);
 }
@@ -1282,6 +1280,7 @@ CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptorEx) {
     int wStride = in->Get<int>();
 
     cudnnStatus_t cs = cudnnSetTensor4dDescriptorEx(tensorDesc,dataType,n,c,h,w,nStride,cStride,hStride,wStride);
+    LOG4CPLUS_DEBUG(logger, "cudnnSetTensor4dDescriptor Executed");
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
@@ -1291,7 +1290,6 @@ CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptorEx) {
          return std::make_shared<Result>(cs);
     }
     
-    LOG4CPLUS_DEBUG(logger, "cudnnSetTensor4dDescriptor Executed");
     registerDescriptorType(tensorDesc, dataType);
     return std::make_shared<Result>(cs);
 }
@@ -1305,6 +1303,7 @@ CUDNN_ROUTINE_HANDLER(GetTensor4dDescriptor) {
     int nStride,cStride,hStride,wStride;
 
     cudnnStatus_t cs = cudnnGetTensor4dDescriptor(tensorDesc,&dataType,&n,&c,&h,&w,&nStride,&cStride,&hStride,&wStride);
+    LOG4CPLUS_DEBUG(logger, "cudnnGetTensor4dDescriptor Executed");
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
@@ -1322,7 +1321,6 @@ CUDNN_ROUTINE_HANDLER(GetTensor4dDescriptor) {
         return std::make_shared<Result>(cs);
     }
     
-    LOG4CPLUS_DEBUG(logger, "cudnnGetTensor4dDescriptor Executed");
     
     return std::make_shared<Result>(cs,out);
 }

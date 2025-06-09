@@ -25,13 +25,6 @@
 #ifndef CURANDFRONTEND_H
 #define	CURANDFRONTEND_H
 
-#include <map>
-#include <set>
-#include <stack>
-#include <list>
-#include <iostream>
-
-#include <cuda_runtime_api.h>
 #include <curand.h>
 
 #include <gvirtus/frontend/Frontend.h>
@@ -113,7 +106,7 @@ public:
         /* TODO: implement AddSymbolForArguments
          * AddStringForArguments(CudaUtil::MarshalHostPointer((void *) symbol));
          * AddStringForArguments(symbol);
-         * */
+         */
     }
 
     static inline curandStatus_t GetExitCode() {

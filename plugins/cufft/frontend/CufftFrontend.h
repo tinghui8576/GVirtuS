@@ -14,7 +14,6 @@
 #include <set>
 #include <stack>
 #include <list>
-#include <iostream>
 
 #include <cufft.h>
 #include <cuda_runtime_api.h>
@@ -105,15 +104,15 @@ public:
         /* TODO: implement AddSymbolForArguments
          * AddStringForArguments(CudaUtil::MarshalHostPointer((void *) symbol));
          * AddStringForArguments(symbol);
-         * */
+         */
     }
 
-    static inline cudaError_t GetExitCode() {
-        return (cudaError_t) gvirtus::frontend::Frontend::GetFrontend()->GetExitCode();
+    static inline cufftResult GetExitCode() {
+        return (cufftResult) gvirtus::frontend::Frontend::GetFrontend()->GetExitCode();
     }
 
     static inline bool Success() {
-        return gvirtus::frontend::Frontend::GetFrontend()->Success(cudaSuccess);
+        return gvirtus::frontend::Frontend::GetFrontend()->Success(CUFFT_SUCCESS);
     }
 
     template <class T> static inline T GetOutputVariable() {
@@ -247,7 +246,6 @@ public:
     virtual ~CufftFrontend();
 
 private:
-
     static map <const void*, gvirtus::common::mappedPointer>* mappedPointers;
     static set <const void*>* devicePointers;
     static map <pthread_t, stack<void*> *>* toManage;

@@ -1,7 +1,7 @@
 project(gvirtus-plugin-cudart)
 find_package(CUDA REQUIRED)
 
-include_directories(${CUDART_INCLUDE_DIRECTORY} ${CUDA_INCLUDE_DIRS} util 3rdparty/include)
+include_directories(${CUDART_INCLUDE_DIRECTORY} ${CUDA_INCLUDE_DIRS} util cuda_internals)
 
 resolve_cuda_library_version(cudart CUDA_VERSION)
 

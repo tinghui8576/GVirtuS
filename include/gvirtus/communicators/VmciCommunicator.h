@@ -36,8 +36,6 @@
 #ifndef _VMCICOMMUNICATOR_H
 #define _VMCICOMMUNICATOR_H
 
-#include "../config.h"
-
 #ifdef HAVE_VMCI_VMCI_SOCKETS_H
 
 #include <ext/stdio_filebuf.h>

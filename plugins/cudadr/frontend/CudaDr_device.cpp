@@ -38,7 +38,7 @@ extern CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice dev) 
         *major = *(CudaDrFrontend::GetOutputHostPointer<int>());
         *minor = *(CudaDrFrontend::GetOutputHostPointer<int>());
     }
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns a handle to a compute device*/
@@ -50,7 +50,7 @@ extern CUresult cuDeviceGet(CUdevice *device, int ordinal) {
     if (CudaDrFrontend::Success()) {
         *device = *(CudaDrFrontend::GetOutputHostPointer<CUdevice > ());
     }
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns information about the device*/
@@ -62,7 +62,7 @@ extern CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUdevic
     CudaDrFrontend::Execute("cuDeviceGetAttribute");
     if (CudaDrFrontend::Success())
         *pi = *(CudaDrFrontend::GetOutputHostPointer<int>());
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns the number of compute-capable devices. */
@@ -72,7 +72,7 @@ extern CUresult cuDeviceGetCount(int *count) {
     CudaDrFrontend::Execute("cuDeviceGetCount");
     if (CudaDrFrontend::Success())
         *count = *(CudaDrFrontend::GetOutputHostPointer<int>());
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns an identifer string for the device.*/
@@ -86,7 +86,7 @@ extern CUresult cuDeviceGetName(char *name, int len, CUdevice dev) {
     if (CudaDrFrontend::Success())
         temp = (CudaDrFrontend::GetOutputString());
     strcpy(name, temp);
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns properties for a selected device.*/
@@ -98,7 +98,7 @@ extern CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
     if (CudaDrFrontend::Success()) {
         memmove(prop, CudaDrFrontend::GetOutputHostPointer<CUdevprop > (), sizeof (CUdevprop));
     }
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns the total amount of memory on the device. */
@@ -109,12 +109,5 @@ extern CUresult cuDeviceTotalMem(size_t *bytes, CUdevice dev) {
     CudaDrFrontend::Execute("cuDeviceTotalMem");
     if (CudaDrFrontend::Success())
         *bytes = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return CudaDrFrontend::GetExitCode();
 }
-
-#if (__CUDA_API_VERSION >= 7000)
-extern cudaError_t cudaDeviceGetP2PAttribute ( int* value, cudaDeviceP2PAttr attr, int  srcDevice, int  dstDevice ) {
-    cudaError_t error;
-    return error;
-}
-#endif

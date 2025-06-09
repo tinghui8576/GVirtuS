@@ -24,160 +24,116 @@
  *
  */
 
-#include "CudaRtHandler.h"
+#include <CudaUtil.h>
 
-#include "CudaUtil.h"
+#include "CudaRtHandler.h"
 
 using namespace std;
 
 typedef struct __cudaFatCudaBinary2HeaderRec {
-  unsigned int magic;
-  unsigned int version;
-  unsigned long long int length;
+    unsigned int magic;
+    unsigned int version;
+    unsigned long long int length;
 } __cudaFatCudaBinary2Header;
 
 enum FatBin2EntryType { FATBIN_2_PTX = 0x1 };
 
 typedef struct __cudaFatCudaBinary2EntryRec {
-  unsigned int type;
-  unsigned int binary;
-  unsigned long long int binarySize;
-  unsigned int unknown2;
-  unsigned int kindOffset;
-  unsigned int unknown3;
-  unsigned int unknown4;
-  unsigned int name;
-  unsigned int nameSize;
-  unsigned long long int flags;
-  unsigned long long int unknown7;
-  unsigned long long int uncompressedBinarySize;
+    unsigned int type;
+    unsigned int binary;
+    unsigned long long int binarySize;
+    unsigned int unknown2;
+    unsigned int kindOffset;
+    unsigned int unknown3;
+    unsigned int unknown4;
+    unsigned int name;
+    unsigned int nameSize;
+    unsigned long long int flags;
+    unsigned long long int unknown7;
+    unsigned long long int uncompressedBinarySize;
 } __cudaFatCudaBinary2Entry;
 
 long long COMPRESSED_PTX = 0x0000000000001000LL;
 
 typedef struct __cudaFatCudaBinaryRec2 {
-  int magic;
-  int version;
-  const unsigned long long *fatbinData;
-  char *f;
+    int magic;
+    int version;
+    const unsigned long long *fatbinData;
+    char *f;
 } __cudaFatCudaBinary2;
 
 extern "C" {
-  void **__cudaRegisterFatBinary(void *fatCubin);
-  void __cudaRegisterFatBinaryEnd(void **fatCubinHandle);
-  void __cudaUnregisterFatBinary(void **fatCubinHandle);
-  void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFun,
-                                    char *deviceFun, const char *deviceName,
-                                    int thread_limit, uint3 *tid, uint3 *bid,
-                                    dim3 *bDim, dim3 *gDim, int *wSize);
-  void __cudaRegisterVar(void **fatCubinHandle, char *hostVar,
-                                char *deviceAddress, const char *deviceName,
-                                int ext, int size, int constant, int global);
-  void __cudaRegisterSharedVar(void **fatCubinHandle, void **devicePtr,
-                                      size_t size, size_t alignment, int storage);
-  void __cudaRegisterShared(void **fatCubinHandle, void **devicePtr);
-  cudaError_t CUDARTAPI __cudaPopCallConfiguration(dim3 *gridDim,
-                                                          dim3 *blockDim,
-                                                          size_t *sharedMem,
-                                                          cudaStream_t *stream);
-  __host__ __device__ unsigned CUDARTAPI __cudaPushCallConfiguration(dim3 gridDim,
+    void **__cudaRegisterFatBinary(void *fatCubin);
+    void __cudaRegisterFatBinaryEnd(void **fatCubinHandle);
+    void __cudaUnregisterFatBinary(void **fatCubinHandle);
+    void __cudaRegisterFunction(void **fatCubinHandle, const char *hostFun,
+                                        char *deviceFun, const char *deviceName,
+                                        int thread_limit, uint3 *tid, uint3 *bid,
+                                        dim3 *bDim, dim3 *gDim, int *wSize);
+    void __cudaRegisterVar(void **fatCubinHandle, char *hostVar,
+                                    char *deviceAddress, const char *deviceName,
+                                    int ext, int size, int constant, int global);
+    void __cudaRegisterSharedVar(void **fatCubinHandle, void **devicePtr,
+                                        size_t size, size_t alignment, int storage);
+    void __cudaRegisterShared(void **fatCubinHandle, void **devicePtr);
+    cudaError_t CUDARTAPI __cudaPopCallConfiguration(dim3 *gridDim,
+                                                            dim3 *blockDim,
+                                                            size_t *sharedMem,
+                                                            cudaStream_t *stream);
+    __host__ __device__ unsigned CUDARTAPI __cudaPushCallConfiguration(dim3 gridDim,
                                                                             dim3 blockDim,
                                                                             size_t sharedMem,
                                                                             cudaStream_t stream);
-  // void __cudaRegisterTexture(void **fatCubinHandle,
-  //                            const cudaTextureObject_t*hostVar,
-  //                            void **deviceAddress, char *deviceName,
-  //                            int dim, int norm, int ext);
-  // void __cudaRegisterSurface(void **fatCubinHandle,
-  //                            const cudaSurfaceObject_t*hostVar,
-  //                            void **deviceAddress, char *deviceName,
-  //                            int dim, int ext);
 }
 
 static bool initialized = false;
 static char **constStrings;
 static size_t constStrings_size = 0;
 static size_t constStrings_length = 0;
-// static void ** fatCubinHandlers[2048];
-// static void * fatCubins[2048];
-// static const cudaTextureObject_t* texrefHandlers[2048];
-// static const cudaTextureObject_t* texref[2048];
 
 static void init() {
-  //    constStrings_size = 2048;
-  //    constStrings = (char **) malloc(sizeof (char *) * constStrings_size);
-  //    for (int i = 0; i < 2048; i++) {
-  //        constStrings[i] = NULL;
-  //        fatCubinHandlers[i] = NULL;
-  //        fatCubins[i] = NULL;
-  //    }
-  initialized = true;
+    initialized = true;
 }
 
 const char *get_const_string(const char *s) {
-  if (!initialized) init();
-  size_t i;
-  for (i = 0; i < constStrings_length; i++)
-    if (!strcmp(s, constStrings[i])) return constStrings[i];
-  if (i >= constStrings_size) {
-    constStrings_size += 2048;
-    constStrings =
-        (char **)realloc(constStrings, sizeof(char *) * constStrings_size);
-  }
-  constStrings[constStrings_length] = strdup(s);
-  return constStrings[constStrings_length++];
-}
-#if 0 
-
-void addFatBinary(void **handler, void *bin) {
-    if (!initialized)
-        init();
-    int i;
-    for (i = 0; fatCubinHandlers[i] != NULL && i < 2048; i++);
-    if (i >= 2048)
-        throw runtime_error("Exceeded maximum number of fat binaries");
-    fatCubinHandlers[i] = handler;
-    fatCubins[i] = bin;
+    if (!initialized) init();
+    size_t i;
+    for (i = 0; i < constStrings_length; i++)
+        if (!strcmp(s, constStrings[i])) return constStrings[i];
+    if (i >= constStrings_size) {
+        constStrings_size += 2048;
+        constStrings =
+            (char **)realloc(constStrings, sizeof(char *) * constStrings_size);
+    }
+    constStrings[constStrings_length] = strdup(s);
+    return constStrings[constStrings_length++];
 }
 
-void removeFatBinary(void **handler) {
-    int i;
-    for (i = 0; i < 2048; i++) {
-        if (fatCubinHandlers[i] == handler) {
-            free(fatCubins[i]);
-            fatCubinHandlers[i] = NULL;
-            return;
-        }
+#if 0
+    void addFatBinary(void **handler, void *bin) {
+        if (!initialized)
+            init();
+        int i;
+        for (i = 0; fatCubinHandlers[i] != NULL && i < 2048; i++);
+        if (i >= 2048)
+            throw runtime_error("Exceeded maximum number of fat binaries");
+        fatCubinHandlers[i] = handler;
+        fatCubins[i] = bin;
     }
 
-}
+    void removeFatBinary(void **handler) {
+        int i;
+        for (i = 0; i < 2048; i++) {
+            if (fatCubinHandlers[i] == handler) {
+                free(fatCubins[i]);
+                fatCubinHandlers[i] = NULL;
+                return;
+            }
+        }
 
-// void addTexture(struct cudaTextureObject_t*handler,
-//         struct cudaTextureObject_t*ref) {
-//     if (!initialized)
-//         init();
-//     int i;
-//     for (i = 0; texrefHandlers[i] != NULL && i < 2048; i++);
-//     if (i >= 2048)
-//         throw "Ahi ahi ahi";
-//     texrefHandlers[i] = handler;
-//     texref[i] = ref;
-// }
-
-// const cudaTextureObject_t* getTexture(const cudaTextureObject_t*handler) {
-//     int i;
-//     for (i = 0; i < 2048; i++) {
-//         if (texrefHandlers[i] == handler) {
-//             return texref[i];
-//         }
-//     }
-//     throw "Texture not found!";
-//     return NULL;
-// }
+    }
 
 #endif
-
-
 
 CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterFatBinary"));
@@ -215,7 +171,6 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
                   char *szSectionName = (sh_str + sh_table[i].sh_name);
                   if (strncmp(".nv.info.", szSectionName, strlen(".nv.info.")) == 0) {
                       char *szFuncName = szSectionName + strlen(".nv.info.");
-                      //printf("%s:\n", szFuncName);
                       byte *p = (byte *) eh + sh_table[i].sh_offset;
 
                       NvInfoFunction infoFunction;
@@ -237,9 +192,6 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
                           }
                           if (pAttr->attr == EIATTR_KPARAM_INFO) {
                               NvInfoKParam *nvInfoKParam = (NvInfoKParam *) pAttr;
-
-                              //printf("index:%d align:%x ordinal:%d offset:%d a:%x size:%d %d b:%x\n",  nvInfoKParam->index, nvInfoKParam->index, nvInfoKParam->ordinal,
-                              //       nvInfoKParam->offset, nvInfoKParam->a, (nvInfoKParam->size & 0xf8) >> 2, nvInfoKParam->size & 0x07, nvInfoKParam->b);
 
                               NvInfoKParam nvInfoKParam1;
                               nvInfoKParam1.index = nvInfoKParam->index;
@@ -424,144 +376,41 @@ CUDA_ROUTINE_HANDLER(RegisterShared) {
   return std::make_shared<Result>(cudaSuccess);
 }
 
-
-// deprecated
-// CUDA_ROUTINE_HANDLER(RegisterTexture) {
-//   try {
-//     char *handler = input_buffer->AssignString();
-//     void **fatCubinHandle = pThis->GetFatBinary(handler);
-//     char *hostVarPtr = input_buffer->AssignString();
-//     cudaTextureObject_t* texture = new textureReference;
-//     memmove(texture, input_buffer->Assign<textureReference>(),
-//             sizeof(textureReference));
-//     pThis->RegisterTexture(hostVarPtr, texture);
-//     const char *deviceAddress = get_const_string(input_buffer->AssignString());
-//     const char *deviceName = get_const_string(input_buffer->AssignString());
-
-//     int dim = input_buffer->Get<int>();
-//     int norm = input_buffer->Get<int>();
-//     int ext = input_buffer->Get<int>();
-//     __cudaRegisterTexture(fatCubinHandle, texture, (void **)deviceAddress,
-//                           (char *)deviceName, dim, norm, ext);
-
-// #ifdef DEBUG
-//     cudaError_t error = cudaGetLastError();
-//     if (error != 0) {
-//       cerr << "error executing RegisterTexture: " << _cudaGetErrorEnum(error)
-//            << endl;
-//     }
-// #endif
-
-//   } catch (string e) {
-//     cerr << e << endl;
-//     return std::make_shared<Result>(cudaErrorMemoryAllocation);
-//   }
-
-// #if 0
-//     try {
-//         handler = input_buffer->AssignString();
-//         cudaTextureObject_t*hostVar = new textureReference;
-//         memmove(hostVar, input_buffer->Assign<cudaTextureObject_t> (), sizeof (textureReference));
-//         void **deviceAddress = (void **) input_buffer->AssignAll<char>();
-//         char *deviceName = strdup(input_buffer->AssignString());
-//         int dim = input_buffer->Get<int>();
-//         int norm = input_buffer->Get<int>();
-//         int ext = input_buffer->Get<int>();
-//     } catch (string e) {
-//         cerr << e << endl;
-//         return std::make_shared<Result>(cudaErrorMemoryAllocation);
-//     }
-
-//     __cudaRegisterTexture(fatCubinHandle, hostVar, deviceAddress, deviceName,
-//             dim, norm, ext);
-
-//     pThis->RegisterTexture(handler, hostVar);
-// #endif
-//   return std::make_shared<Result>(cudaSuccess);
-// }
-
-// CUDA_ROUTINE_HANDLER(RegisterSurface) {
-//   try {
-//     char *handler = input_buffer->AssignString();
-//     void **fatCubinHandle = pThis->GetFatBinary(handler);
-//     char *hostVarPtr = input_buffer->AssignString();
-//     cudaSurfaceObject_t*surface = new surfaceReference;
-//     memmove(surface, input_buffer->Assign<surfaceReference>(),
-//             sizeof(surfaceReference));
-//     pThis->RegisterSurface(hostVarPtr, surface);
-//     const char *deviceAddress = get_const_string(input_buffer->AssignString());
-//     const char *deviceName = get_const_string(input_buffer->AssignString());
-//     int dim = input_buffer->Get<int>();
-//     int ext = input_buffer->Get<int>();
-//     __cudaRegisterSurface(fatCubinHandle, surface, (void **)deviceAddress,
-//                           (char *)deviceName, dim, ext);
-// #ifdef DEBUG
-//     cudaError_t error = cudaGetLastError();
-//     if (error != 0) {
-//       cerr << "error executing RegisterSurface: " << _cudaGetErrorEnum(error)
-//            << endl;
-//     }
-// #endif
-//   } catch (string e) {
-//     cerr << e << endl;
-//     return std::make_shared<Result>(cudaErrorMemoryAllocation);
-//   }
-//   return std::make_shared<Result>(cudaSuccess);
-// }
-
 #if (CUDART_VERSION >= 9020)
+    CUDA_ROUTINE_HANDLER(PushCallConfiguration) {
+        try {
+            dim3 gridDim = input_buffer->Get<dim3>();
+            dim3 blockDim = input_buffer->Get<dim3>();
+            size_t sharedMem = input_buffer->Get<size_t>();
+            cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+            cudaError_t exit_code = static_cast<cudaError_t>(__cudaPushCallConfiguration(gridDim, blockDim, sharedMem, stream));
+            return std::make_shared<Result>(exit_code);
+        } catch (string e) {
+            cerr << e << endl;
+            return std::make_shared<Result>(cudaErrorMemoryAllocation);
+        }
 
-#include "CudaRt_internal.h"
-
-CUDA_ROUTINE_HANDLER(PushCallConfiguration) {
-    try {
-        dim3 gridDim = input_buffer->Get<dim3>();
-        dim3 blockDim = input_buffer->Get<dim3>();
-        size_t sharedMem = input_buffer->Get<size_t>();
-        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
-/*
-        printf("PushCallConfiguration\n");
-        printf("gridDim: %d,%d,%d\n",gridDim.x,gridDim.y,gridDim.z);
-        printf("blockDim: %d,%d,%d\n",blockDim.x,blockDim.y,blockDim.z);
-        printf("sharedMem: %d stream: %x\n",sharedMem,stream);
-*/
-        cudaError_t exit_code = static_cast<cudaError_t>(__cudaPushCallConfiguration(gridDim, blockDim, sharedMem, stream));
-//        printf("PushCallConfiguration: %d\n",exit_code);
-        return std::make_shared<Result>(exit_code);
-    } catch (string e) {
-        cerr << e << endl;
-        return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 
-}
+    CUDA_ROUTINE_HANDLER(PopCallConfiguration) {
+        try {
+            dim3 gridDim,blockDim;
+            size_t sharedMem;
+            cudaStream_t stream;
+            cudaError_t exit_code = static_cast<cudaError_t>(__cudaPopCallConfiguration(&gridDim, &blockDim, &sharedMem, &stream));
+            std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-CUDA_ROUTINE_HANDLER(PopCallConfiguration) {
+            out->Add(gridDim);
+            out->Add(blockDim);
+            out->AddMarshal(sharedMem);
+            out->AddMarshal(stream);
 
-    try {
+            return std::make_shared<Result>(exit_code, out);
+        } catch (string e) {
+            cerr << e << endl;
+            return std::make_shared<Result>(cudaErrorMemoryAllocation);
+        }
 
-        dim3 gridDim,blockDim;
-        size_t sharedMem;
-        cudaStream_t stream;
-        cudaError_t exit_code = static_cast<cudaError_t>(__cudaPopCallConfiguration(&gridDim, &blockDim, &sharedMem, &stream));
-        /*
-        printf("__cudaPopCallConfiguration: %d\n",exit_code);
-        printf("gridDim: %d,%d,%d\n",gridDim.x,gridDim.y,gridDim.z);
-        printf("blockDim: %d,%d,%d\n",blockDim.x,blockDim.y,blockDim.z);
-        printf("sharedMem: %ld stream: %x\n",sharedMem,stream);
-        */
-        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-
-        out->Add(gridDim);
-        out->Add(blockDim);
-        out->AddMarshal(sharedMem);
-        out->AddMarshal(stream);
-
-        return std::make_shared<Result>(exit_code, out);
-    } catch (string e) {
-        cerr << e << endl;
-        return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-
-}
 
 #endif

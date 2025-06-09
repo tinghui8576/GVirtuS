@@ -270,9 +270,8 @@ CUDA_ROUTINE_HANDLER(DeviceSynchronize) {
   Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceSynchronize"));
   CudaRtHandler::setLogLevel(&logger);
 
-    //printf("Pre\n");
   cudaError_t exit_code = cudaDeviceSynchronize();
-    //printf("Post\n");
+
   return std::make_shared<Result>(exit_code);
 }
 
