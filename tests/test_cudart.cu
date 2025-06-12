@@ -1,7 +1,42 @@
 #include <gtest/gtest.h>
 #include <cuda_runtime.h>
+#include <cuda.h> /* cuuint64_t */
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess)
+
+__device__ int intDeviceVariable = 0;
+
+TEST(cudaRT, getDeviceCount) {
+    int count = 0;
+    CUDA_CHECK(cudaGetDeviceCount(&count));
+    ASSERT_GT(count, 0);
+}
+
+TEST(cudaRT, ThreadExchangeStreamCaptureMode) {
+    cudaStreamCaptureMode original_mode = cudaStreamCaptureModeThreadLocal;
+    cudaStreamCaptureMode previous_mode;
+
+    // Exchange thread-local with current mode, original_mode gets overwritten with previous
+    previous_mode = original_mode;
+    CUDA_CHECK(cudaThreadExchangeStreamCaptureMode(&original_mode));
+
+    // Ensure that exchange actually happened: value at `original_mode` now holds the previous
+    ASSERT_NE(previous_mode, original_mode);
+
+    // Now push the original mode back to restore thread state
+    CUDA_CHECK(cudaThreadExchangeStreamCaptureMode(&original_mode));
+
+    // Ensure that the original mode is restored
+    ASSERT_EQ(original_mode, previous_mode);
+}
+
+TEST(cudaRT, MemPoolGetAttribute) {
+    cudaMemPool_t memPool;
+    CUDA_CHECK(cudaDeviceGetDefaultMemPool(&memPool, 0));
+
+    cuuint64_t threshold = 0;
+    CUDA_CHECK(cudaMemPoolGetAttribute(memPool, cudaMemPoolAttrReleaseThreshold, &threshold));
+}
 
 TEST(cudaRT, MallocFree) {
     void* devPtr = nullptr;

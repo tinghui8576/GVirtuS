@@ -682,3 +682,11 @@ extern "C" cufftResult CUFFTAPI cufftXtMakePlanMany(cufftHandle plan,
   cerr << "EXCEPTION - function cufftXtMakePlanMany not supported in GVIRTUS" << endl;
   return CUFFT_NOT_IMPLEMENTED;
 }
+
+extern "C" cufftResult CUFFTAPI cufftXtExec(cufftHandle plan,
+                                            void *input,
+                                            void *output,
+                                            int direction) {
+  cerr << "EXCEPTION - function cufftXtExec not supported in GVIRTUS" << endl;
+  return CUFFT_NOT_IMPLEMENTED;
+}

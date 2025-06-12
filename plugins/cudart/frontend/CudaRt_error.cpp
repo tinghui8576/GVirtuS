@@ -50,3 +50,10 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGetLastError(void) {
   CudaRtFrontend::Execute("cudaGetLastError");
   return CudaRtFrontend::GetExitCode();
 }
+
+extern "C" __host__ __device__ const char* CUDARTAPI cudaGetErrorName(cudaError_t error) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddVariableForArguments(error);
+    CudaRtFrontend::Execute("cudaGetErrorName");
+    return CudaRtFrontend::GetOutputString();
+}

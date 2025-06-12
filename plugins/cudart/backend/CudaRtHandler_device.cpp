@@ -268,17 +268,14 @@ CUDA_ROUTINE_HANDLER(DeviceSynchronize) {
 
 CUDA_ROUTINE_HANDLER(GetDeviceCount) {
   Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetDeviceCount"));
-  CudaRtHandler::setLogLevel(&logger);
-
   try {
-    int *count = input_buffer->Assign<int>();
-    cudaError_t exit_code = cudaGetDeviceCount(count);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-
-    out->Add(count);
+    int *count = out->Delegate<int>();
+    cudaError_t exit_code = cudaGetDeviceCount(count);
+    LOG4CPLUS_DEBUG(logger, "GetDeviceCount executed. Count: " << *count);
     return std::make_shared<Result>(exit_code, out);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -326,7 +323,6 @@ CUDA_ROUTINE_HANDLER(SetDevice) {
 #error CUDART_VERSION not defined
 #endif
 #if CUDART_VERSION >= 2030
-
 CUDA_ROUTINE_HANDLER(SetDeviceFlags) {
   Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetDeviceFlags"));
   CudaRtHandler::setLogLevel(&logger);
@@ -377,3 +373,19 @@ CUDA_ROUTINE_HANDLER(SetValidDevices) {
   }
 }
 #endif
+
+CUDA_ROUTINE_HANDLER(DeviceGetDefaultMemPool) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceGetDefaultMemPool"));
+
+    cudaMemPool_t memPool;
+    int device = input_buffer->Get<int>();
+
+    cudaError_t exit_code = cudaDeviceGetDefaultMemPool(&memPool, device);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("cudaDeviceGetDefaultMemPool: ") << exit_code);
+    if (exit_code == cudaSuccess) {
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+        out->AddMarshal(memPool);
+        return std::make_shared<Result>(exit_code, out);
+    }
+    return std::make_shared<Result>(exit_code);
+}

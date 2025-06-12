@@ -125,7 +125,6 @@ extern CUresult cuModuleLoad(CUmodule *module, const char *fname) {
     std::ostringstream res;
     std::ifstream input("helloWorldDriverAPI.ptx", std::ios::binary);
     encoder->Encode(input,res);
-    //input >> std::noskipws;
     
     std::string moduleLoad = res.str();
 
@@ -136,10 +135,6 @@ extern CUresult cuModuleLoad(CUmodule *module, const char *fname) {
     if (CudaDrFrontend::Success())
         *module = (CUmodule) (CudaDrFrontend::GetOutputDevicePointer());
     return CudaDrFrontend::GetExitCode();
-
-    // FIXME: implement
-    //cerr << "*** Error: cuModuleLoad not yet implemented!" << endl;
-    //return (CUresult) 1;
 }
 
 extern CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin) {
@@ -149,9 +144,6 @@ extern CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin) {
     if (CudaDrFrontend::Success())
         *module = (CUmodule) (CudaDrFrontend::GetOutputDevicePointer());
     return CudaDrFrontend::GetExitCode();
-    // FIXME: implement
-    //cerr << "*** Error: cuModuleLoadFatBinary not yet implemented!" << endl;
-    //return (CUresult) 1;
 }
 
 extern CUresult cuModuleUnload(CUmodule hmod) {
@@ -159,7 +151,81 @@ extern CUresult cuModuleUnload(CUmodule hmod) {
     CudaDrFrontend::AddDevicePointerForArguments((char *)hmod);
     CudaDrFrontend::Execute("cuModuleUnload");
     return CudaDrFrontend::GetExitCode();
-    // FIXME: implement
-    //cerr << "*** Error: cuModuleUnload not yet implemented!" << endl;
-    //return (CUresult) 1;
+}
+
+// TODO: test
+extern CUresult cuLinkCreate(unsigned int  numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddVariableForArguments(numOptions);
+    CudaDrFrontend::AddHostPointerForArguments(options, numOptions);
+    for (unsigned int i = 0; i < numOptions; i++) {
+        CudaDrFrontend::AddHostPointerForArguments(&optionValues[i]);
+    }
+    CudaDrFrontend::Execute("cuLinkCreate");
+    if (CudaDrFrontend::Success()) {
+        *stateOut = (CUlinkState) (CudaDrFrontend::GetOutputDevicePointer());
+    }
+    return CudaDrFrontend::GetExitCode();
+}
+
+// TODO: test
+extern CUresult cuLinkAddData(CUlinkState state, CUjitInputType type, void* data, size_t size, const char* name, unsigned int  numOptions, CUjit_option* options, void** optionValues) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddDevicePointerForArguments((void*) state);
+    CudaDrFrontend::AddVariableForArguments(type);
+    CudaDrFrontend::AddHostPointerForArguments(data, size);
+    CudaDrFrontend::AddVariableForArguments(size);
+    CudaDrFrontend::AddStringForArguments((char*) name);
+    CudaDrFrontend::AddVariableForArguments(numOptions);
+    CudaDrFrontend::AddHostPointerForArguments(options, numOptions);
+    for (unsigned int i = 0; i < numOptions; i++) {
+        CudaDrFrontend::AddHostPointerForArguments(&optionValues[i]);
+    }
+    CudaDrFrontend::Execute("cuLinkAddData");
+    return CudaDrFrontend::GetExitCode();
+}
+
+// TODO: test
+extern CUresult cuLinkAddFile(CUlinkState state, CUjitInputType type, const char* path, unsigned int  numOptions, CUjit_option* options, void** optionValues ) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddDevicePointerForArguments(state);
+    CudaDrFrontend::AddVariableForArguments(type);
+    CudaDrFrontend::AddStringForArguments(path);
+    CudaDrFrontend::AddVariableForArguments(numOptions);
+    CudaDrFrontend::AddHostPointerForArguments(options, numOptions);
+    for (unsigned int i = 0; i < numOptions; i++) {
+        CudaDrFrontend::AddHostPointerForArguments(&optionValues[i]);
+    }
+    CudaDrFrontend::Execute("cuLinkAddFile");
+    return CudaDrFrontend::GetExitCode();
+}
+
+// TODO: test
+extern CUresult cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOut) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddDevicePointerForArguments(state);
+    CudaDrFrontend::Execute("cuLinkComplete");
+    if (CudaDrFrontend::Success()) {
+        *cubinOut = CudaDrFrontend::GetOutputDevicePointer();
+        *sizeOut = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
+    }
+    return CudaDrFrontend::GetExitCode();
+}
+
+// TODO: test
+extern CUresult cuLinkDestroy(CUlinkState state) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddDevicePointerForArguments(state);
+    CudaDrFrontend::Execute("cuLinkDestroy");
+    return CudaDrFrontend::GetExitCode();
+}
+
+// TODO: test
+extern CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int  value) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddVariableForArguments(attrib);
+    CudaDrFrontend::AddVariableForArguments(value);
+    CudaDrFrontend::Execute("cuFuncSetAttribute");
+    return CudaDrFrontend::GetExitCode();
 }

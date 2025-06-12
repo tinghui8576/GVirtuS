@@ -120,11 +120,62 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaSetupArgument(const void *arg,
     return CudaRtFrontend::GetExitCode();
 }
 
+// TODO: needs testing
+extern "C" __host__ cudaError_t cudaLaunchKernelExC(const cudaLaunchConfig_t* config, const void* func, void** args) {
+    CudaRtFrontend::Prepare();
+
+    // A vector with the mapped pointers to be marshalled and unmarshalled
+    vector<gvirtus::common::mappedPointer> mappedPointers;
+
+    CudaRtFrontend::AddDevicePointerForArguments(func);
+    CudaRtFrontend::AddVariableForArguments(config->gridDim);
+    CudaRtFrontend::AddVariableForArguments(config->blockDim);
+    CudaRtFrontend::AddVariableForArguments(config->numAttrs);
+    CudaRtFrontend::AddDevicePointerForArguments(config->attrs);
+    CudaRtFrontend::AddVariableForArguments(config->dynamicSmemBytes);
+    CudaRtFrontend::AddDevicePointerForArguments(config->stream);
+
+    std::string deviceFunc = CudaRtFrontend::getDeviceFunc(const_cast<void *>(func));
+    NvInfoFunction infoFunction = CudaRtFrontend::getInfoFunc(deviceFunc);
+
+    size_t argsPayloadSize = 0;
+    for (NvInfoKParam infoKParam : infoFunction.params) {
+        argsPayloadSize += ((infoKParam.size & 0xf8) >> 2);
+    }
+
+    byte *pArgsPayload = static_cast<byte *>(malloc(argsPayloadSize));
+    memset(pArgsPayload, 0x00, argsPayloadSize);
+
+    for (NvInfoKParam infoKParam : infoFunction.params) {
+        byte *p = pArgsPayload + infoKParam.offset;
+        memcpy(p, args[infoKParam.ordinal], ((infoKParam.size & 0xf8) >> 2));
+    }
+
+    CudaRtFrontend::AddHostPointerForArguments<byte>(pArgsPayload, argsPayloadSize);
+
+    CudaRtFrontend::Execute("cudaLaunchKernelExC");
+    cudaError_t cudaError = CudaRtFrontend::GetExitCode();
+    free(pArgsPayload);
+    
+    return cudaError;
+}
+
+
+// TODO: needs testing
+extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(stream);
+    CudaRtFrontend::AddVariableForArguments((gvirtus::common::pointer_t)fn);
+    CudaRtFrontend::AddHostPointerForArguments(userData);
+    CudaRtFrontend::Execute("cudaLaunchHostFunc");
+    return CudaRtFrontend::GetExitCode();
+}
+
 #if CUDA_VERSION >= 9000
-    extern "C" __host__ cudaError_t cudaLaunchKernel ( const void* func,
+    extern "C" __host__ cudaError_t cudaLaunchKernel(const void* func,
                                                     dim3 gridDim, dim3 blockDim,
                                                     void** args,
-                                                    size_t sharedMem, cudaStream_t stream ) {
+                                                    size_t sharedMem, cudaStream_t stream) {
         cudaError_t cudaError = cudaSuccess;
 
         // A vector with the mapped pointers to be marshalled and unmarshalled

@@ -105,16 +105,11 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaSetDevice(int device) {
   return CudaRtFrontend::GetExitCode();
 }
 
-#if CUDART_VERSION >= 3000
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaSetDeviceFlags(unsigned int flags) {
-#else
-extern "C" __host__ cudaError_t CUDARTAPI cudaSetDeviceFlags(int flags) {
-#endif
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddVariableForArguments(flags);
-  CudaRtFrontend::Execute("cudaSetDeviceFlags");
-  return CudaRtFrontend::GetExitCode();
+extern "C" __host__ cudaError_t CUDARTAPI cudaSetDeviceFlags(unsigned int flags) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddVariableForArguments(flags);
+    CudaRtFrontend::Execute("cudaSetDeviceFlags");
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceReset(void) {
@@ -236,4 +231,25 @@ cudaDeviceDisablePeerAccess(int peerDevice) {
 
   CudaRtFrontend::Execute("cudaDeviceDisablePeerAccess");
   return CudaRtFrontend::GetExitCode();
+}
+
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceGetDefaultMemPool(cudaMemPool_t *memPool, int device) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddVariableForArguments(device);
+    CudaRtFrontend::Execute("cudaDeviceGetDefaultMemPool");
+    if (CudaRtFrontend::Success())
+        *memPool = CudaRtFrontend::GetOutputVariable<cudaMemPool_t>();
+    return CudaRtFrontend::GetExitCode();
+}
+
+// TODO: needs testing
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceGetPCIBusId(char* pciBusId, int len, int device) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddHostPointerForArguments(pciBusId, len);
+    CudaRtFrontend::AddVariableForArguments(len);
+    CudaRtFrontend::AddVariableForArguments(device);
+    CudaRtFrontend::Execute("cudaDeviceGetPCIBusId");
+    if (CudaRtFrontend::Success())
+        strncpy(pciBusId, CudaRtFrontend::GetOutputHostPointer<char>(), len);
+    return CudaRtFrontend::GetExitCode();
 }

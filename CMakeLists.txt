@@ -110,6 +110,7 @@ maybe_add_cuda_plugin(cufft plugins/cufft) # part of CUDA toolkit
 maybe_add_cuda_plugin(cusolver plugins/cusolver) # part of CUDA toolkit
 maybe_add_cuda_plugin(cusparse plugins/cusparse) # part of CUDA toolkit
 maybe_add_cuda_plugin(curand plugins/curand) # part of CUDA toolkit
+maybe_add_cuda_plugin(nvrtc plugins/nvrtc) # part of CUDA toolkit
 
 add_subdirectory(plugins/cudnn) # CUDNN is not part of CUDA toolkit. Internally, we check if cudnn is available
 

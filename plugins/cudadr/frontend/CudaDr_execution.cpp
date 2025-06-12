@@ -186,3 +186,12 @@ extern CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int
     return CudaDrFrontend::GetExitCode();
 }
 
+extern CUresult cuLaunchKernelEx (const CUlaunchConfig* config, CUfunction f, void** kernelParams, void** extra) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddDevicePointerForArguments((void*) f);
+    CudaDrFrontend::AddHostPointerForArguments<const CUlaunchConfig>(config);
+    CudaDrFrontend::AddDevicePointerForArguments(kernelParams);
+    CudaDrFrontend::AddHostPointerForArguments(&extra);
+    CudaDrFrontend::Execute("cuLaunchKernelEx");
+    return CudaDrFrontend::GetExitCode();
+}

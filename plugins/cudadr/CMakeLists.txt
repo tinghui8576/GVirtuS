@@ -42,11 +42,13 @@ function(configure_cudadr_plugin)
     gvirtus_add_backend(cuda ${CUDADR_VERSION}
         backend/CudaDrHandler_context.cpp
         backend/CudaDrHandler_device.cpp
+        backend/CudaDrHandler_error.cpp
         backend/CudaDrHandler_event.cpp
         backend/CudaDrHandler_execution.cpp
         backend/CudaDrHandler_initialization.cpp
         backend/CudaDrHandler_memory.cpp
         backend/CudaDrHandler_module.cpp
+        backend/CudaDrHandler_occupancy.cpp
         backend/CudaDrHandler_stream.cpp
         backend/CudaDrHandler_texture.cpp
         backend/CudaDrHandler_version.cpp
@@ -58,11 +60,13 @@ function(configure_cudadr_plugin)
     gvirtus_add_frontend(cuda ${CUDADR_VERSION}
         frontend/CudaDr_context.cpp
         frontend/CudaDr_device.cpp
+        frontend/CudaDr_error.cpp
         frontend/CudaDr_event.cpp
         frontend/CudaDr_execution.cpp
         frontend/CudaDr_initialization.cpp
         frontend/CudaDr_memory.cpp
         frontend/CudaDr_module.cpp
+        frontend/CudaDr_occupancy.cpp
         frontend/CudaDr_stream.cpp
         frontend/CudaDr_texture.cpp
         frontend/CudaDr_version.cpp

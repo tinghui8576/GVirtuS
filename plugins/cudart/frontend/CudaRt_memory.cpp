@@ -31,7 +31,18 @@
 
 using namespace std;
 using gvirtus::common::mappedPointer;
-using gvirtus::common::pointer_t;
+
+extern "C" __host__ cudaError_t CUDARTAPI cudaMemGetInfo(size_t *free, size_t *total) {
+  CudaRtFrontend::Prepare();
+  CudaRtFrontend::AddHostPointerForArguments(free);
+  CudaRtFrontend::AddHostPointerForArguments(total);
+  CudaRtFrontend::Execute("cudaMemGetInfo");
+  if (CudaRtFrontend::Success()) {
+    *free = *CudaRtFrontend::GetOutputHostPointer<size_t>();
+    *total = *CudaRtFrontend::GetOutputHostPointer<size_t>();
+  }
+  return CudaRtFrontend::GetExitCode();
+}
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaFree(void *devPtr) {
   if (CudaRtFrontend::isMappedMemory(devPtr)) {
@@ -840,20 +851,58 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemset2D(void *devPtr,
                                                        size_t pitch, int value,
                                                        size_t width,
                                                        size_t height) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddDevicePointerForArguments(devPtr);
-  CudaRtFrontend::AddVariableForArguments(pitch);
-  CudaRtFrontend::AddVariableForArguments(value);
-  CudaRtFrontend::AddVariableForArguments(width);
-  CudaRtFrontend::AddVariableForArguments(height);
-  CudaRtFrontend::Execute("cudaMemset2D");
-  // TO-DO si deve fare sul serio solo la parte di backend ovviamente
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(devPtr);
+    CudaRtFrontend::AddVariableForArguments(pitch);
+    CudaRtFrontend::AddVariableForArguments(value);
+    CudaRtFrontend::AddVariableForArguments(width);
+    CudaRtFrontend::AddVariableForArguments(height);
+    CudaRtFrontend::Execute("cudaMemset2D");
+    // TO-DO si deve fare sul serio solo la parte di backend ovviamente
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaMemset3D(cudaPitchedPtr pitchDevPtr, int value, cudaExtent extent) {
-  // FIXME: implement
-  cerr << "*** Error: cudaMemset3D() not yet implemented!" << endl;
-  return cudaErrorUnknown;
+    // FIXME: implement
+    cerr << "*** Error: cudaMemset3D() not yet implemented!" << endl;
+    return cudaErrorUnknown;
+}
+
+// TODO: needs testing
+extern "C" __host__ cudaError_t CUDARTAPI cudaHostRegister(void *ptr, size_t size,
+                                                        unsigned int flags) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddHostPointerForArguments(ptr);
+    CudaRtFrontend::AddVariableForArguments(size);
+    CudaRtFrontend::AddVariableForArguments(flags);
+    CudaRtFrontend::Execute("cudaHostRegister");
+    if (CudaRtFrontend::Success()) {
+        mappedPointer host;
+        host.pointer = ptr;
+        host.size = size;
+        CudaRtFrontend::addMappedPointer(ptr, host);
+    }
+    return CudaRtFrontend::GetExitCode();
+}
+
+// TODO: needs testing
+extern "C" __host__ cudaError_t CUDARTAPI cudaHostUnregister(void* ptr) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(ptr);
+    CudaRtFrontend::Execute("cudaHostUnregister");
+    return CudaRtFrontend::GetExitCode();
+}
+
+// TODO: needs testing
+extern "C" __host__ cudaError_t CUDARTAPI cudaPointerGetAttributes(
+    cudaPointerAttributes *attributes, const void *ptr) {
+  CudaRtFrontend::Prepare();
+  CudaRtFrontend::AddHostPointerForArguments(attributes);
+  CudaRtFrontend::AddHostPointerForArguments(ptr);
+  CudaRtFrontend::Execute("cudaPointerGetAttributes");
+  if (CudaRtFrontend::Success()) {
+    *attributes = *(CudaRtFrontend::GetOutputHostPointer<cudaPointerAttributes>());
+  }
+  return CudaRtFrontend::GetExitCode();
 }

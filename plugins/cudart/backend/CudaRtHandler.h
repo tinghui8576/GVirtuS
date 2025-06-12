@@ -179,6 +179,7 @@ CUDA_ROUTINE_HANDLER(IpcGetMemHandle);
 CUDA_ROUTINE_HANDLER(IpcGetEventHandle);
 CUDA_ROUTINE_HANDLER(IpcOpenEventHandle);
 CUDA_ROUTINE_HANDLER(IpcOpenMemHandle);
+CUDA_ROUTINE_HANDLER(DeviceGetDefaultMemPool);
 // Testing
 CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessor);
 CUDA_ROUTINE_HANDLER(DeviceGetAttribute);
@@ -227,6 +228,7 @@ CUDA_ROUTINE_HANDLER(RegisterSharedMemory);
 CUDA_ROUTINE_HANDLER(RequestSharedMemory);
 
 /* CudaRtHandler_memory */
+CUDA_ROUTINE_HANDLER(MemGetInfo);
 CUDA_ROUTINE_HANDLER(Free);
 CUDA_ROUTINE_HANDLER(FreeArray);
 CUDA_ROUTINE_HANDLER(GetSymbolAddress);
@@ -260,6 +262,13 @@ CUDA_ROUTINE_HANDLER(GraphicsUnmapResources);
 CUDA_ROUTINE_HANDLER(GraphicsUnregisterResource);
 CUDA_ROUTINE_HANDLER(GraphicsResourceSetMapFlags);
 
+/* CudaRtHandler_stream_memory */
+CUDA_ROUTINE_HANDLER(MemPoolCreate);
+CUDA_ROUTINE_HANDLER(MemPoolGetAttribute);
+CUDA_ROUTINE_HANDLER(MemPoolSetDefauklt);
+// CUDA_ROUTINE_HANDLER(MemPoolSetAttribute);
+// CUDA_ROUTINE_HANDLER(MemPoolDestroy);
+
 /* CudaRtHandler_stream */
 CUDA_ROUTINE_HANDLER(StreamCreate);
 CUDA_ROUTINE_HANDLER(StreamDestroy);
@@ -268,6 +277,7 @@ CUDA_ROUTINE_HANDLER(StreamSynchronize);
 CUDA_ROUTINE_HANDLER(StreamCreateWithFlags);
 CUDA_ROUTINE_HANDLER(StreamWaitEvent);
 CUDA_ROUTINE_HANDLER(StreamCreateWithPriority);
+CUDA_ROUTINE_HANDLER(ThreadExchangeStreamCaptureMode);
 
 // DEPRECATED
 /* CudaRtHandler_texture */ 

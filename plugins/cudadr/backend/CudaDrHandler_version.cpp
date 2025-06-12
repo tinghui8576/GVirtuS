@@ -25,14 +25,18 @@
 
 #include "CudaDrHandler.h"
 
+using namespace log4cplus;
+
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 /*Return the Cuda Driver Version */
 CUDA_DRIVER_HANDLER(DriverGetVersion) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DriverGetVersion"));
     int driverVersion;
-    CUresult exit_code = cuDriverGetVersion(&driverVersion);
+    CUresult cs = cuDriverGetVersion(&driverVersion);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->Add(driverVersion);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    LOG4CPLUS_DEBUG(logger, "DriverGetVersion executed, version: " << driverVersion);
+    return std::make_shared<Result>(cs, out);
 }

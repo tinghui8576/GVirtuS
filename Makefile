@@ -31,6 +31,7 @@ run-gvirtus-backend-dev:
 		-v ./tests:/gvirtus/tests/ \
 		-v ./CMakeLists.txt:/gvirtus/CMakeLists.txt \
 		-v ./docker/dev/entrypoint.sh:/entrypoint.sh \
+		-v ./examples:/gvirtus/examples/ \
 		--entrypoint /entrypoint.sh \
 		--name gvirtus \
 		--runtime=nvidia \

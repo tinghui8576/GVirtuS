@@ -27,8 +27,10 @@
 #include <CudaUtil.h>
 
 #include "CudaRtHandler.h"
+#include <cuda.h>
 
 using namespace std;
+using namespace log4cplus;
 
 typedef struct __cudaFatCudaBinary2HeaderRec {
     unsigned int magic;
@@ -270,28 +272,39 @@ CUDA_ROUTINE_HANDLER(RegisterFunction) {
 }
 
 CUDA_ROUTINE_HANDLER(RegisterVar) {
+  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterVar"));
+  LOG4CPLUS_DEBUG(logger, "Entering in RegisterVar");
   try {
     char *handler = input_buffer->AssignString();
+    LOG4CPLUS_DEBUG(logger, "Handler: " << handler);
     void **fatCubinHandle = pThis->GetFatBinary(handler);
-    char *hostVar =
-        (char *)CudaUtil::UnmarshalPointer(input_buffer->AssignString());
+    LOG4CPLUS_DEBUG(logger, "FatCubinHandle: " << fatCubinHandle);
+    char *hostVar = input_buffer->AssignString();
+    LOG4CPLUS_DEBUG(logger, "HostVar: " << hostVar);
     char *deviceAddress = strdup(input_buffer->AssignString());
+    LOG4CPLUS_DEBUG(logger, "DeviceAddress: " << deviceAddress);
     const char *deviceName = strdup(input_buffer->AssignString());
+    LOG4CPLUS_DEBUG(logger, "DeviceName: " << deviceName);
     int ext = input_buffer->Get<int>();
     int size = input_buffer->Get<int>();
     int constant = input_buffer->Get<int>();
     int global = input_buffer->Get<int>();
+    LOG4CPLUS_DEBUG(logger, "Calling RegisterVar: " << deviceName << " for "
+                      << fatCubinHandle << " with hostVar: " << hostVar
+                      << ", deviceAddress: " << deviceAddress
+                      << ", deviceName: " << deviceName
+                      << ", ext: " << ext << ", size: " << size
+                      << ", constant: " << constant
+                      << ", global: " << global);
     __cudaRegisterVar(fatCubinHandle, hostVar, deviceAddress, deviceName, ext,
                       size, constant, global);
-#ifdef DEBUG
     cudaError_t error = cudaGetLastError();
-    if (error != 0) {
-      cerr << "error executing RegisterVar: " << _cudaGetErrorEnum(error)
-           << endl;
+    LOG4CPLUS_DEBUG(logger, "RegisterVar Executed");
+    if (error != cudaSuccess) {
+      LOG4CPLUS_DEBUG(logger, "error executing RegisterVar: " << _cudaGetErrorEnum(error));
     }
-#endif
   } catch (const std::exception& e) {
-      cerr << e.what() << endl;
+      LOG4CPLUS_DEBUG(logger, "Exception" << e.what() << " in RegisterVar");
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 

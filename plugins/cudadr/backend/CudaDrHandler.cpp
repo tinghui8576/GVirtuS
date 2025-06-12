@@ -202,7 +202,7 @@ const char *CudaDrHandler::GetSymbol(Buffer* in) {
 void CudaDrHandler::Initialize() {
     if (mspHandlers != NULL)
         return;
-    mspHandlers = new map<string, CudaDrHandler::CudaDriverHandler > ();
+    mspHandlers = new map<string, CudaDrHandler::CudaDriverHandler>();
 
     /*CudaDrHAndler_initialization*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(Init));

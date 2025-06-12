@@ -26,8 +26,18 @@
 #include "CudaRtHandler.h"
 #include "CudaUtil.h"
 
-//#define DEBUG
+using namespace log4cplus;
 using namespace std;
+
+CUDA_ROUTINE_HANDLER(MemGetInfo) {
+  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MemGetInfo"));
+  CudaRtHandler::setLogLevel(&logger);
+  std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+  size_t *free = out->Delegate<size_t>();
+  size_t *total = out->Delegate<size_t>();
+  cudaError_t exit_code = cudaMemGetInfo(free, total);
+  return std::make_shared<Result>(exit_code, out);
+}
 
 CUDA_ROUTINE_HANDLER(Free) {
   void *devPtr = input_buffer->GetFromMarshal<void *>();

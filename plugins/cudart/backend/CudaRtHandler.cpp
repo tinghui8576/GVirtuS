@@ -159,12 +159,18 @@ const char *CudaRtHandler::GetDeviceFunction(const char *handler) {
 }
 
 void CudaRtHandler::RegisterVar(string &handler, string &symbol) {
+  logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterVar"));
+  LOG4CPLUS_DEBUG(logger, "Registering Var " << symbol
+                              << " with handler " << handler);
   mpVar->insert(make_pair(handler, symbol));
   LOG4CPLUS_DEBUG(logger,
                   "Registered Var " << symbol << " with handler " << handler);
 }
 
 void CudaRtHandler::RegisterVar(const char *handler, const char *symbol) {
+  logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterVar"));
+  LOG4CPLUS_DEBUG(logger, "Registering Var " << symbol
+                              << " with handler " << handler);
   string tmp1(handler);
   string tmp2(symbol);
   RegisterVar(tmp1, tmp2);
@@ -271,8 +277,8 @@ void CudaRtHandler::Initialize() {
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcGetEventHandle));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcOpenEventHandle));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcOpenMemHandle));
-  mspHandlers->insert(
-      CUDA_ROUTINE_HANDLER_PAIR(OccupancyMaxActiveBlocksPerMultiprocessor));
+  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(OccupancyMaxActiveBlocksPerMultiprocessor));
+  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceGetDefaultMemPool));
 #if (CUDART_VERSION >= 7000)
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(
       OccupancyMaxActiveBlocksPerMultiprocessorWithFlags));
@@ -338,6 +344,7 @@ void CudaRtHandler::Initialize() {
   // mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterSurface));
 
   /* CudaRtHandler_memory */
+  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemGetInfo));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Free));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FreeArray));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetSymbolAddress));
@@ -366,11 +373,16 @@ void CudaRtHandler::Initialize() {
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GLSetGLDevice)); // deprecated
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsGLRegisterBuffer));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsMapResources));
-  mspHandlers->insert(
-      CUDA_ROUTINE_HANDLER_PAIR(GraphicsResourceGetMappedPointer));
+  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsResourceGetMappedPointer));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsUnmapResources));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsUnregisterResource));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsResourceSetMapFlags));
+
+  /* CudaRtHandler_stream_memory */
+  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolCreate));
+  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolGetAttribute));
+  // mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolSetAttribute));
+  // mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolDestroy));
 
   /* CudaRtHandler_stream */
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreate));
@@ -380,6 +392,7 @@ void CudaRtHandler::Initialize() {
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreateWithFlags));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamWaitEvent));
   mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreateWithPriority));
+  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ThreadExchangeStreamCaptureMode));
 
   // DEPRECATED
   /* CudaRtHandler_surface */

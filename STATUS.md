@@ -62,7 +62,7 @@
 | `cuModuleGetGlobal`               | ✅          | ❌      | ❓      |                          |
 | `cuModuleLoadDataEx`              | ✅          | ❌      | ❓      |                          |
 | `cuModuleGetTexRef`               | ✅          | ❌      | ❓      | Deprecated               |
-| `cuDriverGetVersion`              | ✅          | ❌      | ❓      |                          |
+| `cuDriverGetVersion`              | ✅          | ✅      | ✅      |                          |
 | `cuStreamCreate`                  | ✅          | ❌      | ❓      |                          |
 | `cuStreamDestroy`                 | ✅          | ❌      | ❓      |                          |
 | `cuStreamQuery`                   | ✅          | ❌      | ❓      |                          |
@@ -96,6 +96,10 @@
 | -------------------------------------------------------- | ----------- | ------ | -------- | ----------------------- |
 | `cudaMalloc`                                             | ✅          | ✅      | ✅      |                         |
 | `cudaFree`                                               | ✅          | ✅      | ✅      |                         |
+| `cudaMemGetInfo`                                         | ✅          | ✅      | ✅      |                         |
+| `cudaThreadExchangeStreamCaptureMode`                    | ✅          | ✅      | ✅      |                         |
+| `cudaDeviceGetDefaultMemPool`                            | ✅          | ✅      | ✅      |                         |
+| `cudaMemPoolGetAttribute`                                | ✅          | ✅      | ✅      |                         |
 | `cudaMallocHost`                                         | ❌          | ❌      | ❌      |                         |
 | `cudaFreeHost`                                           | ❌          | ❌      | ❌      |                         |
 | `cudaMemcpy`                                             | ✅          | ✅      | ✅      |                         |
@@ -119,7 +123,7 @@
 | `cudaEventElapsedTime`                                   | ✅          | ✅      | ✅      |                         |
 | `cudaEventDestroy`                                       | ✅          | ✅      | ✅      |                         |
 | `cudaChooseDevice`                                       | ✅          | ❌      | ❓      |                         |
-| `cudaGetDeviceCount`                                     | ✅          | ❌      | ❓      |                         |
+| `cudaGetDeviceCount`                                     | ✅          | ✅      | ✅      |                         |
 | `cudaGetDeviceProperties`                                | ✅          | ❌      | ❓      |                         |
 | `cudaSetDeviceFlags`                                     | ✅          | ❌      | ❓      |                         |
 | `cudaSetValidDevices`                                    | ✅          | ❌      | ❓      |                         |

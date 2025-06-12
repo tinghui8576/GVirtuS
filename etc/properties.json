@@ -15,7 +15,8 @@
         "cudnn",
         "cufft",
         "cusolver",
-        "cusparse"
+        "cusparse",
+        "nvrtc"
       ]
     }
   ],

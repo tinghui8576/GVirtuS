@@ -37,6 +37,8 @@ using gvirtus::common::Decoder;
 
 /*Load a module's data. */
 CUDA_DRIVER_HANDLER(ModuleLoadData) {
+    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ModuleLoadData"));
+    LOG4CPLUS_DEBUG(logger, "Start ModuleLoadData");
     CUmodule module = NULL;
     char *image = input_buffer->AssignString();
     CUresult exit_code = cuModuleLoadData(&module, image);

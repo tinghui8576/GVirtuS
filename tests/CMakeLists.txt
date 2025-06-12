@@ -20,6 +20,7 @@ endif()
 # Add your CUDA source files manually
 set(TEST_SOURCES
     test_cudart.cu
+    test_nvrtc.cu
     test_curand.cu
     test_cublas.cu
     test_cufft.cu
@@ -57,6 +58,7 @@ foreach(TEST_SRC ${TEST_SOURCES})
         cudnn
         cusolver
         cusparse
+        nvrtc
     )
 
     # Register the test with ctest

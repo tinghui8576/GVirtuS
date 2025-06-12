@@ -143,8 +143,7 @@ void Process::Start() {
             // scrive il risultato sul communicator
             result->Dump(client_comm);
             if (result->GetExitCode() != 0 && routine.compare("cudaLaunch")) {
-                LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]: Requested '" << routine << "' routine.");
-                LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]: Exit Code '" << result->GetExitCode() << "'.");
+                LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]: Routine '" << routine << "' returned with exit code '" << result->GetExitCode() << "'.");
             }
         }
 
