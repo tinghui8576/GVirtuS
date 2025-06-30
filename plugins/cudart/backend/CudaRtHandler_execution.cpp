@@ -96,9 +96,9 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
         size_t argsSize = 0;
         for (NvInfoKParam infoKParam : infoFunction.params) {
           // maybe masking is wrong
-            // argsSize += infoKParam.size_bytes();
+            argsSize += infoKParam.size_bytes();
             // cout << "infoKParam.size" << infoKParam.size_bytes() << endl;
-            argsSize = argsSize + ((infoKParam.size & 0xf8) >> 2);
+            // argsSize = argsSize + ((infoKParam.size & 0xf8) >> 2);
         }
 
         byte *pArgs = input_buffer->Assign<byte>(argsSize);
@@ -113,8 +113,8 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
             args[infoKParam.ordinal] = (void *)(pArgs + infoKParam.offset);
             cout << "param: " << infoKParam.ordinal
                  << ", offset: " << infoKParam.offset
-                  << ", size: " << ((infoKParam.size & 0xf8) >> 2) << endl;
-                //  << ", size: " << infoKParam.size_bytes() << endl;
+                  // << ", size: " << ((infoKParam.size & 0xf8) >> 2) << endl;
+                 << ", size: " << infoKParam.size_bytes() << endl;
         }
 
         cout << "function: " << deviceFunc << endl;

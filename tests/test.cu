@@ -1,6 +1,10 @@
 // simple kernel launch test passes
-// #include <iostream>
-// #include <cuda_runtime.h>
+#include <iostream>
+#include <cuda_runtime.h>
+#include <cudnn.h>
+#include <vector>
+
+using namespace std;
 
 // __global__ void simpleKernel(int* output) {
 //     *output = 123;
@@ -197,47 +201,47 @@
 
 
 // kernel launch with parameters test passes
-#include <iostream>
-#include <cuda_runtime.h>
+// #include <iostream>
+// #include <cuda_runtime.h>
 
-__global__ void myKernel(int a, float b, float* out) {
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    out[idx] = a * b + idx;
-}
+// __global__ void myKernel(int a, float b, float* out) {
+//     int idx = threadIdx.x + blockIdx.x * blockDim.x;
+//     out[idx] = a * b + idx;
+// }
 
-int main() {
-    const int N = 16;
-    const int threadsPerBlock = 4;
-    const int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+// int main() {
+//     const int N = 16;
+//     const int threadsPerBlock = 4;
+//     const int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
 
-    float* d_out = nullptr;
-    float h_out[N];
+//     float* d_out = nullptr;
+//     float h_out[N];
 
-    int paramA = 7;
-    float paramB = 3.14f;
+//     int paramA = 7;
+//     float paramB = 3.14f;
 
-    // Allocate memory on device
-    cudaMalloc(&d_out, N * sizeof(float));
+//     // Allocate memory on device
+//     cudaMalloc(&d_out, N * sizeof(float));
 
-    // Launch kernel with parameters
-    myKernel<<<blocksPerGrid, threadsPerBlock>>>(paramA, paramB, d_out);
+//     // Launch kernel with parameters
+//     myKernel<<<blocksPerGrid, threadsPerBlock>>>(paramA, paramB, d_out);
 
-    // Wait for kernel to complete
-    cudaDeviceSynchronize();
+//     // Wait for kernel to complete
+//     cudaDeviceSynchronize();
 
-    // Copy result back to host
-    cudaMemcpy(h_out, d_out, N * sizeof(float), cudaMemcpyDeviceToHost);
+//     // Copy result back to host
+//     cudaMemcpy(h_out, d_out, N * sizeof(float), cudaMemcpyDeviceToHost);
 
-    // Print results
-    for (int i = 0; i < N; ++i) {
-        std::cout << "h_out[" << i << "] = " << h_out[i] << std::endl;
-    }
+//     // Print results
+//     for (int i = 0; i < N; ++i) {
+//         std::cout << "h_out[" << i << "] = " << h_out[i] << std::endl;
+//     }
 
-    // Cleanup
-    cudaFree(d_out);
+//     // Cleanup
+//     cudaFree(d_out);
 
-    return 0;
-}
+//     return 0;
+// }
 
 
 // kernel launch with function pointer test fails due to bug in cudaMemcpyFromSymbol
@@ -329,3 +333,19 @@ int main() {
 //     cudaFree(d_array);
 //     return 0;
 // }
+
+int main() {
+ // Initialize cuDNN
+    cudnnHandle_t cudnn;
+    cudnnCreate(&cudnn);
+
+    int n = 1, c = 1, h = 5, w = 5;
+    // Allocate and initialize host memory
+    std::vector<float> h_input(n * c * h * w, 1.0f);   // Input filled with ones
+
+    // Allocate device memory
+    float *d_input;
+    cudaMalloc(&d_input, h_input.size() * sizeof(float));
+
+    cout << "d_input = " <<  d_input << endl;
+}

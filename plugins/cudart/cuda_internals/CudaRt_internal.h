@@ -193,15 +193,27 @@ typedef struct {
 } NvInfoAttribute;
 
 typedef struct {
-    NvInfoAttribute nvInfoAttribute;
-    uint16_t index;
-    uint16_t align;
+    uint32_t index;
     uint16_t ordinal;
     uint16_t offset;
-    uint16_t a;
-    uint8_t size;
-    uint8_t b;
+    uint32_t tmp;
+    uint8_t log_alignment() const { return tmp & 0xFF; }
+    uint8_t space()         const { return (tmp >> 8) & 0xF; }
+    uint8_t cbank()         const { return (tmp >> 12) & 0x1F; }
+    bool    is_cbank()      const { return ((tmp >> 16) & 2) == 0; }
+    uint16_t size_bytes()   const { return (((tmp >> 16) & 0xFFFF) >> 2); }
 } NvInfoKParam;
+
+// typedef struct {
+//     NvInfoAttribute nvInfoAttribute;
+//     uint16_t index;
+//     uint16_t align;
+//     uint16_t ordinal;
+//     uint16_t offset;
+//     uint16_t a;
+//     uint8_t size;
+//     uint8_t b;
+// } NvInfoKParam;
 
 typedef struct __infoFunction {
     std::vector<NvInfoKParam> params;

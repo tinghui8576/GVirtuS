@@ -1085,3 +1085,53 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrmm_v2(cublasHandle_t h
     CublasFrontend::Execute("cublasZtrmm_v2");
     return CublasFrontend::GetExitCode();
 }
+
+
+// TODO: Add the missing cublasHgemm function implementation
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasHgemm(cublasHandle_t handle,
+                           cublasOperation_t transa, cublasOperation_t transb,
+                           int m, int n, int k,
+                           const __half *alpha,
+                           const __half *A, int lda,
+                           const __half *B, int ldb,
+                           const __half *beta,
+                           __half *C, int ldc) {
+    CublasFrontend::Prepare();
+    CublasFrontend::Execute("cublasHgemm");
+    return CublasFrontend::GetExitCode();
+}
+
+// TODO: Add the missing cublasHgemmStridedBatched function implementation
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasHgemmStridedBatched(cublasHandle_t handle,
+                                  cublasOperation_t transa,
+                                  cublasOperation_t transb,
+                                  int m, int n, int k,
+                                  const __half           *alpha,
+                                  const __half           *A, int lda,
+                                  long long int          strideA,
+                                  const __half           *B, int ldb,
+                                  long long int          strideB,
+                                  const __half           *beta,
+                                  __half                 *C, int ldc,
+                                  long long int          strideC,
+                                  int batchCount) {
+    CublasFrontend::Prepare();
+    CublasFrontend::Execute("cublasHgemmStridedBatched");
+    return CublasFrontend::GetExitCode();
+}
+
+// TODO: Add the missing cublasHgemmBatched function implementation
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasHgemmBatched(cublasHandle_t handle,
+                                  cublasOperation_t transa,
+                                  cublasOperation_t transb,
+                                  int m, int n, int k,
+                                  const __half          *alpha,
+                                  const __half          *const Aarray[], int lda,
+                                  const __half          *const Barray[], int ldb,
+                                  const __half          *beta,
+                                  __half          *const Carray[], int ldc,
+                                  int batchCount) {
+    CublasFrontend::Prepare();
+    CublasFrontend::Execute("cublasHgemmBatched");
+    return CublasFrontend::GetExitCode();
+}

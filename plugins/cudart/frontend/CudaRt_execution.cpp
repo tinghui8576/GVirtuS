@@ -140,8 +140,8 @@ extern "C" __host__ cudaError_t cudaLaunchKernelExC(const cudaLaunchConfig_t* co
 
     size_t argsPayloadSize = 0;
     for (NvInfoKParam infoKParam : infoFunction.params) {
-        // argsPayloadSize += infoKParam.size_bytes();]
-        argsPayloadSize += (infoKParam.size & 0xf8) >> 2; // masking to get the size in bytes
+        argsPayloadSize += infoKParam.size_bytes();
+        // argsPayloadSize += (infoKParam.size & 0xf8) >> 2; // masking to get the size in bytes
     }
 
     byte *pArgsPayload = static_cast<byte *>(malloc(argsPayloadSize));
@@ -149,8 +149,8 @@ extern "C" __host__ cudaError_t cudaLaunchKernelExC(const cudaLaunchConfig_t* co
 
     for (NvInfoKParam infoKParam : infoFunction.params) {
         byte *p = pArgsPayload + infoKParam.offset;
-        // memcpy(p, args[infoKParam.ordinal], infoKParam.size_bytes());
-        memcpy(p, args[infoKParam.ordinal], (infoKParam.size & 0xf8) >> 2); // masking to get the size in bytes
+        memcpy(p, args[infoKParam.ordinal], infoKParam.size_bytes());
+        // memcpy(p, args[infoKParam.ordinal], (infoKParam.size & 0xf8) >> 2); // masking to get the size in bytes
     }
 
     CudaRtFrontend::AddHostPointerForArguments<byte>(pArgsPayload, argsPayloadSize);
@@ -195,14 +195,14 @@ extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHost
         // we have this info in the infoFunction, so we can calculate the total size
         size_t argsPayloadSize = 0;
         for (NvInfoKParam infoKParam : infoFunction.params) {
-            // argsPayloadSize += infoKParam.size_bytes();
-            argsPayloadSize += (infoKParam.size & 0xf8) >> 2; // masking to get the size in bytes
+            argsPayloadSize += infoKParam.size_bytes();
+            // argsPayloadSize += (infoKParam.size & 0xf8) >> 2; // masking to get the size in bytes
         }
 
         byte *pArgsPayload = (byte*)calloc(argsPayloadSize, 1);
         for (NvInfoKParam infoKParam : infoFunction.params) {
-            // memcpy(pArgsPayload + infoKParam.offset, args[infoKParam.ordinal], infoKParam.size_bytes());
-            memcpy(pArgsPayload + infoKParam.offset, args[infoKParam.ordinal], (infoKParam.size & 0xf8) >> 2);
+            memcpy(pArgsPayload + infoKParam.offset, args[infoKParam.ordinal], infoKParam.size_bytes());
+            // memcpy(pArgsPayload + infoKParam.offset, args[infoKParam.ordinal], (infoKParam.size & 0xf8) >> 2);
         }
 
         CudaRtFrontend::AddHostPointerForArguments<byte>(pArgsPayload, argsPayloadSize);
