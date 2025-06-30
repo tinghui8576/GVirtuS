@@ -8,7 +8,23 @@ LD_PRELOAD="${GVIRTUS_HOME}/lib/frontend/libcudart.so:${GVIRTUS_HOME}/lib/fronte
 LD_LIBRARY_PATH=${GVIRTUS_HOME}/lib/frontend:${GVIRTUS_HOME}/lib \
 PYTORCH_NVML_BASED_CUDA_CHECK=1 \
 TORCHINDUCTOR_FORCE_DISABLE_CACHES=1 \
-python3 distilbert.py
+CUDA_LAUNCH_BLOCKING=1 \
+TORCH_USE_CUDA_DSA=1 \
+TORCH_SHOW_CPP_STACKTRACES=1  \
+TORCH_SHOW_MEMORY_USAGE=1 \
+PYTORCH_CUDA_FUSER_DISABLE=1 \
+TORCH_CUDA_DEBUG=1 \
+python3 test.py
+# NVIDIA_CUDA_MPS_ACTIVE_THREAD_PERCENTAGE=100 \
+
+# CUPTI_LOG_LEVEL=INFO \
+# CUPTI_LOG_FILE=cuda_trace.log \
+# PYTORCH_CUDA_ALLOC_CONF=debug_info \
+# TORCH_DISABLE_ADDR2LINE=1 \
+# LD_DEBUG=libs \
+# python3 distilbert.py
+
+
 #strace -f -e trace=openat,mmap,mprotect,read python3 distilbert.py -o strace.log
 #ltrace -f -e '__cudaRegisterFatBinary+__cudaRegisterVar+__cudaRegisterFunction+cudaMalloc+cudaMemcpy+cudaLaunchKernel' python3 distilbert.py
 #ltrace -f -o ltrace.log python3 distilbert.py

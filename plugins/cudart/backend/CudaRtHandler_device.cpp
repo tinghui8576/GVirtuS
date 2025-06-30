@@ -124,16 +124,13 @@ CUDA_ROUTINE_HANDLER(DeviceCanAccessPeer) {
 }
 
 CUDA_ROUTINE_HANDLER(DeviceGetStreamPriorityRange) {
-  Logger logger =
-      Logger::getInstance(LOG4CPLUS_TEXT("DeviceGetStreamPriorityRange"));
+  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceGetStreamPriorityRange"));
   CudaRtHandler::setLogLevel(&logger);
 
-  int *leastPriority = input_buffer->Assign<int>();
-  int *greatestPriority = input_buffer->Assign<int>();
+  int leastPriority;
+  int greatestPriority;
 
-  cudaError_t exit_code =
-      cudaDeviceGetStreamPriorityRange(leastPriority, greatestPriority);
-
+  cudaError_t exit_code = cudaDeviceGetStreamPriorityRange(&leastPriority, &greatestPriority);
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
   try {
@@ -143,7 +140,6 @@ CUDA_ROUTINE_HANDLER(DeviceGetStreamPriorityRange) {
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
-
   return std::make_shared<Result>(exit_code, out);
 }
 
@@ -233,10 +229,9 @@ CUDA_ROUTINE_HANDLER(GetDevice) {
   CudaRtHandler::setLogLevel(&logger);
 
   try {
-    int *device = input_buffer->Assign<int>();
-    LOG4CPLUS_DEBUG(logger, "GetDevice: " << *device);
-    cudaError_t exit_code = cudaGetDevice(device);
-    LOG4CPLUS_DEBUG(logger, "called cudaGetDevice");
+    int device;
+    cudaError_t exit_code = cudaGetDevice(&device);
+    LOG4CPLUS_DEBUG(logger, "GetDevice executed. Device: " << device);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->Add<int>(device);
     LOG4CPLUS_DEBUG(logger, "added device to out buffer");
@@ -288,12 +283,7 @@ CUDA_ROUTINE_HANDLER(GetDeviceProperties) {
     struct cudaDeviceProp *prop = input_buffer->Assign<struct cudaDeviceProp>();
     int device = input_buffer->Get<int>();
     cudaError_t exit_code = cudaGetDeviceProperties(prop, device);
-#ifndef CUDART_VERSION
-#error CUDART_VERSION not defined
-#endif
-#if CUDART_VERSION >= 2030
     prop->canMapHostMemory = 0;
-#endif
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
     out->Add(prop, 1);

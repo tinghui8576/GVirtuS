@@ -91,7 +91,7 @@ gvirtus_install_target(gvirtus-communicators-ib)
 
 add_library(gvirtus-frontend SHARED
     src/frontend/Frontend.cpp)
-target_link_libraries(gvirtus-frontend gvirtus-communicators Threads::Threads)
+target_link_libraries(gvirtus-frontend gvirtus-communicators Threads::Threads lz4)
 gvirtus_install_target(gvirtus-frontend)
 
 add_executable(gvirtus-backend

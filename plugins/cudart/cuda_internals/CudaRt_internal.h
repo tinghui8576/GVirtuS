@@ -1,11 +1,15 @@
 //
 // Created by Raffaele Montella on 06/11/21.
+// Edited by Theodoros Aslanidis on 22/06/25.
 //
 
 #ifndef GVIRTUS_CUDART_INTERNAL_H
 #define GVIRTUS_CUDART_INTERNAL_H
 
+#include <elf.h>
+#include <driver_types.h>
 #include <vector>
+#include <string>
 
 #define EIFMT_NVAL 0x01
 #define EIFMT_HVAL 0x03
@@ -58,14 +62,130 @@
 #define EIATTR_SW2393858_WAR 0x30
 #define EIATTR_CUDA_API_VERSION 0x37
 
-#include <elf.h>
-#include <driver_types.h>
 
-typedef struct {
-    uint8_t dummy1[5*16];
-    Elf64_Ehdr elf;
-} NvFatCubin;
+/////// This is for a newer version of the NVInfo format /////////////////////////////////////////////////////////////////////////////////
+// #pragma pack(push, 1)
 
+// enum NVInfoFormat : uint8_t {
+//     EIFMT_NVAL = 0x01,
+//     EIFMT_BVAL,
+//     EIFMT_HVAL,
+//     EIFMT_SVAL
+// };
+
+// enum NVInfoAttribute : uint8_t {
+//     EIATTR_ERROR = 0x00,
+//     EIATTR_PAD,
+//     EIATTR_IMAGE_SLOT,
+//     EIATTR_JUMPTABLE_RELOCS,
+//     EIATTR_CTAIDZ_USED,
+//     EIATTR_MAX_THREADS,
+//     EIATTR_IMAGE_OFFSET,
+//     EIATTR_IMAGE_SIZE,
+//     EIATTR_TEXTURE_NORMALIZED,
+//     EIATTR_SAMPLER_INIT,
+//     EIATTR_PARAM_CBANK,
+//     EIATTR_SMEM_PARAM_OFFSETS,
+//     EIATTR_CBANK_PARAM_OFFSETS,
+//     EIATTR_SYNC_STACK,
+//     EIATTR_TEXID_SAMPID_MAP,
+//     EIATTR_EXTERNS,
+//     EIATTR_REQNTID,
+//     EIATTR_FRAME_SIZE,
+//     EIATTR_MIN_STACK_SIZE,
+//     EIATTR_SAMPLER_FORCE_UNNORMALIZED,
+//     EIATTR_BINDLESS_IMAGE_OFFSETS,
+//     EIATTR_BINDLESS_TEXTURE_BANK,
+//     EIATTR_BINDLESS_SURFACE_BANK,
+//     EIATTR_KPARAM_INFO,
+//     EIATTR_SMEM_PARAM_SIZE,
+//     EIATTR_CBANK_PARAM_SIZE,
+//     EIATTR_QUERY_NUMATTRIB,
+//     EIATTR_MAXREG_COUNT,
+//     EIATTR_EXIT_INSTR_OFFSETS,
+//     EIATTR_S2RCTAID_INSTR_OFFSETS,
+//     EIATTR_CRS_STACK_SIZE,
+//     EIATTR_NEED_CNP_WRAPPER,
+//     EIATTR_NEED_CNP_PATCH,
+//     EIATTR_EXPLICIT_CACHING,
+//     EIATTR_ISTYPEP_USED,
+//     EIATTR_MAX_STACK_SIZE,
+//     EIATTR_SUQ_USED,
+//     EIATTR_LD_CACHEMOD_INSTR_OFFSETS,
+//     EIATTR_LOAD_CACHE_REQUEST,
+//     EIATTR_ATOM_SYS_INSTR_OFFSETS,
+//     EIATTR_COOP_GROUP_INSTR_OFFSETS,
+//     EIATTR_COOP_GROUP_MAX_REGIDS,
+//     EIATTR_SW1850030_WAR,
+//     EIATTR_WMMA_USED,
+//     EIATTR_HAS_PRE_V10_OBJECT,
+//     EIATTR_ATOMF16_EMUL_INSTR_OFFSETS,
+//     EIATTR_ATOM16_EMUL_INSTR_REG_MAP,
+//     EIATTR_REGCOUNT,
+//     EIATTR_SW2393858_WAR,
+//     EIATTR_INT_WARP_WIDE_INSTR_OFFSETS,
+//     EIATTR_SHARED_SCRATCH,
+//     EIATTR_STATISTICS,
+
+//     // New between cuda 10.2 and 11.6
+//     EIATTR_INDIRECT_BRANCH_TARGETS,
+//     EIATTR_SW2861232_WAR,
+//     EIATTR_SW_WAR,
+//     EIATTR_CUDA_API_VERSION,
+//     EIATTR_NUM_MBARRIERS,
+//     EIATTR_MBARRIER_INSTR_OFFSETS,
+//     EIATTR_COROUTINE_RESUME_ID_OFFSETS,
+//     EIATTR_SAM_REGION_STACK_SIZE,
+//     EIATTR_PER_REG_TARGET_PERF_STATS,
+
+//     // New between cuda 11.6 and 11.8
+//     EIATTR_CTA_PER_CLUSTER,
+//     EIATTR_EXPLICIT_CLUSTER,
+//     EIATTR_MAX_CLUSTER_RANK,
+//     EIATTR_INSTR_REG_MAP,
+// };
+
+// will work with the new parseNvInfoSections function when fixed
+// // This is the header of each item in .nv.info.*
+// typedef struct {
+//     NVInfoFormat format;
+//     NVInfoAttribute attribute;
+// } NVInfoItemHeader;
+
+// // For SVAL
+// typedef struct  {
+//     uint16_t value_size;
+// } NVInfoSvalHeader;
+
+// typedef struct {
+//     uint32_t index;
+//     uint16_t ordinal;
+//     uint16_t offset;
+//     uint32_t tmp;
+//     uint8_t log_alignment() const { return tmp & 0xFF; }
+//     uint8_t space()         const { return (tmp >> 8) & 0xF; }
+//     uint8_t cbank()         const { return (tmp >> 12) & 0x1F; }
+//     bool    is_cbank()      const { return ((tmp >> 16) & 2) == 0; }
+//     uint16_t size_bytes()   const { return (((tmp >> 16) & 0xFFFF) >> 2); }
+// } NVInfoKParamInfoValue;
+
+// typedef struct {
+//     NVInfoFormat format;
+//     NVInfoAttribute attribute;
+//     enum Type : uint16_t { NO_VALUE, BVAL, HVAL, KPARAM_INFO, EXTERN, OTHER } type;
+//     uint16_t uval;
+//     NVInfoKParamInfoValue kparam;
+//     std::string extern_name;
+// } NVInfoItem;
+
+// typedef struct {
+//     std::vector<NVInfoKParamInfoValue> params;
+// } NVInfoFunction;
+
+// #pragma pack(pop)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// original gvirtus ones
 typedef struct {
     uint8_t fmt;
     uint8_t attr;
@@ -87,11 +207,11 @@ typedef struct __infoFunction {
     std::vector<NvInfoKParam> params;
 } NvInfoFunction;
 
-typedef struct __infoFunctionEx {
-    NvInfoFunction infoFunction;
-    cudaStream_t stream;
-    bool adHocStream;
-    void **args;
-} NvInfoFunctionEx;
+// typedef struct __infoFunctionEx { // not needed
+//     NvInfoFunction infoFunction;
+//     cudaStream_t stream;
+//     bool adHocStream;
+//     void **args;
+// } NvInfoFunctionEx;
 
 #endif //GVIRTUS_CUDART_INTERNAL_H

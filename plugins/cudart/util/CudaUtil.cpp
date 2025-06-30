@@ -39,15 +39,6 @@
 #include <CudaUtil.h>
 #include <cuda.h>
 
-#if CUDART_VERSION >= 11000
-struct __align__(8) fatBinaryHeader {
-    unsigned int           magic;
-    unsigned short         version;
-    unsigned short         headerSize;
-    unsigned long long int fatSize;
-};
-#endif
-
 using namespace std;
 
 CudaUtil::CudaUtil() {}
@@ -180,7 +171,9 @@ Buffer* CudaUtil::MarshalFatCudaBinary(__fatBinC_Wrapper_t* bin,
 }
 
 __fatBinC_Wrapper_t* CudaUtil::UnmarshalFatCudaBinaryV2(Buffer* marshal) {
-  __fatBinC_Wrapper_t* bin = new __fatBinC_Wrapper_t;
+  // __fatBinC_Wrapper_t* bin = new __fatBinC_Wrapper_t __attribute__ ((aligned(8)));
+  void* raw = std::aligned_alloc(8, sizeof(__fatBinC_Wrapper_t));
+  __fatBinC_Wrapper_t* bin = new (raw) __fatBinC_Wrapper_t;
   size_t size;
 
   bin->magic = marshal->Get<int>();

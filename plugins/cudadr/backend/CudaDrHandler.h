@@ -146,10 +146,10 @@ CUDA_DRIVER_HANDLER(CtxGetDevice);
 CUDA_DRIVER_HANDLER(CtxPopCurrent);
 CUDA_DRIVER_HANDLER(CtxPushCurrent);
 CUDA_DRIVER_HANDLER(CtxSynchronize);
-
 CUDA_DRIVER_HANDLER(CtxDisablePeerAccess);
 CUDA_DRIVER_HANDLER(CtxEnablePeerAccess);
 CUDA_DRIVER_HANDLER(DeviceCanAccessPeer);
+CUDA_DRIVER_HANDLER(DevicePrimaryCtxGetState);
 
 /*CudaDrHandler_device*/
 CUDA_DRIVER_HANDLER(DeviceComputeCapability);

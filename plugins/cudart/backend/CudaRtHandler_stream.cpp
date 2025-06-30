@@ -128,6 +128,20 @@ CUDA_ROUTINE_HANDLER(ThreadExchangeStreamCaptureMode) {
   }
 }
 
+CUDA_ROUTINE_HANDLER(StreamIsCapturing) {
+    try {
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+        cudaStreamCaptureStatus captureStatus;
+        cudaError_t exit_code = cudaStreamIsCapturing(stream, &captureStatus);
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+        out->Add<cudaStreamCaptureStatus>(captureStatus);
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
+
 /*
 CUDA_ROUTINE_HANDLER(StreamAddCallback) {
     try {

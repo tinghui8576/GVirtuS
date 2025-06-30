@@ -81,6 +81,7 @@ extern "C" __host__ cudaError_t cudaMemPoolSetAccess(
     const cudaMemAccessDesc* descList,
     size_t count
 ) {
+    cout << "cudaMemPoolSetAccess not yet implemented" << endl;
     return cudaErrorNotYetImplemented;
 }
 

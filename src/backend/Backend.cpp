@@ -21,21 +21,21 @@ Backend::Backend(const fs::path &path) {
 
     // json setup
     if (not (fs::exists(path) and fs::is_regular_file(path) and path.extension() == ".json")) {
-        LOG4CPLUS_ERROR(logger, "✖ - " << fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " json path error: no such file.");
+        LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " json path error: no such file.");
         exit(EXIT_FAILURE);
     }
 
-    LOG4CPLUS_DEBUG(logger, "✓ - " << fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Json file has been loaded.");
+    LOG4CPLUS_DEBUG(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Json file has been loaded.");
 
     // endpoints setup
-    LOG4CPLUS_TRACE(logger, "🛈  - Initializing endpoints setup");
+    LOG4CPLUS_TRACE(logger, "Initializing endpoints setup");
 
     _properties = common::JSON<Property>(path).parser();
     _children.reserve(_properties.endpoints());
 
-    LOG4CPLUS_TRACE(logger, "🛈  - Got properties and reserved children array");
+    LOG4CPLUS_TRACE(logger, "Got properties and reserved children array");
 
-    if (_properties.endpoints() > 1) LOG4CPLUS_INFO(logger, "🛈  - Application serves on " << _properties.endpoints() << " several endpoint");
+    if (_properties.endpoints() > 1) LOG4CPLUS_INFO(logger, "Application serves on " << _properties.endpoints() << " several endpoint");
 
     try {
         for (int i = 0; i < _properties.endpoints(); i++) {
@@ -51,43 +51,43 @@ Backend::Backend(const fs::path &path) {
         }
         /*
         for (int i = 0; i < _properties.endpoints(); i++) {
-            LOG4CPLUS_TRACE(logger, "🛈  - Setting up process " << i << ":");
+            LOG4CPLUS_TRACE(logger, "Setting up process " << i << ":");
 
             auto secure = _properties.secure();
-            LOG4CPLUS_TRACE(logger, "🛈  - Secure:  " << secure);
+            LOG4CPLUS_TRACE(logger, "Secure:  " << secure);
 
             auto endpoint = communicators::EndpointFactory::get_endpoint(path);
-            LOG4CPLUS_TRACE(logger, "🛈  - Endpoint: ok!");
+            LOG4CPLUS_TRACE(logger, "Endpoint: ok!");
 
             auto communicator = communicators::CommunicatorFactory::get_communicator(endpoint, secure);
-            LOG4CPLUS_TRACE(logger, "🛈  - Communicator: ok!");
+            LOG4CPLUS_TRACE(logger, "Communicator: ok!");
 
             auto plugins = _properties.plugins().at(i);
-            LOG4CPLUS_TRACE(logger, "🛈  - Properties: ok!");
+            LOG4CPLUS_TRACE(logger, "Properties: ok!");
 
             auto child = std::make_unique<Process>(communicator, plugins);
-            LOG4CPLUS_TRACE(logger, "🛈  - Process: ok!");
+            LOG4CPLUS_TRACE(logger, "Process: ok!");
 
             _children.push_back(child);
         }
          */
     }
     catch (const std::exception& e) {
-        LOG4CPLUS_ERROR(logger, "🛈  - Exception during process setup: " << e.what());
+        LOG4CPLUS_ERROR(logger, "Exception during process setup: " << e.what());
     }
 
 
-    LOG4CPLUS_INFO(logger, "🛈  - Backend Initialization is complete!");
+    LOG4CPLUS_INFO(logger, "Backend Initialization is complete!");
 }
 
 void Backend::Start() {
     // std::function<void(std::unique_ptr<gvirtus::Thread> & children)> task =
     // [this](std::unique_ptr<gvirtus::Thread> &children) {
-    //   LOG4CPLUS_DEBUG(logger, "✓ - [Thread " << std::this_thread::get_id() <<
+    //   LOG4CPLUS_DEBUG(logger, "[Thread " << std::this_thread::get_id() <<
     //   "]: Started."); children->Start(); LOG4CPLUS_DEBUG(logger, "✓ - [Thread "
     //   << std::this_thread::get_id() << "]: Finished.");
     // };
-    LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "] " << "Backend::Start() called.");
+    LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "] " << "Backend::Start() called.");
 
     int pid = 0;
 
@@ -112,7 +112,7 @@ void Backend::Start() {
 
         int status;
         do {
-            LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "] " << "Waiting for childs to terminate. Current active childs: " << activeChilds);
+            LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "] " << "Waiting for childs to terminate. Current active childs: " << activeChilds);
             int waitres = wait(&status);
             activeChilds--;
 
@@ -127,16 +127,16 @@ void Backend::Start() {
             }
         } while (not WIFEXITED(status) and not WIFSIGNALED(status));
 
-        LOG4CPLUS_INFO(logger, "✓ - No child processes are currently running. Use CTRL + C to terminate the backend.");
+        LOG4CPLUS_INFO(logger, "No child processes are currently running. Use CTRL + C to terminate the backend.");
 
         signal(SIGINT, sigint_handler);
         pause();
     }
 
-    LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "] " << "Backend::Start() returned.");
+    LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "] " << "Backend::Start() returned.");
 }
 
 void Backend::EventOccurred(std::string &event, void *object) {
-    LOG4CPLUS_DEBUG(logger, "✓ - EventOccurred: " << event);
+    LOG4CPLUS_DEBUG(logger, "EventOccurred: " << event);
 }
 

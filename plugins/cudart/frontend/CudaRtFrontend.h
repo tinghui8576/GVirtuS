@@ -38,29 +38,27 @@
 #include <CudaRt_internal.h>
 #include <gvirtus/frontend/Frontend.h>
 
-#include "CudaRt.h"
-
 using namespace std;
 
 typedef struct __configureFunction {
-  gvirtus::common::funcs __f;
-  Buffer* buffer;
+    gvirtus::common::funcs __f;
+    Buffer* buffer;
 } configureFunction;
 
 class CudaRtFrontend {
- public:
-  static inline void Execute(const char* routine, const Buffer* input_buffer = NULL) {
-#ifdef DEBUG
-    if (string(routine) != "cudaLaunch")
-      cerr << "[Cuda Runtime Frontend]: Requesting " << routine << endl;
-#endif
-      try {
-          gvirtus::frontend::Frontend::GetFrontend()->Execute(routine, input_buffer);
-      }
-      catch (const std::exception& e) {
-          cerr << "Execution exception: " << e.what() << endl;
-      }
-  }
+    public:
+        static inline void Execute(const char* routine, const Buffer* input_buffer = NULL) {
+    #ifdef DEBUG
+        if (string(routine) != "cudaLaunch")
+            cerr << "[Cuda Runtime Frontend]: Requesting " << routine << endl;
+    #endif
+        try {
+            gvirtus::frontend::Frontend::GetFrontend()->Execute(routine, input_buffer);
+        }
+        catch (const std::exception& e) {
+            cerr << "Execution exception: " << e.what() << endl;
+        }
+    }
 
   /**
    * Prepares the Frontend for the execution. This method _must_ be called
@@ -282,14 +280,20 @@ class CudaRtFrontend {
     }
 
     static inline NvInfoFunction getInfoFunc(std::string deviceFunc) {
+        if (mapDeviceFunc2InfoFunc->find(deviceFunc) == mapDeviceFunc2InfoFunc->end()) {
+            throw std::runtime_error("getInfoFunc: device function not found");
+        }
         return mapDeviceFunc2InfoFunc->find(deviceFunc)->second;
     };
 
-    static inline void addHost2DeviceFunc(void* hostFunc, std::string deviceFunc) {
+    static inline void addHost2DeviceFunc(const void* hostFunc, std::string deviceFunc) {
         mapHost2DeviceFunc->insert(make_pair(hostFunc, deviceFunc));
     }
 
-    static inline std::string getDeviceFunc(void *hostFunc) {
+    static inline std::string getDeviceFunc(const void *hostFunc) {
+        if (mapHost2DeviceFunc->find(hostFunc) == mapHost2DeviceFunc->end()) {
+            throw std::runtime_error("getDeviceFunc: host function not found");
+        }
         return mapHost2DeviceFunc->find(hostFunc)->second;
     };
 
@@ -313,15 +317,15 @@ class CudaRtFrontend {
         }
     }
 
- private:
-  static map<const void*, gvirtus::common::mappedPointer>* mappedPointers;
-  static set<const void*>* devicePointers;
-  static map<pthread_t, stack<void*>*>* toManage;
-  static list<configureFunction>* setup;
-  Buffer* mpInputBuffer;
-  bool configured;
-  static map<std::string, NvInfoFunction>* mapDeviceFunc2InfoFunc;
-  static map<const void *,std::string>* mapHost2DeviceFunc;
+    private:
+        static map<const void*, gvirtus::common::mappedPointer>* mappedPointers;
+        static set<const void*>* devicePointers;
+        static map<pthread_t, stack<void*>*>* toManage;
+        static list<configureFunction>* setup;
+        Buffer* mpInputBuffer;
+        bool configured;
+        static map<std::string, NvInfoFunction>* mapDeviceFunc2InfoFunc;
+        static map<const void *,std::string>* mapHost2DeviceFunc;
 };
 
 #endif /* CUDARTFRONTEND_H */

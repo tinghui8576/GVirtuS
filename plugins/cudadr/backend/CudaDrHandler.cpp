@@ -216,10 +216,10 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxPopCurrent));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxPushCurrent));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxSynchronize));
-
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxDisablePeerAccess));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxEnablePeerAccess));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DeviceCanAccessPeer));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DevicePrimaryCtxGetState));
 
     /*CudaDrHandler_device*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DeviceComputeCapability));

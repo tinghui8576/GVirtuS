@@ -33,15 +33,14 @@ using namespace std;
 using gvirtus::common::mappedPointer;
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemGetInfo(size_t *free, size_t *total) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(free);
-  CudaRtFrontend::AddHostPointerForArguments(total);
-  CudaRtFrontend::Execute("cudaMemGetInfo");
-  if (CudaRtFrontend::Success()) {
-    *free = *CudaRtFrontend::GetOutputHostPointer<size_t>();
-    *total = *CudaRtFrontend::GetOutputHostPointer<size_t>();
-  }
-  return CudaRtFrontend::GetExitCode();
+    // cout << "cudaMemGetInfo called" << endl;
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaMemGetInfo");
+    if (CudaRtFrontend::Success()) {
+        *free = *CudaRtFrontend::GetOutputHostPointer<size_t>();
+        *total = *CudaRtFrontend::GetOutputHostPointer<size_t>();
+    }
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaFree(void *devPtr) {
@@ -135,16 +134,17 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaHostGetFlags(unsigned int *pFlags,
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMalloc(void **devPtr,
                                                      size_t size) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddVariableForArguments(size);
-  CudaRtFrontend::Execute("cudaMalloc");
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddVariableForArguments(size);
+    // cout << "cudaMalloc frontend size: " << size << endl;
+    CudaRtFrontend::Execute("cudaMalloc");
 
-  if (CudaRtFrontend::Success()) {
-    *devPtr = CudaRtFrontend::GetOutputDevicePointer();
-    CudaRtFrontend::addDevicePointer(*devPtr);
-  }
-
-  return CudaRtFrontend::GetExitCode();
+    if (CudaRtFrontend::Success()) {
+        *devPtr = CudaRtFrontend::GetOutputDevicePointer();
+        // cout << "cudaMalloc frontend devPtr: " << *devPtr << endl;
+        CudaRtFrontend::addDevicePointer(*devPtr);
+    }
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI
@@ -542,67 +542,58 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
                                                           size_t count,
                                                           cudaMemcpyKind kind,
                                                           cudaStream_t stream) {
-  CudaRtFrontend::Prepare();
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyHostToHost:
-      /* NOTE: no communication is performed, because it's just overhead
-       * here */
-      CudaRtFrontend::AddHostPointerForArguments("");
-      CudaRtFrontend::AddHostPointerForArguments("");
-      CudaRtFrontend::AddVariableForArguments(kind);
-#if CUDART_VERSION >= 3010
-      CudaRtFrontend::AddDevicePointerForArguments(stream);
-#else
-      CudaRtFrontend::AddVariableForArguments(stream);
-#endif
-      CudaRtFrontend::Execute("cudaMemcpyAsync");
-      if (memmove(dst, src, count) == NULL) return cudaErrorInvalidValue;
-      return cudaSuccess;
-      break;
-    case cudaMemcpyHostToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddHostPointerForArguments<char>(
-          static_cast<char *>(const_cast<void *>(src)), count);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-#if CUDART_VERSION >= 3010
-      CudaRtFrontend::AddDevicePointerForArguments(stream);
-#else
-      CudaRtFrontend::AddVariableForArguments(stream);
-#endif
-      CudaRtFrontend::Execute("cudaMemcpyAsync");
-      break;
-    case cudaMemcpyDeviceToHost:
-      /* NOTE: adding a fake host pointer */
-      CudaRtFrontend::AddHostPointerForArguments("");
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-#if CUDART_VERSION >= 3010
-      CudaRtFrontend::AddDevicePointerForArguments(stream);
-#else
-      CudaRtFrontend::AddVariableForArguments(stream);
-#endif
-      CudaRtFrontend::Execute("cudaMemcpyAsync");
-      if (CudaRtFrontend::Success())
-        memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
-      break;
-    case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-#if CUDART_VERSION >= 3010
-      CudaRtFrontend::AddDevicePointerForArguments(stream);
-#else
-      CudaRtFrontend::AddVariableForArguments(stream);
-#endif
-      CudaRtFrontend::Execute("cudaMemcpyAsync");
-      break;
-  }
-
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    // cout << "cudaMemcpyAsync frontend: "
+    //      << "dst: " << dst << ", src: " << src << ", count: " << count
+    //      << ", kind: " << kind << ", stream: " << stream << endl;
+    switch (kind) {
+        case cudaMemcpyDefault:
+        case cudaMemcpyHostToHost:
+            /* NOTE: no communication is performed, because it's just overhead
+            * here */
+            CudaRtFrontend::AddHostPointerForArguments("");
+            CudaRtFrontend::AddHostPointerForArguments("");
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::AddDevicePointerForArguments(stream);
+            CudaRtFrontend::Execute("cudaMemcpyAsync");
+            if (memmove(dst, src, count) == NULL) {
+                return cudaErrorInvalidValue;
+            }
+            return cudaSuccess;
+            break;
+        case cudaMemcpyHostToDevice:
+            // cout << "cudaMemcpyAsync HostToDevice" << endl;
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddHostPointerForArguments<char>(
+                static_cast<char *>(const_cast<void *>(src)), count);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::AddDevicePointerForArguments(stream);
+            CudaRtFrontend::Execute("cudaMemcpyAsync");
+            break;
+        case cudaMemcpyDeviceToHost:
+            // cout << "cudaMemcpyAsync DeviceToHost" << endl;
+            /* NOTE: adding a fake host pointer */
+            CudaRtFrontend::AddHostPointerForArguments("");
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::AddDevicePointerForArguments(stream);
+            CudaRtFrontend::Execute("cudaMemcpyAsync");
+            if (CudaRtFrontend::Success()) {
+                memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
+            }
+            break;
+        case cudaMemcpyDeviceToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::AddDevicePointerForArguments(stream);
+            CudaRtFrontend::Execute("cudaMemcpyAsync");
+            break;
+    }
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI
@@ -897,12 +888,13 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaHostUnregister(void* ptr) {
 // TODO: needs testing
 extern "C" __host__ cudaError_t CUDARTAPI cudaPointerGetAttributes(
     cudaPointerAttributes *attributes, const void *ptr) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(attributes);
-  CudaRtFrontend::AddHostPointerForArguments(ptr);
-  CudaRtFrontend::Execute("cudaPointerGetAttributes");
-  if (CudaRtFrontend::Success()) {
-    *attributes = *(CudaRtFrontend::GetOutputHostPointer<cudaPointerAttributes>());
-  }
-  return CudaRtFrontend::GetExitCode();
+    cout << "cudaPointerGetAttributes frontend" << endl;
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddHostPointerForArguments(attributes);
+    CudaRtFrontend::AddHostPointerForArguments(ptr);
+    CudaRtFrontend::Execute("cudaPointerGetAttributes");
+    if (CudaRtFrontend::Success()) {
+        *attributes = *(CudaRtFrontend::GetOutputHostPointer<cudaPointerAttributes>());
+    }
+    return CudaRtFrontend::GetExitCode();
 }

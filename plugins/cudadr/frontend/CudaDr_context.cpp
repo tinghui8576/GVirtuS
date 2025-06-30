@@ -185,3 +185,15 @@ extern CUresult cuDevicePrimaryCtxReset_v2(CUdevice dev) {
     CudaDrFrontend::Execute("cuDevicePrimaryCtxReset");
     return CudaDrFrontend::GetExitCode();
 }
+
+// TODO: test
+extern CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int* active) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddVariableForArguments(dev);
+    CudaDrFrontend::Execute("cuDevicePrimaryCtxGetState");
+    if (CudaDrFrontend::Success()) {
+        *flags = CudaDrFrontend::GetOutputVariable<unsigned int>();
+        *active = CudaDrFrontend::GetOutputVariable<int>();
+    }
+    return CudaDrFrontend::GetExitCode();
+}

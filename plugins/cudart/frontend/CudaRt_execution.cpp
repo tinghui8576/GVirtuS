@@ -140,7 +140,8 @@ extern "C" __host__ cudaError_t cudaLaunchKernelExC(const cudaLaunchConfig_t* co
 
     size_t argsPayloadSize = 0;
     for (NvInfoKParam infoKParam : infoFunction.params) {
-        argsPayloadSize += ((infoKParam.size & 0xf8) >> 2);
+        // argsPayloadSize += infoKParam.size_bytes();]
+        argsPayloadSize += (infoKParam.size & 0xf8) >> 2; // masking to get the size in bytes
     }
 
     byte *pArgsPayload = static_cast<byte *>(malloc(argsPayloadSize));
@@ -148,7 +149,8 @@ extern "C" __host__ cudaError_t cudaLaunchKernelExC(const cudaLaunchConfig_t* co
 
     for (NvInfoKParam infoKParam : infoFunction.params) {
         byte *p = pArgsPayload + infoKParam.offset;
-        memcpy(p, args[infoKParam.ordinal], ((infoKParam.size & 0xf8) >> 2));
+        // memcpy(p, args[infoKParam.ordinal], infoKParam.size_bytes());
+        memcpy(p, args[infoKParam.ordinal], (infoKParam.size & 0xf8) >> 2); // masking to get the size in bytes
     }
 
     CudaRtFrontend::AddHostPointerForArguments<byte>(pArgsPayload, argsPayloadSize);
@@ -159,7 +161,6 @@ extern "C" __host__ cudaError_t cudaLaunchKernelExC(const cudaLaunchConfig_t* co
     
     return cudaError;
 }
-
 
 // TODO: needs testing
 extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHostFn_t fn, void* userData) {
@@ -176,9 +177,8 @@ extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHost
                                                     dim3 gridDim, dim3 blockDim,
                                                     void** args,
                                                     size_t sharedMem, cudaStream_t stream) {
-        cudaError_t cudaError = cudaSuccess;
-
-        // A vector with the mapped pointers to be marshalled and unmarshalled
+        
+        cudaError_t cudaError;
         vector<gvirtus::common::mappedPointer> mappedPointers;
 
         CudaRtFrontend::Prepare();
@@ -186,32 +186,37 @@ extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHost
         CudaRtFrontend::AddVariableForArguments(gridDim);
         CudaRtFrontend::AddVariableForArguments(blockDim);
         CudaRtFrontend::AddVariableForArguments(sharedMem);
-
         CudaRtFrontend::AddDevicePointerForArguments(stream);
 
-        std::string deviceFunc=CudaRtFrontend::getDeviceFunc(const_cast<void *>(func));
+        std::string deviceFunc = CudaRtFrontend::getDeviceFunc(func);
         NvInfoFunction infoFunction = CudaRtFrontend::getInfoFunc(deviceFunc);
 
-        size_t argsPayloadSize=0;
-        for (NvInfoKParam infoKParam:infoFunction.params) {
-            argsPayloadSize = argsPayloadSize + ((infoKParam.size & 0xf8) >> 2);
+        // to pass the args to the backend we need their total size
+        // we have this info in the infoFunction, so we can calculate the total size
+        size_t argsPayloadSize = 0;
+        for (NvInfoKParam infoKParam : infoFunction.params) {
+            // argsPayloadSize += infoKParam.size_bytes();
+            argsPayloadSize += (infoKParam.size & 0xf8) >> 2; // masking to get the size in bytes
         }
 
-        byte *pArgsPayload = static_cast<byte *>(malloc(argsPayloadSize));
-        memset(pArgsPayload,0x00,argsPayloadSize);
-
-        for (NvInfoKParam infoKParam:infoFunction.params) {
-            byte *p=pArgsPayload+infoKParam.offset;
-
-            memcpy(p,args[infoKParam.ordinal],((infoKParam.size & 0xf8) >> 2));
+        byte *pArgsPayload = (byte*)calloc(argsPayloadSize, 1);
+        for (NvInfoKParam infoKParam : infoFunction.params) {
+            // memcpy(pArgsPayload + infoKParam.offset, args[infoKParam.ordinal], infoKParam.size_bytes());
+            memcpy(pArgsPayload + infoKParam.offset, args[infoKParam.ordinal], (infoKParam.size & 0xf8) >> 2);
         }
 
         CudaRtFrontend::AddHostPointerForArguments<byte>(pArgsPayload, argsPayloadSize);
+        cout << "GridDim: " << gridDim.x << "," << gridDim.y << "," << gridDim.z << endl;
+        cout << "BlockDim: " << blockDim.x << "," << blockDim.y << "," << blockDim.z << endl;
+        cout << "SharedMem: " << sharedMem << endl;
+        cout << "Stream: " << stream << endl;
 
         CudaRtFrontend::Execute("cudaLaunchKernel");
         cudaError = CudaRtFrontend::GetExitCode();
+        if (cudaError == cudaSuccess) {
+            cout << "cudaLaunchKernel executed successfully." << endl;
+        }
         free(pArgsPayload);
         return cudaError;
     }
 #endif
-

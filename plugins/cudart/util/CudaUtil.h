@@ -43,16 +43,25 @@
 
 #include <__cudaFatFormat.h>
 #if CUDART_VERSION >= 11000
-#include <fatbinary_section.h>
+  #include <fatbinary_section.h>
 #else
-#include <fatBinaryCtl.h>
-#include <fatbinary.h>
+  #include <fatBinaryCtl.h>
+  #include <fatbinary.h>
 #endif
 #include <texture_types.h>
 
 #include <gvirtus/communicators/Buffer.h>
 
 using gvirtus::communicators::Buffer;
+
+#if CUDART_VERSION >= 11000
+  struct __align__(8) fatBinaryHeader {
+      unsigned int           magic;
+      unsigned short         version;
+      unsigned short         headerSize;
+      unsigned long long int fatSize;
+  };
+#endif
 
 /**
  * CudaUtil contains facility functions used by gVirtuS. These functions

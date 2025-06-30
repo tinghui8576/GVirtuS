@@ -79,67 +79,55 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
   }
 }
 
-void CUDART_CB  manageMemoryStreamCallback(cudaStream_t stream, cudaError_t status, void *data)
-{
-    NvInfoFunctionEx *infoFunctionEx = (NvInfoFunctionEx *)data;
-
-    if (infoFunctionEx->adHocStream) {
-        cudaStreamDestroy(infoFunctionEx->stream);
-    }
-}
-
 #if CUDART_VERSION >= 9000
-CUDA_ROUTINE_HANDLER(LaunchKernel) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("LaunchKernel"));
-    LOG4CPLUS_DEBUG(logger, "LaunchKernel");
+    CUDA_ROUTINE_HANDLER(LaunchKernel) {
+        Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("LaunchKernel"));
+        LOG4CPLUS_DEBUG(logger, "LaunchKernel");
 
-    void *func = input_buffer->GetFromMarshal<void *>();
-    dim3 gridDim = input_buffer->Get<dim3>();
-    dim3 blockDim = input_buffer->Get<dim3>();
-    size_t sharedMem = input_buffer->Get<size_t>();
-    cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+        void *func = input_buffer->GetFromMarshal<void *>();
+        dim3 gridDim = input_buffer->Get<dim3>();
+        dim3 blockDim = input_buffer->Get<dim3>();
+        size_t sharedMem = input_buffer->Get<size_t>();
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
 
+        std::string deviceFunc = pThis->getDeviceFunc(func);
+        NvInfoFunction infoFunction = pThis->getInfoFunc(deviceFunc);
 
-    std::string deviceFunc=pThis->getDeviceFunc(const_cast<void *>(func));
+        size_t argsSize = 0;
+        for (NvInfoKParam infoKParam : infoFunction.params) {
+          // maybe masking is wrong
+            // argsSize += infoKParam.size_bytes();
+            // cout << "infoKParam.size" << infoKParam.size_bytes() << endl;
+            argsSize = argsSize + ((infoKParam.size & 0xf8) >> 2);
+        }
 
-    NvInfoFunction infoFunction = pThis->getInfoFunc(deviceFunc);
+        byte *pArgs = input_buffer->Assign<byte>(argsSize);
 
-    size_t argsSize=0;
-    for (NvInfoKParam infoKParam:infoFunction.params) {
-        argsSize = argsSize + ((infoKParam.size & 0xf8) >> 2);
+        // cudaLaunchKernel needs an array of pointers to the arguments,
+        // so in the buffer we have the arguments packed in a byte array
+        // and we need to create an array of pointers to the arguments
+        // based on the offsets defined in the infoFunction.params
+        void *args[infoFunction.params.size()];
+
+        for (NvInfoKParam infoKParam : infoFunction.params) {
+            args[infoKParam.ordinal] = (void *)(pArgs + infoKParam.offset);
+            cout << "param: " << infoKParam.ordinal
+                 << ", offset: " << infoKParam.offset
+                  << ", size: " << ((infoKParam.size & 0xf8) >> 2) << endl;
+                //  << ", size: " << infoKParam.size_bytes() << endl;
+        }
+
+        cout << "function: " << deviceFunc << endl;
+        cout << "GridDim: " << gridDim.x << "," << gridDim.y << "," << gridDim.z << endl;
+        cout << "BlockDim: " << blockDim.x << "," << blockDim.y << "," << blockDim.z << endl;
+        cout << "SharedMem: " << sharedMem << endl;
+        cout << "Stream: " << stream << endl;
+
+        cudaError_t exit_code = cudaLaunchKernel(func, gridDim, blockDim, args, sharedMem, stream);
+        LOG4CPLUS_DEBUG(logger, "LaunchKernel exit_code: " << exit_code);
+    return std::make_shared<Result>(exit_code);
     }
-
-
-
-    byte *pArgs = input_buffer->AssignAll<byte>();
-
-    void *args[infoFunction.params.size()];
-
-    for (NvInfoKParam infoKParam:infoFunction.params) {
-        args[infoKParam.ordinal]=reinterpret_cast<void *>((byte *)pArgs+infoKParam.offset);
-    }
-
-    NvInfoFunctionEx nvInfoFunctionEx;
-    nvInfoFunctionEx.infoFunction = infoFunction;
-    nvInfoFunctionEx.adHocStream = false;
-    nvInfoFunctionEx.args = args;
-
-    if (stream==0) {
-        cudaStreamCreate(&stream);
-        nvInfoFunctionEx.adHocStream = true;
-    }
-
-    nvInfoFunctionEx.stream = stream;
-
-    cudaError_t exit_code = cudaLaunchKernel(func,gridDim,blockDim,args,sharedMem,stream);
-    if (exit_code == cudaSuccess) {
-        cudaStreamAddCallback(stream, manageMemoryStreamCallback, &nvInfoFunctionEx, 0);
-    }
-
-  return std::make_shared<Result>(exit_code);
-}
 #endif
-
 
 CUDA_ROUTINE_HANDLER(Launch) {
   int ctrl;

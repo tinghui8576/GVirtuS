@@ -28,9 +28,34 @@
 
 #include "CudaRtHandler.h"
 #include <cuda.h>
+#include <lz4.h>
+
+#define FATBINWRAPPER_MAGIC 0x466243B1
+#define FATBIN_MAGIC 0xBA55ED50
+#define ELF_MAGIC "\177ELF"
+#define NVIDIA_ELF_MAGIC "\x00\x01\x00\x66"
+#define ELF_MAGIC_SIZE 4
+#define MAX_SCAN 256
 
 using namespace std;
 using namespace log4cplus;
+
+typedef struct fatBinData  {
+    unsigned short kind;
+    unsigned short version;
+    unsigned int headerSize; // size of the header
+    unsigned int paddedPayloadSize;
+    unsigned int unknown0;
+    unsigned int payloadSize;
+    unsigned int unknown1;
+    unsigned int unknown2;
+    unsigned int smVersion;
+    unsigned int bitWidth;
+    unsigned int unknown3;
+    unsigned long unkown4;
+    unsigned long unknown5;
+    unsigned long uncompressedPayload;
+} fatBinData_t;
 
 typedef struct __cudaFatCudaBinary2HeaderRec {
     unsigned int magic;
@@ -97,159 +122,321 @@ static void init() {
     initialized = true;
 }
 
-const char *get_const_string(const char *s) {
-    if (!initialized) init();
-    size_t i;
-    for (i = 0; i < constStrings_length; i++)
-        if (!strcmp(s, constStrings[i])) return constStrings[i];
-    if (i >= constStrings_size) {
-        constStrings_size += 2048;
-        constStrings =
-            (char **)realloc(constStrings, sizeof(char *) * constStrings_size);
+// Helper: find ELF header offset in the data
+size_t findElfOffset(char *data) {
+    for (size_t i = 0; i < MAX_SCAN; i++) {
+        if (memcmp(data + i, ELF_MAGIC, ELF_MAGIC_SIZE) == 0) {
+            // cout << "Found ELF magic at offset " << i << endl;
+            return i;
+        }
     }
-    constStrings[constStrings_length] = strdup(s);
-    return constStrings[constStrings_length++];
+    return -1;
+}
+
+// // Helper: check if the ELF is an NVIDIA specific ELF
+// bool isNvidiaElf(const void *eh) {
+//     // Check for NVIDIA specific magic number
+//     return (memcmp((byte*)eh + 9, NVIDIA_ELF_MAGIC, ELF_MAGIC_SIZE) == 0);
+// }
+
+// ElfHeaderView createHeaderView(const void *elf_base_address) {
+//     // If it's an NVIDIA ELF, use the specific header type
+//     if (isNvidiaElf(elf_base_address)) {
+//         // cout << "NVIDIA ELF detected." << endl;
+//         return makeElfHeaderView((NvElf64_Ehdr *)elf_base_address);
+//     }
+//     return makeElfHeaderView((Elf64_Ehdr *)elf_base_address);
+// }
+
+// Helper: allocate and copy section headers table
+Elf64_Shdr* copySectionHeaders(const Elf64_Ehdr *eh) {
+    // cout << "Will malloc "<< eh->e_shnum << " section headers of " << eh->e_shentsize << " bytes each." << endl;
+    Elf64_Shdr *sh_table = (Elf64_Shdr *)malloc(eh->e_shentsize * eh->e_shnum);
+    if (!sh_table) return nullptr;
+
+    byte *baseAddr = (byte *)eh;
+    for (uint32_t i = 0; i < eh->e_shnum; i++) {
+        // cout << "Section header " << i << " starts at adress: " << hex << (baseAddr + eh->e_shoff + i * eh->e_shentsize) << dec << endl;
+        Elf64_Shdr *src = (Elf64_Shdr *)(baseAddr + eh->e_shoff + i * eh->e_shentsize);
+        memcpy(&sh_table[i], src, eh->e_shentsize);
+    }
+    return sh_table;
+}
+
+// Helper: allocate and copy section header string table
+char* copySectionHeaderStrTable(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table) {
+    // uint8_t *sh_str_table_bytes = (uint8_t *)&sh_table[eh->e_shstrndx];
+    // for (int i = 0; i < sizeof(Elf64_Shdr); i++) {
+    //     printf("%02x ", sh_str_table_bytes[i]);
+    // }
+    // printf("\n");
+
+    size_t offset = sh_table[eh->e_shstrndx].sh_offset;
+    size_t size = sh_table[eh->e_shstrndx].sh_size;
+    // cout << "sh_table address: " << hex << (void *)sh_table << dec << endl;
+    // cout << "offset address: " << hex << (void *)(&sh_table[eh->e_shstrndx].sh_offset) << dec << endl;
+    // cout << "size address: " << hex << (void *)(&sh_table[eh->e_shstrndx].sh_size) << dec << endl;
+    // cout << "section header string table index: " << eh->e_shstrndx << " has offset: " << offset << " and size: " << size << endl;
+    char *sh_str = (char *)malloc(size);
+    if (!sh_str) return nullptr;
+
+    byte *baseAddr = (byte *)eh;
+    memcpy(sh_str, baseAddr + offset, size);
+    return sh_str;
+}
+
+// needs fix
+// void parseNvInfoSections(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table, char *sh_str, CudaRtHandler *pThis) {
+//     for (uint32_t i = 0; i < eh->e_shnum; i++) {
+//         char *sectionName = sh_str + sh_table[i].sh_name;
+//         if (strncmp(".nv.info.", sectionName, strlen(".nv.info.")) != 0) {
+//             continue;
+//         }
+
+//         char *funcName = sectionName + strlen(".nv.info.");
+//         byte *sectionData = (byte*)eh + sh_table[i].sh_offset;
+//         byte *sectionEnd  = sectionData + sh_table[i].sh_size;
+
+//         NVInfoFunction infoFunction;
+
+//         byte *p = sectionData;
+
+//         while (p < sectionEnd) {
+//             const NVInfoItemHeader *hdr = (const NVInfoItemHeader *)p;
+//             p += sizeof(NVInfoItemHeader);
+
+//             NVInfoItem item = {};
+//             item.format = hdr->format;
+//             item.attribute = hdr->attribute;
+
+//             switch (hdr->format) {
+//                 case EIFMT_SVAL: {
+//                     const  NVInfoSvalHeader *svalHdr = (const NVInfoSvalHeader *)p;
+//                     uint16_t valSize = svalHdr->value_size;
+//                     p += sizeof(NVInfoSvalHeader);
+
+//                     if (hdr->attribute == EIATTR_KPARAM_INFO) {
+//                         // parse NvInfoKParamInfoValue (12 bytes)
+//                         const NVInfoKParamInfoValue *param = (const NVInfoKParamInfoValue *)p;
+//                         item.type = NVInfoItem::KPARAM_INFO;
+//                         item.kparam = *param;
+//                         infoFunction.params.push_back(*param);
+//                     } else if (hdr->attribute == EIATTR_EXTERNS) {
+//                         // extern name (null-terminated string)
+//                         item.type = NVInfoItem::EXTERN;
+//                         item.extern_name = std::string((const char *)p, valSize);
+//                     } else {
+//                         item.type = NVInfoItem::OTHER;
+//                     }
+//                     // skip this sval
+//                     p += valSize;
+//                     break;
+//                 }
+//                 case EIFMT_NVAL: {
+//                     item.type = NVInfoItem::NO_VALUE;
+//                     p += 0;
+//                     break;
+//                 }
+//                 case EIFMT_BVAL: {
+//                     item.type = NVInfoItem::BVAL;
+//                     item.uval = *(const uint8_t *)p;
+//                     p += 1;
+//                     break;
+//                 }
+//                 case EIFMT_HVAL: {
+//                     item.type = NVInfoItem::HVAL;
+//                     item.uval = *(const uint16_t *)p;
+//                     p += 2;
+//                     break;
+//                 }
+//                 default:
+//                     throw std::runtime_error("Unknown NVInfo format");
+//             }
+//         }
+//         pThis->addDeviceFunc2InfoFunc(funcName, infoFunction);
+//     }
+// }
+
+
+// Helper: parse NvInfo sections and register functions
+void parseNvInfoSections(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table, char *sh_str, CudaRtHandler *pThis) {
+    byte *baseAddr = (byte *)eh;
+    // cout << "Processing " << eh->e_shnum << " sections." << endl;
+    for (uint32_t i = 0; i < eh->e_shnum; i++) {
+        // cout << "Processing section " << i + 1 << " of " << eh->e_shnum << endl;
+        char *sectionName = sh_str + sh_table[i].sh_name;
+        if (strncmp(".nv.info.", sectionName, strlen(".nv.info.")) != 0) {
+            // cout << "Skipping section: " << sectionName << endl;
+            continue;
+        }
+
+        char *funcName = sectionName + strlen(".nv.info.");
+        // cout << "Found NvInfo section: " << funcName << endl;
+        byte *sectionData = baseAddr + sh_table[i].sh_offset;
+
+        NvInfoFunction infoFunction;
+
+        NvInfoAttribute *pAttr = (NvInfoAttribute *)sectionData;
+        byte *sectionEnd = sectionData + sh_table[i].sh_size;
+
+        // cout << "Section data start at: " << hex << sectionData << " and end at: " << sectionEnd << dec << endl;
+
+        while ((byte *)pAttr < sectionEnd) {
+            size_t size = sizeof(NvInfoAttribute);
+            // cout << "Processing attribute: " << pAttr->attr << ", fmt: " << pAttr->fmt << ", value: " << pAttr->value << endl;
+            if (pAttr->fmt == EIFMT_SVAL) {
+                // cout << "Attribute is a string value." << endl;
+                size += pAttr->value;
+            }
+            if (pAttr->attr == EIATTR_KPARAM_INFO) {
+                NvInfoKParam *nvInfoKParam = (NvInfoKParam *)pAttr;
+                infoFunction.params.push_back(*nvInfoKParam);
+            }
+            // cout << "Attribute size: " << size << endl;
+            pAttr = (NvInfoAttribute *)((byte *)pAttr + size);
+        }
+        pThis->addDeviceFunc2InfoFunc(funcName, infoFunction);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterFatBinary"));
     LOG4CPLUS_DEBUG(logger, "Entering in RegisterFatBinary");
 
-  try {
-    char *handler = input_buffer->AssignString();
-    __fatBinC_Wrapper_t *fatBin =
-        CudaUtil::UnmarshalFatCudaBinaryV2(input_buffer.get());
-    void **bin = __cudaRegisterFatBinary((void *)fatBin);
-    pThis->RegisterFatBinary(handler, bin);
+    try {
+        char *handler = input_buffer->AssignString();
+        __fatBinC_Wrapper_t *fatBin = CudaUtil::UnmarshalFatCudaBinaryV2(input_buffer.get());
+        if (fatBin->magic != FATBINWRAPPER_MAGIC) {
+            LOG4CPLUS_ERROR(logger, "*** Error: Invalid fat binary wrapper magic number");
+            return std::make_shared<Result>(cudaErrorInvalidValue);
+        }
+        void **bin = __cudaRegisterFatBinary((void *)fatBin);
+        pThis->RegisterFatBinary(handler, bin);
 
-      char *data = (char *)fatBin->data;
+        struct fatBinaryHeader *fatBinHdr = (struct fatBinaryHeader *)fatBin->data;
+        if (fatBinHdr->magic != FATBIN_MAGIC) {
+            LOG4CPLUS_ERROR(logger, "*** Error: Invalid fat binary header magic number");
+            return std::make_shared<Result>(cudaErrorInvalidValue);
+        }
 
-      NvFatCubin *pFatCubin = (NvFatCubin *)data;
-      // check so its really an elf file
-      Elf64_Ehdr *eh = &(pFatCubin->elf);
-      if(!strncmp((char*)eh->e_ident, "\177ELF", 4)) {
+        // cout << "Fat binary header size: " << fatBinHdr->headerSize << endl;
+        // cout << "Fat binary size: " << fatBinHdr->fatSize << endl;
 
-          /* Section header table :  */
-          Elf64_Shdr *sh_table = static_cast<Elf64_Shdr *>(malloc(eh->e_shentsize * eh->e_shnum));
+        uint8_t* data_ptr = (uint8_t*) fatBin->data + fatBinHdr->headerSize;
+        size_t remaining_size = fatBinHdr->fatSize;
+        std::vector<char> cubin;
+        while (remaining_size > 0) {
+            fatBinData_t *fatBinData = (fatBinData_t *)data_ptr;
+            data_ptr += fatBinData->headerSize;
 
-          byte *baseAddr = (byte *) eh;
-          for (uint32_t i = 0; i < eh->e_shnum; i++) {
-              Elf64_Shdr *shdrSrc = (Elf64_Shdr *) (baseAddr + (off_t) eh->e_shoff + i * eh->e_shentsize);
-              memcpy(&sh_table[i], shdrSrc, eh->e_shentsize);
-          }
+            if (fatBinData->uncompressedPayload != 0) {
+                uint8_t* compressed_data = data_ptr;
+                int compressed_size = fatBinData->payloadSize;
+                
+                // cout << "Uncompressed payload: " << fatBinData->uncompressedPayload << endl;
+                // Prepare output buffer with the expected decompressed size
+                cubin.resize(fatBinData->uncompressedPayload);
 
-          char *sh_str = static_cast<char *>(malloc(sh_table[eh->e_shstrndx].sh_size));
-          if (sh_str) {
-              memcpy(sh_str, baseAddr + sh_table[eh->e_shstrndx].sh_offset, sh_table[eh->e_shstrndx].sh_size);
+                // Decompress - LZ4_decompress_safe returns decompressed size or < 0 on error
+                int decompressed_size = LZ4_decompress_safe(
+                    (const char*)compressed_data,
+                    cubin.data(),
+                    compressed_size,
+                    fatBinData->uncompressedPayload
+                );
+                if (decompressed_size < 0) {
+                    LOG4CPLUS_ERROR(logger, "*** Error: LZ4 decompression failed with code " << decompressed_size);
+                    return nullptr; // Decompression failed
+                }
+                // Advance pointer for next usage (if needed)
+                data_ptr += fatBinData->paddedPayloadSize;
+            } else {
+                cubin.resize(fatBinData->paddedPayloadSize);
+                memcpy(cubin.data(), data_ptr, fatBinData->paddedPayloadSize);
+                data_ptr += fatBinData->paddedPayloadSize;
+            }
 
-              for (uint32_t i = 0; i < eh->e_shnum; i++) {
+            // cout << "kind " << fatBinData->kind << endl;
+            if (fatBinData->kind == 2) {
+                if (memcmp(cubin.data(), ELF_MAGIC, ELF_MAGIC_SIZE) != 0) {
+                    cerr << "*** Error: Invalid ELF magic number in fat binary" << endl;
+                    return nullptr; // Not a valid ELF file
+                }
+                Elf64_Ehdr *eh = (Elf64_Ehdr *)(cubin.data());
 
-                  char *szSectionName = (sh_str + sh_table[i].sh_name);
-                  if (strncmp(".nv.info.", szSectionName, strlen(".nv.info.")) == 0) {
-                      char *szFuncName = szSectionName + strlen(".nv.info.");
-                      byte *p = (byte *) eh + sh_table[i].sh_offset;
+                Elf64_Shdr *sh_table = copySectionHeaders(eh);
+                if (!sh_table) return nullptr;
 
-                      NvInfoFunction infoFunction;
-                      size_t size;
-                      NvInfoAttribute *pAttr = (NvInfoAttribute *) p;
-                      while (pAttr < (NvInfoAttribute *) ((byte *) p + sh_table[i].sh_size)) {
-                          size = 0;
-                          switch (pAttr->fmt) {
-                              case EIFMT_SVAL:
-                                  size = sizeof(NvInfoAttribute) + pAttr->value;
-                                  break;
-                              case EIFMT_NVAL:
-                                  size = sizeof(NvInfoAttribute);
-                                  break;
-                              case EIFMT_HVAL:
-                                  size = sizeof(NvInfoAttribute);
-                                  break;
+                char *sh_str = copySectionHeaderStrTable(eh, sh_table);
+                if (!sh_str) {
+                    free(sh_table);
+                    return nullptr;
+                }
+                
+                parseNvInfoSections(eh, sh_table, sh_str, pThis);
 
-                          }
-                          if (pAttr->attr == EIATTR_KPARAM_INFO) {
-                              NvInfoKParam *nvInfoKParam = (NvInfoKParam *) pAttr;
+                free(sh_str);
+                free(sh_table);
+            }
+            else {
+                // cout << "Ignoring PTX" << endl;
+            }
+            remaining_size -= (fatBinData->paddedPayloadSize + fatBinData->headerSize);
+        }
 
-                              NvInfoKParam nvInfoKParam1;
-                              nvInfoKParam1.index = nvInfoKParam->index;
-                              nvInfoKParam1.ordinal = nvInfoKParam->ordinal;
-                              nvInfoKParam1.offset = nvInfoKParam->offset;
-                              nvInfoKParam1.a = nvInfoKParam->a;
-                              nvInfoKParam1.size = nvInfoKParam->size;
-                              nvInfoKParam1.b = nvInfoKParam->b;
-                              infoFunction.params.push_back(nvInfoKParam1);
-                          }
-                          pAttr = (NvInfoAttribute *) ((byte *) pAttr + size);
-                      }
-                      pThis->addDeviceFunc2InfoFunc(szFuncName, infoFunction);
-                  }
-              }
-              free(sh_str);
-          }
-          free(sh_table);
-      }
-
-#ifdef DEBUG
-    cudaError_t error = cudaGetLastError();
-    if (error != 0) {
-      cerr << "error executing RegisterFatBinary: " << _cudaGetErrorEnum(error)
-           << endl;
+        return std::make_shared<Result>(cudaSuccess);
+    } catch (string e) {
+        cerr << e << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-#endif
-    return std::make_shared<Result>(cudaSuccess);
-  } catch (const std::exception& e) {
-      cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
 }
 
 CUDA_ROUTINE_HANDLER(RegisterFatBinaryEnd) {
-  try {
-    char *handler = input_buffer->AssignString();
-    void **fatCubinHandle = pThis->GetFatBinary(handler);
-    __cudaRegisterFatBinaryEnd(fatCubinHandle);
-    cudaError_t error = cudaGetLastError();
-    return std::make_shared<Result>(error);
-  } catch (const std::exception& e) {
-      cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
-
+    try {
+        char *handler = input_buffer->AssignString();
+        void **fatCubinHandle = pThis->GetFatBinary(handler);
+        __cudaRegisterFatBinaryEnd(fatCubinHandle);
+        cudaError_t error = cudaGetLastError();
+        return std::make_shared<Result>(error);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(UnregisterFatBinary) {
-  try {
-    char *handler = input_buffer->AssignString();
-    void **fatCubinHandle = pThis->GetFatBinary(handler);
-    __cudaUnregisterFatBinary(fatCubinHandle);
-    pThis->UnregisterFatBinary(handler);
+    try {
+        char *handler = input_buffer->AssignString();
+        void **fatCubinHandle = pThis->GetFatBinary(handler);
+        __cudaUnregisterFatBinary(fatCubinHandle);
+        pThis->UnregisterFatBinary(handler);
     return std::make_shared<Result>(cudaSuccess);
-  } catch (const std::exception& e) {
-      cerr << e.what() << endl;
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    }
 }
 
 CUDA_ROUTINE_HANDLER(RegisterFunction) {
-  try {
-    char *handler = input_buffer->AssignString();
-    void **fatCubinHandle = pThis->GetFatBinary(handler);
-    const char *hostfun = (const char *)(input_buffer->Get<pointer_t>());
-    char *deviceFun = strdup(input_buffer->AssignString());
-    const char *deviceName = strdup(input_buffer->AssignString());
-    int thread_limit = input_buffer->Get<int>();
-    uint3 *tid = input_buffer->Assign<uint3>();
-    uint3 *bid = input_buffer->Assign<uint3>();
-    dim3 *bDim = input_buffer->Assign<dim3>();
-    dim3 *gDim = input_buffer->Assign<dim3>();
-    int *wSize = input_buffer->Assign<int>();
-    __cudaRegisterFunction(fatCubinHandle, hostfun, deviceFun, deviceName,
-                           thread_limit, tid, bid, bDim, gDim, wSize);
+    try {
+        char *handler = input_buffer->AssignString();
+        void **fatCubinHandle = pThis->GetFatBinary(handler);
+        const char *hostfun = (const char *)(input_buffer->Get<pointer_t>());
+        char *deviceFun = strdup(input_buffer->AssignString());
+        const char *deviceName = strdup(input_buffer->AssignString());
+        int thread_limit = input_buffer->Get<int>();
+        uint3 *tid = input_buffer->Assign<uint3>();
+        uint3 *bid = input_buffer->Assign<uint3>();
+        dim3 *bDim = input_buffer->Assign<dim3>();
+        dim3 *gDim = input_buffer->Assign<dim3>();
+        int *wSize = input_buffer->Assign<int>();
+        __cudaRegisterFunction(fatCubinHandle, hostfun, deviceFun, deviceName,
+                            thread_limit, tid, bid, bDim, gDim, wSize);
 
 #ifdef DEBUG
     cudaError_t error = cudaGetLastError();
     if (error != 0) {
-      cerr << "error executing RegisterFunction: " << _cudaGetErrorEnum(error)
-           << endl;
+        cerr << "error executing RegisterFunction: " << _cudaGetErrorEnum(error) << endl;
     }
 #endif
 
@@ -265,48 +452,48 @@ CUDA_ROUTINE_HANDLER(RegisterFunction) {
     pThis->addHost2DeviceFunc((void *) hostfun, deviceFun);
 
     return std::make_shared<Result>(cudaSuccess, output_buffer);
-  } catch (const std::exception& e) {
-      cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(RegisterVar) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterVar"));
-  LOG4CPLUS_DEBUG(logger, "Entering in RegisterVar");
-  try {
-    char *handler = input_buffer->AssignString();
-    LOG4CPLUS_DEBUG(logger, "Handler: " << handler);
-    void **fatCubinHandle = pThis->GetFatBinary(handler);
-    LOG4CPLUS_DEBUG(logger, "FatCubinHandle: " << fatCubinHandle);
-    char *hostVar = input_buffer->AssignString();
-    LOG4CPLUS_DEBUG(logger, "HostVar: " << hostVar);
-    char *deviceAddress = strdup(input_buffer->AssignString());
-    LOG4CPLUS_DEBUG(logger, "DeviceAddress: " << deviceAddress);
-    const char *deviceName = strdup(input_buffer->AssignString());
-    LOG4CPLUS_DEBUG(logger, "DeviceName: " << deviceName);
-    int ext = input_buffer->Get<int>();
-    int size = input_buffer->Get<int>();
-    int constant = input_buffer->Get<int>();
-    int global = input_buffer->Get<int>();
-    LOG4CPLUS_DEBUG(logger, "Calling RegisterVar: " << deviceName << " for "
-                      << fatCubinHandle << " with hostVar: " << hostVar
-                      << ", deviceAddress: " << deviceAddress
-                      << ", deviceName: " << deviceName
-                      << ", ext: " << ext << ", size: " << size
-                      << ", constant: " << constant
-                      << ", global: " << global);
-    __cudaRegisterVar(fatCubinHandle, hostVar, deviceAddress, deviceName, ext,
-                      size, constant, global);
-    cudaError_t error = cudaGetLastError();
-    LOG4CPLUS_DEBUG(logger, "RegisterVar Executed");
-    if (error != cudaSuccess) {
-      LOG4CPLUS_DEBUG(logger, "error executing RegisterVar: " << _cudaGetErrorEnum(error));
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterVar"));
+//   LOG4CPLUS_DEBUG(logger, "Entering in RegisterVar");
+    try {
+        char *handler = input_buffer->AssignString();
+        // LOG4CPLUS_DEBUG(logger, "Handler: " << handler);
+        void **fatCubinHandle = pThis->GetFatBinary(handler);
+        // LOG4CPLUS_DEBUG(logger, "FatCubinHandle: " << fatCubinHandle);
+        char *hostVar = input_buffer->AssignString();
+        // LOG4CPLUS_DEBUG(logger, "HostVar: " << hostVar);
+        char *deviceAddress = strdup(input_buffer->AssignString());
+        // LOG4CPLUS_DEBUG(logger, "DeviceAddress: " << deviceAddress);
+        const char *deviceName = strdup(input_buffer->AssignString());
+        // LOG4CPLUS_DEBUG(logger, "DeviceName: " << deviceName);
+        int ext = input_buffer->Get<int>();
+        int size = input_buffer->Get<int>();
+        int constant = input_buffer->Get<int>();
+        int global = input_buffer->Get<int>();
+        // LOG4CPLUS_DEBUG(logger, "Calling RegisterVar: " << deviceName << " for "
+        //                   << fatCubinHandle << " with hostVar: " << hostVar
+        //                   << ", deviceAddress: " << deviceAddress
+        //                   << ", deviceName: " << deviceName
+        //                   << ", ext: " << ext << ", size: " << size
+        //                   << ", constant: " << constant
+        //                   << ", global: " << global);
+        __cudaRegisterVar(fatCubinHandle, hostVar, deviceAddress, deviceName, ext,
+                        size, constant, global);
+        cudaError_t error = cudaGetLastError();
+        LOG4CPLUS_DEBUG(logger, "RegisterVar Executed");
+        if (error != cudaSuccess) {
+            LOG4CPLUS_DEBUG(logger, "error executing RegisterVar: " << _cudaGetErrorEnum(error));
+        }
+    } catch (const std::exception& e) {
+            LOG4CPLUS_DEBUG(logger, "Exception" << e.what() << " in RegisterVar");
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-  } catch (const std::exception& e) {
-      LOG4CPLUS_DEBUG(logger, "Exception" << e.what() << " in RegisterVar");
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
 
   return std::make_shared<Result>(cudaSuccess);
 }
@@ -397,5 +584,4 @@ CUDA_ROUTINE_HANDLER(RegisterShared) {
         }
 
     }
-
 #endif

@@ -110,7 +110,7 @@ void Frontend::Init(Communicator *c) {
         }
     }
 
-    LOG4CPLUS_INFO(logger, "🛈  - GVirtuS frontend version " + config_path);
+    LOG4CPLUS_INFO(logger, "GVirtuS frontend version " + config_path);
 
     try {
         auto endpoint = EndpointFactory::get_endpoint(config_path);
@@ -119,7 +119,7 @@ void Frontend::Init(Communicator *c) {
         mpFrontends->find(tid)->second->_communicator->obj_ptr()->Connect();
     }
     catch (const std::exception& e) {
-        LOG4CPLUS_ERROR(logger, "✖ - " << fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Exception occurred: " << e.what());
+        LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Exception occurred: " << e.what());
         exit(EXIT_FAILURE);
     }
 
@@ -197,7 +197,7 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
         }
     }
     catch (const std::exception& e) {
-        cerr << "Error: cannot create Frontend ('" << e.what() << "')" << endl;
+        LOG4CPLUS_ERROR(logger, "Error initializing Frontend: " << e.what());
         delete f;  // Clean up on failure
         return nullptr;
     }
@@ -207,7 +207,17 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
 
 void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     if (input_buffer == nullptr) input_buffer = mpInputBuffer.get();
-
+    if (!strcmp(routine, "cudaLaunchKernel")) {
+        cout << "cudaLanuchKernel called" << endl;
+    }
+    // else if (strcmp(routine, "cudaRegisterFatBinary") &&
+    //     strcmp(routine, "cudaRegisterFatBinaryEnd") &&
+    //     strcmp(routine, "cudaUnregisterFatBinary") &&
+    //     strcmp(routine, "cudaRegisterFunction") &&
+    //     strcmp(routine, "cudaRegisterVar")) {
+    //     cout <<  "Executing routine: " << routine << endl;
+    // }
+    
     pid_t tid = syscall(SYS_gettid);
 
     Frontend* frontend = nullptr;
@@ -215,7 +225,7 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
         auto it = mpFrontends->find(tid);
         if (it == mpFrontends->end()) {
-            cerr << " ERROR - can't send any job request " << endl;
+            LOG4CPLUS_ERROR(logger, "Cannot send any job request");
             return;
         }
         frontend = it->second;
@@ -231,16 +241,26 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     frontend->mpOutputBuffer->Reset();
 
     frontend->_communicator->obj_ptr()->Read((char *) &frontend->mExitCode, sizeof(int));
+    LOG4CPLUS_DEBUG(logger, "Routine '" << routine << "' returned code " << frontend->mExitCode);
+    // if (frontend->mExitCode != 0) {
+        // LOG4CPLUS_ERROR(logger, "Error executing routine '" << routine << "': exit code " << frontend->mExitCode);
+        // return;
+    // }
     double time_taken;
     frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&time_taken), sizeof(time_taken));
+    // cout << "time taken: " << time_taken << endl;
     frontend->mRoutineExecutionTime += time_taken;
 
     start = steady_clock::now();
     size_t out_buffer_size;
     frontend->_communicator->obj_ptr()->Read((char *) &out_buffer_size, sizeof(size_t));
+    // cout << "Output buffer size: " << out_buffer_size << endl;
     frontend->mDataReceived += out_buffer_size;
-    if (out_buffer_size > 0)
-        frontend->mpOutputBuffer->Read<char>( frontend->_communicator->obj_ptr().get(), out_buffer_size);
+    if (out_buffer_size > 0) {
+        // cout << "Reading output buffer..." << endl;
+        frontend->mpOutputBuffer->Read<char>(frontend->_communicator->obj_ptr().get(), out_buffer_size);
+        // cout << "Output buffer read successfully." << endl;
+    }
     frontend->mReceivingTime += std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() / 1000.0;
 }
 

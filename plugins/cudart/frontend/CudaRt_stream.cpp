@@ -119,11 +119,15 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaStreamBeginCapture(
 }
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaStreamIsCapturing(
-    cudaStream_t stream,
-    cudaStreamCaptureStatus* pCaptureStatus
+extern "C" __host__ cudaError_t CUDARTAPI cudaStreamIsCapturing(cudaStream_t stream,
+                                                cudaStreamCaptureStatus* pCaptureStatus
 ) {
-    return cudaErrorNotYetImplemented;
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(stream);
+    CudaRtFrontend::Execute("cudaStreamIsCapturing");
+    if (CudaRtFrontend::Success())
+        *pCaptureStatus = CudaRtFrontend::GetOutputVariable<cudaStreamCaptureStatus>();
+    return CudaRtFrontend::GetExitCode();
 }
 
 // TODO: implement

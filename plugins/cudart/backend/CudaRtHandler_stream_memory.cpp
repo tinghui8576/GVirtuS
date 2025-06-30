@@ -59,3 +59,29 @@ CUDA_ROUTINE_HANDLER(MemPoolGetAttribute) {
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("cudaMemPoolGetAttribute: ") << exit_code);
     return std::make_shared<Result>(exit_code, out);
 }
+
+// TODO: needs testing
+CUDA_ROUTINE_HANDLER(MemPoolSetAttribute) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MemPoolSetAttribute"));
+
+    cudaMemPool_t memPool = input_buffer->Get<cudaMemPool_t>();
+    cudaMemPoolAttr attr = input_buffer->Get<cudaMemPoolAttr>();
+
+    void * value = isMemPoolReuseAttr(attr)
+        ? reinterpret_cast<void*>(input_buffer->Get<int>())
+        : reinterpret_cast<void*>(input_buffer->Get<cuuint64_t>());
+
+    cudaError_t exit_code = cudaMemPoolSetAttribute(memPool, attr, value);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("cudaMemPoolSetAttribute: ") << exit_code);
+    return std::make_shared<Result>(exit_code);
+}
+
+// TODO: needs testing
+CUDA_ROUTINE_HANDLER(MemPoolDestroy) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MemPoolDestroy"));
+
+    cudaMemPool_t memPool = input_buffer->Get<cudaMemPool_t>();
+    cudaError_t exit_code = cudaMemPoolDestroy(memPool);
+    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("cudaMemPoolDestroy: ") << exit_code);
+    return std::make_shared<Result>(exit_code);
+}

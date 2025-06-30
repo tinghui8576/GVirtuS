@@ -13,6 +13,7 @@ RUN apt update && apt install -y --no-install-recommends \
     librdmacm-dev \
     libibverbs-dev \
     libgtest-dev \
+    liblz4-dev \
     cmake \
     && rm -rf /var/lib/apt/lists/*
 
