@@ -103,6 +103,7 @@ Restart the backend and re-run the tests using the scripts above.
 
 # ⚠️ Disclaimers
 
-> [!IMPORTANT] GVirtuS is currently not production-ready.
+> [!IMPORTANT]
+> GVirtuS is currently not production-ready.
 > It is **not thread-safe** and has known **memory leaks**. Use it with caution in experimental or non-critical environments.
 
