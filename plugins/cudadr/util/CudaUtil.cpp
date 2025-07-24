@@ -180,7 +180,7 @@ Buffer * CudaUtil::MarshalFatCudaBinary(__fatBinC_Wrapper_t* bin, Buffer * marsh
 
 __fatBinC_Wrapper_t * CudaUtil::UnmarshalFatCudaBinaryV2(Buffer* marshal) {
     __fatBinC_Wrapper_t * bin = new __fatBinC_Wrapper_t __attribute__ ((aligned (8)));
-    size_t size;    
+    size_t size;
 
     bin->magic = marshal->Get<int>();
     bin->version = marshal->Get<int>();

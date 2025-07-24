@@ -190,14 +190,14 @@ void parseNvInfoSections(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table, char *sh_st
             size_t size = sizeof(NvInfoAttribute);
             // cout << "Processing attribute: " << pAttr->attr << ", fmt: " << pAttr->fmt << ", value: " << pAttr->value << endl;
             if (pAttr->fmt == EIFMT_SVAL) {
-                // cout << "Attribute is a string value." << endl;
+                cout << "Attribute is a string value." << endl;
                 size += pAttr->value;
             }
             if (pAttr->attr == EIATTR_KPARAM_INFO) {
+                cout << "Attribute is a KParam info." << endl;
                 NvInfoKParam *nvInfoKParam = (NvInfoKParam *)pAttr;
                 infoFunction.params.push_back(*nvInfoKParam);
             }
-            // cout << "Attribute size: " << size << endl;
             pAttr = (NvInfoAttribute *)((byte *)pAttr + size);
         }
         CudaRtFrontend::addDeviceFunc2InfoFunc(funcName, infoFunction);
@@ -218,8 +218,8 @@ extern "C" __host__ void **__cudaRegisterFatBinary(void *fatCubin) {
     }
     // cout << "Fat binary wrapper magic: " << hex << bin->magic << endl;
     struct fatBinaryHeader *fatBinHdr = (struct fatBinaryHeader *)bin->data;
-    if (fatBinHdr->magic != FATBIN_MAGIC) {
-        cerr << "*** Error: Invalid fat binary magic number" << endl;
+    if (fatBinHdr->magic != FATBIN_MAGIC || fatBinHdr->version != 1) {
+        cerr << "*** Error: Invalid fat binary" << endl;
         return nullptr; // Not a valid fat binary
     }
     // cout << "Fat binary header size: " << fatBinHdr->headerSize << endl;
@@ -230,27 +230,36 @@ extern "C" __host__ void **__cudaRegisterFatBinary(void *fatCubin) {
     std::vector<char> cubin;
     while (remaining_size > 0) {
         fatBinData_t *fatBinData = (fatBinData_t *)data_ptr;
+        if (fatBinData->version != 0x0101 || (fatBinData->kind != 1 && fatBinData->kind != 2)) {
+            cerr << "*** Error: Invalid fat binary data version or kind" << endl;
+            return nullptr; // Not a valid fat binary data
+        }
+
+        cout << "Processing fat binary data of kind: " << fatBinData->kind 
+            << " and smVersion: " << fatBinData->smVersion << endl;
+
         data_ptr += fatBinData->headerSize;
 
         if (fatBinData->uncompressedPayload != 0) {
-            uint8_t* compressed_data = data_ptr;
+            const char* compressed_data = (char*) data_ptr;
             int compressed_size = fatBinData->payloadSize;
+            data_ptr += fatBinData->paddedPayloadSize;
             
             // Prepare output buffer with the expected decompressed size
             cubin.resize(fatBinData->uncompressedPayload);
 
             // Decompress - LZ4_decompress_safe returns decompressed size or < 0 on error
             int decompressed_size = LZ4_decompress_safe(
-                (const char*)compressed_data,
+                compressed_data,
                 cubin.data(),
                 compressed_size,
                 fatBinData->uncompressedPayload
             );
+
             if (decompressed_size < 0) {
                 cerr << "*** Error: LZ4 decompression failed with code " << decompressed_size << endl;
                 return nullptr; // Decompression failed
             }
-            data_ptr += fatBinData->paddedPayloadSize;
         } else {
             cubin.resize(fatBinData->paddedPayloadSize);
             memcpy(cubin.data(), data_ptr, fatBinData->paddedPayloadSize);
@@ -272,13 +281,13 @@ extern "C" __host__ void **__cudaRegisterFatBinary(void *fatCubin) {
                 free(sh_table);
                 return nullptr;
             }
-            
+
             parseNvInfoSections(eh, sh_table, sh_str);
 
             free(sh_str);
             free(sh_table);
         }
-        remaining_size -= (fatBinData->paddedPayloadSize + fatBinData->headerSize);
+        remaining_size -= (fatBinData->headerSize + fatBinData->paddedPayloadSize);
     }
 
     Buffer *input_buffer = new Buffer();
@@ -289,8 +298,8 @@ extern "C" __host__ void **__cudaRegisterFatBinary(void *fatCubin) {
     CudaRtFrontend::Execute("cudaRegisterFatBinary", input_buffer);
     if (CudaRtFrontend::Success())
         return (void **) fatCubin;
-    
-  return nullptr;
+
+    return nullptr;
 }
 
 extern "C" __host__ void **__cudaRegisterFatBinaryEnd(void *fatCubin) {

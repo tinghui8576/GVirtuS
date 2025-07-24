@@ -62,7 +62,6 @@
 #define EIATTR_SW2393858_WAR 0x30
 #define EIATTR_CUDA_API_VERSION 0x37
 
-
 /////// This is for a newer version of the NVInfo format /////////////////////////////////////////////////////////////////////////////////
 // #pragma pack(push, 1)
 
@@ -182,7 +181,6 @@
 //     std::vector<NVInfoKParamInfoValue> params;
 // } NVInfoFunction;
 
-// #pragma pack(pop)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // original gvirtus ones
@@ -193,6 +191,7 @@ typedef struct {
 } NvInfoAttribute;
 
 typedef struct {
+    NvInfoAttribute nvInfoAttribute;
     uint32_t index;
     uint16_t ordinal;
     uint16_t offset;
@@ -219,11 +218,6 @@ typedef struct __infoFunction {
     std::vector<NvInfoKParam> params;
 } NvInfoFunction;
 
-// typedef struct __infoFunctionEx { // not needed
-//     NvInfoFunction infoFunction;
-//     cudaStream_t stream;
-//     bool adHocStream;
-//     void **args;
-// } NvInfoFunctionEx;
+// #pragma pack(pop)
 
 #endif //GVIRTUS_CUDART_INTERNAL_H

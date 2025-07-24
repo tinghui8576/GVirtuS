@@ -33,9 +33,7 @@
 #define FATBINWRAPPER_MAGIC 0x466243B1
 #define FATBIN_MAGIC 0xBA55ED50
 #define ELF_MAGIC "\177ELF"
-#define NVIDIA_ELF_MAGIC "\x00\x01\x00\x66"
 #define ELF_MAGIC_SIZE 4
-#define MAX_SCAN 256
 
 using namespace std;
 using namespace log4cplus;
@@ -56,38 +54,6 @@ typedef struct fatBinData  {
     unsigned long unknown5;
     unsigned long uncompressedPayload;
 } fatBinData_t;
-
-typedef struct __cudaFatCudaBinary2HeaderRec {
-    unsigned int magic;
-    unsigned int version;
-    unsigned long long int length;
-} __cudaFatCudaBinary2Header;
-
-enum FatBin2EntryType { FATBIN_2_PTX = 0x1 };
-
-typedef struct __cudaFatCudaBinary2EntryRec {
-    unsigned int type;
-    unsigned int binary;
-    unsigned long long int binarySize;
-    unsigned int unknown2;
-    unsigned int kindOffset;
-    unsigned int unknown3;
-    unsigned int unknown4;
-    unsigned int name;
-    unsigned int nameSize;
-    unsigned long long int flags;
-    unsigned long long int unknown7;
-    unsigned long long int uncompressedBinarySize;
-} __cudaFatCudaBinary2Entry;
-
-long long COMPRESSED_PTX = 0x0000000000001000LL;
-
-typedef struct __cudaFatCudaBinaryRec2 {
-    int magic;
-    int version;
-    const unsigned long long *fatbinData;
-    char *f;
-} __cudaFatCudaBinary2;
 
 extern "C" {
     void **__cudaRegisterFatBinary(void *fatCubin);
@@ -112,41 +78,6 @@ extern "C" {
                                                                             size_t sharedMem,
                                                                             cudaStream_t stream);
 }
-
-static bool initialized = false;
-static char **constStrings;
-static size_t constStrings_size = 0;
-static size_t constStrings_length = 0;
-
-static void init() {
-    initialized = true;
-}
-
-// Helper: find ELF header offset in the data
-size_t findElfOffset(char *data) {
-    for (size_t i = 0; i < MAX_SCAN; i++) {
-        if (memcmp(data + i, ELF_MAGIC, ELF_MAGIC_SIZE) == 0) {
-            // cout << "Found ELF magic at offset " << i << endl;
-            return i;
-        }
-    }
-    return -1;
-}
-
-// // Helper: check if the ELF is an NVIDIA specific ELF
-// bool isNvidiaElf(const void *eh) {
-//     // Check for NVIDIA specific magic number
-//     return (memcmp((byte*)eh + 9, NVIDIA_ELF_MAGIC, ELF_MAGIC_SIZE) == 0);
-// }
-
-// ElfHeaderView createHeaderView(const void *elf_base_address) {
-//     // If it's an NVIDIA ELF, use the specific header type
-//     if (isNvidiaElf(elf_base_address)) {
-//         // cout << "NVIDIA ELF detected." << endl;
-//         return makeElfHeaderView((NvElf64_Ehdr *)elf_base_address);
-//     }
-//     return makeElfHeaderView((Elf64_Ehdr *)elf_base_address);
-// }
 
 // Helper: allocate and copy section headers table
 Elf64_Shdr* copySectionHeaders(const Elf64_Ehdr *eh) {
@@ -582,6 +513,5 @@ CUDA_ROUTINE_HANDLER(RegisterShared) {
       cerr << e.what() << endl;
             return std::make_shared<Result>(cudaErrorMemoryAllocation);
         }
-
     }
 #endif
