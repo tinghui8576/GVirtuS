@@ -179,9 +179,6 @@ extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHost
                                                     void** args,
                                                     size_t sharedMem,
                                                     cudaStream_t stream) {
-        
-        cudaError_t cudaError;
-        vector<gvirtus::common::mappedPointer> mappedPointers;
 
         CudaRtFrontend::Prepare();
         CudaRtFrontend::AddDevicePointerForArguments(func);
@@ -220,11 +217,7 @@ extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHost
         // cout << "Stream: " << stream << endl;
 
         CudaRtFrontend::Execute("cudaLaunchKernel");
-        cudaError = CudaRtFrontend::GetExitCode();
-        if (cudaError == cudaSuccess) {
-            cout << "cudaLaunchKernel executed successfully." << endl;
-        }
         free(pArgsPayload);
-        return cudaError;
+        return CudaRtFrontend::GetExitCode();
     }
 #endif

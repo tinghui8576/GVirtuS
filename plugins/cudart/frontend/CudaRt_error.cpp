@@ -27,8 +27,7 @@
 
 using namespace std;
 
-extern "C" __host__ const char* CUDARTAPI
-cudaGetErrorString(cudaError_t error) {
+extern "C" __host__ const char* CUDARTAPI cudaGetErrorString(cudaError_t error) {
   CudaRtFrontend::Prepare();
   CudaRtFrontend::AddVariableForArguments(error);
   CudaRtFrontend::Execute("cudaGetErrorString");

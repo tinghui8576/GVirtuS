@@ -32,6 +32,35 @@
 using namespace std;
 using gvirtus::common::mappedPointer;
 
+cudaMemcpyKind inferMemcpyKind(void *dst, const void *src) {
+    if (CudaRtFrontend::isDevicePointer(dst) &&
+        CudaRtFrontend::isDevicePointer(src)) {
+        return cudaMemcpyDeviceToDevice;
+    } else if (CudaRtFrontend::isDevicePointer(dst) &&
+               !CudaRtFrontend::isDevicePointer(src)) {
+        return cudaMemcpyHostToDevice;
+    } else if (!CudaRtFrontend::isDevicePointer(dst) &&
+               CudaRtFrontend::isDevicePointer(src)) {
+        return cudaMemcpyDeviceToHost;
+    } else {
+        return cudaMemcpyHostToHost;
+    }
+}
+
+cudaMemcpyKind inferMemcpyKindFromDevice(void *dst) {
+    if (CudaRtFrontend::isDevicePointer(dst)) {
+        return cudaMemcpyDeviceToDevice;
+    }
+    return cudaMemcpyDeviceToHost;
+}
+
+cudaMemcpyKind inferMemcpyKindToDevice(const void *src) {
+    if (CudaRtFrontend::isDevicePointer(src)) {
+        return cudaMemcpyDeviceToDevice;
+    }
+    return cudaMemcpyHostToDevice;
+}
+
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemGetInfo(size_t *free, size_t *total) {
     // cout << "cudaMemGetInfo called" << endl;
     CudaRtFrontend::Prepare();
@@ -54,7 +83,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaFree(void *devPtr) {
     mappedPointer remotePointer = CudaRtFrontend::getMappedPointer(devPtr);
 
     free(devPtr);
-    devPtr=remotePointer.pointer;
+    devPtr = remotePointer.pointer;
   }
 
   CudaRtFrontend::Prepare();
@@ -249,7 +278,6 @@ extern "C" __host__ CUDARTAPI cudaError_t cudaMallocManaged(void **devPtr,
 
     if (CudaRtFrontend::Success()) {
 
-
         void *remotePointer = CudaRtFrontend::GetOutputDevicePointer();
 
         mappedPointer host;
@@ -291,122 +319,110 @@ cudaMemcpy3D(const cudaMemcpy3DParms *p) {
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpy(void *dst, const void *src,
                                                      size_t count,
                                                      cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
-  switch (kind) {
-    case cudaMemcpyDefault:
-      cerr << "MemCpyDefault" << endl;
-      if (CudaRtFrontend::isDevicePointer(dst) &&
-          CudaRtFrontend::isDevicePointer(src)) {
-        cerr << "Device2Device" << endl;
-        return cudaMemcpy(dst, src, count, cudaMemcpyDeviceToDevice);
-      } else if (!CudaRtFrontend::isDevicePointer(dst) &&
-                 !CudaRtFrontend::isDevicePointer(src))
-        return cudaMemcpy(dst, src, count, cudaMemcpyHostToHost);
-      else if (!CudaRtFrontend::isDevicePointer(dst) &&
-               CudaRtFrontend::isDevicePointer(src))
-        return cudaMemcpy(dst, src, count, cudaMemcpyDeviceToHost);
-      else if (CudaRtFrontend::isDevicePointer(dst) &&
-               !CudaRtFrontend::isDevicePointer(src))
-        return cudaMemcpy(dst, src, count, cudaMemcpyHostToDevice);
-    case cudaMemcpyHostToHost:
-      /* NOTE: no communication is performed, because it's just overhead
-       * here */
-      if (memmove(dst, src, count) == NULL) return cudaErrorInvalidValue;
-      return cudaSuccess;
-      break;
-    case cudaMemcpyHostToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddHostPointerForArguments<char>(
-          static_cast<char *>(const_cast<void *>(src)), count);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpy");
-      break;
-    case cudaMemcpyDeviceToHost:
-      /* NOTE: adding a fake host pointer */
-      CudaRtFrontend::AddHostPointerForArguments("");
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpy");
-      if (CudaRtFrontend::Success())
-        memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
-      break;
-    case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpy");
-      break;
+    
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKind(dst, src);
+    }
+
+    CudaRtFrontend::Prepare();
+
+    switch (kind) {
+        case cudaMemcpyHostToHost:
+            /* NOTE: no communication is performed, because it's just overhead
+            * here */
+            if (memmove(dst, src, count) == NULL) return cudaErrorInvalidValue;
+            break;
+        case cudaMemcpyHostToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddHostPointerForArguments<char>(static_cast<char *>(const_cast<void *>(src)), count);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpy");
+            break;
+        case cudaMemcpyDeviceToHost:
+            /* NOTE: adding a fake host pointer */
+            CudaRtFrontend::AddHostPointerForArguments("");
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpy");
+            if (CudaRtFrontend::Success()) {
+                memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
+            }
+            break;
+        case cudaMemcpyDeviceToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpy");
+            break;
   }
 
   return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaMemcpy2D(void *dst, size_t dpitch, const void *src, size_t spitch,
+extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpy2D(void *dst, size_t dpitch, const void *src, size_t spitch,
              size_t width, size_t height, cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
 
-  char* dst_bytes = static_cast<char*>(dst);
-  const char* src_bytes = static_cast<const char*>(src);
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKind(dst, src);
+    }
 
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyHostToHost:
-      if (dpitch < width) return cudaErrorInvalidValue;
+    CudaRtFrontend::Prepare();
 
-      if (dpitch == spitch) {
-        if (memcpy(dst_bytes, src_bytes, spitch * height) == NULL)
-          return cudaErrorInvalidValue;
-      } else {
-        for (int i = 0; i < height; i++) {
-          if (memcpy(dst_bytes + (dpitch * i), src_bytes + (spitch * i), width) == NULL)
-            return cudaErrorInvalidValue;
-        }
-      }
-      return cudaSuccess;
+    char* dst_bytes = static_cast<char*>(dst);
+    const char* src_bytes = static_cast<const char*>(src);
 
-    case cudaMemcpyHostToDevice:
-      // Use original pointers or cast again if needed for frontend calls
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddHostPointerForArguments<char>(const_cast<char*>(src_bytes), spitch * height);
-      CudaRtFrontend::AddVariableForArguments(dpitch);
-      CudaRtFrontend::AddVariableForArguments(spitch);
-      CudaRtFrontend::AddVariableForArguments(width);
-      CudaRtFrontend::AddVariableForArguments(height);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpy2D");
-      break;
+    switch (kind) {
+        case cudaMemcpyHostToHost:
+            if (dpitch < width) return cudaErrorInvalidValue;
 
-    case cudaMemcpyDeviceToHost:
-      CudaRtFrontend::AddHostPointerForArguments("");
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(dpitch);
-      CudaRtFrontend::AddVariableForArguments(spitch);
-      CudaRtFrontend::AddVariableForArguments(width);
-      CudaRtFrontend::AddVariableForArguments(height);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpy2D");
-      if (CudaRtFrontend::Success())
-        memmove(dst_bytes,
-                CudaRtFrontend::GetOutputHostPointer<char>(dpitch * height),
-                dpitch * height);
-      break;
-
-    case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(dpitch);
-      CudaRtFrontend::AddVariableForArguments(spitch);
-      CudaRtFrontend::AddVariableForArguments(width);
-      CudaRtFrontend::AddVariableForArguments(height);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpy2D");
-      break;
-  }
-
+            if (dpitch == spitch) {
+                if (memcpy(dst_bytes, src_bytes, spitch * height) == NULL)
+                    return cudaErrorInvalidValue;
+            } else {
+                for (int i = 0; i < height; i++) {
+                    if (memcpy(dst_bytes + (dpitch * i), src_bytes + (spitch * i), width) == NULL)
+                        return cudaErrorInvalidValue;
+                }
+            }
+            return cudaSuccess;
+        case cudaMemcpyHostToDevice:
+            // Use original pointers or cast again if needed for frontend calls
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddHostPointerForArguments<char>(const_cast<char*>(src_bytes), spitch * height);
+            CudaRtFrontend::AddVariableForArguments(dpitch);
+            CudaRtFrontend::AddVariableForArguments(spitch);
+            CudaRtFrontend::AddVariableForArguments(width);
+            CudaRtFrontend::AddVariableForArguments(height);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpy2D");
+            break;
+        case cudaMemcpyDeviceToHost:
+            CudaRtFrontend::AddHostPointerForArguments("");
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(dpitch);
+            CudaRtFrontend::AddVariableForArguments(spitch);
+            CudaRtFrontend::AddVariableForArguments(width);
+            CudaRtFrontend::AddVariableForArguments(height);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpy2D");
+            if (CudaRtFrontend::Success())
+                memmove(dst_bytes, CudaRtFrontend::GetOutputHostPointer<char>(dpitch * height),
+                    dpitch * height);
+            break;
+        case cudaMemcpyDeviceToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(dpitch);
+            CudaRtFrontend::AddVariableForArguments(spitch);
+            CudaRtFrontend::AddVariableForArguments(width);
+            CudaRtFrontend::AddVariableForArguments(height);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpy2D");
+            break;
+    }
   return CudaRtFrontend::GetExitCode();
 }
 
@@ -422,119 +438,127 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpy2DArrayToArray(
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpy2DAsync(
     void *dst, size_t dpitch, const void *src, size_t spitch, size_t width,
     size_t height, cudaMemcpyKind kind, cudaStream_t stream) {
-  // FIXME: implement
-  cerr << "*** Error: cudaMemcpy2DAsync() not yet implemented!" << endl;
+  
+    // FIXME: implement
+    cerr << "*** Error: cudaMemcpy2DAsync() not yet implemented!" << endl;
   return cudaErrorUnknown;
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpy2DFromArray(
-    void *dst, size_t dpitch, const cudaArray *src, size_t wOffset,
+    void *dst, size_t dpitch, cudaArray_const_t src, size_t wOffset,
     size_t hOffset, size_t width, size_t height, cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
 
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyHostToHost:
-    case cudaMemcpyHostToDevice:
-      /* This should never happen. */
-      return cudaErrorInvalidMemcpyDirection;
-      break;
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKind(dst, src);
+    }
+    
+    CudaRtFrontend::Prepare();
 
-    case cudaMemcpyDeviceToHost:
-      // pass contenuto source
-      CudaRtFrontend::AddHostPointerForArguments("");
-      CudaRtFrontend::AddVariableForArguments(dpitch);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(wOffset);
-      CudaRtFrontend::AddVariableForArguments(hOffset);
-      CudaRtFrontend::AddVariableForArguments(width);
-      CudaRtFrontend::AddVariableForArguments(height);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpy2DFromArray");
-      if (CudaRtFrontend::Success())
-        memmove(dst,
+    switch (kind) {
+        case cudaMemcpyHostToHost:
+        case cudaMemcpyHostToDevice:
+            // FIXME: implement
+            return cudaErrorInvalidMemcpyDirection;
+            break;
+
+        case cudaMemcpyDeviceToHost:
+        // pass contenuto source
+        CudaRtFrontend::AddHostPointerForArguments("");
+        CudaRtFrontend::AddVariableForArguments(dpitch);
+        CudaRtFrontend::AddDevicePointerForArguments(src);
+        CudaRtFrontend::AddVariableForArguments(wOffset);
+        CudaRtFrontend::AddVariableForArguments(hOffset);
+        CudaRtFrontend::AddVariableForArguments(width);
+        CudaRtFrontend::AddVariableForArguments(height);
+        CudaRtFrontend::AddVariableForArguments(kind);
+        CudaRtFrontend::Execute("cudaMemcpy2DFromArray");
+        if (CudaRtFrontend::Success())
+            memmove(dst,
                 CudaRtFrontend::GetOutputHostPointer<char>(dpitch * height),
                 dpitch * height);
-      break;
-    case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddVariableForArguments(dpitch);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(wOffset);
-      CudaRtFrontend::AddVariableForArguments(hOffset);
-      CudaRtFrontend::AddVariableForArguments(width);
-      CudaRtFrontend::AddVariableForArguments(height);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpy2DFromArray");
-      break;
-  }
+        break;
+        case cudaMemcpyDeviceToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddVariableForArguments(dpitch);
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(wOffset);
+            CudaRtFrontend::AddVariableForArguments(hOffset);
+            CudaRtFrontend::AddVariableForArguments(width);
+            CudaRtFrontend::AddVariableForArguments(height);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpy2DFromArray");
+            break;
+    }
 
-  return CudaRtFrontend::GetExitCode();
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpy2DFromArrayAsync(
     void *dst, size_t dpitch, const cudaArray *src, size_t wOffset,
     size_t hOffset, size_t width, size_t height, cudaMemcpyKind kind,
     cudaStream_t stream) {
-  // FIXME: implement
-  cerr << "*** Error: cudaMemcpy2DFromArrayAsync() not yet implemented!"
-       << endl;
-  return cudaErrorUnknown;
+    // FIXME: implement
+    cerr << "*** Error: cudaMemcpy2DFromArrayAsync() not yet implemented!" << endl;
+    return cudaErrorUnknown;
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpy2DToArray(
     cudaArray *dst, size_t wOffset, size_t hOffset, const void *src,
     size_t spitch, size_t width, size_t height, cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
 
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyHostToHost:
-    case cudaMemcpyDeviceToHost:
-      /* This should never happen. */
-      return cudaErrorInvalidMemcpyDirection;
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKind(dst, src);
+    }
 
-    case cudaMemcpyHostToDevice:
-      // pass contenuto source
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddVariableForArguments(wOffset);
-      CudaRtFrontend::AddVariableForArguments(hOffset);
-      CudaRtFrontend::AddHostPointerForArguments<char>(
-          static_cast<char *>(const_cast<void *>(src)), spitch * height);
-      CudaRtFrontend::AddVariableForArguments(spitch);
-      CudaRtFrontend::AddVariableForArguments(width);
-      CudaRtFrontend::AddVariableForArguments(height);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      break;
-    case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddVariableForArguments(wOffset);
-      CudaRtFrontend::AddVariableForArguments(hOffset);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(spitch);
-      CudaRtFrontend::AddVariableForArguments(width);
-      CudaRtFrontend::AddVariableForArguments(height);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      break;
-  }
-  CudaRtFrontend::Execute("cudaMemcpy2DToArray");
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+
+    switch (kind) {
+        case cudaMemcpyHostToHost:
+        case cudaMemcpyDeviceToHost:
+            // FIXME: implement
+            return cudaErrorInvalidMemcpyDirection;
+
+        case cudaMemcpyHostToDevice:
+            // pass contenuto source
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddVariableForArguments(wOffset);
+            CudaRtFrontend::AddVariableForArguments(hOffset);
+            CudaRtFrontend::AddHostPointerForArguments<char>(
+                static_cast<char *>(const_cast<void *>(src)), spitch * height);
+            CudaRtFrontend::AddVariableForArguments(spitch);
+            CudaRtFrontend::AddVariableForArguments(width);
+            CudaRtFrontend::AddVariableForArguments(height);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            break;
+        case cudaMemcpyDeviceToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddVariableForArguments(wOffset);
+            CudaRtFrontend::AddVariableForArguments(hOffset);
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(spitch);
+            CudaRtFrontend::AddVariableForArguments(width);
+            CudaRtFrontend::AddVariableForArguments(height);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            break;
+        }
+        CudaRtFrontend::Execute("cudaMemcpy2DToArray");
+        return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpy2DToArrayAsync(
     cudaArray *dst, size_t wOffset, size_t hOffset, const void *src,
     size_t spitch, size_t width, size_t height, cudaMemcpyKind kind,
     cudaStream_t stream) {
-  // FIXME: implement
-  cerr << "*** Error: cudaMemcpy2DToArrayAsync() not yet implemented!" << endl;
-  return cudaErrorUnknown;
+    // FIXME: implement
+    cerr << "*** Error: cudaMemcpy2DToArrayAsync() not yet implemented!" << endl;
+    return cudaErrorUnknown;
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaMemcpy3DAsync(const cudaMemcpy3DParms *p, cudaStream_t stream) {
-  // FIXME: implement
-  cerr << "*** Error: cudaMemcpy3DAsync() not yet implemented!" << endl;
-  return cudaErrorUnknown;
+    // FIXME: implement
+    cerr << "*** Error: cudaMemcpy3DAsync() not yet implemented!" << endl;
+    return cudaErrorUnknown;
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
@@ -542,12 +566,17 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
                                                           size_t count,
                                                           cudaMemcpyKind kind,
                                                           cudaStream_t stream) {
+    
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKind(dst, src);
+    }
+
     CudaRtFrontend::Prepare();
-    // cout << "cudaMemcpyAsync frontend: "
-    //      << "dst: " << dst << ", src: " << src << ", count: " << count
-    //      << ", kind: " << kind << ", stream: " << stream << endl;
+    cout << "cudaMemcpyAsync frontend: "
+         << "dst: " << dst << ", src: " << src << ", count: " << count
+         << ", kind: " << kind << ", stream: " << stream << endl;
+    
     switch (kind) {
-        case cudaMemcpyDefault:
         case cudaMemcpyHostToHost:
             /* NOTE: no communication is performed, because it's just overhead
             * here */
@@ -562,7 +591,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
             return cudaSuccess;
             break;
         case cudaMemcpyHostToDevice:
-            // cout << "cudaMemcpyAsync HostToDevice" << endl;
+            cout << "cudaMemcpyAsync HostToDevice" << endl;
             CudaRtFrontend::AddDevicePointerForArguments(dst);
             CudaRtFrontend::AddHostPointerForArguments<char>(
                 static_cast<char *>(const_cast<void *>(src)), count);
@@ -572,7 +601,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
             CudaRtFrontend::Execute("cudaMemcpyAsync");
             break;
         case cudaMemcpyDeviceToHost:
-            // cout << "cudaMemcpyAsync DeviceToHost" << endl;
+            cout << "cudaMemcpyAsync DeviceToHost" << endl;
             /* NOTE: adding a fake host pointer */
             CudaRtFrontend::AddHostPointerForArguments("");
             CudaRtFrontend::AddDevicePointerForArguments(src);
@@ -585,6 +614,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
             }
             break;
         case cudaMemcpyDeviceToDevice:
+            cout << "cudaMemcpyAsync DeviceToDevice" << endl;
             CudaRtFrontend::AddDevicePointerForArguments(dst);
             CudaRtFrontend::AddDevicePointerForArguments(src);
             CudaRtFrontend::AddVariableForArguments(count);
@@ -599,68 +629,73 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaMemcpyFromArray(void *dst, const cudaArray *src, size_t wOffset,
                     size_t hOffset, size_t count, cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
+    
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKind(dst, src);
+    }
+    
+    CudaRtFrontend::Prepare();
 
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyHostToDevice:
-    case cudaMemcpyHostToHost:
-      /* This should never happen. cudaArray is only on device */
-      return cudaErrorInvalidMemcpyDirection;
-      break;
+    switch (kind) {
+        case cudaMemcpyHostToDevice:
+        case cudaMemcpyHostToHost:
+            // FIXME: implement
+            return cudaErrorInvalidMemcpyDirection;
     case cudaMemcpyDeviceToHost:
-      // pass contenuto source
-      CudaRtFrontend::AddHostPointerForArguments("");
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(wOffset);
-      CudaRtFrontend::AddVariableForArguments(hOffset);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyFromArray");
-      if (CudaRtFrontend::Success())
-        memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
-      break;
+        // pass contenuto source
+        CudaRtFrontend::AddHostPointerForArguments("");
+        CudaRtFrontend::AddDevicePointerForArguments(src);
+        CudaRtFrontend::AddVariableForArguments(wOffset);
+        CudaRtFrontend::AddVariableForArguments(hOffset);
+        CudaRtFrontend::AddVariableForArguments(count);
+        CudaRtFrontend::AddVariableForArguments(kind);
+        CudaRtFrontend::Execute("cudaMemcpyFromArray");
+        if (CudaRtFrontend::Success())
+            memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
+        break;
     case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(wOffset);
-      CudaRtFrontend::AddVariableForArguments(hOffset);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyFromArray");
-      break;
-  }
+        CudaRtFrontend::AddDevicePointerForArguments(dst);
+        CudaRtFrontend::AddDevicePointerForArguments(src);
+        CudaRtFrontend::AddVariableForArguments(wOffset);
+        CudaRtFrontend::AddVariableForArguments(hOffset);
+        CudaRtFrontend::AddVariableForArguments(count);
+        CudaRtFrontend::AddVariableForArguments(kind);
+        CudaRtFrontend::Execute("cudaMemcpyFromArray");
+        break;
+    }
 
-  return CudaRtFrontend::GetExitCode();
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyArrayToArray(
     cudaArray *dst, size_t wOffsetDst, size_t hOffsetDst, const cudaArray *src,
     size_t wOffsetSrc, size_t hOffsetSrc, size_t count, cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
 
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyHostToHost:
-    case cudaMemcpyDeviceToHost:
-    case cudaMemcpyHostToDevice:
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKind(dst, src);
+    }
 
-      /* This should never happen. cudaArray is only on device */
-      return cudaErrorInvalidMemcpyDirection;
-      break;
+    CudaRtFrontend::Prepare();
 
-    case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      CudaRtFrontend::AddVariableForArguments(wOffsetDst);
-      CudaRtFrontend::AddVariableForArguments(hOffsetDst);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(wOffsetSrc);
-      CudaRtFrontend::AddVariableForArguments(hOffsetSrc);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyArrayToArray");
-      break;
-  }
+    switch (kind) {
+        case cudaMemcpyHostToHost:
+        case cudaMemcpyDeviceToHost:
+        case cudaMemcpyHostToDevice:
+            // FIXME: implement
+            return cudaErrorInvalidMemcpyDirection;
+            break;
+        case cudaMemcpyDeviceToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            CudaRtFrontend::AddVariableForArguments(wOffsetDst);
+            CudaRtFrontend::AddVariableForArguments(hOffsetDst);
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(wOffsetSrc);
+            CudaRtFrontend::AddVariableForArguments(hOffsetSrc);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpyArrayToArray");
+            break;
+    }
 
   return CudaRtFrontend::GetExitCode();
 }
@@ -668,51 +703,54 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyArrayToArray(
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyFromArrayAsync(
     void *dst, const cudaArray *src, size_t wOffset, size_t hOffset,
     size_t count, cudaMemcpyKind kind, cudaStream_t stream) {
-  // FIXME: implement
-  cerr << "*** Error: cudaMemcpyFromArrayAsync() not yet implemented!" << endl;
-  return cudaErrorUnknown;
+        
+    // FIXME: implement
+    cerr << "*** Error: cudaMemcpyFromArrayAsync() not yet implemented!" << endl;
+    return cudaErrorUnknown;
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaMemcpyFromSymbol(void *dst, const void *symbol, size_t count, size_t offset,
                      cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyHostToHost:
-      /* This should never happen. */
-      return cudaErrorInvalidMemcpyDirection;
-      break;
-    case cudaMemcpyHostToDevice:
-      /* This should never happen. */
-      return cudaErrorInvalidMemcpyDirection;
-      break;
-    case cudaMemcpyDeviceToHost:
-      // Achtung: adding a fake host pointer
-      CudaRtFrontend::AddDevicePointerForArguments((void *)0x666);
-      // Achtung: passing the address and the content of symbol
-      CudaRtFrontend::AddStringForArguments(
-          CudaUtil::MarshalHostPointer(symbol));
-      CudaRtFrontend::AddStringForArguments((char *)symbol);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(offset);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyFromSymbol");
-      if (CudaRtFrontend::Success())
-        memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
-      break;
-    case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments(dst);
-      // Achtung: passing the address and the content of symbol
-      CudaRtFrontend::AddStringForArguments(
-          CudaUtil::MarshalHostPointer(symbol));
-      CudaRtFrontend::AddStringForArguments((char *)symbol);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(offset);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyFromSymbol");
-      break;
-  }
+  
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKindFromDevice(dst);
+    }
+
+    CudaRtFrontend::Prepare();
+
+    switch (kind) {
+        case cudaMemcpyHostToHost:
+            /* This should never happen. */
+        case cudaMemcpyHostToDevice:
+            /* This should never happen. */
+            return cudaErrorInvalidMemcpyDirection;
+        case cudaMemcpyDeviceToHost:
+            // Achtung: adding a fake host pointer
+            CudaRtFrontend::AddDevicePointerForArguments((void *)0x666);
+            // Achtung: passing the address and the content of symbol
+            CudaRtFrontend::AddStringForArguments(
+            CudaUtil::MarshalHostPointer(symbol));
+            CudaRtFrontend::AddStringForArguments((char *)symbol);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(offset);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpyFromSymbol");
+            if (CudaRtFrontend::Success())
+                memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
+            break;
+        case cudaMemcpyDeviceToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments(dst);
+            // Achtung: passing the address and the content of symbol
+            CudaRtFrontend::AddStringForArguments(
+                CudaUtil::MarshalHostPointer(symbol));
+            CudaRtFrontend::AddStringForArguments((char *)symbol);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(offset);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpyFromSymbol");
+            break;
+    }
 
   return CudaRtFrontend::GetExitCode();
 }
@@ -720,42 +758,46 @@ cudaMemcpyFromSymbol(void *dst, const void *symbol, size_t count, size_t offset,
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyFromSymbolAsync(
     void *dst, const void *symbol, size_t count, size_t offset,
     cudaMemcpyKind kind, cudaStream_t stream) {
-  // FIXME: implement
-  cerr << "*** Error: cudaMemcpyFromSymbolAsync() not yet implemented!" << endl;
-  return cudaErrorUnknown;
+    // FIXME: implement
+    cerr << "*** Error: cudaMemcpyFromSymbolAsync() not yet implemented!" << endl;
+    return cudaErrorUnknown;
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaMemcpyToArray(cudaArray *dst, size_t wOffset, size_t hOffset,
                   const void *src, size_t count, cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyDeviceToHost:
-    case cudaMemcpyHostToHost:
-      /* This should never happen. */
-      return cudaErrorInvalidMemcpyDirection;
-      break;
-    case cudaMemcpyHostToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments((void *)dst);
-      CudaRtFrontend::AddVariableForArguments(wOffset);
-      CudaRtFrontend::AddVariableForArguments(hOffset);
-      CudaRtFrontend::AddHostPointerForArguments<char>(
-          static_cast<char *>(const_cast<void *>(src)), count);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyToArray");
-      break;
-    case cudaMemcpyDeviceToDevice:
-      CudaRtFrontend::AddDevicePointerForArguments((void *)dst);
-      CudaRtFrontend::AddVariableForArguments(wOffset);
-      CudaRtFrontend::AddVariableForArguments(hOffset);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyToArray");
-      break;
-  }
+  
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKind(dst, src);
+    }
+
+    CudaRtFrontend::Prepare();
+
+    switch (kind) {
+        case cudaMemcpyDeviceToHost:
+        case cudaMemcpyHostToHost:
+            // FIXME: implement
+            return cudaErrorInvalidMemcpyDirection;
+        case cudaMemcpyHostToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments((void *)dst);
+            CudaRtFrontend::AddVariableForArguments(wOffset);
+            CudaRtFrontend::AddVariableForArguments(hOffset);
+            CudaRtFrontend::AddHostPointerForArguments<char>(
+                static_cast<char *>(const_cast<void *>(src)), count);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpyToArray");
+            break;
+        case cudaMemcpyDeviceToDevice:
+            CudaRtFrontend::AddDevicePointerForArguments((void *)dst);
+            CudaRtFrontend::AddVariableForArguments(wOffset);
+            CudaRtFrontend::AddVariableForArguments(hOffset);
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpyToArray");
+            break;
+    }
 
   return CudaRtFrontend::GetExitCode();
 }
@@ -763,49 +805,53 @@ cudaMemcpyToArray(cudaArray *dst, size_t wOffset, size_t hOffset,
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyToArrayAsync(
     cudaArray *dst, size_t wOffset, size_t hOffset, const void *src,
     size_t count, cudaMemcpyKind kind, cudaStream_t stream) {
-  // FIXME: implement
-  cerr << "*** Error: cudaMemcpyToArrayAsync() not yet implemented!" << endl;
-  return cudaErrorUnknown;
+
+    // FIXME: implement
+    cerr << "*** Error: cudaMemcpyToArrayAsync() not yet implemented!" << endl;
+    return cudaErrorUnknown;
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI
 cudaMemcpyToSymbol(const void *symbol, const void *src, size_t count,
                    size_t offset, cudaMemcpyKind kind) {
-  CudaRtFrontend::Prepare();
-  switch (kind) {
-    case cudaMemcpyDefault:
-    case cudaMemcpyHostToHost:
-      /* This should never happen. */
-      return cudaErrorInvalidMemcpyDirection;
-      break;
-    case cudaMemcpyHostToDevice:
-      // Achtung: passing the address and the content of symbol
-      CudaRtFrontend::AddStringForArguments(
-          CudaUtil::MarshalHostPointer(symbol));
-      CudaRtFrontend::AddStringForArguments((char *)symbol);
-      CudaRtFrontend::AddHostPointerForArguments<char>(
-          static_cast<char *>(const_cast<void *>(src)), count);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(offset);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyToSymbol");
-      break;
-    case cudaMemcpyDeviceToHost:
-      /* This should never happen. */
-      return cudaErrorInvalidMemcpyDirection;
-      break;
-    case cudaMemcpyDeviceToDevice:
-      // Achtung: passing the address and the content of symbol
-      CudaRtFrontend::AddStringForArguments(
-          CudaUtil::MarshalHostPointer(symbol));
-      CudaRtFrontend::AddStringForArguments((char *)symbol);
-      CudaRtFrontend::AddDevicePointerForArguments(src);
-      CudaRtFrontend::AddVariableForArguments(count);
-      CudaRtFrontend::AddVariableForArguments(kind);
-      CudaRtFrontend::Execute("cudaMemcpyToSymbol");
-      break;
-  }
+    
+    if (kind == cudaMemcpyDefault) {
+        kind = inferMemcpyKindToDevice(src);
+    }
 
+    CudaRtFrontend::Prepare();
+
+    switch (kind) {
+        case cudaMemcpyHostToHost:
+            /* This should never happen. */
+            return cudaErrorInvalidMemcpyDirection;
+            break;
+        case cudaMemcpyHostToDevice:
+            // Achtung: passing the address and the content of symbol
+            CudaRtFrontend::AddStringForArguments(
+                CudaUtil::MarshalHostPointer(symbol));
+            CudaRtFrontend::AddStringForArguments((char *)symbol);
+            CudaRtFrontend::AddHostPointerForArguments<char>(
+                static_cast<char *>(const_cast<void *>(src)), count);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(offset);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpyToSymbol");
+            break;
+        case cudaMemcpyDeviceToHost:
+            /* This should never happen. */
+            return cudaErrorInvalidMemcpyDirection;
+            break;
+        case cudaMemcpyDeviceToDevice:
+            // Achtung: passing the address and the content of symbol
+            CudaRtFrontend::AddStringForArguments(CudaUtil::MarshalHostPointer(symbol));
+            CudaRtFrontend::AddStringForArguments((char *)symbol);
+            CudaRtFrontend::AddDevicePointerForArguments(src);
+            CudaRtFrontend::AddVariableForArguments(count);
+            CudaRtFrontend::AddVariableForArguments(kind);
+            CudaRtFrontend::Execute("cudaMemcpyToSymbol");
+            break;
+     }
   return CudaRtFrontend::GetExitCode();
 }
 
@@ -860,15 +906,24 @@ cudaMemset3D(cudaPitchedPtr pitchDevPtr, int value, cudaExtent extent) {
     return cudaErrorUnknown;
 }
 
-// TODO: needs testing
 extern "C" __host__ cudaError_t CUDARTAPI cudaHostRegister(void *ptr, size_t size,
                                                         unsigned int flags) {
+
+    if (ptr == NULL || size == 0) {
+        return cudaErrorInvalidValue;
+    }
+    else if (CudaRtFrontend::isMappedMemory(ptr)) {
+        // Memory is already registered
+        return cudaErrorHostMemoryAlreadyRegistered;
+    }
+    
     CudaRtFrontend::Prepare();
-    CudaRtFrontend::AddHostPointerForArguments(ptr);
+    CudaRtFrontend::AddDevicePointerForArguments(ptr); // send the memory address
     CudaRtFrontend::AddVariableForArguments(size);
     CudaRtFrontend::AddVariableForArguments(flags);
     CudaRtFrontend::Execute("cudaHostRegister");
     if (CudaRtFrontend::Success()) {
+        ptr = CudaRtFrontend::GetOutputDevicePointer();
         mappedPointer host;
         host.pointer = ptr;
         host.size = size;
@@ -877,11 +932,17 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaHostRegister(void *ptr, size_t siz
     return CudaRtFrontend::GetExitCode();
 }
 
-// TODO: needs testing
 extern "C" __host__ cudaError_t CUDARTAPI cudaHostUnregister(void* ptr) {
+    if (!CudaRtFrontend::isMappedMemory(ptr)) {
+        return cudaErrorHostMemoryNotRegistered;
+    }
+
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(ptr);
     CudaRtFrontend::Execute("cudaHostUnregister");
+    if (CudaRtFrontend::Success()) {
+        CudaRtFrontend::removeMappedPointer(ptr);
+    }
     return CudaRtFrontend::GetExitCode();
 }
 
