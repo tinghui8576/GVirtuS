@@ -572,9 +572,9 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
     }
 
     CudaRtFrontend::Prepare();
-    cout << "cudaMemcpyAsync frontend: "
-         << "dst: " << dst << ", src: " << src << ", count: " << count
-         << ", kind: " << kind << ", stream: " << stream << endl;
+    // cout << "cudaMemcpyAsync frontend: "
+    //      << "dst: " << dst << ", src: " << src << ", count: " << count
+    //      << ", kind: " << kind << ", stream: " << stream << endl;
     
     switch (kind) {
         case cudaMemcpyHostToHost:
@@ -591,7 +591,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
             return cudaSuccess;
             break;
         case cudaMemcpyHostToDevice:
-            cout << "cudaMemcpyAsync HostToDevice" << endl;
+            // cout << "cudaMemcpyAsync HostToDevice" << endl;
             CudaRtFrontend::AddDevicePointerForArguments(dst);
             CudaRtFrontend::AddHostPointerForArguments<char>(
                 static_cast<char *>(const_cast<void *>(src)), count);
@@ -601,23 +601,23 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
             CudaRtFrontend::Execute("cudaMemcpyAsync");
             break;
         case cudaMemcpyDeviceToHost:
-            cout << "cudaMemcpyAsync DeviceToHost" << endl;
+            // cout << "cudaMemcpyAsync DeviceToHost" << endl;
             /* NOTE: adding a fake host pointer */
             CudaRtFrontend::AddHostPointerForArguments("");
             CudaRtFrontend::AddDevicePointerForArguments(src);
             CudaRtFrontend::AddVariableForArguments(count);
             CudaRtFrontend::AddVariableForArguments(kind);
             CudaRtFrontend::AddDevicePointerForArguments(stream);
-            cout << "cudaMemcpyAsync DeviceToHost: "
-                 << "dst: " << dst << ", src: " << src << ", count: " << count
-                 << ", kind: " << kind << ", stream: " << stream << endl;
+            // cout << "cudaMemcpyAsync DeviceToHost: "
+            //      << "dst: " << dst << ", src: " << src << ", count: " << count
+            //      << ", kind: " << kind << ", stream: " << stream << endl;
             CudaRtFrontend::Execute("cudaMemcpyAsync");
             if (CudaRtFrontend::Success()) {
                 memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
             }
             break;
         case cudaMemcpyDeviceToDevice:
-            cout << "cudaMemcpyAsync DeviceToDevice" << endl;
+            // cout << "cudaMemcpyAsync DeviceToDevice" << endl;
             CudaRtFrontend::AddDevicePointerForArguments(dst);
             CudaRtFrontend::AddDevicePointerForArguments(src);
             CudaRtFrontend::AddVariableForArguments(count);
@@ -938,9 +938,10 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaHostRegister(void *ptr, size_t siz
     CudaRtFrontend::AddVariableForArguments(flags);
     CudaRtFrontend::Execute("cudaHostRegister");
     if (CudaRtFrontend::Success()) {
-        ptr = CudaRtFrontend::GetOutputDevicePointer();
+        // backend_ptr tracking is done here and also in the backend
+        void *backend_ptr = CudaRtFrontend::GetOutputDevicePointer();
         mappedPointer host;
-        host.pointer = ptr;
+        host.pointer = backend_ptr;
         host.size = size;
         CudaRtFrontend::addMappedPointer(ptr, host);
     }

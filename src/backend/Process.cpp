@@ -137,7 +137,7 @@ void Process::Start() {
 
             std::shared_ptr<communicators::Result> result;
             if (h == nullptr) {
-                LOG4CPLUS_ERROR(logger, "[Process " << getpid() << "]: Requested unknown routine " << routine << ".");
+                LOG4CPLUS_ERROR(logger, "[Process " << getpid() << "]: Requested unknown routine '" << routine << "'.");
                 result = std::make_shared<communicators::Result>(-1, std::make_shared<Buffer>());
             } else {
                 // esegue la routine e salva il risultato in result
@@ -148,17 +148,7 @@ void Process::Start() {
 
             // scrive il risultato sul communicator
             result->Dump(client_comm);
-            if (result->GetExitCode() != 0 && 
-                routine.compare("cudaLaunch")
-                && routine.compare("cudnnGetVersion")
-                && routine.compare("cudnnGetErrorString")
-                && routine.compare("cusolverDnGetVersion")
-                && routine.compare("cudaGetErrorString")
-                && routine.compare("cudaGetErrorName")
-                && routine.compare("cusparseGetErrorString")
-                && routine.compare("nvrtcGetErrorString")) {
-                LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "]: Routine '" << routine << "' returned with exit code '" << result->GetExitCode() << "'.");
-            }
+            LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "]: Routine '" << routine << "' returned " << result->GetExitCode() << ".");
         }
         Notify("process-ended");
     };

@@ -82,7 +82,6 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
 #if CUDART_VERSION >= 9000
     CUDA_ROUTINE_HANDLER(LaunchKernel) {
         Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("LaunchKernel"));
-        LOG4CPLUS_DEBUG(logger, "LaunchKernel");
 
         void *func = input_buffer->GetFromMarshal<void *>();
         dim3 gridDim = input_buffer->Get<dim3>();
