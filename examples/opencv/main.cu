@@ -221,18 +221,20 @@ void YOLO::detect(Mat& frame)
 
 int main()
 {
-	Net_config yolo_nets = { 0.3, 0.5, 0.3, "weights/yolov5n.onnx" };
-	YOLO yolo_model(yolo_nets);
-	string imgpath = "images/zidane.jpg";
-	Mat srcimg = imread(imgpath);
-	yolo_model.detect(srcimg);
+    Net_config yolo_nets = { 0.3, 0.5, 0.3, "weights/yolov5n.onnx" };
+    YOLO yolo_model(yolo_nets);
 
-	static const string kWinName = "Deep learning object detection in OpenCV";
-	// namedWindow(kWinName, WINDOW_NORMAL);
-	// imshow(kWinName, srcimg);
-	// waitKey(0);
-	// destroyAllWindows();
-	imwrite("output.jpg", srcimg);  // Save result instead of displaying
+    string imgpath = "images/zidane.jpg";
+    Mat srcimg = imread(imgpath);
+    if (srcimg.empty()) {
+        cerr << "Could not read the image: " << imgpath << endl;
+        return -1;
+    }
 
-	return 0;
+    yolo_model.detect(srcimg);
+
+    imwrite("output.jpg", srcimg);
+
+    cout << "Detection finished. Results saved to output.jpg" << endl;
+    return 0;
 }

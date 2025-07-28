@@ -569,6 +569,10 @@ CUDA_ROUTINE_HANDLER(MemcpyAsync) {
                 }
                 exit_code = cudaMemcpyAsync(dst, src, count, kind, stream);
                 try {
+                    LOG4CPLUS_DEBUG(Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS")),
+                        "cudaMemcpyAsync HostToDevice: dst: " << dst
+                        << ", src: " << src << ", count: " << count
+                        << ", kind: " << kind << ", stream: " << stream);
                     out = std::make_shared<Buffer>();
                     out->Add<char>((char *)dst, count);
                 } catch (const std::exception& e) {

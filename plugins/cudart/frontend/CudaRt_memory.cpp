@@ -608,6 +608,9 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemcpyAsync(void *dst,
             CudaRtFrontend::AddVariableForArguments(count);
             CudaRtFrontend::AddVariableForArguments(kind);
             CudaRtFrontend::AddDevicePointerForArguments(stream);
+            cout << "cudaMemcpyAsync DeviceToHost: "
+                 << "dst: " << dst << ", src: " << src << ", count: " << count
+                 << ", kind: " << kind << ", stream: " << stream << endl;
             CudaRtFrontend::Execute("cudaMemcpyAsync");
             if (CudaRtFrontend::Success()) {
                 memmove(dst, CudaRtFrontend::GetOutputHostPointer<char>(count), count);
@@ -871,6 +874,18 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemset(void *devPtr, int c,
   CudaRtFrontend::AddVariableForArguments(count);
   CudaRtFrontend::Execute("cudaMemset");
   return CudaRtFrontend::GetExitCode();
+}
+
+extern "C" __host__ cudaError_t CUDARTAPI cudaMemset2DAsync(void* devPtr, size_t pitch, int  value, size_t width, size_t height, cudaStream_t stream) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(devPtr);
+    CudaRtFrontend::AddVariableForArguments(pitch);
+    CudaRtFrontend::AddVariableForArguments(value);
+    CudaRtFrontend::AddVariableForArguments(width);
+    CudaRtFrontend::AddVariableForArguments(height);
+    CudaRtFrontend::Execute("cudaMemset2DAsync");
+    // TODO: backend side needs implementation
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaMemsetAsync(void *devPtr, int c,

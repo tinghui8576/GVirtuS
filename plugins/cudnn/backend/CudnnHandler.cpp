@@ -467,8 +467,6 @@ CUDNN_ROUTINE_HANDLER(SetConvolutionNdDescriptor) {
      return std::make_shared<Result>(cs);
  }
 
-
-
 CUDNN_ROUTINE_HANDLER(GetConvolutionNdForwardOutputDim) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetConvolutionNdForwardOutputDim"));
 
@@ -491,7 +489,7 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionNdForwardOutputDim) {
     LOG4CPLUS_DEBUG(logger, "cudnnGetConvolutionNdForwardOutputDim Executed");
     
     return std::make_shared<Result>(cs, out);
- }
+}
 
 CUDNN_ROUTINE_HANDLER(FindConvolutionBackwardFilterAlgorithmEx) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("FindConvolutionBackwardFilterAlgorithmEx"));
