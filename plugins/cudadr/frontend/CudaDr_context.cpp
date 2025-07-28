@@ -58,9 +58,8 @@ extern CUresult cuCtxCreate(CUcontext *pctx, unsigned int flags, CUdevice dev) {
     CudaDrFrontend::AddVariableForArguments(flags);
     CudaDrFrontend::AddVariableForArguments(dev);
     CudaDrFrontend::Execute("cuCtxCreate");
-    if (CudaDrFrontend::Success()){
+    if (CudaDrFrontend::Success()) {
         *pctx = (CUcontext) (CudaDrFrontend::GetOutputDevicePointer());
-
     }
     return CudaDrFrontend::GetExitCode();
 }
@@ -79,7 +78,7 @@ extern CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
 /*Destroy the current context or a floating CUDA context*/
 extern CUresult cuCtxDestroy(CUcontext ctx) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) ctx);
+    CudaDrFrontend::AddDevicePointerForArguments(ctx);
     CudaDrFrontend::Execute("cuCtxDestroy");
     return CudaDrFrontend::GetExitCode();
 }
@@ -87,7 +86,7 @@ extern CUresult cuCtxDestroy(CUcontext ctx) {
 /*Decrement a context's usage-count. */
 extern CUresult cuCtxDetach(CUcontext ctx) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) ctx);
+    CudaDrFrontend::AddDevicePointerForArguments(ctx);
     CudaDrFrontend::Execute("cuCtxDetach");
     return CudaDrFrontend::GetExitCode();
 }
@@ -98,7 +97,7 @@ extern CUresult cuCtxGetDevice(CUdevice *device) {
     CudaDrFrontend::AddHostPointerForArguments(device);
     CudaDrFrontend::Execute("cuCtxGetDevice");
     if (CudaDrFrontend::Success()) {
-        *device = *(CudaDrFrontend::GetOutputHostPointer<CUdevice > ());
+        *device = *(CudaDrFrontend::GetOutputHostPointer<CUdevice>());
     }
     return CudaDrFrontend::GetExitCode();
 }
@@ -117,7 +116,7 @@ extern "C" CUresult cuCtxPopCurrent_v2(CUcontext *pctx) {
 /*Pushes a floating context on the current CPU thread. */
 extern "C" CUresult cuCtxPushCurrent_v2(CUcontext ctx) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) ctx);
+    CudaDrFrontend::AddDevicePointerForArguments(ctx);
     CudaDrFrontend::Execute("cuCtxPushCurrent");
     return CudaDrFrontend::GetExitCode();
 }
@@ -132,7 +131,7 @@ extern CUresult cuCtxSynchronize(void) {
 /* Disable peer access */
 extern CUresult cuCtxDisablePeerAccess(CUcontext peerContext) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) peerContext);
+    CudaDrFrontend::AddDevicePointerForArguments(peerContext);
     CudaDrFrontend::Execute("cuCtxDisablePeerAccess");
     return CudaDrFrontend::GetExitCode();
 }
@@ -140,7 +139,7 @@ extern CUresult cuCtxDisablePeerAccess(CUcontext peerContext) {
 /* Enable peer access */
 extern CUresult cuCtxEnablePeerAccess(CUcontext peerContext, unsigned int flags) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) peerContext);
+    CudaDrFrontend::AddDevicePointerForArguments(peerContext);
     CudaDrFrontend::AddVariableForArguments(flags);
     CudaDrFrontend::Execute("cuCtxEnablePeerAccess");
     return CudaDrFrontend::GetExitCode();
@@ -195,5 +194,21 @@ extern CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, in
         *flags = CudaDrFrontend::GetOutputVariable<unsigned int>();
         *active = CudaDrFrontend::GetOutputVariable<int>();
     }
+    return CudaDrFrontend::GetExitCode();
+}
+
+extern CUresult cuCtxGetCurrent(CUcontext *pctx) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::Execute("cuCtxGetCurrent");
+    if (CudaDrFrontend::Success()) {
+        *pctx = (CUcontext) (CudaDrFrontend::GetOutputDevicePointer());
+    }
+    return CudaDrFrontend::GetExitCode();
+}
+
+extern CUresult cuCtxSetCurrent(CUcontext ctx) {
+    CudaDrFrontend::Prepare();
+    CudaDrFrontend::AddDevicePointerForArguments(ctx);
+    CudaDrFrontend::Execute("cuCtxSetCurrent");
     return CudaDrFrontend::GetExitCode();
 }

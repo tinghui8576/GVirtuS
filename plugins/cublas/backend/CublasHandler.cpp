@@ -20,12 +20,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
- 
+
 #include "CublasHandler.h"
-#include "CublasHandler_Helper.cpp"
-#include "CublasHandler_Level1.cpp"
-#include "CublasHandler_Level2.cpp"
-#include "CublasHandler_Level3.cpp"
 
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
@@ -44,13 +40,19 @@ CublasHandler::CublasHandler() {
 CublasHandler::~CublasHandler() {}
 
 void CublasHandler::setLogLevel(Logger *logger) {
-	log4cplus::LogLevel logLevel=log4cplus::INFO_LOG_LEVEL;
-        char * val = getenv("GVIRTUS_LOGLEVEL");
+	log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
+    char *val = getenv("GVIRTUS_LOGLEVEL");
 	std::string logLevelString =(val == NULL ? std::string("") : std::string(val));
-	if(logLevelString != "") {
-		logLevel = std::stoi(logLevelString);
-	}
-	logger->setLogLevel(logLevel);
+	if (logLevelString != "") {
+        try {
+            logLevel = std::stoi(logLevelString);
+        } catch (const std::exception &e) {
+            std::cerr << "[WARNING] Invalid GVIRTUS_LOGLEVEL='" << logLevelString
+                      << "', defaulting to INFO. Reason: " << e.what() << std::endl;
+            logLevel = log4cplus::INFO_LOG_LEVEL;
+        }
+    }
+    logger->setLogLevel(logLevel);
 }
 
 bool CublasHandler::CanExecute(std::string routine) {
@@ -84,9 +86,11 @@ void CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(GetVector));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetMatrix));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(GetMatrix));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetMathMode));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetStream_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(GetPointerMode_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetPointerMode_v2));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetWorkspace_v2));
 
   /* CublasHandler Level1 functions */
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Sdot_v2));
@@ -276,4 +280,18 @@ void CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Dtrmm_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Ctrmm_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Ztrmm_v2));
+
+
+  /* CublasHandler Lt functions */
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulAlgoGetHeuristic));
+  // mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatrixLayoutSetAttribute));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulDescSetAttribute));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatrixLayoutCreate));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatrixLayoutDestroy));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulDescCreate));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulDescDestroy));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulPreferenceCreate));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulPreferenceSetAttribute));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulPreferenceDestroy));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmul));
 }

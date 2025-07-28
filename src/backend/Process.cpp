@@ -27,13 +27,19 @@ Process::Process(std::shared_ptr<LD_Lib<Communicator, std::shared_ptr<Endpoint>>
     logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("Process"));
 
     // Set the logging level
-    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
     char *val = getenv("GVIRTUS_LOGLEVEL");
 
     std::string logLevelString = (val == NULL ? std::string("") : std::string(val));
 
+    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
     if (!logLevelString.empty()) {
-        logLevel = std::stoi(logLevelString);
+        try {
+            logLevel = static_cast<log4cplus::LogLevel>(std::stoi(logLevelString));
+        } catch (const std::exception& e) {
+            std::cerr << "[GVIRTUS WARNING] Invalid GVIRTUS_LOGLEVEL value: '" << logLevelString
+                    << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
+            logLevel = log4cplus::INFO_LOG_LEVEL;
+        }
     }
     logger.setLogLevel(logLevel);
 
@@ -192,4 +198,3 @@ Process::~Process() {
     _handlers.clear();
     mPlugins.clear();
 }
-

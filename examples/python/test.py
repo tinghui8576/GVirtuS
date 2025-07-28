@@ -55,14 +55,31 @@
 # print("Generated tensor:", x)
 
 
+# finally this works!
+# import torch
+
+# x = torch.tensor(10, dtype=torch.float32, device='cuda')
+
+# print("Generated tensor:", x)
+
+
+# THIS NEEDS TO BE FIXED
+# import torch
+# import torch.nn as nn
+
+# m = nn.Linear(4, 4).cuda()
+# x = torch.rand(1, 4, device="cuda")
+
+# print("About to run linear layer...")
+# y = m(x)
+# print("Output:", y)
 
 import torch
+a = torch.randn(4, 4, device="cuda")
+b = torch.randn(4, 4, device="cuda")
+c = torch.matmul(a, b)
 
-x = torch.tensor(10, dtype=torch.float32, device='cuda')
-
-print("Generated tensor:", x)
-
-
+print("Matrix multiplication result:", c)
 
 # import torch
 # print(torch.cuda.memory_allocated())

@@ -80,7 +80,16 @@ void Frontend::Init(Communicator *c) {
 
     // Set the logging level
     std::string logLevelString = getEnvVar("GVIRTUS_LOGLEVEL");
-    log4cplus::LogLevel logLevel = logLevelString.empty() ? log4cplus::INFO_LOG_LEVEL : std::stoi(logLevelString);
+    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
+    if (!logLevelString.empty()) {
+        try {
+            logLevel = static_cast<log4cplus::LogLevel>(std::stoi(logLevelString));
+        } catch (const std::exception& e) {
+            std::cerr << "[GVIRTUS WARNING] Invalid GVIRTUS_LOGLEVEL value: '" << logLevelString
+                    << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
+            logLevel = log4cplus::INFO_LOG_LEVEL;
+        }
+    }
 
     logger.setLogLevel(logLevel);
 
@@ -248,7 +257,6 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     // }
     double time_taken;
     frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&time_taken), sizeof(time_taken));
-    // cout << "time taken: " << time_taken << endl;
     frontend->mRoutineExecutionTime += time_taken;
 
     start = steady_clock::now();

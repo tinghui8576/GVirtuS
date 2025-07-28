@@ -26,17 +26,7 @@
 #include "CudaRtHandler.h"
 
 using namespace log4cplus;
-/*
-void setLogLevel(Logger *logger) {
-  log4cplus::LogLevel logLevel=log4cplus::INFO_LOG_LEVEL;
-  char * val = getenv("GVIRTUS_LOGLEVEL" );
-  std::string logLevelString=(val == NULL ? std::string("") : std::string(val));
-  if (logLevelString!="") {
-      logLevel=std::stoi(logLevelString);
-  }
-  logger->setLogLevel(logLevel);
-}
-*/
+
 CUDA_ROUTINE_HANDLER(DeviceSetCacheConfig) {
   Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceSetCacheConfig"));
   CudaRtHandler::setLogLevel(&logger);

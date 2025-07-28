@@ -35,6 +35,7 @@
 #endif
 
 #include <cublas_v2.h>
+#include <cublasLt.h>
 
 #include <gvirtus/frontend/Frontend.h>
 

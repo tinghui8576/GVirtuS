@@ -52,11 +52,17 @@ CusparseHandler::~CusparseHandler() {
 }
 
 void CusparseHandler::setLogLevel(Logger *logger) {
-    log4cplus::LogLevel logLevel=log4cplus::INFO_LOG_LEVEL;
-    char * val = getenv("GVIRTUS_LOGLEVEL");
-    std::string logLevelString =(val == NULL ? std::string("") : std::string(val));
-    if (logLevelString != "") {
-        logLevel=std::stoi(logLevelString);
+    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
+    char *val = getenv("GVIRTUS_LOGLEVEL");
+	std::string logLevelString =(val == NULL ? std::string("") : std::string(val));
+	if (logLevelString != "") {
+        try {
+            logLevel = std::stoi(logLevelString);
+        } catch (const std::exception &e) {
+            std::cerr << "[WARNING] Invalid GVIRTUS_LOGLEVEL='" << logLevelString
+                      << "', defaulting to INFO. Reason: " << e.what() << std::endl;
+            logLevel = log4cplus::INFO_LOG_LEVEL;
+        }
     }
     logger->setLogLevel(logLevel);
 }

@@ -1590,8 +1590,8 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnConvolutionForward(cudnnHandle_t handl
     CudnnFrontend::AddDevicePointerForArguments(handle);
     CudnnFrontend::AddDevicePointerForArguments(xDesc);
     isFloatDescriptor(xDesc)
-        ? CudnnFrontend::AddHostPointerForArguments<const float>(reinterpret_cast<const float*>(alpha))
-        : CudnnFrontend::AddHostPointerForArguments<const double>(reinterpret_cast<const double*>(alpha));
+        ? CudnnFrontend::AddHostPointerForArguments(alpha, sizeof(float))
+        : CudnnFrontend::AddHostPointerForArguments(alpha, sizeof(double));
     CudnnFrontend::AddDevicePointerForArguments(x);
     CudnnFrontend::AddDevicePointerForArguments(wDesc);
     CudnnFrontend::AddDevicePointerForArguments(w);

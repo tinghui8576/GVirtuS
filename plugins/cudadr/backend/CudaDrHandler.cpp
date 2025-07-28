@@ -213,6 +213,8 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxDestroy));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxDetach));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxGetDevice));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxSetCurrent));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxGetCurrent));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxPopCurrent));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxPushCurrent));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxSynchronize));
@@ -220,6 +222,9 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxEnablePeerAccess));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DeviceCanAccessPeer));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DevicePrimaryCtxGetState));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxDisablePeerAccess));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxEnablePeerAccess));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DeviceCanAccessPeer));
 
     /*CudaDrHandler_device*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DeviceComputeCapability));
@@ -243,7 +248,7 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ParamSetTexRef));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(LaunchGridAsync));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(FuncSetCacheConfig));
-
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(LaunchKernel));
 
     /*CudaDrHandler_memory*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemFree));
@@ -257,9 +262,6 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemAllocPitch));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemGetAddressRange));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemGetInfo));
-
-
-
 
     /*CudaDrHandler_module*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleLoadData));
@@ -298,13 +300,4 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetArray));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetFlags));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddress));
-    
-    /*New Cuda 4.0 functions*/
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(LaunchKernel));
-
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxDisablePeerAccess));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxEnablePeerAccess));
-    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DeviceCanAccessPeer));
-
-
 }

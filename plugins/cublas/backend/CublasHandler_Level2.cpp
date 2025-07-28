@@ -23,7 +23,7 @@
  *             Department of Science and Technologies
  */
  
- #include "CublasHandler.h"
+#include "CublasHandler.h"
 
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
@@ -92,7 +92,7 @@ CUBLAS_ROUTINE_HANDLER(Cgemv_v2){
     cuComplex * y = in->GetFromMarshal<cuComplex*>();
     int incy = in->Get<int>();
     cublasStatus_t cs;
-        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
     try{
         cs = cublasCgemv_v2(handle,trans,m,n,alpha,A,lda,x,incx,beta,y,incy);

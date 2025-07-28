@@ -37,6 +37,7 @@
 #endif
 
 #include <cublas_v2.h>
+#include <cublasLt.h>
 
 #include <gvirtus/backend/Handler.h>
 #include <gvirtus/communicators/Result.h>
@@ -74,9 +75,11 @@ CUBLAS_ROUTINE_HANDLER(SetVector);
 CUBLAS_ROUTINE_HANDLER(GetVector);
 CUBLAS_ROUTINE_HANDLER(SetMatrix);
 CUBLAS_ROUTINE_HANDLER(GetMatrix);
+CUBLAS_ROUTINE_HANDLER(SetMathMode);
 CUBLAS_ROUTINE_HANDLER(SetStream_v2);
 CUBLAS_ROUTINE_HANDLER(GetPointerMode_v2);
 CUBLAS_ROUTINE_HANDLER(SetPointerMode_v2);
+CUBLAS_ROUTINE_HANDLER(SetWorkspace_v2);
 
 /* CublasHandler_Level1 */
 CUBLAS_ROUTINE_HANDLER(Sdot_v2);
@@ -135,6 +138,7 @@ CUBLAS_ROUTINE_HANDLER(Drotm_v2);
 
 CUBLAS_ROUTINE_HANDLER(Srotmg_v2);
 CUBLAS_ROUTINE_HANDLER(Drotmg_v2);
+
 /* CublasHandler_Level2 */
 CUBLAS_ROUTINE_HANDLER(Sgemv_v2);
 CUBLAS_ROUTINE_HANDLER(Dgemv_v2);
@@ -218,6 +222,7 @@ CUBLAS_ROUTINE_HANDLER(Sspr2_v2);
 CUBLAS_ROUTINE_HANDLER(Dspr2_v2);
 CUBLAS_ROUTINE_HANDLER(Chpr2_v2);
 CUBLAS_ROUTINE_HANDLER(Zhpr2_v2);
+
 /* CublasHandler_Level3 */
 CUBLAS_ROUTINE_HANDLER(Sgemm_v2);
 CUBLAS_ROUTINE_HANDLER(Dgemm_v2);
@@ -264,5 +269,18 @@ CUBLAS_ROUTINE_HANDLER(Strmm_v2);
 CUBLAS_ROUTINE_HANDLER(Dtrmm_v2);
 CUBLAS_ROUTINE_HANDLER(Ctrmm_v2);
 CUBLAS_ROUTINE_HANDLER(Ztrmm_v2);
+
+/* CublasHandler_Lt */
+CUBLAS_ROUTINE_HANDLER(LtMatmulAlgoGetHeuristic);
+// CUBLAS_ROUTINE_HANDLER(LtMatrixLayoutSetAttribute);
+CUBLAS_ROUTINE_HANDLER(LtMatmulDescSetAttribute);
+CUBLAS_ROUTINE_HANDLER(LtMatrixLayoutCreate);
+CUBLAS_ROUTINE_HANDLER(LtMatrixLayoutDestroy);
+CUBLAS_ROUTINE_HANDLER(LtMatmulDescCreate);
+CUBLAS_ROUTINE_HANDLER(LtMatmulDescDestroy);
+CUBLAS_ROUTINE_HANDLER(LtMatmulPreferenceCreate);
+CUBLAS_ROUTINE_HANDLER(LtMatmulPreferenceSetAttribute);
+CUBLAS_ROUTINE_HANDLER(LtMatmulPreferenceDestroy);
+CUBLAS_ROUTINE_HANDLER(LtMatmul);
 
 #endif // _CUBLASHANDLER

@@ -64,18 +64,22 @@ CudnnHandler::CudnnHandler() {
     Initialize();
 }
 
-CudnnHandler::~CudnnHandler() {
-
-}
+CudnnHandler::~CudnnHandler() {}
 
 void CudnnHandler::setLogLevel(Logger *logger) {
-	log4cplus::LogLevel logLevel=log4cplus::INFO_LOG_LEVEL;
-	char * val = getenv("GVIRTUS_LOGLEVEL");
+	log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
+    char *val = getenv("GVIRTUS_LOGLEVEL");
 	std::string logLevelString =(val == NULL ? std::string("") : std::string(val));
-	if(logLevelString != "") {
-		logLevel=std::stoi(logLevelString);
-	}
-	logger->setLogLevel(logLevel);
+	if (logLevelString != "") {
+        try {
+            logLevel = std::stoi(logLevelString);
+        } catch (const std::exception &e) {
+            std::cerr << "[WARNING] Invalid GVIRTUS_LOGLEVEL='" << logLevelString
+                      << "', defaulting to INFO. Reason: " << e.what() << std::endl;
+            logLevel = log4cplus::INFO_LOG_LEVEL;
+        }
+    }
+    logger->setLogLevel(logLevel);
 }
 
 bool CudnnHandler::CanExecute(std::string routine) {
@@ -916,9 +920,7 @@ CUDNN_ROUTINE_HANDLER(ConvolutionForward) {
 
     cudnnHandle_t handle = in->Get<cudnnHandle_t>();
     const cudnnTensorDescriptor_t xDesc = in->Get<cudnnTensorDescriptor_t>();
-    const void* alpha = isFloatDescriptor(xDesc)
-        ? static_cast<const void*>(in->Assign<const float>())
-        : static_cast<const void*>(in->Assign<const double>());
+    const void* alpha = isFloatDescriptor(xDesc) ? in->Assign<void>(sizeof(float)) : in->Assign<void>(sizeof(double));
     const void* x = in->GetFromMarshal<void *>();
     const cudnnFilterDescriptor_t wDesc = in->Get<cudnnFilterDescriptor_t>();
     const void* w = in->GetFromMarshal<void *>();

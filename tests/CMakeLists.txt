@@ -54,6 +54,7 @@ foreach(TEST_SRC ${TEST_SOURCES})
         curand
         cudart
         cublas
+        cublasLt
         cufft
         cudnn
         cusolver

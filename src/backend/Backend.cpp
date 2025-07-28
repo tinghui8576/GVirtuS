@@ -16,7 +16,16 @@ Backend::Backend(const fs::path &path) {
     char *logLevel_envVar = getenv("GVIRTUS_LOGLEVEL");
     std::string logLevelString = (logLevel_envVar == nullptr ? std::string("") : std::string(logLevel_envVar));
 
-    log4cplus::LogLevel logLevel = logLevelString.empty() ? log4cplus::INFO_LOG_LEVEL : std::stoi(logLevelString);
+    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
+    if (!logLevelString.empty()) {
+        try {
+            logLevel = static_cast<log4cplus::LogLevel>(std::stoi(logLevelString));
+        } catch (const std::exception& e) {
+            std::cerr << "[GVIRTUS WARNING] Invalid GVIRTUS_LOGLEVEL value: '" << logLevelString
+                    << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
+            logLevel = log4cplus::INFO_LOG_LEVEL;
+        }
+    }
     this->logger.setLogLevel(logLevel);
 
     // json setup

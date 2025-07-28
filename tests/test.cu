@@ -6,29 +6,29 @@
 
 using namespace std;
 
-// __global__ void simpleKernel(int* output) {
-//     *output = 123;
-// }
+__global__ void simpleKernel(int* output) {
+    *output = 123;
+}
 
-// int main() {
-//     int* d_out = nullptr;
-//     int h_out = 0;
+int main() {
+    int* d_out = nullptr;
+    int h_out = 0;
 
-//     // Allocate memory on device
-//     cudaMalloc(&d_out, sizeof(int));
+    // Allocate memory on device
+    cudaMalloc(&d_out, sizeof(int));
 
-//     // Launch kernel with <<<>>> syntax
-//     simpleKernel<<<1, 1>>>(d_out);
+    // Launch kernel with <<<>>> syntax
+    simpleKernel<<<1, 1>>>(d_out);
 
-//     // Wait for kernel to complete
-//     cudaDeviceSynchronize();
+    // Wait for kernel to complete
+    cudaDeviceSynchronize();
 
-//     // Copy result back to host
-//     cudaMemcpy(&h_out, d_out, sizeof(int), cudaMemcpyDeviceToHost);
+    // Copy result back to host
+    cudaMemcpy(&h_out, d_out, sizeof(int), cudaMemcpyDeviceToHost);
 
-//     cudaFree(d_out);
-//     std::cout << "Kernel output: " << h_out << std::endl;
-// }
+    cudaFree(d_out);
+    std::cout << "Kernel output: " << h_out << std::endl;
+}
 
 
 // kernel launch with multiple blocks and threads test passes
@@ -334,18 +334,18 @@ using namespace std;
 //     return 0;
 // }
 
-int main() {
- // Initialize cuDNN
-    cudnnHandle_t cudnn;
-    cudnnCreate(&cudnn);
+// int main() {
+//  // Initialize cuDNN
+//     cudnnHandle_t cudnn;
+//     cudnnCreate(&cudnn);
 
-    int n = 1, c = 1, h = 5, w = 5;
-    // Allocate and initialize host memory
-    std::vector<float> h_input(n * c * h * w, 1.0f);   // Input filled with ones
+//     int n = 1, c = 1, h = 5, w = 5;
+//     // Allocate and initialize host memory
+//     std::vector<float> h_input(n * c * h * w, 1.0f);   // Input filled with ones
 
-    // Allocate device memory
-    float *d_input;
-    cudaMalloc(&d_input, h_input.size() * sizeof(float));
+//     // Allocate device memory
+//     float *d_input;
+//     cudaMalloc(&d_input, h_input.size() * sizeof(float));
 
-    cout << "d_input = " <<  d_input << endl;
-}
+//     cout << "d_input = " <<  d_input << endl;
+// }

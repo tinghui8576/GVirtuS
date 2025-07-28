@@ -185,7 +185,6 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStrsmBatched(cublasHandle
     return CUBLAS_STATUS_NOT_SUPPORTED; // Not implemented yet
 }
 
-// TODO:
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetMathMode(cublasHandle_t handle, cublasMath_t mode) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
@@ -453,24 +452,24 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgelsBatched(cublasHandle
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGemmEx(cublasHandle_t handle,
-                           cublasOperation_t transa,
-                           cublasOperation_t transb,
-                           int m,
-                           int n,
-                           int k,
-                           const void    *alpha,
-                           const void     *A,
-                           cudaDataType_t Atype,
-                           int lda,
-                           const void     *B,
-                           cudaDataType_t Btype,
-                           int ldb,
-                           const void    *beta,
-                           void           *C,
-                           cudaDataType_t Ctype,
-                           int ldc,
-                           cublasComputeType_t computeType,
-                           cublasGemmAlgo_t algo) {
+                                                            cublasOperation_t transa,
+                                                            cublasOperation_t transb,
+                                                            int m,
+                                                            int n,
+                                                            int k,
+                                                            const void    *alpha,
+                                                            const void     *A,
+                                                            cudaDataType_t Atype,
+                                                            int lda,
+                                                            const void     *B,
+                                                            cudaDataType_t Btype,
+                                                            int ldb,
+                                                            const void    *beta,
+                                                            void           *C,
+                                                            cudaDataType_t Ctype,
+                                                            int ldc,
+                                                            cublasComputeType_t computeType,
+                                                            cublasGemmAlgo_t algo) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
@@ -495,26 +494,26 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGemmEx(cublasHandle_t han
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetWorkspace(cublasHandle_t handle, void *workspace, size_t workspaceSizeInBytes) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetWorkspace_v2(cublasHandle_t handle, void *workspace, size_t workspaceSizeInBytes) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddDevicePointerForArguments(workspace);
     CublasFrontend::AddVariableForArguments<size_t>(workspaceSizeInBytes);
-    CublasFrontend::Execute("cublasSetWorkspace");
+    CublasFrontend::Execute("cublasSetWorkspace_v2");
     return CublasFrontend::GetExitCode();
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrsBatched(cublasHandle_t handle,
-                                   cublasOperation_t trans,
-                                   int n,
-                                   int nrhs,
-                                   const cuComplex *const Aarray[],
-                                   int lda,
-                                   const int *devIpiv,
-                                   cuComplex *const Barray[],
-                                   int ldb,
-                                   int *info,
-                                   int batchSize) {
+                                                                    cublasOperation_t trans,
+                                                                    int n,
+                                                                    int nrhs,
+                                                                    const cuComplex *const Aarray[],
+                                                                    int lda,
+                                                                    const int *devIpiv,
+                                                                    cuComplex *const Barray[],
+                                                                    int ldb,
+                                                                    int *info,
+                                                                    int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
@@ -534,16 +533,16 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrsBatched(cublasHandl
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI  cublasZgetrsBatched(cublasHandle_t handle,
-                                   cublasOperation_t trans,
-                                   int n,
-                                   int nrhs,
-                                   const cuDoubleComplex *const Aarray[],
-                                   int lda,
-                                   const int *devIpiv,
-                                   cuDoubleComplex *const Barray[],
-                                   int ldb,
-                                   int *info,
-                                   int batchSize) {
+                                                                    cublasOperation_t trans,
+                                                                    int n,
+                                                                    int nrhs,
+                                                                    const cuDoubleComplex *const Aarray[],
+                                                                    int lda,
+                                                                    const int *devIpiv,
+                                                                    cuDoubleComplex *const Barray[],
+                                                                    int ldb,
+                                                                    int *info,
+                                                                    int batchSize) {
 
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
@@ -564,12 +563,12 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI  cublasZgetrsBatched(cublasHand
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrfBatched(cublasHandle_t handle,
-                                   int n,
-                                   cuComplex *const Aarray[],
-                                   int lda,
-                                   int *PivotArray,
-                                   int *infoArray,
-                                   int batchSize) {
+                                                                    int n,
+                                                                    cuComplex *const Aarray[],
+                                                                    int lda,
+                                                                    int *PivotArray,
+                                                                    int *infoArray,
+                                                                    int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
@@ -585,18 +584,18 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrfBatched(cublasHandl
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrsmBatched(cublasHandle_t handle,
-                                   cublasSideMode_t  side,
-                                   cublasFillMode_t  uplo,
-                                   cublasOperation_t trans,
-                                   cublasDiagType_t  diag,
-                                   int m,
-                                   int n,
-                                   const cuDoubleComplex *alpha,
-                                   const cuDoubleComplex *const A[],
-                                   int lda,
-                                   cuDoubleComplex *const B[],
-                                   int ldb,
-                                   int batchCount) {
+                                                                    cublasSideMode_t  side,
+                                                                    cublasFillMode_t  uplo,
+                                                                    cublasOperation_t trans,
+                                                                    cublasDiagType_t  diag,
+                                                                    int m,
+                                                                    int n,
+                                                                    const cuDoubleComplex *alpha,
+                                                                    const cuDoubleComplex *const A[],
+                                                                    int lda,
+                                                                    cuDoubleComplex *const B[],
+                                                                    int ldb,
+                                                                    int batchCount) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasSideMode_t>(side);
@@ -618,13 +617,13 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrsmBatched(cublasHandle
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgeqrfBatched(cublasHandle_t handle,
-                                    int m,
-                                    int n,
-                                    double *const Aarray[],
-                                    int lda,
-                                    double *const TauArray[],
-                                    int *info,
-                                    int batchSize) {
+                                                                    int m,
+                                                                    int n,
+                                                                    double *const Aarray[],
+                                                                    int lda,
+                                                                    double *const TauArray[],
+                                                                    int *info,
+                                                                    int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(m);
@@ -641,18 +640,18 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgeqrfBatched(cublasHandl
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmStridedBatched(cublasHandle_t handle,
-                                  cublasOperation_t transa,
-                                  cublasOperation_t transb,
-                                  int m, int n, int k,
-                                  const double          *alpha,
-                                  const double          *A, int lda,
-                                  long long int          strideA,
-                                  const double          *B, int ldb,
-                                  long long int          strideB,
-                                  const double          *beta,
-                                  double                *C, int ldc,
-                                  long long int          strideC,
-                                  int batchCount) {
+                                                                cublasOperation_t transa,
+                                                                cublasOperation_t transb,
+                                                                int m, int n, int k,
+                                                                const double          *alpha,
+                                                                const double          *A, int lda,
+                                                                long long int          strideA,
+                                                                const double          *B, int ldb,
+                                                                long long int          strideB,
+                                                                const double          *beta,
+                                                                double                *C, int ldc,
+                                                                long long int          strideC,
+                                                                int batchCount) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
@@ -677,17 +676,17 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmStridedBatched(cubla
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgelsBatched(cublasHandle_t handle,
-                                   cublasOperation_t trans,
-                                   int m,
-                                   int n,
-                                   int nrhs,
-                                   double *const Aarray[],
-                                   int lda,
-                                   double *const Carray[],
-                                   int ldc,
-                                   int *info,
-                                   int *devInfoArray,
-                                   int batchSize) {
+                                                                    cublasOperation_t trans,
+                                                                    int m,
+                                                                    int n,
+                                                                    int nrhs,
+                                                                    double *const Aarray[],
+                                                                    int lda,
+                                                                    double *const Carray[],
+                                                                    int ldc,
+                                                                    int *info,
+                                                                    int *devInfoArray,
+                                                                    int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
@@ -708,13 +707,13 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgelsBatched(cublasHandle
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgeqrfBatched(cublasHandle_t handle,
-                                    int m,
-                                    int n,
-                                    cuComplex *const Aarray[],
-                                    int lda,
-                                    cuComplex *const TauArray[],
-                                    int *info,
-                                    int batchSize) {
+                                                                    int m,
+                                                                    int n,
+                                                                    cuComplex *const Aarray[],
+                                                                    int lda,
+                                                                    cuComplex *const TauArray[],
+                                                                    int *info,
+                                                                    int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(m);
@@ -731,12 +730,12 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgeqrfBatched(cublasHandl
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgetrfBatched(cublasHandle_t handle,
-                                   int n,
-                                   cuDoubleComplex *const Aarray[],
-                                   int lda,
-                                   int *PivotArray,
-                                   int *infoArray,
-                                   int batchSize) {
+                                                                    int n,
+                                                                    cuDoubleComplex *const Aarray[],
+                                                                    int lda,
+                                                                    int *PivotArray,
+                                                                    int *infoArray,
+                                                                    int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
@@ -752,22 +751,23 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgetrfBatched(cublasHandl
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemmEx(cublasHandle_t handle,
-                           cublasOperation_t transa,
-                           cublasOperation_t transb,
-                           int m,
-                           int n,
-                           int k,
-                           const float    *alpha,
-                           const void     *A,
-                           cudaDataType_t Atype,
-                           int lda,
-                           const void     *B,
-                           cudaDataType_t Btype,
-                           int ldb,
-                           const float    *beta,
-                           void           *C,
-                           cudaDataType_t Ctype,
-                           int ldc) {
+                                                                cublasOperation_t transa,
+                                                                cublasOperation_t transb,
+                                                                int m,
+                                                                int n,
+                                                                int k,
+                                                                const float    *alpha,
+                                                                const void     *A,
+                                                                cudaDataType_t Atype,
+                                                                int lda,
+                                                                const void     *B,
+                                                                cudaDataType_t Btype,
+                                                                int ldb,
+                                                                const float    *beta,
+                                                                void           *C,
+                                                                cudaDataType_t Ctype,
+                                                                int ldc) {
+
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
