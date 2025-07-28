@@ -1394,7 +1394,8 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetConvolutionNdForwardOutputDim(const
 
     CudnnFrontend::Execute("cudnnGetConvolutionNdForwardOutputDim");
     if (CudnnFrontend::Success()) {
-       *tensorOuputDimA =  CudnnFrontend::GetOutputVariable<int>();
+        int *outputDims =  CudnnFrontend::GetOutputHostPointer<int>(nbDims);
+        std::memcpy(tensorOuputDimA, outputDims, nbDims *  sizeof(int));
     }
     return CudnnFrontend::GetExitCode();
 }

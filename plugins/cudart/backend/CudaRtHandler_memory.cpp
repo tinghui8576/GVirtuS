@@ -272,13 +272,8 @@ CUDA_ROUTINE_HANDLER(Memcpy) {
             result = std::make_shared<Result>(exit_code, out);
             break;
         case cudaMemcpyDeviceToDevice:
-            try {
-                dst = input_buffer->GetFromMarshal<void *>();
-                src = input_buffer->GetFromMarshal<void *>();
-            } catch (const std::exception& e) {
-                cerr << e.what() << endl;
-                return std::make_shared<Result>(cudaErrorMemoryAllocation);
-            }
+            dst = input_buffer->GetFromMarshal<void *>();
+            src = input_buffer->GetFromMarshal<void *>();
             exit_code = cudaMemcpy(dst, src, count, kind);
             result = std::make_shared<Result>(exit_code);
             break;
@@ -553,11 +548,6 @@ CUDA_ROUTINE_HANDLER(MemcpyAsync) {
             case cudaMemcpyHostToDevice:
                 try {
                     dst = input_buffer->GetFromMarshal<void *>();
-                } catch (const std::exception& e) {
-                    cerr << e.what() << endl;
-                    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-                }
-                try {
                     src = input_buffer->AssignAll<char>();
                 } catch (const std::exception& e) {
                     cerr << e.what() << endl;

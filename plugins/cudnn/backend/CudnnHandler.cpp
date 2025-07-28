@@ -476,13 +476,14 @@ CUDNN_ROUTINE_HANDLER(GetConvolutionNdForwardOutputDim) {
     cudnnTensorDescriptor_t inputTensorDesc = in->Get<cudnnTensorDescriptor_t>();
     cudnnFilterDescriptor_t filterDesc = in->Get<cudnnFilterDescriptor_t>();
     int nbDims = in->Get<int>();
-    int *tensorOutputDimA = in->Assign<int>();
+
+    int tensorOutputDimA[nbDims];
 
     cudnnStatus_t cs = cudnnGetConvolutionNdForwardOutputDim(convDesc, inputTensorDesc, filterDesc, nbDims, tensorOutputDimA);
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
-        out->Add<int>(tensorOutputDimA);
+        out->Add<int>(tensorOutputDimA, nbDims);
     } catch (const std::exception& e) {
         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);

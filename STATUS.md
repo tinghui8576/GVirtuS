@@ -517,7 +517,7 @@ cuFFT handle typedefs changed in CUDA 12.
 | `cudnnGetConvolution2dForwardOutputDim`                    | ✅          | ✅      | ✅      |                          | 
 | `cudnnSetConvolutionNdDescriptor`                          | ✅          | ❌      | ❓      |                          | 
 | `cudnnGetConvolutionNdDescriptor`                          | ✅          | ❌      | ❓      |                          | 
-| `cudnnGetConvolutionNdForwardOutputDim`                    | ✅          | ❌      | ❓      |                          | 
+| `cudnnGetConvolutionNdForwardOutputDim`                    | ✅          | ✅      | ✅      |                          | 
 | `cudnnDestroyConvolutionDescriptor`                        | ✅          | ✅      | ✅      |                          | 
 | `cudnnGetConvolutionForwardAlgorithmMaxCount`              | ✅          | ❌      | ❓      |                          | 
 | `cudnnFindConvolutionForwardAlgorithm`                     | ✅          | ✅      | ✅      |                          | 
