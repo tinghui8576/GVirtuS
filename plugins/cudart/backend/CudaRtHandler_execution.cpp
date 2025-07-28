@@ -94,12 +94,14 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
         NvInfoFunction infoFunction = pThis->getInfoFunc(deviceFunc);
 
         size_t argsSize = 0;
-        for (NvInfoKParam infoKParam : infoFunction.params) {
-            // maybe masking is wrong
-            cout << "infoKParam.size: " << infoKParam.size_bytes() << endl;
-            // argsSize += ((infoKParam.size & 0xf8) >> 2);
-            argsSize += infoKParam.size_bytes();
+        for (const NvInfoKParam &p : infoFunction.params) {
+            size_t end = p.offset + p.size_bytes();
+            if (end > argsSize) {
+                argsSize = end;
+            }
         }
+
+        // cout << "argsSize: " << argsSize << endl;
 
         byte *pArgs = input_buffer->Assign<byte>(argsSize);
 
@@ -111,21 +113,21 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
 
         for (NvInfoKParam infoKParam : infoFunction.params) {
             args[infoKParam.ordinal] = (void *)(pArgs + infoKParam.offset);
-            cout << "param: " << infoKParam.ordinal
-                 << ", offset: " << infoKParam.offset
-                  // << ", size: " << ((infoKParam.size & 0xf8) >> 2) << endl;
-                 << ", size: " << infoKParam.size_bytes() << endl;
+            // cout << "Setting argument for ordinal: " << infoKParam.ordinal
+            //     << "param: " << infoKParam.ordinal
+            //     << ", offset: " << infoKParam.offset
+            //     << ", size: " << infoKParam.size_bytes() << endl;
         }
 
-        cout << "function: " << deviceFunc << endl;
-        cout << "GridDim: " << gridDim.x << "," << gridDim.y << "," << gridDim.z << endl;
-        cout << "BlockDim: " << blockDim.x << "," << blockDim.y << "," << blockDim.z << endl;
-        cout << "SharedMem: " << sharedMem << endl;
-        cout << "Stream: " << stream << endl;
+        // cout << "function: " << deviceFunc << endl;
+        // cout << "GridDim: " << gridDim.x << "," << gridDim.y << "," << gridDim.z << endl;
+        // cout << "BlockDim: " << blockDim.x << "," << blockDim.y << "," << blockDim.z << endl;
+        // cout << "SharedMem: " << sharedMem << endl;
+        // cout << "Stream: " << stream << endl;
 
         cudaError_t exit_code = cudaLaunchKernel(func, gridDim, blockDim, args, sharedMem, stream);
         LOG4CPLUS_DEBUG(logger, "LaunchKernel exit_code: " << exit_code);
-    return std::make_shared<Result>(exit_code);
+        return std::make_shared<Result>(exit_code);
     }
 #endif
 

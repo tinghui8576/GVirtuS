@@ -174,9 +174,11 @@ extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHost
 
 #if CUDA_VERSION >= 9000
     extern "C" __host__ cudaError_t cudaLaunchKernel(const void* func,
-                                                    dim3 gridDim, dim3 blockDim,
+                                                    dim3 gridDim,
+                                                    dim3 blockDim,
                                                     void** args,
-                                                    size_t sharedMem, cudaStream_t stream) {
+                                                    size_t sharedMem,
+                                                    cudaStream_t stream) {
         
         cudaError_t cudaError;
         vector<gvirtus::common::mappedPointer> mappedPointers;
@@ -194,22 +196,28 @@ extern "C" __host__ cudaError_t cudaLaunchHostFunc(cudaStream_t stream, cudaHost
         // to pass the args to the backend we need their total size
         // we have this info in the infoFunction, so we can calculate the total size
         size_t argsPayloadSize = 0;
-        for (NvInfoKParam infoKParam : infoFunction.params) {
-            argsPayloadSize += infoKParam.size_bytes();
-            // argsPayloadSize += (infoKParam.size & 0xf8) >> 2; // masking to get the size in bytes
+        for (const NvInfoKParam &p : infoFunction.params) {
+            size_t end = p.offset + p.size_bytes();
+            if (end > argsPayloadSize) {
+                argsPayloadSize = end;
+            }
         }
+
+        // cout << "argsPayloadSize: " << argsPayloadSize << endl;
 
         byte *pArgsPayload = (byte*)calloc(argsPayloadSize, 1);
         for (NvInfoKParam infoKParam : infoFunction.params) {
+            // cout << "Setting argument for ordinal: " << infoKParam.ordinal
+            //      << ", offset: " << infoKParam.offset
+            //      << ", size: " << infoKParam.size_bytes() << endl;
             memcpy(pArgsPayload + infoKParam.offset, args[infoKParam.ordinal], infoKParam.size_bytes());
-            // memcpy(pArgsPayload + infoKParam.offset, args[infoKParam.ordinal], (infoKParam.size & 0xf8) >> 2);
         }
 
         CudaRtFrontend::AddHostPointerForArguments<byte>(pArgsPayload, argsPayloadSize);
-        cout << "GridDim: " << gridDim.x << "," << gridDim.y << "," << gridDim.z << endl;
-        cout << "BlockDim: " << blockDim.x << "," << blockDim.y << "," << blockDim.z << endl;
-        cout << "SharedMem: " << sharedMem << endl;
-        cout << "Stream: " << stream << endl;
+        // cout << "GridDim: " << gridDim.x << "," << gridDim.y << "," << gridDim.z << endl;
+        // cout << "BlockDim: " << blockDim.x << "," << blockDim.y << "," << blockDim.z << endl;
+        // cout << "SharedMem: " << sharedMem << endl;
+        // cout << "Stream: " << stream << endl;
 
         CudaRtFrontend::Execute("cudaLaunchKernel");
         cudaError = CudaRtFrontend::GetExitCode();

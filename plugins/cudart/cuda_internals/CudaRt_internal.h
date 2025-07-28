@@ -11,7 +11,50 @@
 #include <vector>
 #include <string>
 
+// defined in <cuda_install_dir>/include/fatbinary_section.h
+// typedef struct {
+//   int magic;
+//   int version;
+//   const unsigned long long* data;
+//   void *filename_or_fatbins;  /* version 1: offline filename,
+//                                * version 2: array of prelinked fatbins */
+// } __fatBinC_Wrapper_t;
+
+
+// defined in <gvirtus_src_dir>/plugins/cudart/util/CudaUtil.h
+//   struct __align__(8) fatBinaryHeader {
+//       unsigned int           magic;
+//       unsigned short         version;
+//       unsigned short         headerSize;
+//       unsigned long long int fatSize;
+//   };
+
+// right after the fatBinaryHeader comes the fatBinData_t
+
+typedef struct {
+    unsigned short kind;
+    unsigned short version;
+    unsigned int headerSize; // size of the header
+    unsigned int paddedPayloadSize;
+    unsigned int unknown0;
+    unsigned int payloadSize;
+    unsigned int unknown1;
+    unsigned int unknown2;
+    unsigned int smVersion;
+    unsigned int bitWidth;
+    unsigned int unknown3;
+    unsigned long unkown4;
+    unsigned long unknown5;
+    unsigned long uncompressedPayload;
+} fatBinData_t;
+
+#define FATBINWRAPPER_MAGIC 0x466243B1
+#define FATBIN_MAGIC 0xBA55ED50
+#define ELF_MAGIC "\177ELF"
+#define ELF_MAGIC_SIZE 4
+
 #define EIFMT_NVAL 0x01
+#define EIFMT_BVAL 0x02
 #define EIFMT_HVAL 0x03
 #define EIFMT_SVAL 0x04
 
@@ -56,132 +99,34 @@
 #define EIATTR_LOAD_CACHE_REQUEST 0x26
 #define EIATTR_ATOM_SYS_INSTR_OFFSETS 0x27
 #define EIATTR_COOP_GROUP_INSTR_OFFSETS 0x28
-#define EIATTR_COOP_GROUP_MASK_REGIDS 0x29
+#define EIATTR_COOP_GROUP_MAX_REGIDS 0x29
 #define EIATTR_SW1850030_WAR 0x2a
 #define EIATTR_WMMA_USED 0x2b
+#define EIATTR_HAS_PRE_V10_OBJECT 0x2c
+#define EIATTR_ATOMF16_EMUL_INSTR_OFFSETS 0x2d
+#define EIATTR_ATOM16_EMUL_INSTR_REG_MAP 0x2e
+#define EIATTR_REGCOUNT 0x2f
 #define EIATTR_SW2393858_WAR 0x30
+#define EIATTR_INT_WARP_WIDE_INSTR_OFFSETS 0x31
+#define EIATTR_SHARED_SCRATCH 0x32
+#define EIATTR_STATISTICS 0x33
+
+// New between cuda 10.2 and 11.6
+#define EIATTR_INDIRECT_BRANCH_TARGETS 0x34
+#define EIATTR_SW2861232_WAR 0x35
+#define EIATTR_SW_WAR 0x36
 #define EIATTR_CUDA_API_VERSION 0x37
+#define EIATTR_NUM_MBARRIERS 0x38
+#define EIATTR_MBARRIER_INSTR_OFFSETS 0x39
+#define EIATTR_COROUTINE_RESUME_ID_OFFSETS 0x3a
+#define EIATTR_SAM_REGION_STACK_SIZE 0x3b
+#define EIATTR_PER_REG_TARGET_PERF_STATS 0x3c
 
-/////// This is for a newer version of the NVInfo format /////////////////////////////////////////////////////////////////////////////////
-// #pragma pack(push, 1)
-
-// enum NVInfoFormat : uint8_t {
-//     EIFMT_NVAL = 0x01,
-//     EIFMT_BVAL,
-//     EIFMT_HVAL,
-//     EIFMT_SVAL
-// };
-
-// enum NVInfoAttribute : uint8_t {
-//     EIATTR_ERROR = 0x00,
-//     EIATTR_PAD,
-//     EIATTR_IMAGE_SLOT,
-//     EIATTR_JUMPTABLE_RELOCS,
-//     EIATTR_CTAIDZ_USED,
-//     EIATTR_MAX_THREADS,
-//     EIATTR_IMAGE_OFFSET,
-//     EIATTR_IMAGE_SIZE,
-//     EIATTR_TEXTURE_NORMALIZED,
-//     EIATTR_SAMPLER_INIT,
-//     EIATTR_PARAM_CBANK,
-//     EIATTR_SMEM_PARAM_OFFSETS,
-//     EIATTR_CBANK_PARAM_OFFSETS,
-//     EIATTR_SYNC_STACK,
-//     EIATTR_TEXID_SAMPID_MAP,
-//     EIATTR_EXTERNS,
-//     EIATTR_REQNTID,
-//     EIATTR_FRAME_SIZE,
-//     EIATTR_MIN_STACK_SIZE,
-//     EIATTR_SAMPLER_FORCE_UNNORMALIZED,
-//     EIATTR_BINDLESS_IMAGE_OFFSETS,
-//     EIATTR_BINDLESS_TEXTURE_BANK,
-//     EIATTR_BINDLESS_SURFACE_BANK,
-//     EIATTR_KPARAM_INFO,
-//     EIATTR_SMEM_PARAM_SIZE,
-//     EIATTR_CBANK_PARAM_SIZE,
-//     EIATTR_QUERY_NUMATTRIB,
-//     EIATTR_MAXREG_COUNT,
-//     EIATTR_EXIT_INSTR_OFFSETS,
-//     EIATTR_S2RCTAID_INSTR_OFFSETS,
-//     EIATTR_CRS_STACK_SIZE,
-//     EIATTR_NEED_CNP_WRAPPER,
-//     EIATTR_NEED_CNP_PATCH,
-//     EIATTR_EXPLICIT_CACHING,
-//     EIATTR_ISTYPEP_USED,
-//     EIATTR_MAX_STACK_SIZE,
-//     EIATTR_SUQ_USED,
-//     EIATTR_LD_CACHEMOD_INSTR_OFFSETS,
-//     EIATTR_LOAD_CACHE_REQUEST,
-//     EIATTR_ATOM_SYS_INSTR_OFFSETS,
-//     EIATTR_COOP_GROUP_INSTR_OFFSETS,
-//     EIATTR_COOP_GROUP_MAX_REGIDS,
-//     EIATTR_SW1850030_WAR,
-//     EIATTR_WMMA_USED,
-//     EIATTR_HAS_PRE_V10_OBJECT,
-//     EIATTR_ATOMF16_EMUL_INSTR_OFFSETS,
-//     EIATTR_ATOM16_EMUL_INSTR_REG_MAP,
-//     EIATTR_REGCOUNT,
-//     EIATTR_SW2393858_WAR,
-//     EIATTR_INT_WARP_WIDE_INSTR_OFFSETS,
-//     EIATTR_SHARED_SCRATCH,
-//     EIATTR_STATISTICS,
-
-//     // New between cuda 10.2 and 11.6
-//     EIATTR_INDIRECT_BRANCH_TARGETS,
-//     EIATTR_SW2861232_WAR,
-//     EIATTR_SW_WAR,
-//     EIATTR_CUDA_API_VERSION,
-//     EIATTR_NUM_MBARRIERS,
-//     EIATTR_MBARRIER_INSTR_OFFSETS,
-//     EIATTR_COROUTINE_RESUME_ID_OFFSETS,
-//     EIATTR_SAM_REGION_STACK_SIZE,
-//     EIATTR_PER_REG_TARGET_PERF_STATS,
-
-//     // New between cuda 11.6 and 11.8
-//     EIATTR_CTA_PER_CLUSTER,
-//     EIATTR_EXPLICIT_CLUSTER,
-//     EIATTR_MAX_CLUSTER_RANK,
-//     EIATTR_INSTR_REG_MAP,
-// };
-
-// will work with the new parseNvInfoSections function when fixed
-// // This is the header of each item in .nv.info.*
-// typedef struct {
-//     NVInfoFormat format;
-//     NVInfoAttribute attribute;
-// } NVInfoItemHeader;
-
-// // For SVAL
-// typedef struct  {
-//     uint16_t value_size;
-// } NVInfoSvalHeader;
-
-// typedef struct {
-//     uint32_t index;
-//     uint16_t ordinal;
-//     uint16_t offset;
-//     uint32_t tmp;
-//     uint8_t log_alignment() const { return tmp & 0xFF; }
-//     uint8_t space()         const { return (tmp >> 8) & 0xF; }
-//     uint8_t cbank()         const { return (tmp >> 12) & 0x1F; }
-//     bool    is_cbank()      const { return ((tmp >> 16) & 2) == 0; }
-//     uint16_t size_bytes()   const { return (((tmp >> 16) & 0xFFFF) >> 2); }
-// } NVInfoKParamInfoValue;
-
-// typedef struct {
-//     NVInfoFormat format;
-//     NVInfoAttribute attribute;
-//     enum Type : uint16_t { NO_VALUE, BVAL, HVAL, KPARAM_INFO, EXTERN, OTHER } type;
-//     uint16_t uval;
-//     NVInfoKParamInfoValue kparam;
-//     std::string extern_name;
-// } NVInfoItem;
-
-// typedef struct {
-//     std::vector<NVInfoKParamInfoValue> params;
-// } NVInfoFunction;
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// New between cuda 11.6 and 11.8
+#define EIATTR_CTA_PER_CLUSTER 0x3d
+#define EIATTR_EXPLICIT_CLUSTER 0x3e
+#define EIATTR_MAX_CLUSTER_RANK 0x3f
+#define EIATTR_INSTR_REG_MAP 0x40
 
 // original gvirtus ones
 typedef struct {
@@ -203,21 +148,8 @@ typedef struct {
     uint16_t size_bytes()   const { return (((tmp >> 16) & 0xFFFF) >> 2); }
 } NvInfoKParam;
 
-// typedef struct {
-//     NvInfoAttribute nvInfoAttribute;
-//     uint16_t index;
-//     uint16_t align;
-//     uint16_t ordinal;
-//     uint16_t offset;
-//     uint16_t a;
-//     uint8_t size;
-//     uint8_t b;
-// } NvInfoKParam;
-
-typedef struct __infoFunction {
+typedef struct {
     std::vector<NvInfoKParam> params;
 } NvInfoFunction;
-
-// #pragma pack(pop)
 
 #endif //GVIRTUS_CUDART_INTERNAL_H

@@ -171,7 +171,6 @@ Buffer* CudaUtil::MarshalFatCudaBinary(__fatBinC_Wrapper_t* bin,
 }
 
 __fatBinC_Wrapper_t* CudaUtil::UnmarshalFatCudaBinaryV2(Buffer* marshal) {
-  // __fatBinC_Wrapper_t* bin = new __fatBinC_Wrapper_t __attribute__ ((aligned(8)));
   void* raw = std::aligned_alloc(8, sizeof(__fatBinC_Wrapper_t));
   __fatBinC_Wrapper_t* bin = new (raw) __fatBinC_Wrapper_t;
   size_t size;
