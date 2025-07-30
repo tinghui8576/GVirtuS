@@ -1,4 +1,12 @@
-#export CUDNN_FRONTEND_LOG_INFO=1
+# IMPORTANT:
+# Before running the ./run.sh script, you have to download the model from
+# https://drive.google.com/drive/folders/1ZvXgp8EdcoHFu9uici7jDtin6hi_VO3h?usp=sharing
+# and save it at
+# ~/2D-Human-Parsing/pretrained/deeplabv3plus-xception-vocNov14_20-51-38_epoch-89.pth
+
+
+
+#/export CUDNN_FRONTEND_LOG_INFO=1
 export PYTORCH_CUDNN_V8_API_DISABLED=1
 #export CUDNN_LOGINFO_DBG=1
 #export CUDNN_LOGDEST_DBG=stdout

@@ -21,3 +21,9 @@ $HOME/2D-Human-Parsing/demo_imgs/skirt.jpg
 $HOME/2D-Human-Parsing/demo_imgs/coat.jpg
 $HOME/2D-Human-Parsing/demo_imgs/multiperson.jpg
 EOF
+
+# IMPORTANT:
+# Before running the ./run.sh script, you have to download the model from
+# https://drive.google.com/drive/folders/1ZvXgp8EdcoHFu9uici7jDtin6hi_VO3h?usp=sharing
+# and save it at
+# ~/2D-Human-Parsing/pretrained/deeplabv3plus-xception-vocNov14_20-51-38_epoch-89.pth

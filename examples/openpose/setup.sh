@@ -43,3 +43,10 @@ make install
 ldconfig
 
 # install openpose
+apt update && apt install -y protobuf-compiler libgoogle-glog-dev libboost-all-dev libhdf5-serial-dev
+cd ~
+git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose
+cd openpose
+git submodule update --init --recursive --remote
+mkdir build
+cd build && cmake .. && make -j$(nproc)
