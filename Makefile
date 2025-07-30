@@ -35,6 +35,7 @@ run-gvirtus-backend-dev:
 		--entrypoint /entrypoint.sh \
 		--name gvirtus \
 		--runtime=nvidia \
+		--shm-size=8G \
 		taslanidis/gvirtus-dependencies:cuda12.6.3-cudnn-ubuntu22.04
 
 run-gvirtus-tests:

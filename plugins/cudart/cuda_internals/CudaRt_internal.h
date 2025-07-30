@@ -135,6 +135,8 @@ typedef struct {
     uint16_t value;
 } NvInfoAttribute;
 
+
+// see: https://github.com/VivekPanyam/cudaparsers
 typedef struct {
     NvInfoAttribute nvInfoAttribute;
     uint32_t index;

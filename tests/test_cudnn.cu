@@ -1624,3 +1624,89 @@ TEST(cuDNN, LRNCrossChannelForwardDouble) {
     CUDA_CHECK(cudaFree(d_input));
     CUDA_CHECK(cudaFree(d_output));
 }
+
+TEST(cuDNN, BackendCreateAndDestroyDescriptor) {
+    cudnnBackendDescriptor_t desc;
+
+    CUDNN_CHECK(cudnnBackendCreateDescriptor(CUDNN_BACKEND_OPERATION_CONVOLUTION_FORWARD_DESCRIPTOR, &desc));
+    ASSERT_NE(desc, nullptr);
+
+    CUDNN_CHECK(cudnnBackendDestroyDescriptor(desc));
+}
+
+// TEST(CudnnBackendEngineHeurTest, SetGetAttributes) {
+//     cudnnHandle_t handle;
+//     CUDNN_CHECK(cudnnCreate(&handle));
+
+//     // Step 1: Create a simple operation graph descriptor
+//     cudnnBackendDescriptor_t opGraph;
+//     CUDNN_CHECK(cudnnBackendCreateDescriptor(CUDNN_BACKEND_OPERATIONGRAPH_DESCRIPTOR, &opGraph));
+
+//     CUDNN_CHECK(cudnnBackendSetAttribute(
+//         opGraph,
+//         CUDNN_ATTR_OPERATIONGRAPH_HANDLE,
+//         CUDNN_TYPE_HANDLE,
+//         1,
+//         &handle));
+
+//     CUDNN_CHECK(cudnnBackendSetAttribute(
+//         opGraph,
+//         CUDNN_ATTR_OPERATIONGRAPH_OPS,
+//         CUDNN_TYPE_BACKEND_DESCRIPTOR,
+//         1,
+//         &CUDNN_BACKEND_OPERATION_CONVOLUTION_FORWARD_DESCRIPTOR));
+
+//     // For test, just finalize empty graph
+//     CUDNN_CHECK(cudnnBackendFinalize(opGraph));
+
+//     // Step 2: Create heuristics descriptor
+//     cudnnBackendDescriptor_t heurDesc;
+//     CUDNN_CHECK(cudnnBackendCreateDescriptor(CUDNN_BACKEND_ENGINEHEUR_DESCRIPTOR, &heurDesc));
+
+//     // Step 3: Set CUDNN_ATTR_ENGINEHEUR_OPERATION_GRAPH
+//     CUDNN_CHECK(cudnnBackendSetAttribute(
+//         heurDesc,
+//         CUDNN_ATTR_ENGINEHEUR_OPERATION_GRAPH,
+//         CUDNN_TYPE_BACKEND_DESCRIPTOR,
+//         1,
+//         &opGraph));
+
+//     // Step 4: Set CUDNN_ATTR_ENGINEHEUR_MODE = CUDNN_HEUR_MODE_INSTANT
+//     cudnnBackendHeurMode_t mode = CUDNN_HEUR_MODE_INSTANT;
+//     CUDNN_CHECK(cudnnBackendSetAttribute(
+//         heurDesc,
+//         CUDNN_ATTR_ENGINEHEUR_MODE,
+//         CUDNN_TYPE_HEUR_MODE,
+//         1,
+//         &mode));
+
+//     // Step 5: Finalize heuristics descriptor
+//     CUDNN_CHECK(cudnnBackendFinalize(heurDesc));
+
+//     // Step 6: Get attribute CUDNN_ATTR_ENGINEHEUR_RESULTS with element count 0 to get the real count
+//     int64_t returnedCount = 0;
+//     CUDNN_CHECK(cudnnBackendGetAttribute(
+//         heurDesc,
+//         CUDNN_ATTR_ENGINEHEUR_RESULTS,
+//         CUDNN_TYPE_BACKEND_DESCRIPTOR,
+//         0,
+//         &returnedCount,
+//         nullptr));
+
+//     std::cout << "Returned element count for ENGINEHEUR_RESULTS: " << returnedCount << std::endl;
+//     ASSERT_GT(returnedCount, 0);
+
+//     // Step 7: Try to get attribute with element count = returnedCount
+//     cudnnBackendDescriptor_t results[returnedCount]; // Max 24 elements as example
+//     int64_t actualReturnedCount;
+//     CUDNN_CHECK(cudnnBackendGetAttribute(
+//         heurDesc,
+//         CUDNN_ATTR_ENGINEHEUR_RESULTS,
+//         CUDNN_TYPE_BACKEND_DESCRIPTOR,
+//         returnedCount,
+//         &actualReturnedCount,
+//         results));
+
+//     // Print status, expect success or failure (your reported error is BAD_PARAM)
+//     std::cout << "GetAttribute with element count " << actualReturnedCount << std::endl;
+// }

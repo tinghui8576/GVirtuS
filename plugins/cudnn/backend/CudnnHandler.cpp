@@ -34,6 +34,52 @@ static std::unordered_map<void*, bool> desc_is_float_map;
 
 // Helper Functions
 
+void printHex(const void* data, size_t length, const std::string& label) {
+    auto bytes = reinterpret_cast<const unsigned char*>(data);
+    std::cout << label << " (" << length << " bytes): ";
+    for (size_t i = 0; i < length; i++) {
+        printf("%02X ", bytes[i]);  // print each byte as two-digit hex
+        if ((i + 1) % 16 == 0) std::cout << std::endl << "   "; // break lines for readability
+    }
+    std::cout << std::endl;
+}
+
+size_t getCudnnTypeSize(cudnnBackendAttributeType_t type) {
+    switch (type) {
+        case CUDNN_TYPE_HANDLE:                return sizeof(cudnnHandle_t);
+        case CUDNN_TYPE_DATA_TYPE:             return sizeof(cudnnDataType_t);
+        case CUDNN_TYPE_BOOLEAN:               return sizeof(bool);
+        case CUDNN_TYPE_INT64:                 return sizeof(int64_t);
+        case CUDNN_TYPE_FLOAT:                 return sizeof(float);
+        case CUDNN_TYPE_DOUBLE:                return sizeof(double);
+        case CUDNN_TYPE_VOID_PTR:              return sizeof(void*);
+        case CUDNN_TYPE_CONVOLUTION_MODE:      return sizeof(cudnnConvolutionMode_t);
+        case CUDNN_TYPE_HEUR_MODE:             return sizeof(cudnnBackendHeurMode_t);
+        case CUDNN_TYPE_KNOB_TYPE:             return sizeof(cudnnBackendKnobType_t);
+        case CUDNN_TYPE_NAN_PROPOGATION:       return sizeof(cudnnNanPropagation_t);
+        case CUDNN_TYPE_NUMERICAL_NOTE:        return sizeof(cudnnBackendNumericalNote_t);
+        case CUDNN_TYPE_LAYOUT_TYPE:           return sizeof(cudnnBackendLayoutType_t);
+        case CUDNN_TYPE_ATTRIB_NAME:           return sizeof(cudnnBackendAttributeName_t);
+        case CUDNN_TYPE_POINTWISE_MODE:        return sizeof(cudnnPointwiseMode_t);
+        case CUDNN_TYPE_BACKEND_DESCRIPTOR:    return sizeof(cudnnBackendDescriptor_t);
+        case CUDNN_TYPE_GENSTATS_MODE:         return sizeof(cudnnGenStatsMode_t);
+        case CUDNN_TYPE_BN_FINALIZE_STATS_MODE:return sizeof(cudnnBnFinalizeStatsMode_t);
+        case CUDNN_TYPE_REDUCTION_OPERATOR_TYPE:return sizeof(cudnnReduceTensorOp_t);
+        case CUDNN_TYPE_BEHAVIOR_NOTE:         return sizeof(cudnnBackendBehaviorNote_t);
+        case CUDNN_TYPE_TENSOR_REORDERING_MODE:return sizeof(cudnnBackendTensorReordering_t);
+        case CUDNN_TYPE_RESAMPLE_MODE:         return sizeof(cudnnResampleMode_t);
+        case CUDNN_TYPE_PADDING_MODE:          return sizeof(cudnnPaddingMode_t);
+        case CUDNN_TYPE_INT32:                 return sizeof(int32_t);
+        case CUDNN_TYPE_CHAR:                  return sizeof(char);
+        case CUDNN_TYPE_SIGNAL_MODE:           return sizeof(cudnnSignalMode_t);
+        case CUDNN_TYPE_FRACTION:              return sizeof(cudnnFraction_t);
+        case CUDNN_TYPE_NORM_MODE:             return sizeof(cudnnBackendNormMode_t);
+        case CUDNN_TYPE_NORM_FWD_PHASE:        return sizeof(cudnnBackendNormFwdPhase_t);
+        case CUDNN_TYPE_RNG_DISTRIBUTION:      return sizeof(cudnnRngDistribution_t);
+        default: return 0;
+    }
+}
+
 // Generic setter (used when you create a descriptor)
 void registerDescriptorType(void* desc, const cudnnDataType_t dataType) {
     std::lock_guard<std::mutex> lock(desc_type_mutex);
@@ -108,7 +154,8 @@ void CudnnHandler::Initialize() {
 
     /* CublasHandler Query Platform Info */
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetVersion));
-    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetErrorString));   
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetErrorString));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetLastErrorString));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(Create));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(Destroy));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(SetStream));
@@ -268,6 +315,12 @@ void CudnnHandler::Initialize() {
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(DropoutBackward));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(CreateRNNDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(DestroyRNNDescriptor));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendCreateDescriptor));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendSetAttribute));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendGetAttribute));
+    // mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendExecute));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendFinalize));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendDestroyDescriptor));
 #if CUDNN_VERSION < 8000
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(SetRNNDescriptor_v5));
     //mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(GetRNNDescriptor_v5));
@@ -1167,6 +1220,23 @@ CUDNN_ROUTINE_HANDLER(GetErrorString) {
         return std::make_shared<Result>(CUDNN_STATUS_EXECUTION_FAILED);
     }
     LOG4CPLUS_DEBUG(logger,"cudnnGetErrorString Executed");
+    return std::make_shared<Result>(CUDNN_STATUS_SUCCESS, out);
+}
+
+CUDNN_ROUTINE_HANDLER(GetLastErrorString) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetLastErrorString"));
+
+    size_t max_size =in->Get<size_t>();
+    char s[max_size];
+    cudnnGetLastErrorString(s, max_size);
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->AddString(s);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(CUDNN_STATUS_EXECUTION_FAILED);
+    }
+    LOG4CPLUS_DEBUG(logger,"cudnnGetLastErrorString Executed");
     return std::make_shared<Result>(CUDNN_STATUS_SUCCESS, out);
 }
 
@@ -4064,6 +4134,136 @@ CUDNN_ROUTINE_HANDLER(DestroyRNNDescriptor) {
 
     
     LOG4CPLUS_DEBUG(logger, "cudnnDestroyRNNDescriptor Executed");
+    
+    return std::make_shared<Result>(cs);
+}
+
+CUDNN_ROUTINE_HANDLER(BackendCreateDescriptor) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("BackendCreateDescriptor"));
+
+    cudnnBackendDescriptorType_t backendDescType = in->Get<cudnnBackendDescriptorType_t>();
+    cudnnBackendDescriptor_t backendDesc;
+
+    cudnnStatus_t cs = cudnnBackendCreateDescriptor(backendDescType, &backendDesc);
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<cudnnBackendDescriptor_t>(backendDesc);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cs);
+    }
+
+    LOG4CPLUS_DEBUG(logger, "cudnnBackendCreateDescriptor Executed");
+    
+    return std::make_shared<Result>(cs, out);
+}
+
+CUDNN_ROUTINE_HANDLER(BackendSetAttribute) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("BackendSetAttribute"));
+
+    cudnnBackendDescriptor_t backendDesc = in->Get<cudnnBackendDescriptor_t>();
+    cudnnBackendAttributeName_t attrName = in->Get<cudnnBackendAttributeName_t>();
+    cudnnBackendAttributeType_t attrType = in->Get<cudnnBackendAttributeType_t>();
+    int64_t elementCount = in->Get<int64_t>();
+    int64_t byteCount = elementCount * getCudnnTypeSize(attrType);
+    const void *arrayOfElements = in->Assign<char>(byteCount);
+    LOG4CPLUS_DEBUG(logger, "cudnnBackendSetAttribute called with:");
+    LOG4CPLUS_DEBUG(logger, "Backend Descriptor: " << backendDesc);
+    LOG4CPLUS_DEBUG(logger, "Attribute Name: " << attrName);
+    LOG4CPLUS_DEBUG(logger, "Attribute Type: " << attrType);
+    LOG4CPLUS_DEBUG(logger, "Element Count: " << elementCount);
+    LOG4CPLUS_DEBUG(logger, "Byte Count: " << byteCount);
+    if (byteCount > 0) {
+        printHex(arrayOfElements, byteCount, "[BACKEND] Received bytes for cudnnBackendSetAttribute");
+    }
+    else {
+        LOG4CPLUS_DEBUG(logger, "[BACKEND] No bytes received for cudnnBackendSetAttribute");
+    }
+    cudnnStatus_t cs = cudnnBackendSetAttribute(backendDesc, attrName, attrType, elementCount, arrayOfElements);
+
+    LOG4CPLUS_DEBUG(logger, "cudnnBackendSetAttribute Executed");
+    
+    return std::make_shared<Result>(cs);
+}
+
+CUDNN_ROUTINE_HANDLER(BackendGetAttribute) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("BackendGetAttribute"));
+
+    cudnnBackendDescriptor_t backendDesc = in->Get<cudnnBackendDescriptor_t>();
+    cudnnBackendAttributeName_t attrName = in->Get<cudnnBackendAttributeName_t>();
+    cudnnBackendAttributeType_t attrType = in->Get<cudnnBackendAttributeType_t>();
+    int64_t requestedElementCount = in->Get<int64_t>();
+    int64_t elementCount;
+    void *arrayOfElements = in->Assign<char>(requestedElementCount * getCudnnTypeSize(attrType));
+
+    LOG4CPLUS_DEBUG(logger, "cudnnBackendGetAttribute called with:");
+    LOG4CPLUS_DEBUG(logger, "Backend Descriptor: " << backendDesc);
+    LOG4CPLUS_DEBUG(logger, "Attribute Name: " << attrName);
+    LOG4CPLUS_DEBUG(logger, "Attribute Type: " << attrType);
+    LOG4CPLUS_DEBUG(logger, "requestedElementCount: " << requestedElementCount);
+
+    cudnnStatus_t cs = cudnnBackendGetAttribute(backendDesc, attrName, attrType, requestedElementCount, &elementCount, arrayOfElements);
+
+    LOG4CPLUS_DEBUG(logger, "cudnnBackendGetAttribute Executed");
+    if (cs != CUDNN_STATUS_SUCCESS) {
+        LOG4CPLUS_DEBUG(logger, "cudnnBackendGetAttribute failed with status: " << cudnnGetErrorString(cs));
+        return std::make_shared<Result>(cs);
+    }
+
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<int64_t>(elementCount);
+        LOG4CPLUS_DEBUG(logger, "Element Count: " << elementCount);
+        int64_t elementsToWrite = std::min(requestedElementCount, elementCount);
+        LOG4CPLUS_DEBUG(logger, "Elements to write: " << elementsToWrite);
+        if (elementsToWrite > 0) {
+            out->Add<char>((char*) arrayOfElements, elementsToWrite * getCudnnTypeSize(attrType));
+        }
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(CUDNN_STATUS_INTERNAL_ERROR);
+    }
+
+    return std::make_shared<Result>(cs, out);
+}
+
+// TODO: test
+// CUDNN_ROUTINE_HANDLER(BackendExecute) {
+//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("BackendExecute"));
+
+//     cudnnHandle_t handle = in->Get<cudnnHandle_t>();
+//     cudnnBackendDescriptor_t backendDesc = in->Get<cudnnBackendDescriptor_t>();
+
+//     cudnnStatus_t cs = cudnnBackendExecute(handle, backendDesc);
+
+//     LOG4CPLUS_DEBUG(logger, "cudnnBackendExecute Executed");
+    
+//     return std::make_shared<Result>(cs);
+// }
+
+CUDNN_ROUTINE_HANDLER(BackendFinalize) {
+    
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("BackendFinalize"));
+
+    cudnnBackendDescriptor_t backendDesc = in->Get<cudnnBackendDescriptor_t>();
+
+    cudnnStatus_t cs = cudnnBackendFinalize(backendDesc);
+
+    LOG4CPLUS_DEBUG(logger, "cudnnBackendFinalize Executed");
+    
+    return std::make_shared<Result>(cs);
+}
+
+CUDNN_ROUTINE_HANDLER(BackendDestroyDescriptor) {
+
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("BackendDestroyDescriptor"));
+
+    cudnnBackendDescriptor_t backendDesc = in->Get<cudnnBackendDescriptor_t>();
+
+    cudnnStatus_t cs = cudnnBackendDestroyDescriptor(backendDesc);
+
+    LOG4CPLUS_DEBUG(logger, "cudnnBackendDestroyDescriptor Executed");
     
     return std::make_shared<Result>(cs);
 }

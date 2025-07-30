@@ -35,6 +35,52 @@ static std::unordered_map<void*, bool> desc_is_float_map;
 
 // Helper Functions
 
+void printHex(const void* data, size_t length, const std::string& label) {
+    auto bytes = reinterpret_cast<const unsigned char*>(data);
+    std::cout << label << " (" << length << " bytes): ";
+    for (size_t i = 0; i < length; i++) {
+        printf("%02X ", bytes[i]);  // print each byte as two-digit hex
+        if ((i + 1) % 16 == 0) std::cout << std::endl << "   "; // break lines for readability
+    }
+    std::cout << std::endl;
+}
+
+size_t getCudnnTypeSize(cudnnBackendAttributeType_t type) {
+    switch (type) {
+        case CUDNN_TYPE_HANDLE:                return sizeof(cudnnHandle_t);
+        case CUDNN_TYPE_DATA_TYPE:             return sizeof(cudnnDataType_t);
+        case CUDNN_TYPE_BOOLEAN:               return sizeof(bool);
+        case CUDNN_TYPE_INT64:                 return sizeof(int64_t);
+        case CUDNN_TYPE_FLOAT:                 return sizeof(float);
+        case CUDNN_TYPE_DOUBLE:                return sizeof(double);
+        case CUDNN_TYPE_VOID_PTR:              return sizeof(void*);
+        case CUDNN_TYPE_CONVOLUTION_MODE:      return sizeof(cudnnConvolutionMode_t);
+        case CUDNN_TYPE_HEUR_MODE:             return sizeof(cudnnBackendHeurMode_t);
+        case CUDNN_TYPE_KNOB_TYPE:             return sizeof(cudnnBackendKnobType_t);
+        case CUDNN_TYPE_NAN_PROPOGATION:       return sizeof(cudnnNanPropagation_t);
+        case CUDNN_TYPE_NUMERICAL_NOTE:        return sizeof(cudnnBackendNumericalNote_t);
+        case CUDNN_TYPE_LAYOUT_TYPE:           return sizeof(cudnnBackendLayoutType_t);
+        case CUDNN_TYPE_ATTRIB_NAME:           return sizeof(cudnnBackendAttributeName_t);
+        case CUDNN_TYPE_POINTWISE_MODE:        return sizeof(cudnnPointwiseMode_t);
+        case CUDNN_TYPE_BACKEND_DESCRIPTOR:    return sizeof(cudnnBackendDescriptor_t);
+        case CUDNN_TYPE_GENSTATS_MODE:         return sizeof(cudnnGenStatsMode_t);
+        case CUDNN_TYPE_BN_FINALIZE_STATS_MODE:return sizeof(cudnnBnFinalizeStatsMode_t);
+        case CUDNN_TYPE_REDUCTION_OPERATOR_TYPE:return sizeof(cudnnReduceTensorOp_t);
+        case CUDNN_TYPE_BEHAVIOR_NOTE:         return sizeof(cudnnBackendBehaviorNote_t);
+        case CUDNN_TYPE_TENSOR_REORDERING_MODE:return sizeof(cudnnBackendTensorReordering_t);
+        case CUDNN_TYPE_RESAMPLE_MODE:         return sizeof(cudnnResampleMode_t);
+        case CUDNN_TYPE_PADDING_MODE:          return sizeof(cudnnPaddingMode_t);
+        case CUDNN_TYPE_INT32:                 return sizeof(int32_t);
+        case CUDNN_TYPE_CHAR:                  return sizeof(char);
+        case CUDNN_TYPE_SIGNAL_MODE:           return sizeof(cudnnSignalMode_t);
+        case CUDNN_TYPE_FRACTION:              return sizeof(cudnnFraction_t);
+        case CUDNN_TYPE_NORM_MODE:             return sizeof(cudnnBackendNormMode_t);
+        case CUDNN_TYPE_NORM_FWD_PHASE:        return sizeof(cudnnBackendNormFwdPhase_t);
+        case CUDNN_TYPE_RNG_DISTRIBUTION:      return sizeof(cudnnRngDistribution_t);
+        default: return 0;
+    }
+}
+
 // Generic setter (used when you create a descriptor)
 void registerDescriptorType(void* desc, const cudnnDataType_t dataType) {
     std::lock_guard<std::mutex> lock(desc_type_mutex);
@@ -62,6 +108,17 @@ extern "C" const char * CUDNNWINAPI cudnnGetErrorString(cudnnStatus_t status) {
     CudnnFrontend::AddVariableForArguments<cudnnStatus_t>(status);
     CudnnFrontend::Execute("cudnnGetErrorString");
     return CudnnFrontend::GetOutputString();
+}
+
+extern "C" void CUDNNWINAPI cudnnGetLastErrorString(char *message, size_t max_size) {
+    CudnnFrontend::Prepare();
+    CudnnFrontend::AddVariableForArguments<size_t>(max_size);
+    CudnnFrontend::Execute("cudnnGetLastErrorString");
+    if (CudnnFrontend::Success()) {
+        message = CudnnFrontend::GetOutputString();
+        // this is safe because cuda promises to always return a null-terminated string
+        // even if the message is longer than max_size
+    }
 }
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateTensorDescriptor(cudnnTensorDescriptor_t *tensorDesc) {
@@ -5865,14 +5922,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnFusedOpsExecute(cudnnHandle_t handle, 
 #endif
 
 // TODO:
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendDestroyDescriptor(cudnnBackendDescriptor_t desc) {
-    CudnnFrontend::Prepare();
-    CudnnFrontend::AddDevicePointerForArguments(desc);
-    CudnnFrontend::Execute("cudnnBackendDestroyDescriptor");
-    return CudnnFrontend::GetExitCode();
-}
-
-// TODO:
 extern "C" size_t CUDNNWINAPI cudnnGetCudartVersion() {
     CudnnFrontend::Prepare();
     CudnnFrontend::Execute("cudnnGetCudartVersion");
@@ -5882,24 +5931,106 @@ extern "C" size_t CUDNNWINAPI cudnnGetCudartVersion() {
     return CudnnFrontend::GetExitCode();
 }
 
-// TODO:
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendCreateDescriptor(
         cudnnBackendDescriptorType_t descriptorType,
         cudnnBackendDescriptor_t *descriptor) {
     CudnnFrontend::Prepare();
     CudnnFrontend::AddVariableForArguments<cudnnBackendDescriptorType_t>(descriptorType);
+    cout << "cudnnBackendCreateDescriptor called with descriptorType: " << descriptorType << endl;
     CudnnFrontend::Execute("cudnnBackendCreateDescriptor");
     if (CudnnFrontend::Success()) {
         *descriptor = CudnnFrontend::GetOutputVariable<cudnnBackendDescriptor_t>();
+        cout << "cudnnBackendCreateDescriptor created descriptor: " << *descriptor << endl;
     }
     return CudnnFrontend::GetExitCode();
 }
 
-// TODO:
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendSetAttribute(cudnnBackendDescriptor_t descriptor,
+                                                            cudnnBackendAttributeName_t attributeName,
+                                                            cudnnBackendAttributeType_t attributeType,
+                                                            int64_t elementCount,
+                                                            const void *arrayOfElements) {
+    CudnnFrontend::Prepare();
+    CudnnFrontend::AddDevicePointerForArguments(descriptor);
+    CudnnFrontend::AddVariableForArguments<cudnnBackendAttributeName_t>(attributeName);
+    CudnnFrontend::AddVariableForArguments<cudnnBackendAttributeType_t>(attributeType);
+    CudnnFrontend::AddVariableForArguments<int64_t>(elementCount);
+
+    int64_t byteCount = elementCount * getCudnnTypeSize(attributeType);
+    cout << "cudnnBackendSetAttribute called with:" << endl;
+    cout << "descriptor: " << descriptor << endl;
+    cout << "attribute name: " << attributeName << endl;
+    cout << "attribute type: " << attributeType << endl;
+    cout << "element count: " << elementCount << endl;
+    cout << "byte count: " << byteCount << endl;
+    if (byteCount > 0) {
+        printHex(arrayOfElements, byteCount, "[FRONTEND] Sending bytes for cudnnBackendSetAttribute");
+    }
+    else {
+        cout << "[FRONTEND] No bytes to send for cudnnBackendSetAttribute" << endl;
+    }
+    CudnnFrontend::AddHostPointerForArguments<char>((char*) arrayOfElements, byteCount);
+    CudnnFrontend::Execute("cudnnBackendSetAttribute");
+    return CudnnFrontend::GetExitCode();
+}
+
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendGetAttribute(cudnnBackendDescriptor_t descriptor,
+                                                            cudnnBackendAttributeName_t attributeName,
+                                                            cudnnBackendAttributeType_t attributeType,
+                                                            int64_t requestedElementCount,
+                                                            int64_t *elementCount,
+                                                            void *arrayOfElements) {
+
+    CudnnFrontend::Prepare();
+    CudnnFrontend::AddDevicePointerForArguments(descriptor);
+    CudnnFrontend::AddVariableForArguments<cudnnBackendAttributeName_t>(attributeName);
+    CudnnFrontend::AddVariableForArguments<cudnnBackendAttributeType_t>(attributeType);
+    CudnnFrontend::AddVariableForArguments<int64_t>(requestedElementCount);
+    // CudnnFrontend::AddHostPointerForArguments<int64_t>(elementCount);
+    CudnnFrontend::AddHostPointerForArguments<char>((char*)arrayOfElements, requestedElementCount * getCudnnTypeSize(attributeType));
+    cout << "cudnnBackendGetAttribute called with:" << endl;
+        cout << "descriptor: " << descriptor << endl;
+        cout << "attribute name: " << attributeName << endl;
+        cout << "attribute type: " << attributeType << endl;
+        cout << "requested element count: " << requestedElementCount << endl;
+    CudnnFrontend::Execute("cudnnBackendGetAttribute");
+    if (CudnnFrontend::Success()) {
+        cout << "cudnnBackendGetAttribute succeeded" << endl;
+        *elementCount = CudnnFrontend::GetOutputVariable<int64_t>();
+        cout << "elementCount: " << *elementCount << endl;
+        int64_t elementsToWrite = std::min(*elementCount, requestedElementCount);
+        int64_t bytesToWrite = elementsToWrite * getCudnnTypeSize(attributeType);
+        cout << "elementsToWrite: " << elementsToWrite << endl;
+        cout << "bytesToWrite: " << bytesToWrite << endl;
+        if (bytesToWrite > 0) {
+            std::memcpy(arrayOfElements, CudnnFrontend::GetOutputHostPointer<char>(bytesToWrite), bytesToWrite);
+        }
+    }
+    return CudnnFrontend::GetExitCode();
+}
+
+// TODO: implement in backend
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendExecute(cudnnHandle_t handle, cudnnBackendDescriptor_t executionPlan, cudnnBackendDescriptor_t varianPack) {
+    cout << "cudnnBackendExecute called" << endl;
+    CudnnFrontend::Prepare();
+    CudnnFrontend::AddDevicePointerForArguments(handle);
+    CudnnFrontend::AddDevicePointerForArguments(executionPlan);
+    CudnnFrontend::AddDevicePointerForArguments(varianPack);
+    CudnnFrontend::Execute("cudnnBackendExecute");
+    return CudnnFrontend::GetExitCode();
+}
+
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendFinalize(cudnnBackendDescriptor_t descriptor) {
     CudnnFrontend::Prepare();
     CudnnFrontend::AddDevicePointerForArguments(descriptor);
     CudnnFrontend::Execute("cudnnBackendFinalize");
+    return CudnnFrontend::GetExitCode();
+}
+
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendDestroyDescriptor(cudnnBackendDescriptor_t desc) {
+    CudnnFrontend::Prepare();
+    CudnnFrontend::AddDevicePointerForArguments(desc);
+    CudnnFrontend::Execute("cudnnBackendDestroyDescriptor");
     return CudnnFrontend::GetExitCode();
 }
 
@@ -5936,37 +6067,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnCTCLoss(
     if (CudnnFrontend::Success()) {
         costs = CudnnFrontend::GetOutputDevicePointer();
         gradients = CudnnFrontend::GetOutputDevicePointer();
-    }
-    return CudnnFrontend::GetExitCode();
-}
-
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendExecute(cudnnHandle_t handle, cudnnBackendDescriptor_t executionPlan, cudnnBackendDescriptor_t varianPack) {
-    CudnnFrontend::Prepare();
-    CudnnFrontend::AddDevicePointerForArguments(handle);
-    CudnnFrontend::AddDevicePointerForArguments(executionPlan);
-    CudnnFrontend::AddDevicePointerForArguments(varianPack);
-    CudnnFrontend::Execute("cudnnBackendExecute");
-    return CudnnFrontend::GetExitCode();
-}
-
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendGetAttribute(
-    cudnnBackendDescriptor_t descriptor,
-    cudnnBackendAttributeName_t attributeName,
-    cudnnBackendAttributeType_t attributeType,
-    int64_t requestedElementCount,
-    int64_t *elementCount,
-    void *arrayOfElements) {
-    CudnnFrontend::Prepare();
-    CudnnFrontend::AddDevicePointerForArguments(descriptor);
-    CudnnFrontend::AddVariableForArguments<cudnnBackendAttributeName_t>(attributeName);
-    CudnnFrontend::AddVariableForArguments<cudnnBackendAttributeType_t>(attributeType);
-    CudnnFrontend::AddVariableForArguments<int64_t>(requestedElementCount);
-    CudnnFrontend::AddHostPointerForArguments<int64_t>(elementCount);
-    CudnnFrontend::AddHostPointerForArguments(arrayOfElements);
-    CudnnFrontend::Execute("cudnnBackendGetAttribute");
-    if (CudnnFrontend::Success()) {
-        *elementCount = CudnnFrontend::GetOutputVariable<int64_t>();
-        std::memcpy(arrayOfElements, CudnnFrontend::GetOutputHostPointer<void>(requestedElementCount), requestedElementCount * sizeof(void*));
     }
     return CudnnFrontend::GetExitCode();
 }
@@ -6081,21 +6181,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetCTCLossDescriptor_v9(cudnnCTCLossDe
     return CudnnFrontend::GetExitCode();
 }
 
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendSetAttribute(cudnnBackendDescriptor_t descriptor,
-                                                            cudnnBackendAttributeName_t attributeName,
-                                                            cudnnBackendAttributeType_t attributeType,
-                                                            int64_t elementCount,
-                                                            const void *arrayOfElements) {
-    CudnnFrontend::Prepare();
-    CudnnFrontend::AddDevicePointerForArguments(descriptor);
-    CudnnFrontend::AddVariableForArguments<cudnnBackendAttributeName_t>(attributeName);
-    CudnnFrontend::AddVariableForArguments<cudnnBackendAttributeType_t>(attributeType);
-    CudnnFrontend::AddVariableForArguments<int64_t>(elementCount);
-    CudnnFrontend::AddHostPointerForArguments(arrayOfElements);
-    CudnnFrontend::Execute("cudnnBackendSetAttribute");
-    return CudnnFrontend::GetExitCode();
-}
-
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNWeightParams(cudnnHandle_t handle,
                                                         cudnnRNNDescriptor_t rnnDesc,
                                                         int32_t pseudoLayer,
@@ -6123,17 +6208,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetRNNWeightParams(cudnnHandle_t handl
         *bAddr = CudnnFrontend::GetOutputDevicePointer();
     }
     return CudnnFrontend::GetExitCode();
-}
-
-extern "C" void CUDNNWINAPI cudnnGetLastErrorString(char *message, size_t max_size) {
-    CudnnFrontend::Prepare();
-    CudnnFrontend::AddHostPointerForArguments<char>(message, max_size);
-    CudnnFrontend::Execute("cudnnGetLastErrorString");
-    if (CudnnFrontend::Success()) {
-        std::string errorMessage = CudnnFrontend::GetOutputVariable<std::string>();
-        std::strncpy(message, errorMessage.c_str(), max_size - 1);
-        message[max_size - 1] = '\0'; // Ensure null-termination
-    }
 }
 
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnRNNBackwardWeights_v8(cudnnHandle_t handle,
