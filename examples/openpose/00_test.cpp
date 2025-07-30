@@ -1,3 +1,5 @@
+// Based on: https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/examples/tutorial_api_cpp/01_body_from_image_default.cpp
+
 // ----------------------------- OpenPose C++ API Tutorial - Example 1 - Body from image -----------------------------
 // It reads an image, process it, and displays it with the pose keypoints.
 

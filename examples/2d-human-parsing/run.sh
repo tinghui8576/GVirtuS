@@ -4,6 +4,8 @@
 # and save it at
 # ~/2D-Human-Parsing/pretrained/deeplabv3plus-xception-vocNov14_20-51-38_epoch-89.pth
 
+# See more details at:
+# https://github.com/fyviezhao/2D-Human-Parsing
 
 
 #/export CUDNN_FRONTEND_LOG_INFO=1
