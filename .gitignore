@@ -60,3 +60,6 @@ gtest
 gvirtus/backend/gvirtus-backend
 
 gvirtus/uWebSockets-prefix/
+
+# models
+*.pth

@@ -89,6 +89,18 @@ CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed) {
     return std::make_shared<Result>(cs);
 }
 
+CURAND_ROUTINE_HANDLER(SetGeneratorOffset) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetGeneratorOffset"));
+
+    curandGenerator_t generator = in->Get<curandGenerator_t>();
+    unsigned long long offset = in->Get<unsigned long long>();
+
+    LOG4CPLUS_DEBUG(logger, "Generator pointer: " << generator << ", offset: " << offset);
+
+    curandStatus_t cs = curandSetGeneratorOffset(generator, offset);
+    return std::make_shared<Result>(cs);
+}
+
 CURAND_ROUTINE_HANDLER(SetQuasiRandomGeneratorDimensions) {
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetQuasiRandomGeneratorDimensions"));
 

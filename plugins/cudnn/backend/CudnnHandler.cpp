@@ -1352,14 +1352,6 @@ CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptorEx) {
 
     cudnnStatus_t cs = cudnnSetTensor4dDescriptorEx(tensorDesc,dataType,n,c,h,w,nStride,cStride,hStride,wStride);
     LOG4CPLUS_DEBUG(logger, "cudnnSetTensor4dDescriptor Executed");
-
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try {
-         out->Add<cudnnTensorDescriptor_t>(tensorDesc);
-    } catch (const std::exception& e) {
-         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
-         return std::make_shared<Result>(cs);
-    }
     
     registerDescriptorType(tensorDesc, dataType);
     return std::make_shared<Result>(cs);

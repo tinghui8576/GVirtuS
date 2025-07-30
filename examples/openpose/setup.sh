@@ -1,7 +1,7 @@
 # install opencv
 #!/bin/bash
 
-apt-get update && apt-get install -y \
+apt update && apt install -y \
     build-essential cmake git pkg-config \
     libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev \
     libv4l-dev libxvidcore-dev libx264-dev \
@@ -43,10 +43,23 @@ make install
 ldconfig
 
 # install openpose
-apt update && apt install -y protobuf-compiler libgoogle-glog-dev libboost-all-dev libhdf5-serial-dev
+apt update && apt install -y wget protobuf-compiler libgoogle-glog-dev libboost-all-dev libhdf5-serial-dev
+# rm -rf ~/openpose
 cd ~
 git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose
 cd openpose
 git submodule update --init --recursive --remote
-mkdir build
-cd build && cmake .. && make -j$(nproc)
+mkdir build && cd build
+cmake -D CMAKE_BUILD_TYPE=Release \
+    -D BUILD_CAFFE=ON \
+    -D BUILD_EXAMPLES=ON \
+    -D BUILD_DOCS=OFF \
+    -D BUILD_TESTS=OFF \
+    -D CUDA_USE_STATIC_CUDA_RUNTIME=OFF \
+    -D CUDA_INCLUDE_DIRS="${GVIRTUS_HOME}/include;/usr/local/cuda-12.6/include" \
+    -D CMAKE_CXX_FLAGS="-L${GVIRTUS_HOME}/lib -L${GVIRTUS_HOME}/lib/frontend" ..
+make -j$(nproc)
+
+# installs models that did not get downloaded
+# cd models && ./getModels.sh
+# cd ~

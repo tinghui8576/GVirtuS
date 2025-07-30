@@ -58,6 +58,7 @@ private:
 CURAND_ROUTINE_HANDLER(CreateGenerator);
 CURAND_ROUTINE_HANDLER(CreateGeneratorHost);
 CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed);
+CURAND_ROUTINE_HANDLER(SetGeneratorOffset);
 CURAND_ROUTINE_HANDLER(SetQuasiRandomGeneratorDimensions);
 CURAND_ROUTINE_HANDLER(Generate);
 CURAND_ROUTINE_HANDLER(GenerateLongLong);

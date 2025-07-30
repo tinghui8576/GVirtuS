@@ -13,7 +13,8 @@
 
 // Custom OpenPose flags
 // Producer
-DEFINE_string(image_path, "media/COCO_val2014_000000000589.jpg",
+// change the path to an image you want to process
+DEFINE_string(image_path, "/gvirtus/examples/openpose/media/img-20250729-wa0007.jpg",
     "Process an image. Read all standard formats (jpg, png, bmp, etc.).");
 // Display
 DEFINE_bool(no_display,                 false,
@@ -33,8 +34,10 @@ void display(const std::shared_ptr<std::vector<std::shared_ptr<op::Datum>>>& dat
             const cv::Mat cvMat = OP_OP2CVCONSTMAT(datumsPtr->at(0)->cvOutputData);
             if (!cvMat.empty())
             {
-                cv::imshow(OPEN_POSE_NAME_AND_VERSION + " - Tutorial C++ API", cvMat);
-                cv::waitKey(0);
+                // cv::imshow(OPEN_POSE_NAME_AND_VERSION + " - Tutorial C++ API", cvMat);
+                // cv::waitKey(0);
+                cv::imwrite("/gvirtus/examples/openpose/output_pose.jpg", cvMat);
+                op::opLog("Output saved to /gvirtus/examples/openpose/output_pose.jpg", op::Priority::High);
             }
             else
                 op::opLog("Empty cv::Mat as output.", op::Priority::High, __LINE__, __FUNCTION__, __FILE__);

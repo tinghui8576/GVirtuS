@@ -43,12 +43,25 @@
 #include <type_traits>
 #include <cstddef>
 #include <cxxabi.h>
+#include <execinfo.h>
 
 #include <gvirtus/common/gvirtus-type.h>
 
 #include "Communicator.h"
 
 #define BLOCK_SIZE 4096
+
+static void printStacktrace() {
+    void *callstack[128];
+    int frames = backtrace(callstack, 128);
+    char **symbols = backtrace_symbols(callstack, frames);
+    std::cerr << "------ STACK TRACE ------" << std::endl;
+    for (int i = 0; i < frames; ++i) {
+        std::cerr << symbols[i] << std::endl;
+    }
+    std::cerr << "-------------------------" << std::endl;
+    free(symbols);
+}
 
 namespace gvirtus::communicators {
 /**
@@ -90,7 +103,7 @@ namespace gvirtus::communicators {
         template <class T>
         void Add(T item) {
             if ((mLength + safe_sizeof<T>()) >= mSize) {
-            mSize = ((mLength + safe_sizeof<T>()) / mBlockSize + 1) * mBlockSize;
+                mSize = ((mLength + safe_sizeof<T>()) / mBlockSize + 1) * mBlockSize;
                 if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
                     throw std::runtime_error("Buffer::Add(item): Can't reallocate memory.");
             }
@@ -186,8 +199,10 @@ namespace gvirtus::communicators {
 
         template <class T>
         T Get() {
-            if (mOffset + safe_sizeof<T>() > mLength)
+            if (mOffset + safe_sizeof<T>() > mLength) {
+                printStacktrace();
                 throw std::runtime_error(std::string("Buffer::Get(): Can't read any ") + demangled_type_name<T>());
+            }
             T result = *((T *)(mpBuffer + mOffset));
             mOffset += safe_sizeof<T>();
             return result;
