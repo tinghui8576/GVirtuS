@@ -986,3 +986,29 @@ CUBLAS_ROUTINE_HANDLER(Ztrmm_v2){
     cublasStatus_t cs = cublasZtrmm_v2(handle,side,uplo,trans,diag,m,n,alpha,A,lda,B,ldb,C,ldc);
     return std::make_shared<Result>(cs);
 }
+
+CUBLAS_ROUTINE_HANDLER(SgemmStridedBatched) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SgemmStridedBatched"));
+    
+    cublasHandle_t handle = in->Get<cublasHandle_t>();
+    cublasOperation_t transa = in->Get<cublasOperation_t>();
+    cublasOperation_t transb = in->Get<cublasOperation_t>();
+    int m = in->Get<int>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    const float *alpha = in->Assign<float>();
+    const float *A = in->GetFromMarshal<float*>();
+    int lda = in->Get<int>();
+    long long int strideA = in->Get<long long int>();
+    const float *B = in->GetFromMarshal<float*>();
+    int ldb = in->Get<int>();
+    long long int strideB = in->Get<long long int>();
+    const float *beta = in->Assign<float>();
+    float *C = in->GetFromMarshal<float*>();
+    int ldc = in->Get<int>();
+    long long int strideC = in->Get<long long int>();
+    int batchCount = in->Get<int>();
+
+    cublasStatus_t cs = cublasSgemmStridedBatched(handle, transa, transb, m, n, k, alpha, A, lda, strideA, B, ldb, strideB, beta, C, ldc, strideC, batchCount);
+    return std::make_shared<Result>(cs);
+}

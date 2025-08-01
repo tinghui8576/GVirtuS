@@ -263,6 +263,9 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemGetAddressRange));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemGetInfo));
 
+    /*CudaDrHandler_virtmemory*/
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemAddressReserve));
+
     /*CudaDrHandler_module*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleLoadData));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleGetFunction));

@@ -1135,3 +1135,39 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasHgemmBatched(cublasHandle
     CublasFrontend::Execute("cublasHgemmBatched");
     return CublasFrontend::GetExitCode();
 }
+
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemmStridedBatched(cublasHandle_t handle,
+                                  cublasOperation_t transa,
+                                  cublasOperation_t transb,
+                                  int m, int n, int k,
+                                  const float           *alpha,
+                                  const float           *A, int lda,
+                                  long long int          strideA,
+                                  const float           *B, int ldb,
+                                  long long int          strideB,
+                                  const float           *beta,
+                                  float                 *C, int ldc,
+                                  long long int          strideC,
+                                  int batchCount) {
+    CublasFrontend::Prepare();
+    CublasFrontend::AddDevicePointerForArguments(handle);
+    CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
+    CublasFrontend::AddVariableForArguments<cublasOperation_t>(transb);
+    CublasFrontend::AddVariableForArguments<int>(m);
+    CublasFrontend::AddVariableForArguments<int>(n);
+    CublasFrontend::AddVariableForArguments<int>(k);
+    CublasFrontend::AddHostPointerForArguments<const float>(alpha);
+    CublasFrontend::AddDevicePointerForArguments(A);
+    CublasFrontend::AddVariableForArguments<int>(lda);
+    CublasFrontend::AddVariableForArguments<long long int>(strideA);
+    CublasFrontend::AddDevicePointerForArguments(B);
+    CublasFrontend::AddVariableForArguments<int>(ldb);
+    CublasFrontend::AddVariableForArguments<long long int>(strideB);
+    CublasFrontend::AddHostPointerForArguments<const float>(beta);
+    CublasFrontend::AddDevicePointerForArguments(C);
+    CublasFrontend::AddVariableForArguments<int>(ldc);
+    CublasFrontend::AddVariableForArguments<long long int>(strideC);
+    CublasFrontend::AddVariableForArguments<int>(batchCount);
+    CublasFrontend::Execute("cublasSgemmStridedBatched");
+    return CublasFrontend::GetExitCode();
+}

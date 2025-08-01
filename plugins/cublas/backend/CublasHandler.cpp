@@ -281,6 +281,7 @@ void CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Ctrmm_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(Ztrmm_v2));
 
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SgemmStridedBatched));
 
   /* CublasHandler Lt functions */
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulAlgoGetHeuristic));

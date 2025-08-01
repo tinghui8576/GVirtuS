@@ -190,6 +190,8 @@ CUDA_DRIVER_HANDLER(MemAllocPitch);
 CUDA_DRIVER_HANDLER(MemGetAddressRange);
 CUDA_DRIVER_HANDLER(MemGetInfo);
 
+/*CudaDrHandler_virtmemory*/
+CUDA_DRIVER_HANDLER(MemAddressReserve);
 
 /*CudaDrHandler_module*/
 CUDA_DRIVER_HANDLER(ModuleLoadData);

@@ -131,7 +131,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreateTensorDescriptor(cudnnTensorDesc
     return CudnnFrontend::GetExitCode();
 }
 
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensor4dDescriptor( cudnnTensorDescriptor_t   tensorDesc,
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensor4dDescriptor(cudnnTensorDescriptor_t tensorDesc,
                             cudnnTensorFormat_t format,
                             cudnnDataType_t dataType,
                             int n,
@@ -148,7 +148,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensor4dDescriptor( cudnnTensorDesc
 
     CudnnFrontend::Execute("cudnnSetTensor4dDescriptor");
     if (CudnnFrontend::Success()) {
-        tensorDesc = CudnnFrontend::GetOutputVariable<cudnnTensorDescriptor_t>();
+        // tensorDesc = CudnnFrontend::GetOutputVariable<cudnnTensorDescriptor_t>();
         registerDescriptorType(tensorDesc, dataType);
     }
     return CudnnFrontend::GetExitCode();
@@ -214,7 +214,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetTensor4dDescriptor(const cudnnTenso
     return CudnnFrontend::GetExitCode();
 }
 
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensorNdDescriptor( cudnnTensorDescriptor_t tensorDesc,
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensorNdDescriptor(cudnnTensorDescriptor_t tensorDesc,
                             cudnnDataType_t dataType,
                             int nbDims,
                             const int *dimA,
@@ -229,8 +229,11 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensorNdDescriptor( cudnnTensorDesc
     CudnnFrontend::AddHostPointerForArguments<const int>(strideA, nbDims);
 
     CudnnFrontend::Execute("cudnnSetTensorNdDescriptor");
-    if (CudnnFrontend::Success())
+    if (CudnnFrontend::Success()) {
+        cout << "Successfully set tensor descriptor " << tensorDesc << " with data type " << dataType << endl;
         registerDescriptorType(tensorDesc, dataType);
+        cout << "isFloatDescriptor: " << isFloatDescriptor(tensorDesc) << endl;
+    }
     return CudnnFrontend::GetExitCode();
 }
 
@@ -248,7 +251,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensorNdDescriptorEx(cudnnTensorDes
     CudnnFrontend::AddHostPointerForArguments<int>((int*)dimA);
    
     if (CudnnFrontend::Success()) {
-        tensorDesc = CudnnFrontend::GetOutputVariable<cudnnTensorDescriptor_t>();
         registerDescriptorType(tensorDesc, dataType);
     }
     return CudnnFrontend::GetExitCode();      
@@ -427,9 +429,9 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensorTransformDescriptor(cudnnTens
     CudnnFrontend::AddVariableForArguments<cudnnFoldingDirection_t>(direction);
 
     CudnnFrontend::Execute("cudnnSetTensorTransformDescriptor");
-    if (CudnnFrontend::Success()) {
-        transformDesc = CudnnFrontend::GetOutputVariable<cudnnTensorTransformDescriptor_t>();
-    }
+    // if (CudnnFrontend::Success()) {
+    //     transformDesc = CudnnFrontend::GetOutputVariable<cudnnTensorTransformDescriptor_t>();
+    // }
     return CudnnFrontend::GetExitCode(); 
 }
 
@@ -3055,12 +3057,15 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBatchNormalizationForwardInference(cud
     CudnnFrontend::AddDevicePointerForArguments(handle);
     CudnnFrontend::AddVariableForArguments<cudnnBatchNormMode_t>(mode);
     CudnnFrontend::AddDevicePointerForArguments(xDesc);
-    isFloatDescriptor(xDesc)
-        ? CudnnFrontend::AddHostPointerForArguments<const float>(reinterpret_cast<const float*>(alpha))
-        : CudnnFrontend::AddHostPointerForArguments<const double>(reinterpret_cast<const double*>(alpha));
-    isFloatDescriptor(xDesc)
-        ? CudnnFrontend::AddHostPointerForArguments<const float>(reinterpret_cast<const float*>(beta))
-        : CudnnFrontend::AddHostPointerForArguments<const double>(reinterpret_cast<const double*>(beta));
+    // cout << "xDesc: " << xDesc << endl;
+    // cout << "isFloatDescriptor(xDesc): " << isFloatDescriptor(xDesc) << endl;
+    if (isFloatDescriptor(xDesc)) {
+        CudnnFrontend::AddHostPointerForArguments<char>((char*)alpha, sizeof(float));
+        CudnnFrontend::AddHostPointerForArguments<char>((char*)beta, sizeof(float));
+    } else {
+        CudnnFrontend::AddHostPointerForArguments<char>((char*)alpha, sizeof(double));
+        CudnnFrontend::AddHostPointerForArguments<char>((char*)beta, sizeof(double));
+    }
     CudnnFrontend::AddDevicePointerForArguments(x);
     CudnnFrontend::AddDevicePointerForArguments(yDesc);
     CudnnFrontend::AddDevicePointerForArguments(y);
@@ -3072,9 +3077,9 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBatchNormalizationForwardInference(cud
     CudnnFrontend::AddVariableForArguments<double>(epsilon);
 
     CudnnFrontend::Execute("cudnnBatchNormalizationForwardInference");
-    if (CudnnFrontend::Success()) {
-        y = CudnnFrontend::GetOutputDevicePointer();
-    }
+    // if (CudnnFrontend::Success()) {
+    //     y = CudnnFrontend::GetOutputDevicePointer();
+    // }
    
     return CudnnFrontend::GetExitCode();
 }
@@ -3102,6 +3107,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBatchNormalizationBackward(cudnnHandle
     CudnnFrontend::Prepare();
 
     CudnnFrontend::AddDevicePointerForArguments(handle);
+    CudnnFrontend::AddVariableForArguments<cudnnBatchNormMode_t>(mode);
     CudnnFrontend::AddDevicePointerForArguments(xDesc);
     isFloatDescriptor(xDesc)
         ? CudnnFrontend::AddHostPointerForArguments<const float>(reinterpret_cast<const float*>(alphaDataDiff))
@@ -6001,7 +6007,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendGetAttribute(cudnnBackendDescri
     CudnnFrontend::Execute("cudnnBackendGetAttribute");
     if (CudnnFrontend::Success()) {
         cout << "cudnnBackendGetAttribute succeeded" << endl;
-        // *elementCount = CudnnFrontend::GetOutputVariable<int64_t>();
         auto val = CudnnFrontend::GetOutputVariable<int64_t>();
         cout << "val: " << val << endl;
         int64_t elementsToWrite = std::min(val, requestedElementCount);

@@ -1322,16 +1322,9 @@ CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptor) {
 
     cudnnStatus_t cs = cudnnSetTensor4dDescriptor(tensorDesc,format,dataType,n,c,h,w);
     LOG4CPLUS_DEBUG(logger,"cudnnSetTensor4dDescriptor Executed");
-    
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try {
-         out->Add<cudnnTensorDescriptor_t>(tensorDesc);
-    } catch (const std::exception& e) {
-         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
-         return std::make_shared<Result>(cs);
-    }                      
+                     
     registerDescriptorType(tensorDesc, dataType);
-    return std::make_shared<Result>(cs,out);
+    return std::make_shared<Result>(cs);
 }
 
 CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptorEx) {
@@ -1399,8 +1392,9 @@ CUDNN_ROUTINE_HANDLER(SetTensorNdDescriptor) {
 
     cudnnStatus_t cs = cudnnSetTensorNdDescriptor(tensorDesc, dataType, nbDims, dimA, strideA);
     
-    LOG4CPLUS_DEBUG(logger, "cudnnSetTensorNdDescriptor Executed");
+    LOG4CPLUS_DEBUG(logger, "cudnnSetTensorNdDescriptor Executed and set dataType to " << dataType);
     registerDescriptorType(tensorDesc, dataType);
+    LOG4CPLUS_DEBUG(logger, "tensorDesc: " << tensorDesc << " isFloatDescriptor: " << isFloatDescriptor(tensorDesc));
     return std::make_shared<Result>(cs);
 }
 
@@ -1414,13 +1408,6 @@ CUDNN_ROUTINE_HANDLER(SetTensorNdDescriptorEx) {
     int *dimA = in->Assign<int>();
 
     cudnnStatus_t cs = cudnnSetTensorNdDescriptorEx(tensorDesc, format, dataType, nbDims, dimA);
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try {
-         out->Add<cudnnTensorDescriptor_t>(tensorDesc);
-    } catch (const std::exception& e) {
-         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
-         return std::make_shared<Result>(cs);
-    }
     
     LOG4CPLUS_DEBUG(logger, "cudnnSetTensorNdDescriptorEx Executed");
     registerDescriptorType(tensorDesc, dataType);
@@ -1603,18 +1590,10 @@ CUDNN_ROUTINE_HANDLER(SetTensorTransformDescriptor) {
     cudnnFoldingDirection_t direction = in->Get<cudnnFoldingDirection_t>();
 
     cudnnStatus_t cs = cudnnSetTensorTransformDescriptor(transformDesc, nbDims, destFormat, padBeforeA, padAfterA, foldA, direction);
-     
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try {
-        out->Add<cudnnTensorTransformDescriptor_t>(transformDesc);
-    } catch (const std::exception& e) {
-            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
-        return std::make_shared<Result>(cs);
-    }
     
     LOG4CPLUS_DEBUG(logger,  "cudnnSetTensorTransformDescriptor Executed");
-    
-    return std::make_shared<Result>(cs, out);
+
+    return std::make_shared<Result>(cs);
 }
 
 CUDNN_ROUTINE_HANDLER(GetTensorTransformDescriptor) {
@@ -3510,7 +3489,7 @@ CUDNN_ROUTINE_HANDLER(BatchNormalizationForwardTraining) {
     void *resultSaveInvVariance = in->GetFromMarshal<void*>(); //OUTPUT
 
     cudnnStatus_t cs = cudnnBatchNormalizationForwardTraining(handle, mode, alpha, beta, xDesc, x, yDesc, y, bnScaleBiasMeanVarDesc, bnScale, bnBias, exponentialAverageFactor, resultRunningMean, resultRunningVariance, epsilon, resultSaveMean, resultSaveInvVariance);
-    LOG4CPLUS_DEBUG(logger, "cudnnGetBatchNormalizationTrainingExReserveSpaceSize");
+    LOG4CPLUS_DEBUG(logger, "BatchNormalizationForwardTraining Executed");
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
@@ -3582,13 +3561,18 @@ CUDNN_ROUTINE_HANDLER(BatchNormalizationForwardInference) {
     cudnnHandle_t handle = in->Get<cudnnHandle_t>();
     cudnnBatchNormMode_t mode = in->Get<cudnnBatchNormMode_t>();
     const cudnnTensorDescriptor_t xDesc = in->Get<cudnnTensorDescriptor_t>();
-    const void *alpha = isFloatDescriptor(xDesc)
-        ? static_cast<const void *>(in->Assign<const float>())
-        : static_cast<const void *>(in->Assign<const double>());
-    const void *beta = isFloatDescriptor(xDesc)
-        ? static_cast<const void *>(in->Assign<const float>())
-        : static_cast<const void *>(in->Assign<const double>());
-    const void *x = in->Assign<void>();
+    // LOG4CPLUS_DEBUG(logger, "read handle, mode and xDesc. Trying to read alpha");
+    // LOG4CPLUS_DEBUG(logger, "xDesc: " << xDesc);
+    // LOG4CPLUS_DEBUG(logger, "isFloatDescriptor: " << isFloatDescriptor(xDesc));
+    const void *alpha, *beta;
+    if (isFloatDescriptor(xDesc)) {
+        alpha = (in->Assign<char>(sizeof(float)));
+        beta = (in->Assign<char>(sizeof(float)));
+    } else {
+        alpha = (in->Assign<char>(sizeof(double)));
+        beta = (in->Assign<char>(sizeof(double)));
+    }
+    const void *x = in->GetFromMarshal<void *>();
     const cudnnTensorDescriptor_t yDesc = in->Get<cudnnTensorDescriptor_t>();
     void *y = in->GetFromMarshal<void *>();
     const cudnnTensorDescriptor_t bnScaleBiasMeanVarDesc = in->Get<cudnnTensorDescriptor_t>();
@@ -3601,15 +3585,7 @@ CUDNN_ROUTINE_HANDLER(BatchNormalizationForwardInference) {
     cudnnStatus_t cs = cudnnBatchNormalizationForwardInference(handle, mode, alpha, beta, xDesc, x, yDesc, y, bnScaleBiasMeanVarDesc, bnScale, bnBias, estimatedMean, estimatedVariance, epsilon);
     LOG4CPLUS_DEBUG(logger, "cudnnBatchNormalizationForwardInference Executed");
 
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    try {
-        out->AddMarshal<void*>(y);
-    } catch (const std::exception& e) {
-            LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
-        return std::make_shared<Result>(cs);
-    }
-  
-    return std::make_shared<Result>(cs, out);
+    return std::make_shared<Result>(cs);
 }
 
 CUDNN_ROUTINE_HANDLER(BatchNormalizationBackward) {
