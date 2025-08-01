@@ -123,7 +123,7 @@ public:
     }
 
     template <class T> static inline T GetOutputVariable() {
-        return Frontend::GetFrontend()->GetOutputBuffer()->Get<T> ();
+        return Frontend::GetFrontend()->GetOutputBuffer()->Get<T>();
     }
 
     /**

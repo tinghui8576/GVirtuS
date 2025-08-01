@@ -318,7 +318,7 @@ void CudnnHandler::Initialize() {
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendCreateDescriptor));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendSetAttribute));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendGetAttribute));
-    // mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendExecute));
+    mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendExecute));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendFinalize));
     mspHandlers->insert(CUDNN_ROUTINE_HANDLER_PAIR(BackendDestroyDescriptor));
 #if CUDNN_VERSION < 8000
@@ -4159,19 +4159,23 @@ CUDNN_ROUTINE_HANDLER(BackendSetAttribute) {
     cudnnBackendAttributeType_t attrType = in->Get<cudnnBackendAttributeType_t>();
     int64_t elementCount = in->Get<int64_t>();
     int64_t byteCount = elementCount * getCudnnTypeSize(attrType);
-    const void *arrayOfElements = in->Assign<char>(byteCount);
+    void *arrayOfElements = in->Assign<char>(byteCount);
     LOG4CPLUS_DEBUG(logger, "cudnnBackendSetAttribute called with:");
     LOG4CPLUS_DEBUG(logger, "Backend Descriptor: " << backendDesc);
     LOG4CPLUS_DEBUG(logger, "Attribute Name: " << attrName);
     LOG4CPLUS_DEBUG(logger, "Attribute Type: " << attrType);
     LOG4CPLUS_DEBUG(logger, "Element Count: " << elementCount);
     LOG4CPLUS_DEBUG(logger, "Byte Count: " << byteCount);
+    if (attrName == CUDNN_ATTR_VARIANT_PACK_WORKSPACE) {
+        LOG4CPLUS_DEBUG(logger, "[BACKEND] Setting variant pack workspace attribute");
+    }
     if (byteCount > 0) {
         printHex(arrayOfElements, byteCount, "[BACKEND] Received bytes for cudnnBackendSetAttribute");
     }
     else {
         LOG4CPLUS_DEBUG(logger, "[BACKEND] No bytes received for cudnnBackendSetAttribute");
     }
+
     cudnnStatus_t cs = cudnnBackendSetAttribute(backendDesc, attrName, attrType, elementCount, arrayOfElements);
 
     LOG4CPLUS_DEBUG(logger, "cudnnBackendSetAttribute Executed");
@@ -4217,22 +4221,30 @@ CUDNN_ROUTINE_HANDLER(BackendGetAttribute) {
         return std::make_shared<Result>(CUDNN_STATUS_INTERNAL_ERROR);
     }
 
+    // if (attrName == CUDNN_ATTR_EXECUTION_PLAN_WORKSPACE_SIZE
+    //     && attrType == CUDNN_TYPE_INT64
+    //     && elementCount == 1) {
+        
+    //     int64_t workspaceSize = *reinterpret_cast<int64_t*>(arrayOfElements);
+    //     LOG4CPLUS_DEBUG(logger, "cudnnBackendGetAttribute returned workspaceSize for backend descriptor: " << backendDesc << " - " << workspaceSize);
+    // }
+
     return std::make_shared<Result>(cs, out);
 }
 
-// TODO: test
-// CUDNN_ROUTINE_HANDLER(BackendExecute) {
-//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("BackendExecute"));
+CUDNN_ROUTINE_HANDLER(BackendExecute) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("BackendExecute"));
 
-//     cudnnHandle_t handle = in->Get<cudnnHandle_t>();
-//     cudnnBackendDescriptor_t backendDesc = in->Get<cudnnBackendDescriptor_t>();
+    cudnnHandle_t handle = in->Get<cudnnHandle_t>();
+    cudnnBackendDescriptor_t executionPlan = in->Get<cudnnBackendDescriptor_t>();
+    cudnnBackendDescriptor_t variantPack = in->Get<cudnnBackendDescriptor_t>();
 
-//     cudnnStatus_t cs = cudnnBackendExecute(handle, backendDesc);
+    cudnnStatus_t cs = cudnnBackendExecute(handle, executionPlan, variantPack);
 
-//     LOG4CPLUS_DEBUG(logger, "cudnnBackendExecute Executed");
+    LOG4CPLUS_DEBUG(logger, "cudnnBackendExecute Executed");
     
-//     return std::make_shared<Result>(cs);
-// }
+    return std::make_shared<Result>(cs);
+}
 
 CUDNN_ROUTINE_HANDLER(BackendFinalize) {
     

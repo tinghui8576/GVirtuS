@@ -42,7 +42,7 @@ function(configure_cudnn_plugin)
     gvirtus_add_backend(cudnn ${CUDNN_VERSION}
         backend/CudnnHandler.cpp)
 
-    target_link_libraries(${PROJECT_NAME} ${CUDNN_LIBRARY})
+    target_link_libraries(${PROJECT_NAME} ${CUDNN_LIBRARY} ${CUDA_CUDART_LIBRARY})
 
     gvirtus_add_frontend(cudnn ${CUDNN_VERSION}
         frontend/Cudnn.cpp

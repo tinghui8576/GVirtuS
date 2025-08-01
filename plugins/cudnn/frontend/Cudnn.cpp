@@ -5956,6 +5956,13 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendSetAttribute(cudnnBackendDescri
     CudnnFrontend::AddVariableForArguments<int64_t>(elementCount);
 
     int64_t byteCount = elementCount * getCudnnTypeSize(attributeType);
+    CudnnFrontend::AddHostPointerForArguments<char>((char*) arrayOfElements, byteCount);
+
+    if (attributeName == CUDNN_ATTR_VARIANT_PACK_WORKSPACE &&
+        attributeType == CUDNN_TYPE_VOID_PTR) {
+            cout << "SETTING WORKSPACE POINTER TO" << endl;
+    }
+
     cout << "cudnnBackendSetAttribute called with:" << endl;
     cout << "descriptor: " << descriptor << endl;
     cout << "attribute name: " << attributeName << endl;
@@ -5968,7 +5975,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendSetAttribute(cudnnBackendDescri
     else {
         cout << "[FRONTEND] No bytes to send for cudnnBackendSetAttribute" << endl;
     }
-    CudnnFrontend::AddHostPointerForArguments<char>((char*) arrayOfElements, byteCount);
     CudnnFrontend::Execute("cudnnBackendSetAttribute");
     return CudnnFrontend::GetExitCode();
 }
@@ -5995,26 +6001,31 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendGetAttribute(cudnnBackendDescri
     CudnnFrontend::Execute("cudnnBackendGetAttribute");
     if (CudnnFrontend::Success()) {
         cout << "cudnnBackendGetAttribute succeeded" << endl;
-        *elementCount = CudnnFrontend::GetOutputVariable<int64_t>();
-        cout << "elementCount: " << *elementCount << endl;
-        int64_t elementsToWrite = std::min(*elementCount, requestedElementCount);
+        // *elementCount = CudnnFrontend::GetOutputVariable<int64_t>();
+        auto val = CudnnFrontend::GetOutputVariable<int64_t>();
+        cout << "val: " << val << endl;
+        int64_t elementsToWrite = std::min(val, requestedElementCount);
+        if (elementCount != nullptr) {
+            *elementCount = val;
+            cout << "setting elementCount to: " << val << endl;
+            cout << "elementCount: " << *elementCount << endl;
+        }
         int64_t bytesToWrite = elementsToWrite * getCudnnTypeSize(attributeType);
         cout << "elementsToWrite: " << elementsToWrite << endl;
         cout << "bytesToWrite: " << bytesToWrite << endl;
-        if (bytesToWrite > 0) {
+        if (bytesToWrite > 0 && arrayOfElements != nullptr) {
             std::memcpy(arrayOfElements, CudnnFrontend::GetOutputHostPointer<char>(bytesToWrite), bytesToWrite);
         }
     }
     return CudnnFrontend::GetExitCode();
 }
 
-// TODO: implement in backend
-extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendExecute(cudnnHandle_t handle, cudnnBackendDescriptor_t executionPlan, cudnnBackendDescriptor_t varianPack) {
+extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendExecute(cudnnHandle_t handle, cudnnBackendDescriptor_t executionPlan, cudnnBackendDescriptor_t variantPack) {
     cout << "cudnnBackendExecute called" << endl;
     CudnnFrontend::Prepare();
     CudnnFrontend::AddDevicePointerForArguments(handle);
     CudnnFrontend::AddDevicePointerForArguments(executionPlan);
-    CudnnFrontend::AddDevicePointerForArguments(varianPack);
+    CudnnFrontend::AddDevicePointerForArguments(variantPack);
     CudnnFrontend::Execute("cudnnBackendExecute");
     return CudnnFrontend::GetExitCode();
 }

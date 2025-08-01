@@ -232,7 +232,7 @@ CUDNN_ROUTINE_HANDLER(DestroyRNNDescriptor);
 CUDNN_ROUTINE_HANDLER(BackendCreateDescriptor);
 CUDNN_ROUTINE_HANDLER(BackendSetAttribute);
 CUDNN_ROUTINE_HANDLER(BackendGetAttribute);
-// CUDNN_ROUTINE_HANDLER(BackendExecute);
+CUDNN_ROUTINE_HANDLER(BackendExecute);
 CUDNN_ROUTINE_HANDLER(BackendFinalize);
 CUDNN_ROUTINE_HANDLER(BackendDestroyDescriptor);
 #if CUDNN_VERSION < 8000

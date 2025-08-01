@@ -8,8 +8,8 @@
 # https://github.com/fyviezhao/2D-Human-Parsing
 
 
-#/export CUDNN_FRONTEND_LOG_INFO=1
-export PYTORCH_CUDNN_V8_API_DISABLED=1
+#export CUDNN_FRONTEND_LOG_INFO=1
+#export PYTORCH_CUDNN_V8_API_DISABLED=1
 #export CUDNN_LOGINFO_DBG=1
 #export CUDNN_LOGDEST_DBG=stdout
 cd ~/2D-Human-Parsing/inference
@@ -24,7 +24,11 @@ PYTORCH_CUDA_FUSER_DISABLE=1 \
 TORCH_CUDA_DEBUG=1 \
 TOKENIZERS_PARALLELISM=false \
 TORCH_DISABLE_ADDR2LINE=1 \
-gdb --args python inference_acc.py \
+CUDNN_LOGINFO_DBG=1 \
+CUDNN_LOGWARN_DBG=1 \
+CUDNN_LOGERR_DBG=1 \
+CUDNN_LOGDEST_DBG=stdout \
+python inference_acc.py \
 --loadmodel '../pretrained/deeplabv3plus-xception-vocNov14_20-51-38_epoch-89.pth' \
 --img_list ../demo_imgs/img_list.txt \
 --output_dir ../parsing_result

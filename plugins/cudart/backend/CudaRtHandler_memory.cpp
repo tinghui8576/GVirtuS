@@ -171,6 +171,7 @@ CUDA_ROUTINE_HANDLER(Malloc) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
         out->AddMarshal(devPtr);
+        cout << "Malloc: allocated " << size << " bytes at " << devPtr << endl;
         return std::make_shared<Result>(exit_code, out);
     } catch (const std::exception& e) {
             cerr << e.what() << endl;
