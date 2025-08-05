@@ -296,4 +296,7 @@ CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessor);
     CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessorWithFlags);
 #endif
 
+/* CudaRtHandler_api */
+CUDA_ROUTINE_HANDLER(FuncSetAttribute);
+
 #endif /* _CUDARTHANDLER_H */

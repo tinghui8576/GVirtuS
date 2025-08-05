@@ -38,6 +38,9 @@ run-gvirtus-backend-dev:
 		--shm-size=8G \
 		taslanidis/gvirtus-dependencies:cuda12.6.3-cudnn-ubuntu22.04
 
+attach-gvirtus-bash:
+		docker exec -it gvirtus bash
+
 run-gvirtus-tests:
 	docker exec \
 		-it gvirtus \

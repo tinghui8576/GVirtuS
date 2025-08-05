@@ -171,6 +171,26 @@ CUBLAS_ROUTINE_HANDLER(SetMathMode) {
     return std::make_shared<Result>(cs);
 }
 
+CUBLAS_ROUTINE_HANDLER(GetMathMode) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetMathMode"));
+    
+    cublasHandle_t handle = in->Get<cublasHandle_t>();
+    cublasMath_t mode;
+    
+    cublasStatus_t cs = cublasGetMathMode(handle, &mode);
+    LOG4CPLUS_DEBUG(logger, "cublasGetMathMode executed with status: " << cs);
+    
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add<cublasMath_t>(mode);
+    } catch (const std::exception& e) {
+        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+    
+    return std::make_shared<Result>(cs, out);
+}
+
 CUBLAS_ROUTINE_HANDLER(SetStream_v2){
     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetStream"));
     

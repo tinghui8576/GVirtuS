@@ -27,3 +27,16 @@
 #include "CudaRtHandler.h"
 
 using namespace log4cplus;
+
+CUDA_ROUTINE_HANDLER(FuncSetAttribute) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("FuncSetAttribute"));
+
+    const void* func = input_buffer->Get<const void*>();
+    cudaFuncAttribute attr = input_buffer->Get<cudaFuncAttribute>();
+    int value = input_buffer->Get<int>();
+
+    cudaError_t err = cudaFuncSetAttribute(func, attr, value);
+    LOG4CPLUS_DEBUG(logger, "cudaFuncSetAttribute executed with status: " << err);
+
+    return std::make_shared<Result>(err);
+}

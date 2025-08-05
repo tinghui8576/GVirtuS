@@ -87,6 +87,7 @@ void CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetMatrix));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(GetMatrix));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetMathMode));
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(GetMathMode));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetStream_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(GetPointerMode_v2));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(SetPointerMode_v2));
@@ -295,4 +296,7 @@ void CublasHandler::Initialize() {
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulPreferenceSetAttribute));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmulPreferenceDestroy));
   mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(LtMatmul));
+
+  /* CublasHandler Extension functions */
+  mspHandlers->insert(CUBLAS_ROUTINE_HANDLER_PAIR(GemmEx));
 }

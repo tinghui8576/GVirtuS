@@ -253,159 +253,162 @@ const char *CudaRtHandler::GetVar(const char *handler) {
 // }
 
 const char *CudaRtHandler::GetSymbol(std::shared_ptr<Buffer> in) {
-  char *symbol_handler = in->AssignString();
-  char *symbol = in->AssignString();
-  char *our_symbol = const_cast<char *>(GetVar(symbol_handler));
-  if (our_symbol != NULL) symbol = const_cast<char *>(our_symbol);
-  return symbol;
+    char *symbol_handler = in->AssignString();
+    char *symbol = in->AssignString();
+    char *our_symbol = const_cast<char *>(GetVar(symbol_handler));
+    if (our_symbol != NULL) symbol = const_cast<char *>(our_symbol);
+    return symbol;
 }
 
 void CudaRtHandler::Initialize() {
-  if (mspHandlers != NULL) return;
-  mspHandlers = new map<string, CudaRtHandler::CudaRoutineHandler>();
+    if (mspHandlers != NULL) return;
+    mspHandlers = new map<string, CudaRtHandler::CudaRoutineHandler>();
 
-  /* CudaRtHandler_device */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ChooseDevice));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetDevice));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetDeviceCount));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetDeviceProperties));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetDevice));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceReset));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceSynchronize));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceSetCacheConfig));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceSetLimit));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceCanAccessPeer));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceDisablePeerAccess));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceEnablePeerAccess));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcGetMemHandle));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcGetEventHandle));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcOpenEventHandle));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcOpenMemHandle));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(OccupancyMaxActiveBlocksPerMultiprocessor));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceGetDefaultMemPool));
+    /* CudaRtHandler_device */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ChooseDevice));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetDevice));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetDeviceCount));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetDeviceProperties));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetDevice));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceReset));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceSynchronize));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceSetCacheConfig));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceSetLimit));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceCanAccessPeer));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceDisablePeerAccess));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceEnablePeerAccess));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcGetMemHandle));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcGetEventHandle));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcOpenEventHandle));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(IpcOpenMemHandle));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(OccupancyMaxActiveBlocksPerMultiprocessor));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceGetDefaultMemPool));
 #if (CUDART_VERSION >= 7000)
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(
-      OccupancyMaxActiveBlocksPerMultiprocessorWithFlags));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(
+        OccupancyMaxActiveBlocksPerMultiprocessorWithFlags));
 #endif
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceGetAttribute));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceGetStreamPriorityRange));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceGetAttribute));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DeviceGetStreamPriorityRange));
 
 #ifndef CUDART_VERSION
 #error CUDART_VERSION not defined
 #endif
 #if CUDART_VERSION >= 2030
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetDeviceFlags));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetValidDevices));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetDeviceFlags));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetValidDevices));
 #endif
 
-  /* CudaRtHandler_error */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetErrorString));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetLastError));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(PeekAtLastError));
+    /* CudaRtHandler_error */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetErrorString));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetLastError));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(PeekAtLastError));
 
-  /* CudaRtHandler_event */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventCreate));
+    /* CudaRtHandler_event */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventCreate));
 #ifndef CUDART_VERSION
 #error CUDART_VERSION not defined
 #endif
 #if CUDART_VERSION >= 2030
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventCreateWithFlags));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventCreateWithFlags));
 #endif
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventDestroy));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventElapsedTime));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventQuery));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventRecord));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventSynchronize));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventDestroy));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventElapsedTime));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventQuery));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventRecord));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(EventSynchronize));
 
-  /* CudaRtHandler_execution */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ConfigureCall));
+    /* CudaRtHandler_execution */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ConfigureCall));
 #ifndef CUDART_VERSION
 #error CUDART_VERSION not defined
 #endif
 #if CUDART_VERSION >= 2030
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FuncGetAttributes));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FuncGetAttributes));
 #endif
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Launch));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetDoubleForDevice));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetDoubleForHost));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetupArgument));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Launch));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetDoubleForDevice));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetDoubleForHost));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(SetupArgument));
 #if CUDART_VERSION >= 9020
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(PushCallConfiguration));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(PopCallConfiguration));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(PushCallConfiguration));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(PopCallConfiguration));
 #endif
 #if CUDART_VERSION >= 9000
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(LaunchKernel));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(LaunchKernel));
 #endif
   /* CudaRtHandler_internal */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterFatBinary));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterFatBinaryEnd));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(UnregisterFatBinary));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterFunction));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterVar));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterSharedVar));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterShared));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterFatBinary));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterFatBinaryEnd));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(UnregisterFatBinary));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterFunction));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterVar));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterSharedVar));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RegisterShared));
 
-  /* CudaRtHandler_memory */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemGetInfo));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Free));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FreeArray));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetSymbolAddress));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetSymbolSize));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Malloc));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MallocArray));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MallocManaged));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MallocPitch));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy2D));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy3D));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyAsync));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyFromSymbol));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyToArray));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyToSymbol));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memset));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memset2D));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyFromArray));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyArrayToArray));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy2DFromArray));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy2DToArray));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Malloc3DArray));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyPeerAsync));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(HostRegister));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(HostUnregister));
+    /* CudaRtHandler_memory */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemGetInfo));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Free));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FreeArray));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetSymbolAddress));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GetSymbolSize));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Malloc));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MallocArray));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MallocManaged));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MallocPitch));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy2D));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy3D));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyAsync));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyFromSymbol));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyToArray));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyToSymbol));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memset));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memset2D));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyFromArray));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyArrayToArray));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy2DFromArray));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Memcpy2DToArray));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(Malloc3DArray));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemcpyPeerAsync));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(HostRegister));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(HostUnregister));
 
-  /* CudaRtHandler_opengl */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GLSetGLDevice)); // deprecated
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsGLRegisterBuffer));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsMapResources));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsResourceGetMappedPointer));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsUnmapResources));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsUnregisterResource));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsResourceSetMapFlags));
+    /* CudaRtHandler_opengl */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GLSetGLDevice)); // deprecated
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsGLRegisterBuffer));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsMapResources));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsResourceGetMappedPointer));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsUnmapResources));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsUnregisterResource));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphicsResourceSetMapFlags));
 
-  /* CudaRtHandler_stream_memory */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolCreate));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolGetAttribute));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolSetAttribute));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolDestroy));
+    /* CudaRtHandler_stream_memory */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolCreate));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolGetAttribute));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolSetAttribute));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolDestroy));
 
-  /* CudaRtHandler_stream */
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreate));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamDestroy));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamQuery));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamSynchronize));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreateWithFlags));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamWaitEvent));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreateWithPriority));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ThreadExchangeStreamCaptureMode));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamIsCapturing));
+    /* CudaRtHandler_stream */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreate));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamDestroy));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamQuery));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamSynchronize));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreateWithFlags));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamWaitEvent));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreateWithPriority));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ThreadExchangeStreamCaptureMode));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamIsCapturing));
 
   /* CudaRtHandler_version */
 #ifndef CUDART_VERSION
 #error CUDART_VERSION not defined
 #endif
 #if CUDART_VERSION >= 2030
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DriverGetVersion));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RuntimeGetVersion));
-  mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FuncSetCacheConfig));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DriverGetVersion));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(RuntimeGetVersion));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FuncSetCacheConfig));
 #endif
+
+    /* CudaRtHandler_api*/
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FuncSetAttribute));
 }

@@ -26,7 +26,6 @@
 
 #include "CudaRt.h"
 
-// TODO: needs testing
 extern "C" __host__ cudaError_t CUDARTAPI cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, int value)
 {
     CudaRtFrontend::Prepare();
