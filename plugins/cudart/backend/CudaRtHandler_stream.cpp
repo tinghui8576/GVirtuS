@@ -155,8 +155,7 @@ CUDA_ROUTINE_HANDLER(StreamBeginCapture) {
 
 CUDA_ROUTINE_HANDLER(StreamEndCapture) {
     try {
-        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
-        
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();   
         cudaGraph_t pGraph;
         cudaError_t exit_code = cudaStreamEndCapture(stream, &pGraph);
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
