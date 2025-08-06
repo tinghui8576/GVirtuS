@@ -398,6 +398,7 @@ void CudaRtHandler::Initialize() {
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreateWithPriority));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ThreadExchangeStreamCaptureMode));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamIsCapturing));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamBeginCapture));
 
   /* CudaRtHandler_version */
 #ifndef CUDART_VERSION

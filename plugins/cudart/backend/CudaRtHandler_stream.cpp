@@ -142,6 +142,17 @@ CUDA_ROUTINE_HANDLER(StreamIsCapturing) {
     }
 }
 
+CUDA_ROUTINE_HANDLER(StreamBeginCapture) {
+    try {
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+        cudaStreamCaptureMode mode = input_buffer->Get<cudaStreamCaptureMode>();
+        return std::make_shared<Result>(cudaStreamBeginCapture(stream, mode));
+    } catch (const std::exception& e) {
+      cerr << e.what() << endl;
+      return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
+
 /*
 CUDA_ROUTINE_HANDLER(StreamAddCallback) {
     try {

@@ -285,6 +285,7 @@ CUDA_ROUTINE_HANDLER(StreamWaitEvent);
 CUDA_ROUTINE_HANDLER(StreamCreateWithPriority);
 CUDA_ROUTINE_HANDLER(ThreadExchangeStreamCaptureMode);
 CUDA_ROUTINE_HANDLER(StreamIsCapturing);
+CUDA_ROUTINE_HANDLER(StreamBeginCapture);
 
 /* CudaRtHandler_version */
 CUDA_ROUTINE_HANDLER(DriverGetVersion);
