@@ -149,3 +149,22 @@ CUDA_DRIVER_HANDLER(CtxSetCurrent) {
     CUresult exit_code = cuCtxSetCurrent(ctx);
     return std::make_shared<Result>((cudaError_t) exit_code);
 }
+
+CUDA_DRIVER_HANDLER(CtxGetLimit) {
+    CUlimit limit = input_buffer->Get<CUlimit>();
+    size_t value;
+    CUresult exit_code = cuCtxGetLimit(&value, limit);
+    if (exit_code == CUDA_SUCCESS) {
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+        out->Add(value);
+        return std::make_shared<Result>((cudaError_t) exit_code, out);
+    }
+    return std::make_shared<Result>((cudaError_t) exit_code);
+}
+
+CUDA_DRIVER_HANDLER(CtxSetLimit) {
+    CUlimit limit = input_buffer->Get<CUlimit>();
+    size_t value = input_buffer->Get<size_t>();
+    CUresult exit_code = cuCtxSetLimit(limit, value);
+    return std::make_shared<Result>((cudaError_t) exit_code);
+}

@@ -28,7 +28,7 @@
 using namespace std;
 
 /*Creates an event.*/
-extern CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
+extern "C" CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(Flags);
     CudaDrFrontend::Execute("cuEventCreate");
@@ -38,7 +38,7 @@ extern CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
 }
 
 /*Destroys an event.*/
-extern CUresult cuEventDestroy(CUevent hEvent) {
+extern "C" CUresult cuEventDestroy(CUevent hEvent) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hEvent);
     CudaDrFrontend::Execute("cuEventDestroy");
@@ -46,7 +46,7 @@ extern CUresult cuEventDestroy(CUevent hEvent) {
 }
 
 /*Computes the elapsed time between two events.*/
-extern CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUevent hEnd) {
+extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUevent hEnd) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(pMilliseconds);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hStart);
@@ -58,7 +58,7 @@ extern CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUevent
 }
 
 /*Queries an event's status.*/
-extern CUresult cuEventQuery(CUevent hEvent) {
+extern "C" CUresult cuEventQuery(CUevent hEvent) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hEvent);
     CudaDrFrontend::Execute("cuEventQuery");
@@ -66,7 +66,7 @@ extern CUresult cuEventQuery(CUevent hEvent) {
 }
 
 /*Records an event.*/
-extern CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
+extern "C" CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hEvent);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
@@ -75,7 +75,7 @@ extern CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
 }
 
 /*Waits for an event to complete.*/
-extern CUresult cuEventSynchronize(CUevent hEvent) {
+extern "C" CUresult cuEventSynchronize(CUevent hEvent) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hEvent);
     CudaDrFrontend::Execute("cuEventSynchronize");

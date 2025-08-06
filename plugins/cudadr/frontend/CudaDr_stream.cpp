@@ -28,7 +28,7 @@
 using namespace std;
 
 /*Create a stream.*/
-extern CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
+extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(Flags);
     CudaDrFrontend::Execute("cuStreamCreate");
@@ -38,7 +38,7 @@ extern CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
 }
 
 /*Destroys a stream.*/
-extern CUresult cuStreamDestroy(CUstream hStream) {
+extern "C" CUresult cuStreamDestroy(CUstream hStream) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
     CudaDrFrontend::Execute("cuStreamDestroy");
@@ -46,7 +46,7 @@ extern CUresult cuStreamDestroy(CUstream hStream) {
 }
 
 /*Determine status of a compute stream.*/
-extern CUresult cuStreamQuery(CUstream hStream) {
+extern "C" CUresult cuStreamQuery(CUstream hStream) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
     CudaDrFrontend::Execute("cuStreamQuery");
@@ -54,7 +54,7 @@ extern CUresult cuStreamQuery(CUstream hStream) {
 }
 
 /*Wait until a stream's tasks are completed.*/
-extern CUresult cuStreamSynchronize(CUstream hStream) {
+extern "C" CUresult cuStreamSynchronize(CUstream hStream) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
     CudaDrFrontend::Execute("cuStreamSynchronize");

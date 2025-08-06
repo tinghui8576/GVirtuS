@@ -29,7 +29,7 @@
 using namespace std;
 
 /*Return the Cuda Driver Version */
-extern CUresult cuDriverGetVersion(int *driverVersion) {
+extern "C" CUresult cuDriverGetVersion(int *driverVersion) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::Execute("cuDriverGetVersion");
     if (CudaDrFrontend::Success())

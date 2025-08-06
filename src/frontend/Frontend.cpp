@@ -217,7 +217,7 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
 void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     if (input_buffer == nullptr) input_buffer = mpInputBuffer.get();
     // if (!strcmp(routine, "cudaLaunchKernel")) {
-    //     cout << "cudaLaunchKernel called" << endl;
+    //     cerr << "cudaLaunchKernel called" << endl;
     // }
     
     pid_t tid = syscall(SYS_gettid);
@@ -263,12 +263,12 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     start = steady_clock::now();
     size_t out_buffer_size;
     frontend->_communicator->obj_ptr()->Read((char *) &out_buffer_size, sizeof(size_t));
-    cout << "Output buffer size: " << out_buffer_size << endl;
+    // cout << "Output buffer size: " << out_buffer_size << endl;
     frontend->mDataReceived += out_buffer_size;
     if (out_buffer_size > 0) {
-        cout << "Reading output buffer..." << endl;
+        // cout << "Reading output buffer..." << endl;
         frontend->mpOutputBuffer->Read<char>(frontend->_communicator->obj_ptr().get(), out_buffer_size);
-        cout << "Output buffer read successfully." << endl;
+        // cout << "Output buffer read successfully." << endl;
     }
     frontend->mReceivingTime += std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() / 1000.0;
 }

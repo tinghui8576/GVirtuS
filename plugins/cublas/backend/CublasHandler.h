@@ -287,5 +287,6 @@ CUBLAS_ROUTINE_HANDLER(LtMatmul);
 
 /* CublasHandler_Extension */
 CUBLAS_ROUTINE_HANDLER(GemmEx);
+CUBLAS_ROUTINE_HANDLER(GemmStridedBatchedEx);
 
 #endif // _CUBLASHANDLER

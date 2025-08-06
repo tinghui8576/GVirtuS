@@ -28,7 +28,7 @@
 using namespace std;
 
 /*Returns the compute capability of the device*/
-extern CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice dev) {
+extern "C" CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice dev) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(major);
     CudaDrFrontend::AddHostPointerForArguments(minor);
@@ -42,7 +42,7 @@ extern CUresult cuDeviceComputeCapability(int *major, int *minor, CUdevice dev) 
 }
 
 /*Returns a handle to a compute device*/
-extern CUresult cuDeviceGet(CUdevice *device, int ordinal) {
+extern "C" CUresult cuDeviceGet(CUdevice *device, int ordinal) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(device);
     CudaDrFrontend::AddVariableForArguments(ordinal);
@@ -54,7 +54,7 @@ extern CUresult cuDeviceGet(CUdevice *device, int ordinal) {
 }
 
 /*Returns information about the device*/
-extern CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUdevice dev) {
+extern "C" CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUdevice dev) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(pi);
     CudaDrFrontend::AddVariableForArguments(attrib);
@@ -66,7 +66,7 @@ extern CUresult cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUdevic
 }
 
 /*Returns the number of compute-capable devices. */
-extern CUresult cuDeviceGetCount(int *count) {
+extern "C" CUresult cuDeviceGetCount(int *count) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(count);
     CudaDrFrontend::Execute("cuDeviceGetCount");
@@ -76,7 +76,7 @@ extern CUresult cuDeviceGetCount(int *count) {
 }
 
 /*Returns an identifer string for the device.*/
-extern CUresult cuDeviceGetName(char *name, int len, CUdevice dev) {
+extern "C" CUresult cuDeviceGetName(char *name, int len, CUdevice dev) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddStringForArguments((char *) name);
     CudaDrFrontend::AddVariableForArguments(len);
@@ -90,7 +90,7 @@ extern CUresult cuDeviceGetName(char *name, int len, CUdevice dev) {
 }
 
 /*Returns properties for a selected device.*/
-extern CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
+extern "C" CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(prop);
     CudaDrFrontend::AddVariableForArguments(dev);
@@ -102,7 +102,7 @@ extern CUresult cuDeviceGetProperties(CUdevprop *prop, CUdevice dev) {
 }
 
 /*Returns the total amount of memory on the device. */
-extern CUresult cuDeviceTotalMem(size_t *bytes, CUdevice dev) {
+extern "C" CUresult cuDeviceTotalMem(size_t *bytes, CUdevice dev) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(bytes);
     CudaDrFrontend::AddVariableForArguments(dev);

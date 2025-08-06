@@ -147,6 +147,8 @@ CUDA_DRIVER_HANDLER(CtxSetCurrent);
 CUDA_DRIVER_HANDLER(CtxGetCurrent);
 CUDA_DRIVER_HANDLER(CtxPopCurrent);
 CUDA_DRIVER_HANDLER(CtxPushCurrent);
+CUDA_DRIVER_HANDLER(CtxGetLimit);
+CUDA_DRIVER_HANDLER(CtxSetLimit);
 CUDA_DRIVER_HANDLER(CtxSynchronize);
 CUDA_DRIVER_HANDLER(CtxDisablePeerAccess);
 CUDA_DRIVER_HANDLER(CtxEnablePeerAccess);
@@ -180,6 +182,9 @@ CUDA_DRIVER_HANDLER(LaunchKernel);
 /*CudaDrHandler_memory*/
 CUDA_DRIVER_HANDLER(MemFree);
 CUDA_DRIVER_HANDLER(MemAlloc);
+CUDA_DRIVER_HANDLER(MemRelease);
+CUDA_DRIVER_HANDLER(MemAddressFree);
+CUDA_DRIVER_HANDLER(MemMap);
 CUDA_DRIVER_HANDLER(MemcpyDtoH);
 CUDA_DRIVER_HANDLER(MemcpyHtoD);
 CUDA_DRIVER_HANDLER(ArrayCreate);
@@ -189,9 +194,16 @@ CUDA_DRIVER_HANDLER(Array3DCreate);
 CUDA_DRIVER_HANDLER(MemAllocPitch);
 CUDA_DRIVER_HANDLER(MemGetAddressRange);
 CUDA_DRIVER_HANDLER(MemGetInfo);
+CUDA_DRIVER_HANDLER(MemsetD32Async);
 
 /*CudaDrHandler_virtmemory*/
+CUDA_DRIVER_HANDLER(MemCreate);
+CUDA_DRIVER_HANDLER(MemExportToShareableHandle);
 CUDA_DRIVER_HANDLER(MemAddressReserve);
+CUDA_DRIVER_HANDLER(MemGetAllocationGranularity);
+CUDA_DRIVER_HANDLER(MemImportFromShareableHandle);
+CUDA_DRIVER_HANDLER(MemSetAccess);
+CUDA_DRIVER_HANDLER(MemUnmap);
 
 /*CudaDrHandler_module*/
 CUDA_DRIVER_HANDLER(ModuleLoadData);
@@ -212,6 +224,9 @@ CUDA_DRIVER_HANDLER(StreamDestroy);
 CUDA_DRIVER_HANDLER(StreamQuery);
 CUDA_DRIVER_HANDLER(StreamSynchronize);
 
+/* CudaDrHandler_streammemory */
+CUDA_DRIVER_HANDLER(StreamWriteValue32);
+
 /*CudaDrHandler_event*/
 CUDA_DRIVER_HANDLER(EventCreate);
 CUDA_DRIVER_HANDLER(EventDestroy);
@@ -230,6 +245,12 @@ CUDA_DRIVER_HANDLER(TexRefGetAddress);
 CUDA_DRIVER_HANDLER(TexRefGetArray);
 CUDA_DRIVER_HANDLER(TexRefGetFlags);
 CUDA_DRIVER_HANDLER(TexRefSetAddress);
+
+/* CudaDrHandler_tensormap */
+CUDA_DRIVER_HANDLER(TensorMapEncodeTiled);
+
+/* CudaDrHandler_unified */
+CUDA_DRIVER_HANDLER(PointerGetAttribute);
 
 #endif	/* _CUDADRHANDLER_H */
 

@@ -30,7 +30,7 @@ using namespace std;
 
 #if CUDA_VERSION >= 12800
     export "C" nvrtcResult nvrtcGetPCHCreateStatus(nvrtcProgram prog) {
-        cout << "nvrtcGetPCHCreateStatus called with prog: " << prog << endl;
+        // cerr << "nvrtcGetPCHCreateStatus called with prog: " << prog << endl;
         NvrtcFrontend::Prepare();
         NvrtcFrontend::AddDevicePointerForArguments((void*) prog);
         NvrtcFrontend::Execute("nvrtcGetPCHCreateStatus");
@@ -38,7 +38,7 @@ using namespace std;
     }
 
     export "C" nvrtcResult nvrtcGetPCHHeapSize(size_t *ret) {
-        cout << "nvrtcGetPCHHeapSize called" << endl;
+        // cerr << "nvrtcGetPCHHeapSize called" << endl;
         NvrtcFrontend::Prepare();
         NvrtcFrontend::AddHostPointerForArguments(ret);
         NvrtcFrontend::Execute("nvrtcGetPCHHeapSize");
@@ -46,7 +46,7 @@ using namespace std;
     }
 
     export "C" nvrtcResult nvrtcGetPCHHeapSizeRequired(nvrtcProgram prog, size_t *size) {
-        cout << "nvrtcGetPCHHeapSizeRequired called with prog: " << prog << endl;
+        // cerr << "nvrtcGetPCHHeapSizeRequired called with prog: " << prog << endl;
         NvrtcFrontend::Prepare();
         NvrtcFrontend::AddDevicePointerForArguments((void*) prog);
         NvrtcFrontend::AddHostPointerForArguments(size);
@@ -55,7 +55,7 @@ using namespace std;
     }
 
     export "C" nvrtcResult nvrtcSetPCHHeapSize(size_t size) {
-        cout << "nvrtcSetPCHHeapSize called with size: " << size << endl;
+        // cerr << "nvrtcSetPCHHeapSize called with size: " << size << endl;
         NvrtcFrontend::Prepare();
         NvrtcFrontend::AddVariableForArguments(size);
         NvrtcFrontend::Execute("nvrtcSetPCHHeapSize");

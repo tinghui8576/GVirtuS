@@ -27,7 +27,7 @@
 
 using namespace std;
 
-extern CUresult cuGetErrorString(CUresult error, const char **pStr) {
+extern "C" CUresult cuGetErrorString(CUresult error, const char **pStr) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(error);
     CudaDrFrontend::Execute("cuGetErrorString");
@@ -37,7 +37,7 @@ extern CUresult cuGetErrorString(CUresult error, const char **pStr) {
     return CudaDrFrontend::GetExitCode();
 }
 
-extern CUresult cuGetErrorName(CUresult error, const char **pStr) {
+extern "C" CUresult cuGetErrorName(CUresult error, const char **pStr) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(error);
     CudaDrFrontend::Execute("cuGetErrorName");

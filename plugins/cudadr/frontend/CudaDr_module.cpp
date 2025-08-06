@@ -35,7 +35,7 @@ using namespace std;
 using gvirtus::common::Encoder;
 
 /*Load a module's data. */
-extern CUresult cuModuleLoadData(CUmodule *module, const void *image) {
+extern "C" CUresult cuModuleLoadData(CUmodule *module, const void *image) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddStringForArguments((char *) image);
     CudaDrFrontend::Execute("cuModuleLoadData");
@@ -46,7 +46,7 @@ extern CUresult cuModuleLoadData(CUmodule *module, const void *image) {
 }
 
 /*Returns a function handle*/
-extern CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const char *name) {
+extern "C" CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const char *name) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddStringForArguments((char*) name);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hmod);
@@ -60,7 +60,7 @@ extern CUresult cuModuleGetFunction(CUfunction *hfunc, CUmodule hmod, const char
 }
 
 /*Returns a global pointer from a module.*/
-extern CUresult cuModuleGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUmodule hmod, const char *name) {
+extern "C" CUresult cuModuleGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUmodule hmod, const char *name) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddStringForArguments((char*) name);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hmod);
@@ -73,7 +73,7 @@ extern CUresult cuModuleGetGlobal(CUdeviceptr *dptr, size_t *bytes, CUmodule hmo
 }
 
 /*Returns a handle to a texture-reference.*/
-extern CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const char *name) {
+extern "C" CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const char *name) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddStringForArguments((char*) name);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hmod);
@@ -85,7 +85,7 @@ extern CUresult cuModuleGetTexRef(CUtexref *pTexRef, CUmodule hmod, const char *
 }
 
 /*Load a module's data with options.*/
-extern CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsigned int numOptions, CUjit_option *options, void **optionValues) {
+extern "C" CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsigned int numOptions, CUjit_option *options, void **optionValues) {
     CudaDrFrontend::Prepare();
     char *tmp;
     char *tmp2;
@@ -120,7 +120,7 @@ extern CUresult cuModuleLoadDataEx(CUmodule *module, const void *image, unsigned
     return CudaDrFrontend::GetExitCode();
 }
 
-extern CUresult cuModuleLoad(CUmodule *module, const char *fname) {
+extern "C" CUresult cuModuleLoad(CUmodule *module, const char *fname) {
     Encoder *encoder=new Encoder();
     std::ostringstream res;
     std::ifstream input("helloWorldDriverAPI.ptx", std::ios::binary);
@@ -137,7 +137,7 @@ extern CUresult cuModuleLoad(CUmodule *module, const char *fname) {
     return CudaDrFrontend::GetExitCode();
 }
 
-extern CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin) {
+extern "C" CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddStringForArguments((char *) fatCubin);
     CudaDrFrontend::Execute("cuModuleLoadFatBinary");
@@ -146,7 +146,7 @@ extern CUresult cuModuleLoadFatBinary(CUmodule *module, const void *fatCubin) {
     return CudaDrFrontend::GetExitCode();
 }
 
-extern CUresult cuModuleUnload(CUmodule hmod) {
+extern "C" CUresult cuModuleUnload(CUmodule hmod) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((char *)hmod);
     CudaDrFrontend::Execute("cuModuleUnload");
@@ -154,7 +154,7 @@ extern CUresult cuModuleUnload(CUmodule hmod) {
 }
 
 // TODO: test
-extern CUresult cuLinkCreate(unsigned int  numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut) {
+extern "C" CUresult cuLinkCreate(unsigned int  numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(numOptions);
     CudaDrFrontend::AddHostPointerForArguments(options, numOptions);
@@ -169,7 +169,7 @@ extern CUresult cuLinkCreate(unsigned int  numOptions, CUjit_option* options, vo
 }
 
 // TODO: test
-extern CUresult cuLinkAddData(CUlinkState state, CUjitInputType type, void* data, size_t size, const char* name, unsigned int  numOptions, CUjit_option* options, void** optionValues) {
+extern "C" CUresult cuLinkAddData(CUlinkState state, CUjitInputType type, void* data, size_t size, const char* name, unsigned int  numOptions, CUjit_option* options, void** optionValues) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) state);
     CudaDrFrontend::AddVariableForArguments(type);
@@ -186,7 +186,7 @@ extern CUresult cuLinkAddData(CUlinkState state, CUjitInputType type, void* data
 }
 
 // TODO: test
-extern CUresult cuLinkAddFile(CUlinkState state, CUjitInputType type, const char* path, unsigned int  numOptions, CUjit_option* options, void** optionValues ) {
+extern "C" CUresult cuLinkAddFile(CUlinkState state, CUjitInputType type, const char* path, unsigned int  numOptions, CUjit_option* options, void** optionValues ) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments(state);
     CudaDrFrontend::AddVariableForArguments(type);
@@ -201,7 +201,7 @@ extern CUresult cuLinkAddFile(CUlinkState state, CUjitInputType type, const char
 }
 
 // TODO: test
-extern CUresult cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOut) {
+extern "C" CUresult cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeOut) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments(state);
     CudaDrFrontend::Execute("cuLinkComplete");
@@ -213,7 +213,7 @@ extern CUresult cuLinkComplete(CUlinkState state, void** cubinOut, size_t* sizeO
 }
 
 // TODO: test
-extern CUresult cuLinkDestroy(CUlinkState state) {
+extern "C" CUresult cuLinkDestroy(CUlinkState state) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments(state);
     CudaDrFrontend::Execute("cuLinkDestroy");
@@ -221,7 +221,7 @@ extern CUresult cuLinkDestroy(CUlinkState state) {
 }
 
 // TODO: test
-extern CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int  value) {
+extern "C" CUresult cuFuncSetAttribute(CUfunction hfunc, CUfunction_attribute attrib, int  value) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
     CudaDrFrontend::AddVariableForArguments(attrib);

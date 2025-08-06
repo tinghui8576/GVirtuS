@@ -29,7 +29,7 @@
 using namespace std;
 
 extern "C" nvrtcResult nvrtcGetNumSupportedArchs(int *numArchs) {
-    cout << "nvrtcGetNumSupportedArchs called with numArchs: " << (numArchs ? *numArchs : 0) << endl;
+    // cerr << "nvrtcGetNumSupportedArchs called with numArchs: " << (numArchs ? *numArchs : 0) << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddHostPointerForArguments(numArchs);
     NvrtcFrontend::Execute("nvrtcGetNumSupportedArchs");
@@ -37,8 +37,8 @@ extern "C" nvrtcResult nvrtcGetNumSupportedArchs(int *numArchs) {
 }
 
 extern "C" nvrtcResult nvrtcGetSupportedArchs(int *supportedArchs) {
-    cout << "nvrtcGetSupportedArchs called with supportedArchs: " 
-         << (supportedArchs ? "provided" : "NULL") << endl;
+    // cerr << "nvrtcGetSupportedArchs called with supportedArchs: " 
+        //  << (supportedArchs ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddHostPointerForArguments(supportedArchs);
     NvrtcFrontend::Execute("nvrtcGetSupportedArchs");
@@ -46,8 +46,8 @@ extern "C" nvrtcResult nvrtcGetSupportedArchs(int *supportedArchs) {
 }
 
 extern "C" nvrtcResult nvrtcVersion(int *major, int *minor) {
-    cout << "nvrtcVersion called with major: " << (major ? *major : 0) 
-         << ", minor: " << (minor ? *minor : 0) << endl;
+    // cerr << "nvrtcVersion called with major: " << (major ? *major : 0) 
+    //      << ", minor: " << (minor ? *minor : 0) << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddHostPointerForArguments(major);
     NvrtcFrontend::AddHostPointerForArguments(minor);

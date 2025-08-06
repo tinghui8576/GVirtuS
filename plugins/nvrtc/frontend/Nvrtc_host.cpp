@@ -28,24 +28,24 @@
 
 using namespace std;
 
-extern nvrtcResult nvrtcGetTypeName(const std::type_info &tinfo, std::string *result) {
-    std::string type_name = tinfo.name();
-    std::cout << "nvrtcGetTypeName called with type_info: " << type_name
-              << ", result pointer: " << (result ? "not null" : "null") << std::endl;
+extern nvrtcResult nvrtcGetTypeName(const type_info &tinfo, string *result) {
+    string type_name = tinfo.name();
+    // cerr << "nvrtcGetTypeName called with type_info: " << type_name
+    //           << ", result pointer: " << (result ? "not null" : "null") <<  endl;
 
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddVariableForArguments(type_name);
     NvrtcFrontend::Execute("nvrtcGetTypeName");
 
     if (NvrtcFrontend::Success() && result) {
-        *result = *(NvrtcFrontend::GetOutputHostPointer<std::string>());
+        *result = *(NvrtcFrontend::GetOutputHostPointer<string>());
     }
 
     return NvrtcFrontend::GetExitCode();
 }
 
-extern nvrtcResult nvrtcGetTypeName(std::string *result) {
-    cout << "nvrtcGetTypeName called with result pointer: " << (result ? "not null" : "null") << endl;
+extern nvrtcResult nvrtcGetTypeName(string *result) {
+    // cerr << "nvrtcGetTypeName called with result pointer: " << (result ? "not null" : "null") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddHostPointerForArguments(result);
     NvrtcFrontend::Execute("nvrtcGetTypeName");

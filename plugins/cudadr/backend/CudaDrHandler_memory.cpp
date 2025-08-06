@@ -47,6 +47,29 @@ CUDA_DRIVER_HANDLER(MemAlloc) {
     return std::make_shared<Result>((cudaError_t) exit_code, out);
 }
 
+CUDA_DRIVER_HANDLER(MemRelease) {
+    CUdeviceptr dptr = input_buffer->Get<CUdeviceptr >();
+    CUresult exit_code = cuMemRelease(dptr);
+    return std::make_shared<Result>((cudaError_t) exit_code);
+}
+
+CUDA_DRIVER_HANDLER(MemAddressFree) {
+    CUdeviceptr dptr = input_buffer->Get<CUdeviceptr>();
+    size_t size = input_buffer->Get<size_t>();
+    CUresult exit_code = cuMemAddressFree(dptr, size);
+    return std::make_shared<Result>((cudaError_t) exit_code);
+}
+
+CUDA_DRIVER_HANDLER(MemMap) {
+    CUdeviceptr dptr = input_buffer->Get<CUdeviceptr>();
+    size_t size = input_buffer->Get<size_t>();
+    size_t offset = input_buffer->Get<size_t>();
+    CUmemGenericAllocationHandle handle = input_buffer->Get<CUmemGenericAllocationHandle>();
+    unsigned long long flags = input_buffer->Get<unsigned long long>();
+    CUresult exit_code = cuMemMap(dptr, size, offset, handle, flags);
+    return std::make_shared<Result>((cudaError_t) exit_code);
+}
+
 /*Copies memory from Device to Host. */
 CUDA_DRIVER_HANDLER(MemcpyDtoH) {
     CUdeviceptr srcDevice = input_buffer->Get<CUdeviceptr > ();
@@ -141,4 +164,18 @@ CUDA_DRIVER_HANDLER(MemGetInfo) {
     out->Add(free);
     out->Add(total);
     return std::make_shared<Result>((cudaError_t) exit_code, out);
+}
+
+CUDA_DRIVER_HANDLER(MemsetD32Async) {
+    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MemsetD32Async"));
+
+    CUdeviceptr dstDevice = input_buffer->Get<CUdeviceptr>();
+    unsigned int ui = input_buffer->Get<unsigned int>();
+    size_t N = input_buffer->Get<size_t>();
+    CUstream hStream = input_buffer->Get<CUstream>();
+
+    CUresult exit_code = cuMemsetD32Async(dstDevice, ui, N, hStream);
+
+    LOG4CPLUS_DEBUG(logger, "cuMemsetD32Async executed for dstDevice: " << dstDevice << ", ui: " << ui << ", N: " << N);
+    return std::make_shared<Result>((cudaError_t) exit_code);
 }

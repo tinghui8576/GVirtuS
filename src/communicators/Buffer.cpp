@@ -100,7 +100,7 @@ void Buffer::Reset() {
 void Buffer::Reset(Communicator *c) {
   c->Read((char *)&mLength, sizeof(size_t));
 #ifdef DEBUG
-  cout << "Read " << mLength << " bytes from the buffer" << endl;
+  cerr << "Read " << mLength << " bytes from the buffer" << endl;
 #endif
   mOffset = 0;
   mBackOffset = mLength;

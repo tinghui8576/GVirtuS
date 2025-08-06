@@ -28,7 +28,7 @@
 using namespace std;
 
 /* Initialize the CUDA driver API */
-extern CUresult cuInit(unsigned int flags) {
+extern "C" CUresult cuInit(unsigned int flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(flags);
     CudaDrFrontend::Execute("cuInit");

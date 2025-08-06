@@ -49,7 +49,7 @@ void listFiles( const char* path )
 }
 
 /*Sets the parameter size for the function.*/
-extern CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
+extern "C" CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(numbytes);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
@@ -58,7 +58,7 @@ extern CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
 }
 
 /*Sets the block-dimensions for the function.*/
-extern CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
+extern "C" CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(x);
     CudaDrFrontend::AddVariableForArguments(y);
@@ -69,7 +69,7 @@ extern CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
 }
 
 /*Launches a CUDA function.*/
-extern CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) {
+extern "C" CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(grid_width);
     CudaDrFrontend::AddVariableForArguments(grid_height);
@@ -79,7 +79,7 @@ extern CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) {
 }
 
 /*Returns information about a function.*/
-extern CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUfunction hfunc) {
+extern "C" CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUfunction hfunc) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(pi);
     CudaDrFrontend::AddVariableForArguments(attrib);
@@ -91,7 +91,7 @@ extern CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUfunct
 }
 
 /*Sets the dynamic shared-memory size for the function.*/
-extern CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) {
+extern "C" CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(bytes);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
@@ -100,7 +100,7 @@ extern CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) {
 }
 
 /*Launches a CUDA function.*/
-extern CUresult cuLaunch(CUfunction f) {
+extern "C" CUresult cuLaunch(CUfunction f) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) f);
     CudaDrFrontend::Execute("cuLaunch");
@@ -108,7 +108,7 @@ extern CUresult cuLaunch(CUfunction f) {
 }
 
 /*Launches a CUDA function.*/
-extern CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) {
+extern "C" CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(grid_width);
     CudaDrFrontend::AddVariableForArguments(grid_height);
@@ -119,7 +119,7 @@ extern CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height,
 }
 
 /*Adds a floating-point parameter to the function's argument list.*/
-extern CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
+extern "C" CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(offset);
     CudaDrFrontend::AddVariableForArguments(value);
@@ -129,7 +129,7 @@ extern CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
 }
 
 /*Adds an integer parameter to the function's argument list.*/
-extern CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value) {
+extern "C" CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(offset);
     CudaDrFrontend::AddVariableForArguments(value);
@@ -139,7 +139,7 @@ extern CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value) {
 }
 
 /*Adds a texture-reference to the function's argument list.*/
-extern CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) {
+extern "C" CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
     CudaDrFrontend::AddVariableForArguments(texunit);
@@ -149,7 +149,7 @@ extern CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef
 }
 
 /*Adds arbitrary data to the function's argument list.*/
-extern CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigned int numbytes) {
+extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigned int numbytes) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(offset);
     CudaDrFrontend::AddVariableForArguments(numbytes);
@@ -160,7 +160,7 @@ extern CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigned in
 }
 
 /*Sets the preferred cache configuration for a device function. */
-extern CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) {
+extern "C" CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(config);
     CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
@@ -169,7 +169,7 @@ extern CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) {
 }
 
 // new Cuda 4.0 functions
-extern CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hstream , void** kernelParams, void** extra){
+extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hstream , void** kernelParams, void** extra){
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) f);
     CudaDrFrontend::AddVariableForArguments(gridDimX);
@@ -186,7 +186,7 @@ extern CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int
     return CudaDrFrontend::GetExitCode();
 }
 
-extern CUresult cuLaunchKernelEx (const CUlaunchConfig* config, CUfunction f, void** kernelParams, void** extra) {
+extern "C" CUresult cuLaunchKernelEx (const CUlaunchConfig* config, CUfunction f, void** kernelParams, void** extra) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddDevicePointerForArguments((void*) f);
     CudaDrFrontend::AddHostPointerForArguments<const CUlaunchConfig>(config);
