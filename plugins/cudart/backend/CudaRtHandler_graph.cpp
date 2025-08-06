@@ -31,6 +31,19 @@
 #endif
 
 
+CUDA_ROUTINE_HANDLER(GraphCreate) {
+    try {
+        cudaGraph_t pGraph;
+        unsigned int flags = input_buffer->Get<unsigned int>();
+        cudaError_t exit_code = cudaGraphCreate(&pGraph, flags);
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+        out->Add<cudaGraph_t>(pGraph);
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
 
 // cudaGraphInstantiate signature changed in CUDA 12. 
 CUDA_ROUTINE_HANDLER(GraphInstantiate) {
@@ -43,7 +56,7 @@ CUDA_ROUTINE_HANDLER(GraphInstantiate) {
         out->Add<cudaGraphExec_t>(pGraphExec);
         return std::make_shared<Result>(exit_code, out);
     } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 }

@@ -401,6 +401,10 @@ void CudaRtHandler::Initialize() {
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamBeginCapture));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamEndCapture));
 
+    /* CudaRtHandler_graph */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphCreate));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphInstantiate));
+
   /* CudaRtHandler_version */
 #ifndef CUDART_VERSION
 #error CUDART_VERSION not defined

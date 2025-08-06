@@ -288,6 +288,9 @@ CUDA_ROUTINE_HANDLER(StreamIsCapturing);
 CUDA_ROUTINE_HANDLER(StreamBeginCapture);
 CUDA_ROUTINE_HANDLER(StreamEndCapture);
 
+/* CudaRtHandler_graph */
+CUDA_ROUTINE_HANDLER(GraphCreate);
+CUDA_ROUTINE_HANDLER(GraphInstantiate);
 
 /* CudaRtHandler_version */
 CUDA_ROUTINE_HANDLER(DriverGetVersion);

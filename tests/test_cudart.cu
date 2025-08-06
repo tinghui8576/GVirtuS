@@ -104,6 +104,12 @@ TEST(cudaRT, StreamCaptureBeginEnd) {
     CUDA_CHECK(cudaStreamDestroy(stream));
 }
 
+
+TEST(cudaRT, GraphCreateDestroy) {
+    cudaGraph_t pGraph;
+    CUDA_CHECK(cudaGraphCreate(&pGraph, 0));
+}
+
 TEST(cudaRT, GetDevice) {
     int device;
     CUDA_CHECK(cudaGetDevice(&device));
