@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+import time
 
 model_name = "Qwen/Qwen3-8B"
 enable_thinking = False
@@ -28,12 +29,16 @@ def generate_text(request: InferenceRequest):
         add_generation_prompt=True,
         enable_thinking=enable_thinking
     )
-    model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
 
+    start_time = time.time()
+    model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
     generated_ids = model.generate(
         **model_inputs,
         max_new_tokens=256
     )
+    end_time = time.time()
+    print(f"INFERENCE TIME: {end_time - start_time:.2f} seconds")
+
     output_ids = generated_ids[0][len(model_inputs.input_ids[0]):].tolist()
     output = tokenizer.decode(output_ids, skip_special_tokens=True).strip("\n")
     return {"response": output}

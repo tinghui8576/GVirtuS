@@ -21,6 +21,6 @@ ENV GVIRTUS_HOME=/usr/local/gvirtus
 ENV GVIRTUS_LOGLEVEL=0
 ENV LD_LIBRARY_PATH=${GVIRTUS_HOME}/lib:${LD_LIBRARY_PATH}
 
-COPY ./docker/dev/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+COPY ./docker/dev/build_and_run.sh /build_and_run.sh
+RUN chmod +x /build_and_run.sh
+ENTRYPOINT ["/build_and_run.sh"]
