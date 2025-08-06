@@ -94,6 +94,16 @@ TEST(cudaRT, StreamCreateDestroySynchronize) {
     CUDA_CHECK(cudaStreamDestroy(stream));
 }
 
+TEST(cudaRT, StreamCaptureBeginEnd) {
+    cudaStream_t stream;
+    CUDA_CHECK(cudaStreamCreate(&stream));
+    cudaStreamCaptureMode mode = cudaStreamCaptureModeThreadLocal;
+    CUDA_CHECK(cudaStreamBeginCapture(stream, mode));
+    cudaGraph_t graph;
+    CUDA_CHECK(cudaStreamEndCapture(stream, &graph));
+    CUDA_CHECK(cudaStreamDestroy(stream));
+}
+
 TEST(cudaRT, GetDevice) {
     int device;
     CUDA_CHECK(cudaGetDevice(&device));
