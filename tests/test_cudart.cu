@@ -104,10 +104,17 @@ TEST(cudaRT, StreamCaptureBeginEnd) {
     CUDA_CHECK(cudaStreamDestroy(stream));
 }
 
-
 TEST(cudaRT, GraphCreateDestroy) {
     cudaGraph_t graph;
     CUDA_CHECK(cudaGraphCreate(&graph, 0));
+    CUDA_CHECK(cudaGraphDestroy(graph));
+}
+
+TEST(cudaRT, GraphInstantiateDestroy) {
+    cudaGraph_t graph;
+    CUDA_CHECK(cudaGraphCreate(&graph, 0));
+    cudaGraphExec_t graphExec;
+    CUDA_CHECK(cudaGraphInstantiate(&graphExec, graph, 0));
     CUDA_CHECK(cudaGraphDestroy(graph));
 }
 

@@ -57,14 +57,18 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiate(
     unsigned long long flags
 ) {
     CudaRtFrontend::Prepare();
-
     CudaRtFrontend::AddHostPointerForArguments(pGraphExec);
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::AddVariableForArguments(flags);
     CudaRtFrontend::Execute("cudaGraphInstantiate");
     
-    cudaGraphExec_t graphExec = CudaRtFrontend::GetOutputVariable<cudaGraphExec_t>();
+    if (CudaRtFrontend::Success()) {
+        *pGraphExec = (cudaGraphExec_t) CudaRtFrontend::GetOutputDevicePointer();
+    }
     return CudaRtFrontend::GetExitCode();
+
+    // cudaGraphExec_t graphExec = CudaRtFrontend::GetOutputVariable<cudaGraphExec_t>();
+    // return CudaRtFrontend::GetExitCode();
 }
 
 // TODO: needs testing
@@ -119,6 +123,6 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphDestroy(cudaGraph_t graph) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::Execute("cudaGraphDestroy");
-    
+
     return CudaRtFrontend::GetExitCode();
 }
