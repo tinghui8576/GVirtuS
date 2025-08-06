@@ -106,7 +106,6 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphLaunch(cudaGraphExec_t graphE
     return CudaRtFrontend::GetExitCode();
 }
 
-
 extern "C" __host__ cudaError_t CUDARTAPI cudaGraphCreate(cudaGraph_t* pGraph, unsigned int flags) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(flags);
@@ -116,8 +115,6 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphCreate(cudaGraph_t* pGraph, u
     return CudaRtFrontend::GetExitCode();
 }
 
-
-// TODO: needs testing
 extern "C" __host__ cudaError_t CUDARTAPI cudaGraphDestroy(cudaGraph_t graph) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graph);

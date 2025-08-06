@@ -403,6 +403,7 @@ void CudaRtHandler::Initialize() {
 
     /* CudaRtHandler_graph */
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphCreate));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphDestroy));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphInstantiate));
 
   /* CudaRtHandler_version */

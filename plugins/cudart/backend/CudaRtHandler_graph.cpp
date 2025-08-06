@@ -45,6 +45,16 @@ CUDA_ROUTINE_HANDLER(GraphCreate) {
     }
 }
 
+CUDA_ROUTINE_HANDLER(GraphDestroy) {
+    try {
+        cudaGraph_t graph = input_buffer->Get<cudaGraph_t>();
+        return std::make_shared<Result>(cudaGraphDestroy(graph));
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
+
 // cudaGraphInstantiate signature changed in CUDA 12. 
 CUDA_ROUTINE_HANDLER(GraphInstantiate) {
     try {

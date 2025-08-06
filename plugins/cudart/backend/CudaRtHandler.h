@@ -290,6 +290,7 @@ CUDA_ROUTINE_HANDLER(StreamEndCapture);
 
 /* CudaRtHandler_graph */
 CUDA_ROUTINE_HANDLER(GraphCreate);
+CUDA_ROUTINE_HANDLER(GraphDestroy);
 CUDA_ROUTINE_HANDLER(GraphInstantiate);
 
 /* CudaRtHandler_version */
