@@ -55,6 +55,24 @@ CUDA_ROUTINE_HANDLER(GraphDestroy) {
     }
 }
 
+CUDA_ROUTINE_HANDLER(GraphGetNodes) {
+    try {
+        cudaGraph_t pGraph = input_buffer->Get<cudaGraph_t>();
+        cudaGraphNode_t *nodes = input_buffer->Assign<cudaGraphNode_t>();
+        size_t numNodes;
+        cudaError_t exit_code = cudaGraphGetNodes(pGraph, nodes, &numNodes);
+        // Debugging output
+        // std::cout << "GraphGetNodes " << nodes << " with a size of "
+        //     << numNodes << std::endl;
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+        out->Add<size_t>(numNodes);
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
+
 // cudaGraphInstantiate signature changed in CUDA 12. 
 CUDA_ROUTINE_HANDLER(GraphInstantiate) {
     try {
@@ -65,6 +83,18 @@ CUDA_ROUTINE_HANDLER(GraphInstantiate) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         out->Add<cudaGraphExec_t>(pGraphExec);
         return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
+
+// No Testing
+CUDA_ROUTINE_HANDLER(GraphLaunch) {
+    try {
+        cudaGraphExec_t graphExec = input_buffer->Get<cudaGraphExec_t>();
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+        return std::make_shared<Result>(cudaGraphLaunch(graphExec, stream));
     } catch (const std::exception& e) {
         cerr << e.what() << endl;
         return std::make_shared<Result>(cudaErrorMemoryAllocation);

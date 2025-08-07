@@ -22,18 +22,20 @@
  * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
  *             Department of Computer Science,
  *             University College Dublin, Ireland
+ * ,and
+ *             Ting-Hui Cheng <tinghc@es.aau.dk>
+ *             Department of Electronic Systems,
+ *             Aalborg University, Denmark
  */
 
 #include "CudaRt.h"
 
 using namespace std;
 
-// TODO: needs testing
 extern "C" __host__ cudaError_t CUDARTAPI cudaGraphGetNodes(cudaGraph_t graph, cudaGraphNode_t* nodes, size_t* numNodes) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::AddHostPointerForArguments(nodes);
-    CudaRtFrontend::AddHostPointerForArguments(numNodes);
     CudaRtFrontend::Execute("cudaGraphGetNodes");
     
     if (CudaRtFrontend::Success()) {
@@ -63,7 +65,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiate(
     CudaRtFrontend::Execute("cudaGraphInstantiate");
     
     if (CudaRtFrontend::Success()) {
-        *pGraphExec = (cudaGraphExec_t) CudaRtFrontend::GetOutputDevicePointer();
+        *pGraphExec = CudaRtFrontend::GetOutputVariable<cudaGraphExec_t>();
     }
     return CudaRtFrontend::GetExitCode();
 
@@ -72,7 +74,11 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiate(
 }
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiateWithFlags(cudaGraphExec_t* pGraphExec, cudaGraph_t graph, unsigned long long flags) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiateWithFlags(
+    cudaGraphExec_t* pGraphExec, 
+    cudaGraph_t graph, 
+    unsigned long long flags
+) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(pGraphExec);
     CudaRtFrontend::AddDevicePointerForArguments(graph);
