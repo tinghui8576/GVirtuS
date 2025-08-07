@@ -55,11 +55,11 @@
 using gvirtus::communicators::Buffer;
 
 #if CUDART_VERSION >= 11000
-  struct __align__(8) fatBinaryHeader {
-      unsigned int           magic;
-      unsigned short         version;
-      unsigned short         headerSize;
-      unsigned long long int fatSize;
+    struct __align__(8) fatBinaryHeader {
+        unsigned int           magic;
+        unsigned short         version;
+        unsigned short         headerSize;
+        unsigned long long int fatSize;
   };
 #endif
 

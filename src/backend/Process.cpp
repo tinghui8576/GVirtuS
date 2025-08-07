@@ -11,7 +11,7 @@
 
 #include <gvirtus/backend/Process.h>
 
-#define DEBUG
+// #define DEBUG
 
 using gvirtus::backend::Process;
 using gvirtus::common::LD_Lib;
@@ -96,22 +96,22 @@ void Process::Start() {
     LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "] Process::Start() called.");
 
     for_each(mPlugins.begin(), mPlugins.end(), [this](const std::string &plug) {
-                 std::string gvirtus_home = getGVirtuSHome();
+            std::string gvirtus_home = getGVirtuSHome();
 
-                 std::string to_append = "libgvirtus-plugin-" + plug + ".so";
-                 LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "] appending " << to_append << ".");
+            std::string to_append = "libgvirtus-plugin-" + plug + ".so";
+            LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "] appending " << to_append << ".");
 
-                 auto ld_path = fs::path(gvirtus_home + "/lib").append(to_append);
+            auto ld_path = fs::path(gvirtus_home + "/lib").append(to_append);
 
-                 try {
-                     auto dl = std::make_shared<LD_Lib<Handler>>(ld_path, "create_t");
-                     dl->build_obj();
-                     _handlers.push_back(dl);
-                 }
-                 catch (const std::string &e) {
-                     LOG4CPLUS_ERROR(logger, e);
-                 }
-             }
+            try {
+                auto dl = std::make_shared<LD_Lib<Handler>>(ld_path, "create_t");
+                dl->build_obj();
+                _handlers.push_back(dl);
+            }
+            catch (const std::string &e) {
+                LOG4CPLUS_ERROR(logger, e);
+            }
+        }
     );
 
     // inserisci i sym dei plugin in h

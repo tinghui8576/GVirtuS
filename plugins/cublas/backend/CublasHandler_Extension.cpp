@@ -10,8 +10,7 @@ using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 CUBLAS_ROUTINE_HANDLER(GemmEx) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GemmEx"));
-
+    
     cublasHandle_t handle = in->Get<cublasHandle_t>();
     cublasOperation_t transa = in->Get<cublasOperation_t>();
     cublasOperation_t transb = in->Get<cublasOperation_t>();
@@ -34,14 +33,13 @@ CUBLAS_ROUTINE_HANDLER(GemmEx) {
 
     cublasStatus_t cs = cublasGemmEx(handle, transa, transb, m, n, k, alpha, A, Atype, lda, B, Btype, ldb, beta, C, Ctype, ldc, computeType, algo);
 
-    LOG4CPLUS_DEBUG(logger, "cublasGemmEx executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasGemmEx executed");
     return std::make_shared<Result>(cs);
 }
 
 // TODO: this only supports the version where alpha, beta are float32 host pointers
 CUBLAS_ROUTINE_HANDLER(GemmStridedBatchedEx) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GemmStridedBatchedEx"));
-
+    
     cublasHandle_t handle = in->Get<cublasHandle_t>();
     cublasOperation_t transa = in->Get<cublasOperation_t>();
     cublasOperation_t transb = in->Get<cublasOperation_t>();
@@ -68,6 +66,6 @@ CUBLAS_ROUTINE_HANDLER(GemmStridedBatchedEx) {
 
     cublasStatus_t cs = cublasGemmStridedBatchedEx(handle, transa, transb, m, n, k, alpha, A, Atype, lda, strideA, B, Btype, ldb, strideB, beta, C, Ctype, ldc, strideC, batchCount, computeType, algo);
 
-    LOG4CPLUS_DEBUG(logger, "cublasGemmStridedBatchedEx executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasGemmStridedBatchedEx executed");
     return std::make_shared<Result>(cs);
 }

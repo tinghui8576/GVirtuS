@@ -63,8 +63,7 @@ CURAND_ROUTINE_HANDLER(CreateGenerator) {
 }
 
 CURAND_ROUTINE_HANDLER(CreateGeneratorHost) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("CreateGeneratorHost"));
-    // Create host generator
+        // Create host generator
     curandGenerator_t generator;
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     curandRngType_t gnrType = in->Get<curandRngType_t>();
@@ -80,8 +79,7 @@ CURAND_ROUTINE_HANDLER(CreateGeneratorHost) {
 }
 
 CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetPseudoRandomGeneratorSeed"));
-
+    
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     unsigned long long seed = in->Get<unsigned long long>();
 
@@ -90,32 +88,29 @@ CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed) {
 }
 
 CURAND_ROUTINE_HANDLER(SetGeneratorOffset) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetGeneratorOffset"));
-
+    
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     unsigned long long offset = in->Get<unsigned long long>();
 
-    LOG4CPLUS_DEBUG(logger, "Generator pointer: " << generator << ", offset: " << offset);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Generator pointer: " << generator << ", offset: " << offset);
 
     curandStatus_t cs = curandSetGeneratorOffset(generator, offset);
     return std::make_shared<Result>(cs);
 }
 
 CURAND_ROUTINE_HANDLER(SetQuasiRandomGeneratorDimensions) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetQuasiRandomGeneratorDimensions"));
-
+    
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     unsigned int num_dimensions = in->Get<unsigned int>();
 
-    LOG4CPLUS_DEBUG(logger, "Generator pointer: " << generator << ", num_dimensions: " << num_dimensions);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Generator pointer: " << generator << ", num_dimensions: " << num_dimensions);
 
     curandStatus_t cs = curandSetQuasiRandomGeneratorDimensions(generator, num_dimensions);
     return std::make_shared<Result>(cs);
 }
 
 CURAND_ROUTINE_HANDLER(Generate) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Generate"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -130,8 +125,7 @@ CURAND_ROUTINE_HANDLER(Generate) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateLongLong) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLongLoong"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -146,8 +140,7 @@ CURAND_ROUTINE_HANDLER(GenerateLongLong) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateUniform) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateUniform"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -160,8 +153,7 @@ CURAND_ROUTINE_HANDLER(GenerateUniform) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateNormal) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateNormal"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -177,8 +169,7 @@ CURAND_ROUTINE_HANDLER(GenerateNormal) {
 
 // alternative implementation of GenerateNormal without using Delegate
 // CURAND_ROUTINE_HANDLER(GenerateNormal) {
-//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateNormal"));
-
+//     
 //     curandStatus_t cs;
 //     curandGenerator_t generator = in->Get<curandGenerator_t>();
 //     size_t num = in->Get<size_t>();
@@ -197,8 +188,7 @@ CURAND_ROUTINE_HANDLER(GenerateNormal) {
 // }
 
 CURAND_ROUTINE_HANDLER(GenerateLogNormal) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLogNormal"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -213,8 +203,7 @@ CURAND_ROUTINE_HANDLER(GenerateLogNormal) {
 }
 
 CURAND_ROUTINE_HANDLER(GeneratePoisson) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GeneratePoisson"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -228,8 +217,7 @@ CURAND_ROUTINE_HANDLER(GeneratePoisson) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateUniformDouble) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateUniformDouble"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -242,8 +230,7 @@ CURAND_ROUTINE_HANDLER(GenerateUniformDouble) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateNormalDouble) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateNormalDouble"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -258,8 +245,7 @@ CURAND_ROUTINE_HANDLER(GenerateNormalDouble) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateLogNormalDouble) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GenerateLogNormalDouble"));
-
+    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     bool isHost = isHostGenerator(generator);

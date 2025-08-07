@@ -35,8 +35,8 @@
 
 #pragma once
 
-#include <gvirtus/communicators/Result.h>
 #include <memory>
+#include <gvirtus/communicators/Result.h>
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"

@@ -32,11 +32,10 @@ using gvirtus::communicators::Result;
 
 /*Return the Cuda Driver Version */
 CUDA_DRIVER_HANDLER(DriverGetVersion) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DriverGetVersion"));
     int driverVersion;
     CUresult cs = cuDriverGetVersion(&driverVersion);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->Add(driverVersion);
-    LOG4CPLUS_DEBUG(logger, "DriverGetVersion executed, version: " << driverVersion);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "DriverGetVersion executed, version: " << driverVersion);
     return std::make_shared<Result>(cs, out);
 }

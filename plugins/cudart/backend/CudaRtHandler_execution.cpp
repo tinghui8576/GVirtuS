@@ -81,8 +81,7 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
 
 #if CUDART_VERSION >= 9000
     CUDA_ROUTINE_HANDLER(LaunchKernel) {
-        Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("LaunchKernel"));
-
+        
         void *func = input_buffer->GetFromMarshal<void *>();
         dim3 gridDim = input_buffer->Get<dim3>();
         dim3 blockDim = input_buffer->Get<dim3>();
@@ -125,7 +124,7 @@ CUDA_ROUTINE_HANDLER(FuncSetCacheConfig) {
         // cout << "Stream: " << stream << endl;
 
         cudaError_t exit_code = cudaLaunchKernel(func, gridDim, blockDim, args, sharedMem, stream);
-        LOG4CPLUS_DEBUG(logger, "LaunchKernel exit_code: " << exit_code);
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), "LaunchKernel exit_code: " << exit_code);
         return std::make_shared<Result>(exit_code);
     }
 #endif

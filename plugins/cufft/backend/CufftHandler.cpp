@@ -49,20 +49,18 @@ extern "C" std::shared_ptr<CufftHandler> create_t() {
 }
 
 CufftHandler::CufftHandler() {
-    logger=Logger::getInstance(LOG4CPLUS_TEXT("CufftHandler"));
+    logger = Logger::getInstance(LOG4CPLUS_TEXT("CufftHandler"));
     Initialize();
 }
 
-CufftHandler::~CufftHandler() {
-
-}
+CufftHandler::~CufftHandler() {}
 
 bool CufftHandler::CanExecute(std::string routine) {
     return mspHandlers->find(routine) != mspHandlers->end();
 }
 
 std::shared_ptr<Result> CufftHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
-    LOG4CPLUS_DEBUG(logger,"Called " << routine);
+    LOG4CPLUS_DEBUG(logger, "Called " << routine);
     map<string, CufftHandler::CufftRoutineHandler>::iterator it;
     it = mspHandlers->find(routine);
     if (it == mspHandlers->end())
@@ -81,8 +79,7 @@ std::shared_ptr<Result> CufftHandler::Execute(std::string routine, std::shared_p
  * The batch input parameter tells cuFFT how many 1D transforms to configure.
  */
 CUFFT_ROUTINE_HANDLER(Plan1d) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Plan1D"));
-    
+        
     cufftHandle *plan_adv = in->Assign<cufftHandle>();
     int nx = in->Get<int>();
     cufftType type = in->Get<cufftType>();
@@ -94,11 +91,11 @@ CUFFT_ROUTINE_HANDLER(Plan1d) {
     try{
         out->Add(plan_adv);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation); //???
     }
-    LOG4CPLUS_DEBUG(logger,"Plan: " << *plan_adv);
-    LOG4CPLUS_DEBUG(logger,"cufftPlan1d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Plan: " << *plan_adv);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftPlan1d Executed");
     return std::make_shared<Result>(exit_code, out);
 }
 
@@ -107,8 +104,7 @@ CUFFT_ROUTINE_HANDLER(Plan1d) {
  * Creates a 2D FFT plan configuration according to specified signal sizes and data type.
  */
 CUFFT_ROUTINE_HANDLER(Plan2d) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Plan2d"));
-
+    
     cufftHandle plan;// = in->Assign<cufftHandle>();
     int nx = in->Get<int>();
     int ny = in->Get<int>();
@@ -119,11 +115,11 @@ CUFFT_ROUTINE_HANDLER(Plan2d) {
     try {
         out->Add(&plan);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation); //???
     }
-    LOG4CPLUS_DEBUG(logger,"Plan: " << plan);
-    LOG4CPLUS_DEBUG(logger,"cufftPlan2d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Plan: " << plan);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftPlan2d Executed");
     return std::make_shared<Result>(exit_code, out);
 }
 
@@ -133,8 +129,7 @@ CUFFT_ROUTINE_HANDLER(Plan2d) {
  * This function is the same as cufftPlan2d() except that it takes a third size parameter nz.
  */
 CUFFT_ROUTINE_HANDLER(Plan3d) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Plan3D"));
-    try{
+        try{
         cufftHandle *plan = in->Assign<cufftHandle>();
         int nx = in->Get<int>();
         int ny = in->Get<int>();
@@ -145,7 +140,7 @@ CUFFT_ROUTINE_HANDLER(Plan3d) {
         out->Add(plan);
         return std::make_shared<Result>(ec, out);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation); //???
     }
 }
@@ -155,8 +150,7 @@ CUFFT_ROUTINE_HANDLER(Plan3d) {
  * The batch input parameter tells cuFFT how many transforms to configure. With this function, batched plans of 1, 2, or 3 dimensions may be created.
  */
 CUFFT_ROUTINE_HANDLER(PlanMany) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("PlanMany"));
-    
+        
     cufftHandle *plan = in->Assign<cufftHandle>();
     int rank = in->Get<int>();
     int * n = in->Assign<int>();
@@ -170,23 +164,22 @@ CUFFT_ROUTINE_HANDLER(PlanMany) {
     
     cufftType type = in->Get<cufftType>();
     int batch = in->Get<int>();
-    LOG4CPLUS_DEBUG(logger,"rank: " << rank << " n: " << *n << " idist: " << idist << " ostride: " << ostride << " odist: " << odist << " type:" << type << " batch: " << batch << endl);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "rank: " << rank << " n: " << *n << " idist: " << idist << " ostride: " << ostride << " odist: " << odist << " type:" << type << " batch: " << batch << endl);
     try{
         cufftResult exit_code = cufftPlanMany(plan, rank,n, inembed, istride, idist, onembed, ostride, odist, type, batch);
-        LOG4CPLUS_DEBUG(logger, "cufftPlanMany Executed");
-        LOG4CPLUS_DEBUG(logger, "Plan: " << *plan);
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftPlanMany Executed");
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), "Plan: " << *plan);
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         out->Add<cufftHandle>(plan);
         return std::make_shared<Result>(exit_code, out);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation); //???
     }
 }
 
 CUFFT_ROUTINE_HANDLER(ExecC2R) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ExecC2R"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cufftReal *odata;
     cufftComplex *idata;
@@ -196,7 +189,7 @@ CUFFT_ROUTINE_HANDLER(ExecC2R) {
     try{
         odata = (in->GetFromMarshal<cufftReal*>());    
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         odata = (cufftReal*) idata;
     }
     
@@ -206,27 +199,25 @@ CUFFT_ROUTINE_HANDLER(ExecC2R) {
     try{
         out->AddMarshal(odata);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftExecC2R Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftExecC2R Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 #if (CUDART_VERSION <= 9000)
 CUFFT_ROUTINE_HANDLER(SetCompatibilityMode) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("SetCompatibilityMode"));
-    cufftHandle plan = in->Get<cufftHandle>();
+        cufftHandle plan = in->Get<cufftHandle>();
     cufftCompatibility mode = in->Get<cufftCompatibility>();
     cufftResult exit_code = cufftSetCompatibilityMode(plan, mode);
-    LOG4CPLUS_DEBUG(logger,"cufftSetCompatibilityMode Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftSetCompatibilityMode Executed");
     return std::make_shared<Result>(exit_code);
 }
 #endif
 
 // CUFFT_ROUTINE_HANDLER(Create) {
-//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("Create"));
-
+//     
 //     cufftHandle plan;
 //     cufftResult exit_code = cufftCreate(&plan);  // this is safe now
 
@@ -234,27 +225,26 @@ CUFFT_ROUTINE_HANDLER(SetCompatibilityMode) {
 //     try {
 //         out->Add(&plan, 1);  // Send the value back to frontend
 //     } catch (const std::string &e) {
-//         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+//         LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
 //         return std::make_shared<Result>(cudaErrorMemoryAllocation);
 //     }
 
-//     LOG4CPLUS_DEBUG(logger, "cufftCreate Executed");
+//     LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftCreate Executed");
 
 //     return std::make_shared<Result>(exit_code, out);
 // }
 
 CUFFT_ROUTINE_HANDLER(Create) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Create"));
-    cufftHandle plan;
+        cufftHandle plan;
     cufftResult exit_code = cufftCreate(&plan);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cufftHandle>(&plan);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftCreate Executed. Plan: " << plan);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftCreate Executed. Plan: " << plan);
     return std::make_shared<Result>(exit_code, out);
 }
 
@@ -264,31 +254,28 @@ CUFFT_ROUTINE_HANDLER(Create) {
  * This function should be called once a plan is no longer needed, to avoid wasting GPU memory.
  */
 CUFFT_ROUTINE_HANDLER(Destroy) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Destroy"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cufftResult exit_code = cufftDestroy(plan);
     
-    LOG4CPLUS_DEBUG(logger,"cufftDestroy Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftDestroy Executed");
     return std::make_shared<Result>(exit_code);
 }
 
 CUFFT_ROUTINE_HANDLER(SetWorkArea){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("SetWorkArea"));
-    cufftHandle plan = in->Get<cufftHandle>();
+        cufftHandle plan = in->Get<cufftHandle>();
     void * workArea = in->GetFromMarshal<void*>();
     cufftResult exit_code = cufftSetWorkArea(plan,workArea);
-    LOG4CPLUS_DEBUG(logger,"cufftSetWorkArea Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftSetWorkArea Executed");
     return std::make_shared<Result>(exit_code);
 }
 
 
 CUFFT_ROUTINE_HANDLER(SetAutoAllocation){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("SetAutoallocation"));
-    cufftHandle plan = in->Get<cufftHandle>();
+        cufftHandle plan = in->Get<cufftHandle>();
     int autoAllocate = in->Get<int>();
     cufftResult exit_code = cufftSetAutoAllocation(plan,autoAllocate);
-    LOG4CPLUS_DEBUG(logger,"cufftSetAutoAllocation Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftSetAutoAllocation Executed");
     return std::make_shared<Result>(exit_code);
 }
 
@@ -317,8 +304,7 @@ CUFFT_ROUTINE_HANDLER(SetAutoAllocation){
 // Frontend returns CUFFT_NOT_IMPLEMENTED
 // So, the code below is not executed
 CUFFT_ROUTINE_HANDLER(XtMakePlanMany) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMakePlanMany"));
-    
+        
     // cufftHandle plan = in->Get<cufftHandle>();
     // int rank = in->Get<int>();
     // long long int *n = in->Assign<long long int>();
@@ -344,10 +330,10 @@ CUFFT_ROUTINE_HANDLER(XtMakePlanMany) {
     //     //out->Add(onembed);
     //     out->Add(workSize);
     // } catch (const std::exception& e) {
-    //     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+    //     LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     //     return std::make_shared<Result>(cudaErrorMemoryAllocation);
     // }
-    // LOG4CPLUS_DEBUG(logger,"cufftXtMakePlanMany Executed");
+    // LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftXtMakePlanMany Executed");
     // return std::make_shared<Result>(exit_code,out);
     return std::make_shared<Result>(CUFFT_NOT_IMPLEMENTED);
 }
@@ -360,8 +346,7 @@ CUFFT_ROUTINE_HANDLER(XtMakePlanMany) {
  *This function stores the Fourier coefficients in the odata array. If idata and odata are the same, this method does an in-place transform. 
  */
 CUFFT_ROUTINE_HANDLER(ExecC2C){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ExecC2C"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cufftComplex *idata,*odata;
     
@@ -370,7 +355,7 @@ CUFFT_ROUTINE_HANDLER(ExecC2C){
     try{
         odata = (in->GetFromMarshal<cufftComplex*>());    
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         odata = idata;
     }
     
@@ -382,16 +367,15 @@ CUFFT_ROUTINE_HANDLER(ExecC2C){
     try{
         out->AddMarshal(odata);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftExecC2C Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftExecC2C Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 CUFFT_ROUTINE_HANDLER(ExecR2C){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ExecR2C"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cufftReal *idata;
     cufftComplex *odata;
@@ -408,17 +392,16 @@ CUFFT_ROUTINE_HANDLER(ExecR2C){
     try{
         out->AddMarshal(odata);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftExecR2C Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftExecR2C Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 
 CUFFT_ROUTINE_HANDLER(ExecZ2Z){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ExecZ2Z"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cufftDoubleComplex *idata,*odata;
     idata = (in->GetFromMarshal<cufftDoubleComplex*>());
@@ -426,7 +409,7 @@ CUFFT_ROUTINE_HANDLER(ExecZ2Z){
     try{
         odata = (in->GetFromMarshal<cufftDoubleComplex*>());    
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         odata = idata;
     }
     int direction = in->Get<int>();
@@ -436,17 +419,16 @@ CUFFT_ROUTINE_HANDLER(ExecZ2Z){
     try{
         out->AddMarshal(odata);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftExecZ2Z Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftExecZ2Z Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 
 CUFFT_ROUTINE_HANDLER(ExecD2Z){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ExecD2Z"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cufftDoubleReal *idata;
     cufftDoubleComplex *odata;
@@ -455,7 +437,7 @@ CUFFT_ROUTINE_HANDLER(ExecD2Z){
     try{
         odata = (in->GetFromMarshal<cufftDoubleComplex*>());    
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         odata = (cufftDoubleComplex*)idata;
     }
     
@@ -466,17 +448,16 @@ CUFFT_ROUTINE_HANDLER(ExecD2Z){
     try{
         out->AddMarshal(odata);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftExecD2Z Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftExecD2Z Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 
 CUFFT_ROUTINE_HANDLER(ExecZ2D){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ExecZ2D"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cufftDoubleComplex *idata;
     cufftDoubleReal *odata;
@@ -485,7 +466,7 @@ CUFFT_ROUTINE_HANDLER(ExecZ2D){
     try{
         odata = (in->GetFromMarshal<cufftDoubleReal*>());    
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         odata = (cufftDoubleReal*)idata;
     }
     cufftResult exit_code = cufftExecZ2D(plan,idata,odata);
@@ -494,10 +475,10 @@ CUFFT_ROUTINE_HANDLER(ExecZ2D){
     try{
         out->AddMarshal(odata);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftExecZ2D Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftExecZ2D Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
@@ -512,26 +493,24 @@ CUFFT_ROUTINE_HANDLER(ExecZ2D){
  * @param *whichGPUs
  */
 CUFFT_ROUTINE_HANDLER(XtSetGPUs){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtSetGPUs"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     int nGPUs = in->Get<int>();
     int* whichGPUs = in->Assign<int>(nGPUs);
 
-    LOG4CPLUS_DEBUG(logger,"XtSetGPUs: nGPUs: " << nGPUs);
-    LOG4CPLUS_DEBUG(logger,"XtSetGPUs: whichGPUs: " << *whichGPUs);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "XtSetGPUs: nGPUs: " << nGPUs);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "XtSetGPUs: whichGPUs: " << *whichGPUs);
     
     cufftResult exit_code = cufftXtSetGPUs(plan,nGPUs,whichGPUs);
     
-    LOG4CPLUS_DEBUG(logger,"cufftXtSetGPUs Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftXtSetGPUs Executed");
 
     return std::make_shared<Result>(exit_code);
 }
 
 
 CUFFT_ROUTINE_HANDLER(Estimate1d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Estimate1d"));
-    
+        
     int nx = in->Get<int>();
     cufftType type = in->Get<cufftType>();
     int batch = in->Get<int>();
@@ -542,16 +521,15 @@ CUFFT_ROUTINE_HANDLER(Estimate1d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftEstimate1d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftEstimate1d Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 CUFFT_ROUTINE_HANDLER(Estimate2d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Estimate2d"));
-    
+        
     int nx = in->Get<int>();
     int ny = in->Get<int>();
     cufftType type = in->Get<cufftType>();
@@ -562,17 +540,16 @@ CUFFT_ROUTINE_HANDLER(Estimate2d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftEstimate2d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftEstimate2d Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 
 CUFFT_ROUTINE_HANDLER(Estimate3d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Estimate3d"));
-    
+        
     int nx = in->Get<int>();
     int ny = in->Get<int>();
     int nz = in->Get<int>();
@@ -584,16 +561,15 @@ CUFFT_ROUTINE_HANDLER(Estimate3d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftEstimate3d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftEstimate3d Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 CUFFT_ROUTINE_HANDLER(EstimateMany) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("EstimateMany"));
-    
+        
     int rank = in->Get<int>();
     int * n = in->Assign<int>();
     int * inembed = in->Assign<int>();
@@ -614,10 +590,10 @@ CUFFT_ROUTINE_HANDLER(EstimateMany) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftEstimateMany Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftEstimateMany Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
@@ -634,8 +610,7 @@ CUFFT_ROUTINE_HANDLER(EstimateMany) {
  * @param *workSize 
  */
 CUFFT_ROUTINE_HANDLER(MakePlan1d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("MakePlan1d"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     int nx = in->Get<int>();
     cufftType type = in->Get<cufftType>();
@@ -647,16 +622,15 @@ CUFFT_ROUTINE_HANDLER(MakePlan1d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftMakePlan1d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftMakePlan1d Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 CUFFT_ROUTINE_HANDLER(MakePlan2d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("MakePlan2d"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     int nx = in->Get<int>();
     int ny = in->Get<int>();
@@ -668,16 +642,15 @@ CUFFT_ROUTINE_HANDLER(MakePlan2d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftMakePlan2d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftMakePlan2d Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 CUFFT_ROUTINE_HANDLER(MakePlan3d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("MakePlan3d"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     int nx = in->Get<int>();
     int ny = in->Get<int>();
@@ -690,17 +663,16 @@ CUFFT_ROUTINE_HANDLER(MakePlan3d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftMakePlan3d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftMakePlan3d Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 
 CUFFT_ROUTINE_HANDLER(MakePlanMany) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MakePlanMany"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     int rank = in->Get<int>();
     int * n = in->Assign<int>();
@@ -721,17 +693,16 @@ CUFFT_ROUTINE_HANDLER(MakePlanMany) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger,"cufftMakePlanMany Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftMakePlanMany Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 #if CUDART_VERSION >= 7000
 CUFFT_ROUTINE_HANDLER(MakePlanMany64) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("MakePlanMany64"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     int rank = in->Get<int>();
     long long int *n = in->Assign<long long int>();
@@ -752,17 +723,16 @@ CUFFT_ROUTINE_HANDLER(MakePlanMany64) {
     try{
         out->Add(workSize);   
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftMakePlanMany64 Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftMakePlanMany64 Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 #endif
 
 CUFFT_ROUTINE_HANDLER(GetSize1d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetSize1d"));
-        
+            
     cufftHandle handle = in->Get<cufftHandle>();
     int nx = in->Get<int>();
     cufftType type = in->Get<cufftType>();
@@ -774,17 +744,16 @@ CUFFT_ROUTINE_HANDLER(GetSize1d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftGetSize1d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetSize1d Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 
 CUFFT_ROUTINE_HANDLER(GetSize2d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetSize2d"));
-        
+            
     cufftHandle handle = in->Get<cufftHandle>();
     int nx = in->Get<int>();
     int ny = in->Get<int>();
@@ -796,16 +765,15 @@ CUFFT_ROUTINE_HANDLER(GetSize2d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftGetSize2d Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetSize2d Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 CUFFT_ROUTINE_HANDLER(GetSize3d) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetSize3d"));
-        
+            
     cufftHandle handle = in->Get<cufftHandle>();
     int nx = in->Get<int>();
     int ny = in->Get<int>();
@@ -818,16 +786,15 @@ CUFFT_ROUTINE_HANDLER(GetSize3d) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftGetSize3d executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetSize3d executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 CUFFT_ROUTINE_HANDLER(GetSizeMany) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetSizeMany"));
-    
+        
     cufftHandle handle = in->Get<cufftHandle>();
     int rank = in->Get<int>();
     int * n = in->Assign<int>();
@@ -848,17 +815,16 @@ CUFFT_ROUTINE_HANDLER(GetSizeMany) {
     try{
         out->Add(workSize);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftGetSizeMany executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetSizeMany executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 #if CUDART_VERSION >= 7000
 CUFFT_ROUTINE_HANDLER(GetSizeMany64) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetSizeMany64"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     int rank = in->Get<int>();
     long long int *n = in->Assign<long long int>();
@@ -879,17 +845,16 @@ CUFFT_ROUTINE_HANDLER(GetSizeMany64) {
     try{
         out->Add(workSize);   
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftGetSizeMany64 executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetSizeMany64 executed");
     return std::make_shared<Result>(exit_code,out);
 }
 #endif
 
 CUFFT_ROUTINE_HANDLER(GetSize) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetSize"));
-    
+        
     cufftHandle handle = in->Get<cufftHandle>();
     size_t * workSize = in->Assign<size_t>();
     cufftResult exit_code = cufftGetSize(handle,workSize);
@@ -897,46 +862,43 @@ CUFFT_ROUTINE_HANDLER(GetSize) {
     try{
         out->Add(workSize);   
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftGetSize executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetSize executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 CUFFT_ROUTINE_HANDLER(SetStream) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("SetStream"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cudaStream_t stream = in->GetFromMarshal<cudaStream_t>();
     
     cufftResult exit_code = cufftSetStream(plan,stream);
     
-    LOG4CPLUS_DEBUG(logger, "cufftSetStream executed with plan");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftSetStream executed with plan");
     return std::make_shared<Result>(exit_code);
 }
 
 #if __CUDA_API_VERSION >= 7000
 CUFFT_ROUTINE_HANDLER(GetProperty){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("GetProperty"));
-    
+        
     libraryPropertyType type = in->Get<libraryPropertyType>();
     int * value = in->Assign<int>();
     cufftResult exit_code = cufftGetProperty(type,value);
-    LOG4CPLUS_DEBUG(logger, "cufftGetProperty executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetProperty executed");
     return std::make_shared<Result>(exit_code);
 }
 #endif
 
 CUFFT_ROUTINE_HANDLER(XtMalloc) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMalloc"));
     cufftHandle plan = in->Get<cufftHandle>();
     cufftXtSubFormat format = in->Get<cufftXtSubFormat>();
 
     cudaLibXtDesc* data = nullptr;
     cufftResult exit_code = cufftXtMalloc(plan, &data, format);
 
-    LOG4CPLUS_DEBUG(logger, "cufftXtMalloc executed with");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftXtMalloc executed with");
 
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(data);  // add the opaque descriptor pointer
@@ -952,8 +914,7 @@ CUFFT_ROUTINE_HANDLER(XtMalloc) {
  */
  // original gvirtus code
 // CUFFT_ROUTINE_HANDLER(XtMalloc){
-//     Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMalloc"));
-    
+//         
 //     cufftHandle plan = in->Get<cufftHandle>();
 //     cudaLibXtDesc ** desc = in->Assign<cudaLibXtDesc*>();
 //     cufftXtSubFormat format = in->Get<cufftXtSubFormat>();
@@ -964,7 +925,7 @@ CUFFT_ROUTINE_HANDLER(XtMalloc) {
 //     try{
 //         out->Add(desc);
 //     } catch (const std::exception& e){
-//         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+//         LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
 //         return std::make_shared<Result>(cudaErrorMemoryAllocation);
 //     }
 //     return std::make_shared<Result>(exit_code,out);
@@ -979,8 +940,7 @@ CUFFT_ROUTINE_HANDLER(XtMalloc) {
  */
  // original gvirtus code
 CUFFT_ROUTINE_HANDLER(XtMemcpy){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtMemcpy"));
-
+    
     cufftHandle plan = in->Get<cufftHandle>();
     void * dstPointer = NULL;
 
@@ -1017,18 +977,17 @@ CUFFT_ROUTINE_HANDLER(XtMemcpy){
                 break;
         }
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftXtMemcpy Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftXtMemcpy Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 
 // tgasla attempt to implement XtMemcpy
 // CUFFT_ROUTINE_HANDLER(XtMemcpy) {
-//     Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("XtMemcpy"));
-
+//     
 //     // 1) Read the plan handle
 //     cufftHandle plan = in->Get<cufftHandle>();
 
@@ -1060,7 +1019,7 @@ CUFFT_ROUTINE_HANDLER(XtMemcpy){
 //     try {
 //         exit_code = cufftXtMemcpy(plan, dstPointer, srcPointer, type);
 //     } catch (const std::string &e) {
-//         LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+//         LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
 //         return std::make_shared<Result>(cudaErrorMemoryAllocation);
 //     }
 
@@ -1073,8 +1032,7 @@ CUFFT_ROUTINE_HANDLER(XtMemcpy){
 
 /*Da testare*/
 CUFFT_ROUTINE_HANDLER(XtExecDescriptorC2C){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtExecDescriptorC2C"));
-    
+        
     cufftHandle plan = in->Get<cufftHandle>();
     cudaLibXtDesc *input = in->GetFromMarshal<cudaLibXtDesc*>();
     cudaLibXtDesc *output = in->GetFromMarshal<cudaLibXtDesc*>();
@@ -1085,32 +1043,29 @@ CUFFT_ROUTINE_HANDLER(XtExecDescriptorC2C){
         exit_code = cufftXtExecDescriptorC2C(plan,input,output,direction);
         out->AddMarshal(output);
     } catch (const std::exception& e){
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cufftXtExecDescriptorC2C Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftXtExecDescriptorC2C Executed");
     return std::make_shared<Result>(exit_code,out);
 }
 
 /*Da testare*/
 CUFFT_ROUTINE_HANDLER(XtFree){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtFree"));
-    cudaLibXtDesc *descriptor = in->GetFromMarshal<cudaLibXtDesc*>();
+        cudaLibXtDesc *descriptor = in->GetFromMarshal<cudaLibXtDesc*>();
     cufftResult exit_code = cufftXtFree(descriptor);
-    LOG4CPLUS_DEBUG(logger, "cufftXtFree Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftXtFree Executed");
     return std::make_shared<Result>(exit_code);
 }
 
 
 /* -- FUNCTION NOT SUPPORTED IN GVIRTUS -- */
 CUFFT_ROUTINE_HANDLER(XtSetCallback){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("XtSetCallback"));
-    return std::make_shared<Result>(CUFFT_NOT_IMPLEMENTED);
+        return std::make_shared<Result>(CUFFT_NOT_IMPLEMENTED);
 }
 
 CUFFT_ROUTINE_HANDLER(GetVersion) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetVersion"));
-
+    
     int version;
 
     cufftResult exit_code = cufftGetVersion(&version);
@@ -1119,12 +1074,12 @@ CUFFT_ROUTINE_HANDLER(GetVersion) {
     try {
         out->Add(version);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 
-    LOG4CPLUS_DEBUG(logger, "cufftGetVersion: " << version);
-    LOG4CPLUS_DEBUG(logger, "cufftGetVersion Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetVersion: " << version);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cufftGetVersion Executed");
 
     return std::make_shared<Result>(exit_code, out);
 }

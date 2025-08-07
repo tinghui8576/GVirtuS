@@ -29,8 +29,7 @@ using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 CUBLAS_ROUTINE_HANDLER(Sdot_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sdot_v2"));
-    
+        
     cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
@@ -40,12 +39,12 @@ CUBLAS_ROUTINE_HANDLER(Sdot_v2){
     float result;
     
     cublasStatus_t cs = cublasSdot_v2(handle, n, x, incx, y, incy, &result);
-    LOG4CPLUS_DEBUG(logger, "cublasSdot_v2 Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasSdot_v2 Executed");
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<float>(result);
     } catch (const std::exception &e) {
-        LOG4CPLUS_ERROR(logger, "Error assigning result: " << e.what());
+        LOG4CPLUS_ERROR(pThis->GetLogger(), "Error assigning result: " << e.what());
         return std::make_shared<Result>(CUBLAS_STATUS_EXECUTION_FAILED);
     }
     return std::make_shared<Result>(cs, out);
@@ -53,8 +52,7 @@ CUBLAS_ROUTINE_HANDLER(Sdot_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Ddot_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ddot_v2"));
-    
+        
     cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
@@ -64,12 +62,12 @@ CUBLAS_ROUTINE_HANDLER(Ddot_v2){
     double result;
     
     cublasStatus_t cs = cublasDdot_v2(handle, n, x, incx, y, incy, &result);
-    LOG4CPLUS_DEBUG(logger, "cublasDdot_v2 Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasDdot_v2 Executed");
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<double>(result);
     } catch (const std::exception &e) {
-        LOG4CPLUS_ERROR(logger, "Error assigning result: " << e.what());
+        LOG4CPLUS_ERROR(pThis->GetLogger(), "Error assigning result: " << e.what());
         return std::make_shared<Result>(CUBLAS_STATUS_EXECUTION_FAILED);
     }
     return std::make_shared<Result>(cs, out);
@@ -77,8 +75,7 @@ CUBLAS_ROUTINE_HANDLER(Ddot_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Cdotu_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Cdotu_v2"));
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+        cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
     int incx = in->Get<int>();
@@ -88,13 +85,12 @@ CUBLAS_ROUTINE_HANDLER(Cdotu_v2){
     
     cublasStatus_t cs = cublasCdotu_v2(handle,n,x,incx,y,incy,result);
     
-   LOG4CPLUS_DEBUG(logger, "cublasCdotu_v2 Executed");  
+   LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasCdotu_v2 Executed");  
     return std::make_shared<Result>(cs);
 }
 
 CUBLAS_ROUTINE_HANDLER(Cdotc_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Cdotc_v2"));
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+        cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
     int incx = in->Get<int>();
@@ -104,13 +100,12 @@ CUBLAS_ROUTINE_HANDLER(Cdotc_v2){
     
     cublasStatus_t cs = cublasCdotc_v2(handle,n,x,incx,y,incy,result);
     
-    LOG4CPLUS_DEBUG(logger, "cublasCdotc_v2 Executed");  
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasCdotc_v2 Executed");  
     return std::make_shared<Result>(cs);
 }
 
 CUBLAS_ROUTINE_HANDLER(Zdotu_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zdotu_v2"));
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+        cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
     int incx = in->Get<int>();
@@ -120,13 +115,12 @@ CUBLAS_ROUTINE_HANDLER(Zdotu_v2){
     
     cublasStatus_t cs = cublasZdotu_v2(handle,n,x,incx,y,incy,result);
     
-    LOG4CPLUS_DEBUG(logger, "cublasZdotu_v2 Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasZdotu_v2 Executed");
     return std::make_shared<Result>(cs);
 }
 
 CUBLAS_ROUTINE_HANDLER(Zdotc_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zdotc_v2"));
-    cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
+        cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
     int incx = in->Get<int>();
@@ -136,7 +130,7 @@ CUBLAS_ROUTINE_HANDLER(Zdotc_v2){
     
     cublasStatus_t cs = cublasZdotc_v2(handle,n,x,incx,y,incy,result);
     
-    LOG4CPLUS_DEBUG(logger, "cublasZdotc_v2 Executed");  
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasZdotc_v2 Executed");  
     return std::make_shared<Result>(cs);
 }
 
@@ -201,8 +195,7 @@ CUBLAS_ROUTINE_HANDLER(Zdscal_v2) {
 }
 
 CUBLAS_ROUTINE_HANDLER(Saxpy_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Saxpy_v2"));
-    
+        
     cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n=in->Get<int>();
     float * alpha = in->Assign<float>();
@@ -215,8 +208,7 @@ CUBLAS_ROUTINE_HANDLER(Saxpy_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Daxpy_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Daxpy_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     double * alpha = in->Assign<double>();
@@ -229,8 +221,7 @@ CUBLAS_ROUTINE_HANDLER(Daxpy_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Caxpy_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zaxpy_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * alpha = in->Assign<cuComplex>();
@@ -243,8 +234,7 @@ CUBLAS_ROUTINE_HANDLER(Caxpy_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zaxpy_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zaxpy_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
@@ -258,8 +248,7 @@ CUBLAS_ROUTINE_HANDLER(Zaxpy_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Scopy_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Scopy_v2"));
-    
+        
     cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
@@ -271,8 +260,7 @@ CUBLAS_ROUTINE_HANDLER(Scopy_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dcopy_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dcopy_v2"));
-    
+        
     cublasHandle_t handle = in->Get<cublasHandle_t>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
@@ -284,8 +272,7 @@ CUBLAS_ROUTINE_HANDLER(Dcopy_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ccopy_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ccopy_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
@@ -297,8 +284,7 @@ CUBLAS_ROUTINE_HANDLER(Ccopy_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zcopy_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zcopy_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
@@ -310,8 +296,7 @@ CUBLAS_ROUTINE_HANDLER(Zcopy_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Sswap_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sswap_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
@@ -323,8 +308,7 @@ CUBLAS_ROUTINE_HANDLER(Sswap_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dswap_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dswap_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
@@ -336,8 +320,7 @@ CUBLAS_ROUTINE_HANDLER(Dswap_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Cswap_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dswap_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
@@ -349,8 +332,7 @@ CUBLAS_ROUTINE_HANDLER(Cswap_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zswap_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zswap_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
@@ -362,8 +344,7 @@ CUBLAS_ROUTINE_HANDLER(Zswap_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Isamax_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Isamax_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
@@ -378,8 +359,7 @@ CUBLAS_ROUTINE_HANDLER(Isamax_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Idamax_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Idamax_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
@@ -394,8 +374,7 @@ CUBLAS_ROUTINE_HANDLER(Idamax_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Icamax_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Icamax_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
@@ -410,8 +389,7 @@ CUBLAS_ROUTINE_HANDLER(Icamax_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Izamax_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Izamax_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
@@ -426,8 +404,7 @@ CUBLAS_ROUTINE_HANDLER(Izamax_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Isamin_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Isamin_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
@@ -442,8 +419,7 @@ CUBLAS_ROUTINE_HANDLER(Isamin_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Idamin_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Idamin_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
@@ -458,8 +434,7 @@ CUBLAS_ROUTINE_HANDLER(Idamin_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Icamin_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Icamin_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
@@ -474,8 +449,7 @@ CUBLAS_ROUTINE_HANDLER(Icamin_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Izamin_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Izamin_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
@@ -490,8 +464,7 @@ CUBLAS_ROUTINE_HANDLER(Izamin_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Sasum_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sasum_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
@@ -506,8 +479,7 @@ CUBLAS_ROUTINE_HANDLER(Sasum_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dasum_v2){
-   Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dasum_v2"));
-    
+       
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
@@ -522,8 +494,7 @@ CUBLAS_ROUTINE_HANDLER(Dasum_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Scasum_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Scasum_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
@@ -538,8 +509,7 @@ CUBLAS_ROUTINE_HANDLER(Scasum_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dzasum_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dzasum_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
@@ -554,8 +524,7 @@ CUBLAS_ROUTINE_HANDLER(Dzasum_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Srot_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Srot_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
@@ -570,8 +539,7 @@ CUBLAS_ROUTINE_HANDLER(Srot_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Drot_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Drot_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
@@ -586,8 +554,7 @@ CUBLAS_ROUTINE_HANDLER(Drot_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Crot_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Crot_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
@@ -602,8 +569,7 @@ CUBLAS_ROUTINE_HANDLER(Crot_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Csrot_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Csrot_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuComplex * x = in->GetFromMarshal<cuComplex*>();
@@ -618,8 +584,7 @@ CUBLAS_ROUTINE_HANDLER(Csrot_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zrot_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zrot_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
@@ -634,8 +599,7 @@ CUBLAS_ROUTINE_HANDLER(Zrot_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zdrot_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zdrot_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
@@ -650,8 +614,7 @@ CUBLAS_ROUTINE_HANDLER(Zdrot_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Srotg_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Srotg_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     float * a = in->Assign<float>();
     float * b = in->Assign<float>();
@@ -663,8 +626,7 @@ CUBLAS_ROUTINE_HANDLER(Srotg_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Drotg_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Drotg_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     double * a = in->Assign<double>();
     double * b = in->Assign<double>();
@@ -677,8 +639,7 @@ CUBLAS_ROUTINE_HANDLER(Drotg_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Crotg_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Drotg_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     cuComplex * a = in->Assign<cuComplex>();
     cuComplex * b = in->Assign<cuComplex>();
@@ -690,8 +651,7 @@ CUBLAS_ROUTINE_HANDLER(Crotg_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zrotg_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Drotg_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     cuDoubleComplex * a = in->Assign<cuDoubleComplex>();
     cuDoubleComplex * b = in->Assign<cuDoubleComplex>();
@@ -703,8 +663,7 @@ CUBLAS_ROUTINE_HANDLER(Zrotg_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Srotm_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Srotm_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     float * x = in->GetFromMarshal<float*>();
@@ -718,8 +677,7 @@ CUBLAS_ROUTINE_HANDLER(Srotm_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Drotm_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Drotm_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     int n = in->Get<int>();
     double * x = in->GetFromMarshal<double*>();
@@ -733,8 +691,7 @@ CUBLAS_ROUTINE_HANDLER(Drotm_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Srotmg_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Srotmg_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     float * d1 = in->Assign<float>();
     float * d2 = in->Assign<float>();
@@ -751,8 +708,7 @@ CUBLAS_ROUTINE_HANDLER(Srotmg_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Drotmg_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Drotmg_v2"));
-    
+        
     cublasHandle_t handle = (cublasHandle_t)in->Get<long long int>();
     double * d1 = in->Assign<double>();
     double * d2 = in->Assign<double>();

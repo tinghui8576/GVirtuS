@@ -9,8 +9,6 @@
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
-using namespace log4cplus;
-
 // TODO: test
 CUDA_DRIVER_HANDLER(TensorMapEncodeTiled) {
     CUtensorMap tensorMap;

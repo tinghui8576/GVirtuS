@@ -167,8 +167,7 @@ CUDA_DRIVER_HANDLER(MemGetInfo) {
 }
 
 CUDA_DRIVER_HANDLER(MemsetD32Async) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MemsetD32Async"));
-
+    
     CUdeviceptr dstDevice = input_buffer->Get<CUdeviceptr>();
     unsigned int ui = input_buffer->Get<unsigned int>();
     size_t N = input_buffer->Get<size_t>();
@@ -176,6 +175,6 @@ CUDA_DRIVER_HANDLER(MemsetD32Async) {
 
     CUresult exit_code = cuMemsetD32Async(dstDevice, ui, N, hStream);
 
-    LOG4CPLUS_DEBUG(logger, "cuMemsetD32Async executed for dstDevice: " << dstDevice << ", ui: " << ui << ", N: " << N);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cuMemsetD32Async executed for dstDevice: " << dstDevice << ", ui: " << ui << ", N: " << N);
     return std::make_shared<Result>((cudaError_t) exit_code);
 }

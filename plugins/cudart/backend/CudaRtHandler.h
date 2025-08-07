@@ -76,34 +76,36 @@ using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 class CudaRtHandler : public gvirtus::backend::Handler {
- public:
-  CudaRtHandler();
-  virtual ~CudaRtHandler();
-  bool CanExecute(std::string routine);
-  std::shared_ptr<Result> Execute(std::string routine,
-                                  std::shared_ptr<Buffer> input_buffer);
+public:
+    CudaRtHandler();
+    virtual ~CudaRtHandler();
+    bool CanExecute(std::string routine);
+    std::shared_ptr<Result> Execute(std::string routine,
+                                    std::shared_ptr<Buffer> input_buffer);
 
-  void RegisterFatBinary(std::string &handler, void **fatCubinHandle);
-  void RegisterFatBinary(const char *handler, void **fatCubinHandle);
-  void RegisterFatBinaryEnd(void **fatCubinHandle);
-  void **GetFatBinary(std::string &handler);
-  void **GetFatBinary(const char *handler);
-  void UnregisterFatBinary(std::string &handler);
-  void UnregisterFatBinary(const char *handler);
+    void RegisterFatBinary(std::string &handler, void **fatCubinHandle);
+    void RegisterFatBinary(const char *handler, void **fatCubinHandle);
+    void RegisterFatBinaryEnd(void **fatCubinHandle);
+    void **GetFatBinary(std::string &handler);
+    void **GetFatBinary(const char *handler);
+    void UnregisterFatBinary(std::string &handler);
+    void UnregisterFatBinary(const char *handler);
 
-  void RegisterDeviceFunction(std::string &handler, std::string &function);
-  void RegisterDeviceFunction(const char *handler, const char *function);
-  const char *GetDeviceFunction(std::string &handler);
-  const char *GetDeviceFunction(const char *handler);
+    void RegisterDeviceFunction(std::string &handler, std::string &function);
+    void RegisterDeviceFunction(const char *handler, const char *function);
+    const char *GetDeviceFunction(std::string &handler);
+    const char *GetDeviceFunction(const char *handler);
 
-  void RegisterVar(std::string &handler, std::string &deviceName);
-  void RegisterVar(const char *handler, const char *deviceName);
-  const char *GetVar(std::string &handler);
-  const char *GetVar(const char *handler);
+    void RegisterVar(std::string &handler, std::string &deviceName);
+    void RegisterVar(const char *handler, const char *deviceName);
+    const char *GetVar(std::string &handler);
+    const char *GetVar(const char *handler);
 
-  const char *GetSymbol(std::shared_ptr<Buffer> in);
+    const char *GetSymbol(std::shared_ptr<Buffer> in);
 
-  static void setLogLevel(Logger *logger);
+    Logger &GetLogger() {
+        return logger;
+    }
 
     inline void addDeviceFunc2InfoFunc(std::string deviceFunc, NvInfoFunction infoFunction) {
         mapDeviceFunc2InfoFunc->insert(make_pair(deviceFunc, infoFunction));

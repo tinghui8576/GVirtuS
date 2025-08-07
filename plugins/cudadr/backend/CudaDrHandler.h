@@ -79,6 +79,10 @@ public:
 
     const char *GetSymbol(gvirtus::communicators::Buffer * in);
 
+    Logger& GetLogger() {
+        return logger;
+    }
+
     void RegisterSharedMemory(const char *name) {
         mShmFd = shm_open(name, O_RDWR, S_IRWXU);
 

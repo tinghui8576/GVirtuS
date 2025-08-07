@@ -29,8 +29,7 @@ using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 CUBLAS_ROUTINE_HANDLER(Sgemv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sgemv"));
-    
+        
     cublasHandle_t handle;
     handle = in->Get<cublasHandle_t>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
@@ -47,13 +46,12 @@ CUBLAS_ROUTINE_HANDLER(Sgemv_v2){
     int incy = in->Get<int>();
 
     cublasStatus_t cs = cublasSgemv_v2(handle, trans, m, n, alpha, A, lda, x, incx, beta, y, incy);
-    LOG4CPLUS_DEBUG(logger, "cublasSgemv_v2 Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasSgemv_v2 Executed");
     return std::make_shared<Result>(cs);
 }
 
 CUBLAS_ROUTINE_HANDLER(Dgemv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dgemv"));
-    
+        
     cublasHandle_t handle;
     handle = in->Get<cublasHandle_t>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
@@ -70,13 +68,12 @@ CUBLAS_ROUTINE_HANDLER(Dgemv_v2){
     int incy = in->Get<int>();
 
     cublasStatus_t cs = cublasDgemv_v2(handle, trans, m, n, alpha, A, lda, x, incx, beta, y, incy);
-    LOG4CPLUS_DEBUG(logger, "cublasDgemv_v2 Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasDgemv_v2 Executed");
     return std::make_shared<Result>(cs);
 }
 
 CUBLAS_ROUTINE_HANDLER(Cgemv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Cgemv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
@@ -98,17 +95,16 @@ CUBLAS_ROUTINE_HANDLER(Cgemv_v2){
         cs = cublasCgemv_v2(handle,trans,m,n,alpha,A,lda,x,incx,beta,y,incy);
         out->AddMarshal<cuComplex *>(y);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cublasCgemv_v2 Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasCgemv_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
 
 CUBLAS_ROUTINE_HANDLER(Zgemv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zgemv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
@@ -130,16 +126,15 @@ CUBLAS_ROUTINE_HANDLER(Zgemv_v2){
         cs = cublasZgemv_v2(handle,trans,m,n,alpha,A,lda,x,incx,beta,y,incy);
         out->AddMarshal<cuDoubleComplex *>(y);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-    LOG4CPLUS_DEBUG(logger, "cublasZgemv_v2 Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasZgemv_v2 Executed");
     return std::make_shared<Result>(cs,out);
 }
 
 CUBLAS_ROUTINE_HANDLER(Sgbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sgbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
@@ -161,8 +156,7 @@ CUBLAS_ROUTINE_HANDLER(Sgbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dgbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dgbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
@@ -184,8 +178,7 @@ CUBLAS_ROUTINE_HANDLER(Dgbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Cgbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Cgbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
@@ -207,8 +200,7 @@ CUBLAS_ROUTINE_HANDLER(Cgbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zgbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zgbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
@@ -230,8 +222,7 @@ CUBLAS_ROUTINE_HANDLER(Zgbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Strmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Strmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -248,8 +239,7 @@ CUBLAS_ROUTINE_HANDLER(Strmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dtrmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dtrmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -266,8 +256,7 @@ CUBLAS_ROUTINE_HANDLER(Dtrmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ctrmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ctrmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -284,8 +273,7 @@ CUBLAS_ROUTINE_HANDLER(Ctrmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ztrmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ztrmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -302,8 +290,7 @@ CUBLAS_ROUTINE_HANDLER(Ztrmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Stbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Stbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -321,8 +308,7 @@ CUBLAS_ROUTINE_HANDLER(Stbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dtbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dtbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -340,8 +326,7 @@ CUBLAS_ROUTINE_HANDLER(Dtbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ctbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ctbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -359,8 +344,7 @@ CUBLAS_ROUTINE_HANDLER(Ctbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ztbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ztbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -378,8 +362,7 @@ CUBLAS_ROUTINE_HANDLER(Ztbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Stpmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Stpmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -395,8 +378,7 @@ CUBLAS_ROUTINE_HANDLER(Stpmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dtpmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dtpmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -412,8 +394,7 @@ CUBLAS_ROUTINE_HANDLER(Dtpmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ctpmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ctpmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -429,8 +410,7 @@ CUBLAS_ROUTINE_HANDLER(Ctpmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ztpmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ztpmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -446,8 +426,7 @@ CUBLAS_ROUTINE_HANDLER(Ztpmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Strsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Strsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -464,8 +443,7 @@ CUBLAS_ROUTINE_HANDLER(Strsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dtrsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dtrsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -482,8 +460,7 @@ CUBLAS_ROUTINE_HANDLER(Dtrsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ctrsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ctrsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -500,8 +477,7 @@ CUBLAS_ROUTINE_HANDLER(Ctrsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ztrsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ztrsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -519,8 +495,7 @@ CUBLAS_ROUTINE_HANDLER(Ztrsv_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Stpsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Stpsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -536,8 +511,7 @@ CUBLAS_ROUTINE_HANDLER(Stpsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dtpsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dtpsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -553,8 +527,7 @@ CUBLAS_ROUTINE_HANDLER(Dtpsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ctpsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ctpsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -570,8 +543,7 @@ CUBLAS_ROUTINE_HANDLER(Ctpsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ztpsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ztpsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -587,8 +559,7 @@ CUBLAS_ROUTINE_HANDLER(Ztpsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Stbsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Stbsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -606,8 +577,7 @@ CUBLAS_ROUTINE_HANDLER(Stbsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dtbsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dtbsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -625,8 +595,7 @@ CUBLAS_ROUTINE_HANDLER(Dtbsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ctbsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ctbsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -644,8 +613,7 @@ CUBLAS_ROUTINE_HANDLER(Ctbsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ztbsv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ztbsv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -663,8 +631,7 @@ CUBLAS_ROUTINE_HANDLER(Ztbsv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ssymv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ssymv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -684,8 +651,7 @@ CUBLAS_ROUTINE_HANDLER(Ssymv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dsymv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dsymv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -705,8 +671,7 @@ CUBLAS_ROUTINE_HANDLER(Dsymv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Csymv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Csymv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -726,8 +691,7 @@ CUBLAS_ROUTINE_HANDLER(Csymv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zsymv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zsymv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -747,8 +711,7 @@ CUBLAS_ROUTINE_HANDLER(Zsymv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Chemv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Chemv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -768,8 +731,7 @@ CUBLAS_ROUTINE_HANDLER(Chemv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zhemv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zhemv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -789,8 +751,7 @@ CUBLAS_ROUTINE_HANDLER(Zhemv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ssbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ssbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -811,8 +772,7 @@ CUBLAS_ROUTINE_HANDLER(Ssbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dsbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dsbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -833,8 +793,7 @@ CUBLAS_ROUTINE_HANDLER(Dsbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Chbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Chbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -855,8 +814,7 @@ CUBLAS_ROUTINE_HANDLER(Chbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zhbmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zhbmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -877,8 +835,7 @@ CUBLAS_ROUTINE_HANDLER(Zhbmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Sspmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sspmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -897,8 +854,7 @@ CUBLAS_ROUTINE_HANDLER(Sspmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dspmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dspmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -917,8 +873,7 @@ CUBLAS_ROUTINE_HANDLER(Dspmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Chpmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Chpmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -937,8 +892,7 @@ CUBLAS_ROUTINE_HANDLER(Chpmv_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zhpmv_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zhpmv_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -958,8 +912,7 @@ CUBLAS_ROUTINE_HANDLER(Zhpmv_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Sger_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sger_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     int m = in->Get<int>();
@@ -977,8 +930,7 @@ CUBLAS_ROUTINE_HANDLER(Sger_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dger_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dger_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     int m = in->Get<int>();
@@ -996,8 +948,7 @@ CUBLAS_ROUTINE_HANDLER(Dger_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Cgeru_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Cgeru_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     int m = in->Get<int>();
@@ -1015,8 +966,7 @@ CUBLAS_ROUTINE_HANDLER(Cgeru_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Cgerc_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Cgerc_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     int m = in->Get<int>();
@@ -1034,8 +984,7 @@ CUBLAS_ROUTINE_HANDLER(Cgerc_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zgeru_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zgeru_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     int m = in->Get<int>();
@@ -1053,8 +1002,7 @@ CUBLAS_ROUTINE_HANDLER(Zgeru_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zgerc_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zgerc_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     int m = in->Get<int>();
@@ -1073,8 +1021,7 @@ CUBLAS_ROUTINE_HANDLER(Zgerc_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Ssyr_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ssyr_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1090,8 +1037,7 @@ CUBLAS_ROUTINE_HANDLER(Ssyr_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dsyr_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dsyr_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1107,8 +1053,7 @@ CUBLAS_ROUTINE_HANDLER(Dsyr_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Csyr_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Csyr_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1124,8 +1069,7 @@ CUBLAS_ROUTINE_HANDLER(Csyr_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zsyr_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zsyr_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1141,8 +1085,7 @@ CUBLAS_ROUTINE_HANDLER(Zsyr_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Cher_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Cher_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1158,8 +1101,7 @@ CUBLAS_ROUTINE_HANDLER(Cher_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zher_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zher_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1176,8 +1118,7 @@ CUBLAS_ROUTINE_HANDLER(Zher_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Sspr_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sspr_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1193,8 +1134,7 @@ CUBLAS_ROUTINE_HANDLER(Sspr_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Dspr_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dspr_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1209,8 +1149,7 @@ CUBLAS_ROUTINE_HANDLER(Dspr_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Chpr_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Chpr_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1225,8 +1164,7 @@ CUBLAS_ROUTINE_HANDLER(Chpr_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zhpr_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zhpr_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1241,8 +1179,7 @@ CUBLAS_ROUTINE_HANDLER(Zhpr_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Ssyr2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Ssyr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1260,8 +1197,7 @@ CUBLAS_ROUTINE_HANDLER(Ssyr2_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dsyr2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Dsyr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1279,8 +1215,7 @@ CUBLAS_ROUTINE_HANDLER(Dsyr2_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Csyr2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Csyr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1298,8 +1233,7 @@ CUBLAS_ROUTINE_HANDLER(Csyr2_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zsyr2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zsyr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1317,8 +1251,7 @@ CUBLAS_ROUTINE_HANDLER(Zsyr2_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Cher2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Cher2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1336,8 +1269,7 @@ CUBLAS_ROUTINE_HANDLER(Cher2_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zher2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zsyr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1356,8 +1288,7 @@ CUBLAS_ROUTINE_HANDLER(Zher2_v2){
 
 
 CUBLAS_ROUTINE_HANDLER(Sspr2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sspr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1374,8 +1305,7 @@ CUBLAS_ROUTINE_HANDLER(Sspr2_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Dspr2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Sspr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1392,8 +1322,7 @@ CUBLAS_ROUTINE_HANDLER(Dspr2_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Chpr2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Chpr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
@@ -1410,8 +1339,7 @@ CUBLAS_ROUTINE_HANDLER(Chpr2_v2){
 }
 
 CUBLAS_ROUTINE_HANDLER(Zhpr2_v2){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("Zhpr2_v2"));
-    
+        
     cublasHandle_t handle;
     handle = (cublasHandle_t) in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();

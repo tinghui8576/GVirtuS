@@ -28,36 +28,32 @@
 using namespace log4cplus;
 
 CUDA_ROUTINE_HANDLER(DeviceSetCacheConfig) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceSetCacheConfig"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   try {
     cudaFuncCache cacheConfig = input_buffer->Get<cudaFuncCache>();
     cudaError_t exit_code = cudaDeviceSetCacheConfig(cacheConfig);
     return std::make_shared<Result>(exit_code);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);  //???
   }
 }
 
 CUDA_ROUTINE_HANDLER(DeviceSetLimit) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceSetLimit"));
-  CudaRtHandler::setLogLevel(&logger);
+  
   try {
     cudaLimit limit = input_buffer->Get<cudaLimit>();
     size_t value = input_buffer->Get<size_t>();
     cudaError_t exit_code = cudaDeviceSetLimit(limit, value);
     return std::make_shared<Result>(exit_code);
   } catch (const std::exception& e) {
-      LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+      LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);  //???
   }
 }
 
 CUDA_ROUTINE_HANDLER(IpcOpenMemHandle) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("IpcOpenMemHandle"));
-  CudaRtHandler::setLogLevel(&logger);
+  
   void *devPtr = NULL;
   try {
     cudaIpcMemHandle_t handle = input_buffer->Get<cudaIpcMemHandle_t>();
@@ -68,14 +64,13 @@ CUDA_ROUTINE_HANDLER(IpcOpenMemHandle) {
     out->AddMarshal(devPtr);
     return std::make_shared<Result>(exit_code, out);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
 
 CUDA_ROUTINE_HANDLER(DeviceEnablePeerAccess) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceEnablePeerAccess"));
-  CudaRtHandler::setLogLevel(&logger);
+  
   int peerDevice = input_buffer->Get<int>();
   unsigned int flags = input_buffer->Get<unsigned int>();
   cudaError_t exit_code = cudaDeviceEnablePeerAccess(peerDevice, flags);
@@ -83,17 +78,15 @@ CUDA_ROUTINE_HANDLER(DeviceEnablePeerAccess) {
 }
 
 CUDA_ROUTINE_HANDLER(DeviceDisablePeerAccess) {
-  Logger logger =
-      Logger::getInstance(LOG4CPLUS_TEXT("DeviceDisablePeerAccess"));
-  CudaRtHandler::setLogLevel(&logger);
+        Logger::getInstance(LOG4CPLUS_TEXT("DeviceDisablePeerAccess"));
+
   int peerDevice = input_buffer->Get<int>();
   cudaError_t exit_code = cudaDeviceDisablePeerAccess(peerDevice);
   return std::make_shared<Result>(exit_code);
 }
 
 CUDA_ROUTINE_HANDLER(DeviceCanAccessPeer) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceCanAccessPeer"));
-  CudaRtHandler::setLogLevel(&logger);
+  
   int *canAccessPeer = input_buffer->Assign<int>();
   int device = input_buffer->Get<int>();
   int peerDevice = input_buffer->Get<int>();
@@ -106,7 +99,7 @@ CUDA_ROUTINE_HANDLER(DeviceCanAccessPeer) {
   try {
     out->Add(canAccessPeer);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -114,9 +107,7 @@ CUDA_ROUTINE_HANDLER(DeviceCanAccessPeer) {
 }
 
 CUDA_ROUTINE_HANDLER(DeviceGetStreamPriorityRange) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceGetStreamPriorityRange"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   int leastPriority;
   int greatestPriority;
 
@@ -127,16 +118,14 @@ CUDA_ROUTINE_HANDLER(DeviceGetStreamPriorityRange) {
     out->Add(leastPriority);
     out->Add(greatestPriority);
   } catch (const std::exception& e) {
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
   return std::make_shared<Result>(exit_code, out);
 }
 
 CUDA_ROUTINE_HANDLER(DeviceGetAttribute) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceGetAttribute"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   int *value = input_buffer->Assign<int>();
   cudaDeviceAttr attr = input_buffer->Get<cudaDeviceAttr>();
   int device = input_buffer->Get<int>();
@@ -146,7 +135,7 @@ CUDA_ROUTINE_HANDLER(DeviceGetAttribute) {
   try {
     out->Add(value);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -154,9 +143,7 @@ CUDA_ROUTINE_HANDLER(DeviceGetAttribute) {
 }
 
 CUDA_ROUTINE_HANDLER(IpcGetMemHandle) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("IpcGetMemHanlde"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   cudaIpcMemHandle_t *handle = input_buffer->Assign<cudaIpcMemHandle_t>();
   void *devPtr = input_buffer->GetFromMarshal<void *>();
 
@@ -167,7 +154,7 @@ CUDA_ROUTINE_HANDLER(IpcGetMemHandle) {
   try {
     out->Add(handle);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -175,9 +162,7 @@ CUDA_ROUTINE_HANDLER(IpcGetMemHandle) {
 }
 
 CUDA_ROUTINE_HANDLER(IpcGetEventHandle) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("IpcGetEventHandle"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   cudaIpcEventHandle_t *handle = input_buffer->Assign<cudaIpcEventHandle_t>();
   cudaEvent_t event = input_buffer->Get<cudaEvent_t>();
 
@@ -188,7 +173,7 @@ CUDA_ROUTINE_HANDLER(IpcGetEventHandle) {
   try {
     out->Add(handle);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -196,9 +181,7 @@ CUDA_ROUTINE_HANDLER(IpcGetEventHandle) {
 }
 
 CUDA_ROUTINE_HANDLER(ChooseDevice) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("ChooseDevice"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   int *device = input_buffer->Assign<int>();
   const cudaDeviceProp *prop = input_buffer->Assign<cudaDeviceProp>();
   cudaError_t exit_code = cudaChooseDevice(device, prop);
@@ -207,7 +190,7 @@ CUDA_ROUTINE_HANDLER(ChooseDevice) {
   try {
     out->Add(device);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 
@@ -215,27 +198,23 @@ CUDA_ROUTINE_HANDLER(ChooseDevice) {
 }
 
 CUDA_ROUTINE_HANDLER(GetDevice) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetDevice"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   try {
     int device;
     cudaError_t exit_code = cudaGetDevice(&device);
-    LOG4CPLUS_DEBUG(logger, "GetDevice executed. Device: " << device);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "GetDevice executed. Device: " << device);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->Add<int>(device);
-    LOG4CPLUS_DEBUG(logger, "added device to out buffer");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "added device to out buffer");
     return std::make_shared<Result>(exit_code, out);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
 
 CUDA_ROUTINE_HANDLER(DeviceReset) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceReset"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   cudaError_t exit_code = cudaDeviceReset();
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
@@ -243,32 +222,27 @@ CUDA_ROUTINE_HANDLER(DeviceReset) {
 }
 
 CUDA_ROUTINE_HANDLER(DeviceSynchronize) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceSynchronize"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   cudaError_t exit_code = cudaDeviceSynchronize();
 
   return std::make_shared<Result>(exit_code);
 }
 
 CUDA_ROUTINE_HANDLER(GetDeviceCount) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetDeviceCount"));
-  try {
+    try {
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     int *count = out->Delegate<int>();
     cudaError_t exit_code = cudaGetDeviceCount(count);
-    LOG4CPLUS_DEBUG(logger, "GetDeviceCount executed. Count: " << *count);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "GetDeviceCount executed. Count: " << *count);
     return std::make_shared<Result>(exit_code, out);
   } catch (const std::exception& e) {
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
 
 CUDA_ROUTINE_HANDLER(GetDeviceProperties) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetDeviceProperties"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   try {
     struct cudaDeviceProp *prop = input_buffer->Assign<struct cudaDeviceProp>();
     int device = input_buffer->Get<int>();
@@ -279,22 +253,20 @@ CUDA_ROUTINE_HANDLER(GetDeviceProperties) {
     out->Add(prop, 1);
     return std::make_shared<Result>(exit_code, out);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
 
 CUDA_ROUTINE_HANDLER(SetDevice) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetDevice"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   try {
     int device = input_buffer->Get<int>();
-    LOG4CPLUS_DEBUG(logger, "SetDevice: " << device);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "SetDevice: " << device);
     cudaError_t exit_code = cudaSetDevice(device);
     return std::make_shared<Result>(exit_code);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
@@ -304,23 +276,19 @@ CUDA_ROUTINE_HANDLER(SetDevice) {
 #endif
 #if CUDART_VERSION >= 2030
 CUDA_ROUTINE_HANDLER(SetDeviceFlags) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetDeviceFlags"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   try {
     int flags = input_buffer->Get<int>();
     cudaError_t exit_code = cudaSetDeviceFlags(flags);
     return std::make_shared<Result>(exit_code);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
 
 CUDA_ROUTINE_HANDLER(IpcOpenEventHandle) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("IpcOpenEventHandler"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
   try {
@@ -329,15 +297,13 @@ CUDA_ROUTINE_HANDLER(IpcOpenEventHandle) {
     cudaError_t exit_code = cudaIpcOpenEventHandle(event, handle);
     out->Add(event);
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
   }
   return std::make_shared<Result>(cudaErrorMemoryAllocation);
 }
 
 CUDA_ROUTINE_HANDLER(SetValidDevices) {
-  Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("SetValidDevices"));
-  CudaRtHandler::setLogLevel(&logger);
-
+  
   try {
     int len = input_buffer->BackGet<int>();
     int *device_arr = input_buffer->Assign<int>(len);
@@ -348,20 +314,19 @@ CUDA_ROUTINE_HANDLER(SetValidDevices) {
     return std::make_shared<Result>(exit_code, out);
 
   } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
     return std::make_shared<Result>(cudaErrorMemoryAllocation);
   }
 }
 #endif
 
 CUDA_ROUTINE_HANDLER(DeviceGetDefaultMemPool) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DeviceGetDefaultMemPool"));
-
+    
     cudaMemPool_t memPool;
     int device = input_buffer->Get<int>();
 
     cudaError_t exit_code = cudaDeviceGetDefaultMemPool(&memPool, device);
-    LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("cudaDeviceGetDefaultMemPool: ") << exit_code);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("cudaDeviceGetDefaultMemPool: ") << exit_code);
     if (exit_code == cudaSuccess) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         out->AddMarshal(memPool);

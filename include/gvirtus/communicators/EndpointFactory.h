@@ -25,9 +25,9 @@ class EndpointFactory {
     nlohmann::json j;
     ifs >> j;
 
-    auto logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS.EndpointFactory"));
-    LOG4CPLUS_INFO(logger, "Parsing endpoint config from: " + json_path.string());
-    LOG4CPLUS_DEBUG(logger, "Full JSON dump:\n" + j.dump(4));
+    // Logger logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS.EndpointFactory"));
+    // LOG4CPLUS_INFO(logger, "Parsing endpoint config from: " + json_path.string());
+    // LOG4CPLUS_DEBUG(logger, "Full JSON dump:\n" + j.dump(4));
 
     if (!j.contains("communicator") || !j["communicator"].is_array() || j["communicator"].empty()) {
         throw std::runtime_error("Invalid or missing 'communicator' array in configuration.");
@@ -39,15 +39,15 @@ class EndpointFactory {
     }
 
     std::string suite = endpoint_obj["suite"].get<std::string>();
-    LOG4CPLUS_INFO(logger, "Parsed endpoint suite: " + suite);
+    // LOG4CPLUS_INFO(logger, "Parsed endpoint suite: " + suite);
 
     if (suite == "tcp/ip") {
-        LOG4CPLUS_INFO(logger, "Initializing TCP/IP Endpoint");
+        // LOG4CPLUS_INFO(logger, "Initializing TCP/IP Endpoint");
         auto end = common::JSON<Endpoint_Tcp>(json_path).parser();
         ptr = std::make_shared<Endpoint_Tcp>(end);
     }
     else if (suite == "infiniband-rdma") {
-        LOG4CPLUS_INFO(logger, "Initializing Infiniband RDMA Endpoint");
+        // LOG4CPLUS_INFO(logger, "Initializing Infiniband RDMA Endpoint");
         auto end = common::JSON<Endpoint_Rdma>(json_path).parser();
         ptr = std::make_shared<Endpoint_Rdma>(end);
     }

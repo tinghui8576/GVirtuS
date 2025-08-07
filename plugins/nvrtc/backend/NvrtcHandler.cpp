@@ -43,36 +43,18 @@ extern "C" int HandlerInit() {
 }
 
 NvrtcHandler::NvrtcHandler() {
-    logger=Logger::getInstance(LOG4CPLUS_TEXT("NvrtcHandler"));
-    setLogLevel(&logger);
+    logger = Logger::getInstance(LOG4CPLUS_TEXT("NvrtcHandler"));
     Initialize();
 }
 
-NvrtcHandler::~NvrtcHandler() {
-}
-
-void NvrtcHandler::setLogLevel(Logger *logger) {
-    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
-    char *val = getenv("GVIRTUS_LOGLEVEL");
-	std::string logLevelString =(val == NULL ? std::string("") : std::string(val));
-	if (logLevelString != "") {
-        try {
-            logLevel = std::stoi(logLevelString);
-        } catch (const std::exception &e) {
-            std::cerr << "[WARNING] Invalid GVIRTUS_LOGLEVEL='" << logLevelString
-                      << "', defaulting to INFO. Reason: " << e.what() << std::endl;
-            logLevel = log4cplus::INFO_LOG_LEVEL;
-        }
-    }
-    logger->setLogLevel(logLevel);
-}
+NvrtcHandler::~NvrtcHandler() {}
 
 bool NvrtcHandler::CanExecute(std::string routine) {
     return mspHandlers->find(routine) != mspHandlers->end();
 }
 
 std::shared_ptr<Result> NvrtcHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
-    LOG4CPLUS_DEBUG(logger,"Called " << routine);
+    LOG4CPLUS_DEBUG(logger, "Called " << routine);
     map<string, NvrtcHandler::NvrtcRoutineHandler>::iterator it;
     it = mspHandlers->find(routine);
     if (it == mspHandlers->end())

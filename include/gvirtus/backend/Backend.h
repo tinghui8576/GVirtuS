@@ -12,7 +12,7 @@
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
 
-#define DEBUG
+// #define DEBUG
 
 namespace gvirtus::backend {
 

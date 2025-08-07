@@ -93,79 +93,6 @@ char* copySectionHeaderStrTable(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table) {
     return sh_str;
 }
 
-// needs fix
-// void parseNvInfoSections(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table, char *sh_str, CudaRtHandler *pThis) {
-//     for (uint32_t i = 0; i < eh->e_shnum; i++) {
-//         char *sectionName = sh_str + sh_table[i].sh_name;
-//         if (strncmp(".nv.info.", sectionName, strlen(".nv.info.")) != 0) {
-//             continue;
-//         }
-
-//         char *funcName = sectionName + strlen(".nv.info.");
-//         byte *sectionData = (byte*)eh + sh_table[i].sh_offset;
-//         byte *sectionEnd  = sectionData + sh_table[i].sh_size;
-
-//         NVInfoFunction infoFunction;
-
-//         byte *p = sectionData;
-
-//         while (p < sectionEnd) {
-//             const NVInfoItemHeader *hdr = (const NVInfoItemHeader *)p;
-//             p += sizeof(NVInfoItemHeader);
-
-//             NVInfoItem item = {};
-//             item.format = hdr->format;
-//             item.attribute = hdr->attribute;
-
-//             switch (hdr->format) {
-//                 case EIFMT_SVAL: {
-//                     const  NVInfoSvalHeader *svalHdr = (const NVInfoSvalHeader *)p;
-//                     uint16_t valSize = svalHdr->value_size;
-//                     p += sizeof(NVInfoSvalHeader);
-
-//                     if (hdr->attribute == EIATTR_KPARAM_INFO) {
-//                         // parse NvInfoKParamInfoValue (12 bytes)
-//                         const NVInfoKParamInfoValue *param = (const NVInfoKParamInfoValue *)p;
-//                         item.type = NVInfoItem::KPARAM_INFO;
-//                         item.kparam = *param;
-//                         infoFunction.params.push_back(*param);
-//                     } else if (hdr->attribute == EIATTR_EXTERNS) {
-//                         // extern name (null-terminated string)
-//                         item.type = NVInfoItem::EXTERN;
-//                         item.extern_name = std::string((const char *)p, valSize);
-//                     } else {
-//                         item.type = NVInfoItem::OTHER;
-//                     }
-//                     // skip this sval
-//                     p += valSize;
-//                     break;
-//                 }
-//                 case EIFMT_NVAL: {
-//                     item.type = NVInfoItem::NO_VALUE;
-//                     p += 0;
-//                     break;
-//                 }
-//                 case EIFMT_BVAL: {
-//                     item.type = NVInfoItem::BVAL;
-//                     item.uval = *(const uint8_t *)p;
-//                     p += 1;
-//                     break;
-//                 }
-//                 case EIFMT_HVAL: {
-//                     item.type = NVInfoItem::HVAL;
-//                     item.uval = *(const uint16_t *)p;
-//                     p += 2;
-//                     break;
-//                 }
-//                 default:
-//                     throw std::runtime_error("Unknown NVInfo format");
-//             }
-//         }
-//         pThis->addDeviceFunc2InfoFunc(funcName, infoFunction);
-//     }
-// }
-
-
 // Helper: parse NvInfo sections and register functions
 void parseNvInfoSections(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table, char *sh_str, CudaRtHandler *pThis) {
     byte *baseAddr = (byte *)eh;
@@ -199,14 +126,13 @@ void parseNvInfoSections(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table, char *sh_st
 }
 
 CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterFatBinary"));
-    LOG4CPLUS_DEBUG(logger, "Entering in RegisterFatBinary");
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), "Entering in RegisterFatBinary");
 
     try {
         char *handler = input_buffer->AssignString();
         __fatBinC_Wrapper_t *fatBin = CudaUtil::UnmarshalFatCudaBinaryV2(input_buffer.get());
         if (fatBin->magic != FATBINWRAPPER_MAGIC) {
-            LOG4CPLUS_ERROR(logger, "*** Error: Invalid fat binary wrapper magic number");
+            LOG4CPLUS_ERROR(pThis->GetLogger(), "*** Error: Invalid fat binary wrapper magic number");
             return std::make_shared<Result>(cudaErrorInvalidValue);
         }
         void **bin = __cudaRegisterFatBinary((void *)fatBin);
@@ -214,7 +140,7 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
 
         struct fatBinaryHeader *fatBinHdr = (struct fatBinaryHeader *)fatBin->data;
         if (fatBinHdr->magic != FATBIN_MAGIC) {
-            LOG4CPLUS_ERROR(logger, "*** Error: Invalid fat binary header magic number");
+            LOG4CPLUS_ERROR(pThis->GetLogger(), "*** Error: Invalid fat binary header magic number");
             return std::make_shared<Result>(cudaErrorInvalidValue);
         }
 
@@ -244,7 +170,7 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
                     fatBinData->uncompressedPayload
                 );
                 if (decompressed_size < 0) {
-                    LOG4CPLUS_ERROR(logger, "*** Error: LZ4 decompression failed with code " << decompressed_size);
+                    LOG4CPLUS_ERROR(pThis->GetLogger(), "*** Error: LZ4 decompression failed with code " << decompressed_size);
                     return nullptr; // Decompression failed
                 }
                 // Advance pointer for next usage (if needed)
@@ -358,24 +284,23 @@ CUDA_ROUTINE_HANDLER(RegisterFunction) {
 }
 
 CUDA_ROUTINE_HANDLER(RegisterVar) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("RegisterVar"));
-//   LOG4CPLUS_DEBUG(logger, "Entering in RegisterVar");
+    //   LOG4CPLUS_DEBUG(pThis->GetLogger(), "Entering in RegisterVar");
     try {
         char *handler = input_buffer->AssignString();
-        // LOG4CPLUS_DEBUG(logger, "Handler: " << handler);
+        // LOG4CPLUS_DEBUG(pThis->GetLogger(), "Handler: " << handler);
         void **fatCubinHandle = pThis->GetFatBinary(handler);
-        // LOG4CPLUS_DEBUG(logger, "FatCubinHandle: " << fatCubinHandle);
+        // LOG4CPLUS_DEBUG(pThis->GetLogger(), "FatCubinHandle: " << fatCubinHandle);
         char *hostVar = input_buffer->AssignString();
-        // LOG4CPLUS_DEBUG(logger, "HostVar: " << hostVar);
+        // LOG4CPLUS_DEBUG(pThis->GetLogger(), "HostVar: " << hostVar);
         char *deviceAddress = strdup(input_buffer->AssignString());
-        // LOG4CPLUS_DEBUG(logger, "DeviceAddress: " << deviceAddress);
+        // LOG4CPLUS_DEBUG(pThis->GetLogger(), "DeviceAddress: " << deviceAddress);
         const char *deviceName = strdup(input_buffer->AssignString());
-        // LOG4CPLUS_DEBUG(logger, "DeviceName: " << deviceName);
+        // LOG4CPLUS_DEBUG(pThis->GetLogger(), "DeviceName: " << deviceName);
         int ext = input_buffer->Get<int>();
         int size = input_buffer->Get<int>();
         int constant = input_buffer->Get<int>();
         int global = input_buffer->Get<int>();
-        // LOG4CPLUS_DEBUG(logger, "Calling RegisterVar: " << deviceName << " for "
+        // LOG4CPLUS_DEBUG(pThis->GetLogger(), "Calling RegisterVar: " << deviceName << " for "
         //                   << fatCubinHandle << " with hostVar: " << hostVar
         //                   << ", deviceAddress: " << deviceAddress
         //                   << ", deviceName: " << deviceName
@@ -385,12 +310,12 @@ CUDA_ROUTINE_HANDLER(RegisterVar) {
         __cudaRegisterVar(fatCubinHandle, hostVar, deviceAddress, deviceName, ext,
                         size, constant, global);
         cudaError_t error = cudaGetLastError();
-        LOG4CPLUS_DEBUG(logger, "RegisterVar Executed");
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), "RegisterVar Executed");
         if (error != cudaSuccess) {
-            LOG4CPLUS_DEBUG(logger, "error executing RegisterVar: " << _cudaGetErrorEnum(error));
+            LOG4CPLUS_DEBUG(pThis->GetLogger(), "error executing RegisterVar: " << _cudaGetErrorEnum(error));
         }
     } catch (const std::exception& e) {
-            LOG4CPLUS_DEBUG(logger, "Exception" << e.what() << " in RegisterVar");
+            LOG4CPLUS_DEBUG(pThis->GetLogger(), "Exception" << e.what() << " in RegisterVar");
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 

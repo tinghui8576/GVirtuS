@@ -33,16 +33,15 @@ using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 NVRTC_ROUTINE_HANDLER(GetErrorString) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GetErrorString"));
     nvrtcResult cs = in->Get<nvrtcResult>();
     const char *s = nvrtcGetErrorString(cs);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->AddString(s);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(NVRTC_ERROR_INTERNAL_ERROR);
     }
-    LOG4CPLUS_DEBUG(logger, "nvrtcGetErrorString Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "nvrtcGetErrorString Executed");
     return std::make_shared<Result>(NVRTC_SUCCESS, out);
 }

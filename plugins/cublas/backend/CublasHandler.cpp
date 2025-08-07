@@ -33,27 +33,11 @@ extern "C" std::shared_ptr<CublasHandler> create_t() {
 }
 
 CublasHandler::CublasHandler() {
-    logger = Logger::getInstance(LOG4CPLUS_TEXT("CufftHandler"));
+    logger = Logger::getInstance(LOG4CPLUS_TEXT("CublasHandler"));
     Initialize();
 }
 
 CublasHandler::~CublasHandler() {}
-
-void CublasHandler::setLogLevel(Logger *logger) {
-	log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
-    char *val = getenv("GVIRTUS_LOGLEVEL");
-	std::string logLevelString =(val == NULL ? std::string("") : std::string(val));
-	if (logLevelString != "") {
-        try {
-            logLevel = std::stoi(logLevelString);
-        } catch (const std::exception &e) {
-            std::cerr << "[WARNING] Invalid GVIRTUS_LOGLEVEL='" << logLevelString
-                      << "', defaulting to INFO. Reason: " << e.what() << std::endl;
-            logLevel = log4cplus::INFO_LOG_LEVEL;
-        }
-    }
-    logger->setLogLevel(logLevel);
-}
 
 bool CublasHandler::CanExecute(std::string routine) {
     return mspHandlers->find(routine) != mspHandlers->end();

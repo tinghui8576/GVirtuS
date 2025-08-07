@@ -28,8 +28,6 @@
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
-using namespace log4cplus;
-
 typedef const struct CUfunc_st
 {
 	int id;
@@ -156,29 +154,23 @@ CUDA_DRIVER_HANDLER(FuncSetCacheConfig) {
     return std::make_shared<Result>((cudaError_t) exit_code);
 }
 
-
 //new functions CUDA 6.5
 CUDA_DRIVER_HANDLER(LaunchKernel){
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("LaunchKernel"));
-    LOG4CPLUS_DEBUG(logger,"Start LaunchKernel");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(),"Start LaunchKernel");
     CUfunction f =  input_buffer->Get<CUfunction >();
-    LOG4CPLUS_DEBUG(logger,"LaunchKernel: AAA");
     unsigned int gridDimX = input_buffer->Get<unsigned int>();
     unsigned int gridDimY = input_buffer->Get<unsigned int>();
     unsigned int gridDimZ = input_buffer->Get<unsigned int>();
     unsigned int blockDimX = input_buffer->Get<unsigned int>();
     unsigned int blockDimY = input_buffer->Get<unsigned int>();
     unsigned int blockDimZ = input_buffer->Get<unsigned int>();
-    LOG4CPLUS_DEBUG(logger,"LaunchKernel: BBB");
     unsigned int sharedMemBytes = input_buffer->Get<unsigned int>();
     CUstream hstream = input_buffer->Get<CUstream>();
 
-    LOG4CPLUS_DEBUG(logger,"LaunchKernel: CCC");
     void *kernelParams = input_buffer->Get<void *>();
-    LOG4CPLUS_DEBUG(logger,"LaunchKernel: DDD");
     void *extra = input_buffer->Get<void *>();
-    LOG4CPLUS_DEBUG(logger,"LaunchKernel: all parameters read");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(),"LaunchKernel: all parameters read");
     CUresult exit_code = cuLaunchKernel((CUfunction)f,gridDimX,gridDimY,gridDimZ,blockDimX,blockDimY,blockDimZ,sharedMemBytes,hstream,NULL,(void **) &extra);
-    LOG4CPLUS_DEBUG(logger,"End LaunchKernel");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(),"End LaunchKernel");
     return std::make_shared<Result>((cudaError_t) exit_code);
 }

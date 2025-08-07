@@ -55,7 +55,9 @@ class CublasHandler : public gvirtus::backend::Handler {
         virtual ~CublasHandler();
         bool CanExecute(std::string routine);
         std::shared_ptr<gvirtus::communicators::Result> Execute(std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
-        static void setLogLevel(Logger *logger);
+        log4cplus::Logger& GetLogger() {
+            return logger;
+        }
 
     private:
         log4cplus::Logger logger;

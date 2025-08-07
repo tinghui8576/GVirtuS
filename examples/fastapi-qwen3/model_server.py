@@ -7,6 +7,7 @@ import time
 
 model_name = "Qwen/Qwen3-8B"
 enable_thinking = False
+max_new_tokens = 16
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(
@@ -32,10 +33,13 @@ def generate_text(request: InferenceRequest):
 
     start_time = time.time()
     model_inputs = tokenizer([text], return_tensors="pt").to(model.device)
-    generated_ids = model.generate(
-        **model_inputs,
-        max_new_tokens=256
-    )
+    with torch.inference_mode():
+        generated_ids = model.generate(
+            **model_inputs,
+            max_new_tokens=max_new_tokens,
+            do_sample=False,
+            eos_token_id=tokenizer.eos_token_id
+        )
     end_time = time.time()
     print(f"INFERENCE TIME: {end_time - start_time:.2f} seconds")
 

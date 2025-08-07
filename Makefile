@@ -47,6 +47,7 @@ run-gvirtus-dev:
 		-v ./CMakeLists.txt:/gvirtus/CMakeLists.txt \
 		-v ./docker/dev/build.sh:/build.sh \
 		-v ./examples:/gvirtus/examples/ \
+		--network host \
 		--entrypoint /build.sh \
 		--name gvirtus \
 		--runtime=nvidia \

@@ -29,7 +29,6 @@
 #include "CudaDrHandler.h"
 
 using namespace std;
-using namespace log4cplus;
 
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
@@ -37,8 +36,6 @@ using gvirtus::common::Decoder;
 
 /*Load a module's data. */
 CUDA_DRIVER_HANDLER(ModuleLoadData) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ModuleLoadData"));
-    LOG4CPLUS_DEBUG(logger, "Start ModuleLoadData");
     CUmodule module = NULL;
     char *image = input_buffer->AssignString();
     CUresult exit_code = cuModuleLoadData(&module, image);
@@ -73,12 +70,10 @@ CUDA_DRIVER_HANDLER(ModuleGetGlobal) {
 
 /*Load a module's data with options.*/
 CUDA_DRIVER_HANDLER(ModuleLoadDataEx) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ModuleLoadDataEx"));
-    LOG4CPLUS_DEBUG(logger, "Start ModuleLoadDataEx");
     
     CUmodule module;
     unsigned int numOptions = input_buffer->Get<unsigned int>();
-    CUjit_option *options = input_buffer->AssignAll<CUjit_option > ();
+    CUjit_option *options = input_buffer->AssignAll<CUjit_option>();
     char *image = input_buffer->AssignString();
     void **optionValues = new void*[numOptions];
     int log_buffer_size_bytes = 1024;
@@ -120,7 +115,7 @@ CUDA_DRIVER_HANDLER(ModuleLoadDataEx) {
         }
            
     }
-    LOG4CPLUS_DEBUG(logger,"End ModuleLoadDataEx");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "End ModuleLoadDataEx");
     return std::make_shared<Result>((cudaError_t) exit_code, out);
 }
 
@@ -128,7 +123,7 @@ CUDA_DRIVER_HANDLER(ModuleLoadDataEx) {
 CUDA_DRIVER_HANDLER(ModuleGetTexRef) {
     CUtexref pTexRef;
     char *name = input_buffer->AssignString();
-    CUmodule hmod = input_buffer->Get<CUmodule > ();
+    CUmodule hmod = input_buffer->Get<CUmodule>();
     CUresult exit_code = cuModuleGetTexRef(&pTexRef, hmod, name);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(pTexRef);
@@ -137,20 +132,18 @@ CUDA_DRIVER_HANDLER(ModuleGetTexRef) {
 
 /*Load a module's data with options.*/
 CUDA_DRIVER_HANDLER(ModuleLoad) {
-    Decoder *decoder=new Decoder();
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ModuleLoad"));
-    LOG4CPLUS_DEBUG(logger,"Start ModuleLoad");
-    char *fname=input_buffer->AssignString();
-    LOG4CPLUS_DEBUG(logger,"Module name:" << fname);
-    char *moduleLoad=input_buffer->AssignString();
-    LOG4CPLUS_DEBUG(logger,"Calling decoder->Decode");
+    Decoder *decoder = new Decoder();
+    char *fname = input_buffer->AssignString();
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Module name:" << fname);
+    char *moduleLoad = input_buffer->AssignString();
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Calling decoder->Decode");
     std::istringstream iss(moduleLoad);
     fstream fout;
     fout.open("/tmp/file.bin", ios::binary | ios::out);
-    decoder->Decode(iss,fout); 
+    decoder->Decode(iss, fout);
     fout.close();
     CUmodule module;
-    CUresult exit_code = cuModuleLoad(&module,"/tmp/file.bin");	
+    CUresult exit_code = cuModuleLoad(&module, "/tmp/file.bin");
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(module);
     return std::make_shared<Result>((cudaError_t) exit_code, out);
@@ -158,12 +151,10 @@ CUDA_DRIVER_HANDLER(ModuleLoad) {
 
 /*Load a module's data with options.*/
 CUDA_DRIVER_HANDLER(ModuleLoadFatBinary) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ModuleLoadFatBinary"));
-    LOG4CPLUS_DEBUG(logger,"Start ModuleLoadFatBinary");
-    char *fname=input_buffer->AssignString();
-    LOG4CPLUS_DEBUG(logger,"Module name:" << fname);
+    char *fname = input_buffer->AssignString();
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Module name:" << fname);
     CUmodule module;
-    CUresult exit_code = cuModuleLoadFatBinary(&module,fname);
+    CUresult exit_code = cuModuleLoadFatBinary(&module, fname);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(module);
     return std::make_shared<Result>((cudaError_t) exit_code, out);
@@ -171,9 +162,7 @@ CUDA_DRIVER_HANDLER(ModuleLoadFatBinary) {
 
 /*Load a module's data with options.*/
 CUDA_DRIVER_HANDLER(ModuleUnload) {
-    Logger logger=Logger::getInstance(LOG4CPLUS_TEXT("ModuleUnLoad"));
-    LOG4CPLUS_DEBUG(logger,"Start ModuleUnLoad");
-    CUmodule module=input_buffer->Get<CUmodule> ();
+    CUmodule module = input_buffer->Get<CUmodule> ();
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     CUresult exit_code = cuModuleUnload(module);
     return std::make_shared<Result>((cudaError_t) exit_code, out);

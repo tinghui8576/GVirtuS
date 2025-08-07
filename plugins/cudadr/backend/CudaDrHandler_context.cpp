@@ -26,7 +26,6 @@
 #include "CudaDrHandler.h"
 
 using namespace std;
-using namespace log4cplus;
 
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;

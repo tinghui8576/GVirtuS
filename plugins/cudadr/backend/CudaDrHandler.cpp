@@ -40,7 +40,7 @@ extern "C" std::shared_ptr<CudaDrHandler> create_t() {
 }
 
 CudaDrHandler::CudaDrHandler() {
-    logger=Logger::getInstance(LOG4CPLUS_TEXT("CudaDrHandler"));
+    logger = Logger::getInstance(LOG4CPLUS_TEXT("CudaDrHandler"));
     mpFatBinary = new map<string, void **>();
     mpDeviceFunction = new map<string, string > ();
     mpVar = new map<string, string > ();
@@ -48,9 +48,8 @@ CudaDrHandler::CudaDrHandler() {
     Initialize();
 }
 
-CudaDrHandler::~CudaDrHandler() {
+CudaDrHandler::~CudaDrHandler() {}
 
-}
 
 bool CudaDrHandler::CanExecute(std::string routine) {
     map<string, CudaDrHandler::CudaDriverHandler>::iterator it;

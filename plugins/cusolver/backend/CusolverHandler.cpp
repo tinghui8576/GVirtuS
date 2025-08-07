@@ -42,30 +42,11 @@ extern "C" int HandlerInit() {
 }
 
 CusolverHandler::CusolverHandler() {
-    logger=Logger::getInstance(LOG4CPLUS_TEXT("CusolverHandler"));
-    setLogLevel(&logger);
+    logger = Logger::getInstance(LOG4CPLUS_TEXT("CusolverHandler"));
     Initialize();
 }
 
-CusolverHandler::~CusolverHandler() {
-
-}
-
-void CusolverHandler::setLogLevel(Logger *logger) {
-    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
-    char *val = getenv("GVIRTUS_LOGLEVEL");
-	std::string logLevelString =(val == NULL ? std::string("") : std::string(val));
-	if (logLevelString != "") {
-        try {
-            logLevel = std::stoi(logLevelString);
-        } catch (const std::exception &e) {
-            std::cerr << "[WARNING] Invalid GVIRTUS_LOGLEVEL='" << logLevelString
-                      << "', defaulting to INFO. Reason: " << e.what() << std::endl;
-            logLevel = log4cplus::INFO_LOG_LEVEL;
-        }
-    }
-    logger->setLogLevel(logLevel);
-}
+CusolverHandler::~CusolverHandler() {}
 
 bool CusolverHandler::CanExecute(std::string routine) {
     return mspHandlers->find(routine) != mspHandlers->end();
@@ -86,42 +67,36 @@ std::shared_ptr<Result> CusolverHandler::Execute(std::string routine, std::share
 }
 
 CUSOLVER_ROUTINE_HANDLER(DnCreate) {
-
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DnCreate"));
     cusolverDnHandle_t handle;
     cusolverStatus_t cs = cusolverDnCreate(&handle);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     try {
         out->Add<cusolverDnHandle_t>(handle);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(CUSOLVER_STATUS_EXECUTION_FAILED);
     }
-    LOG4CPLUS_DEBUG(logger, "cusolverDnCreate Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cusolverDnCreate Executed");
     return std::make_shared<Result>(cs, out);
 }
 
 CUSOLVER_ROUTINE_HANDLER(DnDestroy) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DnDestroy"));
- 
     cusolverDnHandle_t handle = in->Get<cusolverDnHandle_t>();
     cusolverStatus_t cs = cusolverDnDestroy(handle);
-    LOG4CPLUS_DEBUG(logger, "cusolverDnDestroy Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cusolverDnDestroy Executed");
     return std::make_shared<Result>(cs);
 }
  
 CUSOLVER_ROUTINE_HANDLER(DnSetStream) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DnSetStream"));
     cusolverDnHandle_t handle = in->Get<cusolverDnHandle_t>();
     cudaStream_t streamId = in->Get<cudaStream_t>();
 
     cusolverStatus_t cs = cusolverDnSetStream(handle, streamId);
-    LOG4CPLUS_DEBUG(logger, "cusolverDnSetStream Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cusolverDnSetStream Executed");
     return std::make_shared<Result>(cs);
 }
 
 CUSOLVER_ROUTINE_HANDLER(DnGetStream) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("DnGetStream"));
     cusolverDnHandle_t handle = in->Get<cusolverDnHandle_t>();
     cudaStream_t streamId;
     cusolverStatus_t cs = cusolverDnGetStream(handle, &streamId);
@@ -129,10 +104,10 @@ CUSOLVER_ROUTINE_HANDLER(DnGetStream) {
     try {
         out->Add<cudaStream_t>(streamId);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception: ") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cs);
     }
-    LOG4CPLUS_DEBUG(logger, "cusolverDnGetStream Executed");
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "cusolverDnGetStream Executed");
     return std::make_shared<Result>(cs, out);
 }
 

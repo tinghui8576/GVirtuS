@@ -37,8 +37,7 @@ using gvirtus::common::mappedPointer;
 unordered_map<void*, void*> hostRegisteredMap;
 
 CUDA_ROUTINE_HANDLER(MemGetInfo) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("MemGetInfo"));
-    CudaRtHandler::setLogLevel(&logger);
+    
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     size_t *free = out->Delegate<size_t>();
     size_t *total = out->Delegate<size_t>();
@@ -112,10 +111,8 @@ CUDA_ROUTINE_HANDLER(MemcpyPeerAsync) {
 }
 
 CUDA_ROUTINE_HANDLER(MallocManaged) {
-    Logger logger = Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS"));
-    CudaRtHandler::setLogLevel(&logger);
-
-    LOG4CPLUS_DEBUG(logger, "MallocManaged");
+    
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "MallocManaged");
 
     try {
         void *hostPtr = input_buffer->Get<void *>();
@@ -124,7 +121,7 @@ CUDA_ROUTINE_HANDLER(MallocManaged) {
         void *devPtr;
 
         cudaError_t exit_code = cudaMallocManaged(&devPtr, size, flags);
-        LOG4CPLUS_DEBUG(logger, "cudaMallocManaged returned: " << exit_code);
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), "cudaMallocManaged returned: " << exit_code);
     
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
@@ -135,7 +132,7 @@ CUDA_ROUTINE_HANDLER(MallocManaged) {
         out->AddMarshal(devPtr);
         return std::make_shared<Result>(exit_code, out);
     } catch (const std::exception& e) {
-        LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("Exception:") << e.what());
+        LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception:") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 }
