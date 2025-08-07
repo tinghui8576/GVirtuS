@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 request.py
+python3 multiprocess_requests.py

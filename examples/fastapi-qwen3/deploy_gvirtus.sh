@@ -11,4 +11,4 @@ LD_PRELOAD="${GVIRTUS_HOME}/lib/frontend/libcudart.so: \
     ${GVIRTUS_HOME}/lib/frontend/libcusparse.so: \
     ${GVIRTUS_HOME}/lib/frontend/libcusolver.so: \
     ${GVIRTUS_HOME}/lib/frontend/libnvrtc.so" \
-uvicorn model_server:app --host 0.0.0.0 --port 8000
+uvicorn multirequest_model_server:app --host 0.0.0.0 --port 8000 --workers 4
