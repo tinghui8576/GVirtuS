@@ -13,28 +13,13 @@ Backend::Backend(const fs::path &path) {
     // logger setup
     this->logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("Backend"));
 
-    char *logLevel_envVar = getenv("GVIRTUS_LOGLEVEL");
-    std::string logLevelString = (logLevel_envVar == nullptr ? std::string("") : std::string(logLevel_envVar));
-
-    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
-    if (!logLevelString.empty()) {
-        try {
-            logLevel = static_cast<log4cplus::LogLevel>(std::stoi(logLevelString));
-        } catch (const std::exception& e) {
-            std::cerr << "[GVIRTUS WARNING] Invalid GVIRTUS_LOGLEVEL value: '" << logLevelString
-                    << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
-            logLevel = log4cplus::INFO_LOG_LEVEL;
-        }
-    }
-    this->logger.setLogLevel(logLevel);
-
     // json setup
     if (not (fs::exists(path) and fs::is_regular_file(path) and path.extension() == ".json")) {
-        LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " json path error: no such file.");
+        LOG4CPLUS_ERROR(logger, " json path error: no such file.");
         exit(EXIT_FAILURE);
     }
 
-    LOG4CPLUS_DEBUG(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Json file has been loaded.");
+    LOG4CPLUS_DEBUG(logger, " Json file has been loaded.");
 
     // endpoints setup
     LOG4CPLUS_TRACE(logger, "Initializing endpoints setup");
@@ -84,7 +69,6 @@ Backend::Backend(const fs::path &path) {
     catch (const std::exception& e) {
         LOG4CPLUS_ERROR(logger, "Exception during process setup: " << e.what());
     }
-
 
     LOG4CPLUS_INFO(logger, "Backend Initialization is complete!");
 }

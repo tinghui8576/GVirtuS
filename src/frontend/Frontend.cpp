@@ -51,6 +51,7 @@
 #include "log4cplus/loggingmacros.h"
 
 using namespace std;
+using namespace log4cplus;
 
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Communicator;
@@ -65,7 +66,7 @@ std::mutex gFrontendMutex;
 map<pthread_t, Frontend *> *Frontend::mpFrontends = NULL;
 static bool initialized = false;
 
-log4cplus::Logger logger;
+Logger logger;
 
 std::string getEnvVar(std::string const &key) {
     char *env_var = getenv(key.c_str());
@@ -74,24 +75,26 @@ std::string getEnvVar(std::string const &key) {
 
 void Frontend::Init(Communicator *c) {
     // Logger configuration
-    log4cplus::BasicConfigurator basicConfigurator;
+    BasicConfigurator basicConfigurator;
     basicConfigurator.configure();
-    logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS Frontend"));
 
     // Set the logging level
     std::string logLevelString = getEnvVar("GVIRTUS_LOGLEVEL");
-    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
+    LogLevel logLevel = INFO_LOG_LEVEL;
     if (!logLevelString.empty()) {
         try {
-            logLevel = static_cast<log4cplus::LogLevel>(std::stoi(logLevelString));
+            logLevel = static_cast<LogLevel>(std::stoi(logLevelString));
         } catch (const std::exception& e) {
             std::cerr << "[GVIRTUS WARNING] Invalid GVIRTUS_LOGLEVEL value: '" << logLevelString
                     << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
-            logLevel = log4cplus::INFO_LOG_LEVEL;
+            logLevel = INFO_LOG_LEVEL;
         }
     }
 
-    logger.setLogLevel(logLevel);
+    Logger root = Logger::getRoot();
+    root.setLogLevel(logLevel);
+
+    logger = Logger::getInstance(LOG4CPLUS_TEXT("Frontend"));
 
     pid_t tid = syscall(SYS_gettid);
 
@@ -119,7 +122,7 @@ void Frontend::Init(Communicator *c) {
         }
     }
 
-    LOG4CPLUS_INFO(logger, "GVirtuS frontend version " + config_path);
+    LOG4CPLUS_INFO(logger, "Using properties file: " + config_path);
 
     try {
         auto endpoint = EndpointFactory::get_endpoint(config_path);
@@ -128,7 +131,7 @@ void Frontend::Init(Communicator *c) {
         mpFrontends->find(tid)->second->_communicator->obj_ptr()->Connect();
     }
     catch (const std::exception& e) {
-        LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Exception occurred: " << e.what());
+        LOG4CPLUS_FATAL(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Exception occurred: " << e.what());
         exit(EXIT_FAILURE);
     }
 
@@ -263,12 +266,12 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     start = steady_clock::now();
     size_t out_buffer_size;
     frontend->_communicator->obj_ptr()->Read((char *) &out_buffer_size, sizeof(size_t));
-    // cout << "Output buffer size: " << out_buffer_size << endl;
+    LOG4CPLUS_DEBUG(logger, "Output buffer size: " << out_buffer_size);
     frontend->mDataReceived += out_buffer_size;
     if (out_buffer_size > 0) {
-        // cout << "Reading output buffer..." << endl;
+        LOG4CPLUS_DEBUG(logger, "Output buffer size is greater than 0, reading...");
         frontend->mpOutputBuffer->Read<char>(frontend->_communicator->obj_ptr().get(), out_buffer_size);
-        // cout << "Output buffer read successfully." << endl;
+        LOG4CPLUS_DEBUG(logger, "Output buffer read successfully.");
     }
     frontend->mReceivingTime += std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() / 1000.0;
 }

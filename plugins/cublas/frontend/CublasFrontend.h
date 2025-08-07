@@ -163,5 +163,3 @@ public:
     static void * handler;
 };
 #endif	/* CUBLASFRONTEND_H */
-
-
