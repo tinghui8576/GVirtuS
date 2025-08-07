@@ -81,24 +81,34 @@ int main() {
     int testIterations[] = {1, 100, 1000, 10000};
 
     for (int iter : testIterations) {
-        // ==================== Without Graph ====================
+        cudaStream_t stream;
+        cudaStreamCreate(&stream);
+        // ==================== Without Graph (StreamSync) ====================
         auto start = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < iter; ++i) {
-            matrixMul<<<gridDim, blockDim>>>(d_A, d_B, d_C, N);
-            cudaDeviceSynchronize();
+            matrixMul<<<gridDim, blockDim, 0, stream>>>(d_A, d_B, d_C, N);
+            cudaStreamSynchronize(stream);
+            //matrixMul<<<gridDim, blockDim>>>(d_A, d_B, d_C, N);
+            //cudaDeviceSynchronize();
         }
         auto end = std::chrono::high_resolution_clock::now();
         double totalMs = std::chrono::duration<double, std::milli>(end - start).count();
         double averageTimeMs = totalMs / iter;
+        csvFile << "WithoutGraph(NotSysc)," << iter << "," << averageTimeMs << "\n";
 
-        std::cout << "Without graph, iterations: " << iter
-                  << " average: " << averageTimeMs << " ms\n";
-        csvFile << "WithoutGraph," << iter << "," << averageTimeMs << "\n";
+        // ==================== Without Graph (NotSysc) ====================
+        start = std::chrono::high_resolution_clock::now();
+        for (int i = 0; i < iter; ++i) {
+            matrixMul<<<gridDim, blockDim, 0, stream>>>(d_A, d_B, d_C, N);
+            //matrixMul<<<gridDim, blockDim>>>(d_A, d_B, d_C, N);
+        }
+        end = std::chrono::high_resolution_clock::now();
+        totalMs = std::chrono::duration<double, std::milli>(end - start).count();
+        averageTimeMs = totalMs / iter;
+        csvFile << "WithoutGraph(Sysc)," << iter << "," << averageTimeMs << "\n";
 
         // ==================== With Graph ====================
         bool graphCreated = false;
-        cudaStream_t stream;
-        cudaStreamCreate(&stream);
         cudaGraph_t graph;
         cudaGraphExec_t instance;
 
@@ -111,8 +121,8 @@ int main() {
                 cudaGraphInstantiate(&instance, graph, 0);
                 cudaGraphDestroy(graph);
                 graphCreated = true;
-                end = std::chrono::high_resolution_clock::now();
-                totalMs = std::chrono::duration<double, std::milli>(end - start).count();
+                // end = std::chrono::high_resolution_clock::now();
+                // totalMs = std::chrono::duration<double, std::milli>(end - start).count();
                 //std::cout << "graph, iterations: " << iter << " average: " << averageTimeMs << " ms\n";
                 //csvFile << "Graph," << 0 << "," << totalMs << "\n";
             }
