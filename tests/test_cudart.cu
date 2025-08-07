@@ -111,7 +111,6 @@ TEST(cudaRT, GraphCreateDestroy) {
 }
 
 __global__ void dummyKernel() {
-    int tid = threadIdx.x; 
 }
 
 TEST(cudaRT, GraphInstantiateDestroy) {
