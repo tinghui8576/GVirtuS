@@ -103,7 +103,7 @@ target_link_libraries(gvirtus-backend gvirtus-communicators Threads::Threads rdm
 gvirtus_install_target(gvirtus-backend)
 
 add_subdirectory(plugins/cudart) # Assuming this plugin is always available
-add_subdirectory(plugins/cudadr) # CUDA is not part of CUDA toolkit. Internally, we check if cuda is available
+add_subdirectory(plugins/cudadr) # CUDA driver is not part of CUDA toolkit. Internally, we check if cuda drivers are available
 
 maybe_add_cuda_plugin(cublas plugins/cublas) # part of CUDA toolkit
 maybe_add_cuda_plugin(cufft plugins/cufft) # part of CUDA toolkit

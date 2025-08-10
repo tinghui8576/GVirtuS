@@ -3974,9 +3974,9 @@ CUDNN_ROUTINE_HANDLER(BackendSetAttribute) {
     if (attrName == CUDNN_ATTR_VARIANT_PACK_WORKSPACE) {
         LOG4CPLUS_DEBUG(pThis->GetLogger(), "[BACKEND] Setting variant pack workspace attribute");
     }
-    if (byteCount > 0) {
-        printHex(arrayOfElements, byteCount, "[BACKEND] Received bytes for cudnnBackendSetAttribute");
-    }
+    // if (byteCount > 0) {
+    //     printHex(arrayOfElements, byteCount, "[BACKEND] Received bytes for cudnnBackendSetAttribute");
+    // }
     else {
         LOG4CPLUS_DEBUG(pThis->GetLogger(), "[BACKEND] No bytes received for cudnnBackendSetAttribute");
     }

@@ -54,6 +54,26 @@ run-gvirtus-dev:
 		--shm-size=8G \
 		gvirtus-dev:cuda12.6.3-cudnn-ubuntu22.04
 
+run-gvirtus-dev-no-gpu:
+	docker run \
+		--rm \
+		-it \
+		-v ./cmake:/gvirtus/cmake/ \
+		-v ./etc:/gvirtus/etc/ \
+		-v ./include:/gvirtus/include/ \
+		-v ./plugins:/gvirtus/plugins/ \
+		-v ./src:/gvirtus/src/ \
+		-v ./tools:/gvirtus/tools/ \
+		-v ./tests:/gvirtus/tests/ \
+		-v ./CMakeLists.txt:/gvirtus/CMakeLists.txt \
+		-v ./docker/dev/build.sh:/build.sh \
+		-v ./examples:/gvirtus/examples/ \
+		--network host \
+		--entrypoint /build.sh \
+		--name gvirtus-no-gpu \
+		--shm-size=8G \
+		gvirtus-dev:cuda12.6.3-cudnn-ubuntu22.04
+
 run-gvirtus-tests:
 	docker run \
 		--rm \

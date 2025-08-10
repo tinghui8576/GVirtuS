@@ -14,6 +14,7 @@ RUN apt update && apt install -y --no-install-recommends \
     libibverbs-dev \
     libgtest-dev \
     cmake \
+    nvidia-open \
     && rm -rf /var/lib/apt/lists/*
 
 ENV GVIRTUS_HOME=/usr/local/gvirtus
