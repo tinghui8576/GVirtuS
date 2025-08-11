@@ -1,4 +1,4 @@
-.PHONY: docker-build-push-dev-remote \
+.PHONY:
 	docker-build-push-prod-remote \
 	docker-build-dev-local \
 	attach-gvirtus-dev \
@@ -6,22 +6,13 @@
 	run-gvirtus-dev-no-gpu \
 	run-gvirtus-tests \
 
-docker-build-push-dev-remote:
-	docker buildx build \
-		--platform linux/amd64,linux/arm64 \
-		--push \
-		--no-cache \
-		-f docker/dev/Dockerfile \
-		-t taslanidis/gvirtus-dev:cuda12.6.3-cudnn-ubuntu22.04 \
-		.
-
 docker-build-push-prod-remote:
 	docker buildx build \
 		--platform linux/amd64,linux/arm64 \
 		--push \
 		--no-cache \
 		-f docker/prod/Dockerfile \
-		-t taslanidis/gvirtus:cuda12.6.3-cudnn-ubuntu22.04 \
+		-t gvirtus/gvirtus:cuda12.6.3-cudnn-ubuntu22.04 \
 		.
 
 docker-build-dev-local:

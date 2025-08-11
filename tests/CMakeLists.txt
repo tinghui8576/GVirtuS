@@ -22,15 +22,15 @@ endif()
 
 # Add your CUDA source files manually
 set(TEST_SOURCES
-    # test_cudart.cu
-    # test_nvrtc.cu
-    # test_curand.cu
-    # test_cublas.cu
+    test_cudart.cu
+    test_nvrtc.cu
+    test_curand.cu
+    test_cublas.cu
     test_cufft.cu
-    # test_cudnn.cu
-    # test_cudadr.cu
-    # test_cusolver.cu
-    # test_cusparse.cu
+    test_cudnn.cu
+    test_cudadr.cu
+    test_cusolver.cu
+    test_cusparse.cu
 )
 
 ## Alternatively, you can use file(GLOB ...) to automatically find all .cu files in a directory
