@@ -21,6 +21,9 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublins
  */
 
 #include "CudaDr.h"
@@ -40,8 +43,7 @@ extern "C" CUresult cuMemAlloc(CUdeviceptr *dptr, size_t bytesize) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(bytesize);
     CudaDrFrontend::Execute("cuMemAlloc");
-    if (CudaDrFrontend::Success())
-        *dptr = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
+    if (CudaDrFrontend::Success()) *dptr = (CUdeviceptr)(CudaDrFrontend::GetOutputDevicePointer());
     return CudaDrFrontend::GetExitCode();
 }
 
@@ -60,7 +62,8 @@ extern "C" CUresult cuMemAddressFree(CUdeviceptr dptr, size_t size) {
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuMemMap(CUdeviceptr dptr, size_t size, size_t offset, CUmemGenericAllocationHandle handle, unsigned long long flags) {
+extern "C" CUresult cuMemMap(CUdeviceptr dptr, size_t size, size_t offset,
+                             CUmemGenericAllocationHandle handle, unsigned long long flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(dptr);
     CudaDrFrontend::AddVariableForArguments(size);
@@ -87,10 +90,10 @@ extern "C" CUresult cuMemcpyHtoD(CUdeviceptr dstDevice, const void *srcHost, siz
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(ByteCount);
     CudaDrFrontend::AddVariableForArguments(dstDevice);
-    CudaDrFrontend::AddHostPointerForArguments<char>(static_cast<char *>(const_cast<void *> (srcHost)), ByteCount);
+    CudaDrFrontend::AddHostPointerForArguments<char>(
+        static_cast<char *>(const_cast<void *>(srcHost)), ByteCount);
     CudaDrFrontend::Execute("cuMemcpyHtoD");
     return CudaDrFrontend::GetExitCode();
-
 }
 
 /*Creates a 1D or 2D CUDA array. */
@@ -98,18 +101,17 @@ extern "C" CUresult cuArrayCreate(CUarray *pHandle, const CUDA_ARRAY_DESCRIPTOR 
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(pAllocateArray);
     CudaDrFrontend::Execute("cuArrayCreate");
-    if (CudaDrFrontend::Success())
-        *pHandle = (CUarray) CudaDrFrontend::GetOutputDevicePointer();
+    if (CudaDrFrontend::Success()) *pHandle = (CUarray)CudaDrFrontend::GetOutputDevicePointer();
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Creates a 3D CUDA array.*/
-extern "C" CUresult cuArray3DCreate(CUarray *pHandle, const CUDA_ARRAY3D_DESCRIPTOR *pAllocateArray) {
+extern "C" CUresult cuArray3DCreate(CUarray *pHandle,
+                                    const CUDA_ARRAY3D_DESCRIPTOR *pAllocateArray) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(pAllocateArray);
     CudaDrFrontend::Execute("cuArrayCreate");
-    if (CudaDrFrontend::Success())
-        *pHandle = (CUarray) CudaDrFrontend::GetOutputDevicePointer();
+    if (CudaDrFrontend::Success()) *pHandle = (CUarray)CudaDrFrontend::GetOutputDevicePointer();
     return CudaDrFrontend::GetExitCode();
 }
 
@@ -121,7 +123,8 @@ extern "C" CUresult cuMemcpy2D(const CUDA_MEMCPY2D *pCopy) {
     if (pCopy->srcHost != NULL) {
         flag = 1;
         CudaDrFrontend::AddVariableForArguments(flag);
-        CudaDrFrontend::AddHostPointerForArguments((char*) pCopy->srcHost, (pCopy->WidthInBytes)*(pCopy->Height));
+        CudaDrFrontend::AddHostPointerForArguments((char *)pCopy->srcHost,
+                                                   (pCopy->WidthInBytes) * (pCopy->Height));
     } else {
         flag = 0;
         CudaDrFrontend::AddVariableForArguments(flag);
@@ -139,15 +142,16 @@ extern "C" CUresult cuArrayDestroy(CUarray hArray) {
 }
 
 /*Allocates pitched device memory.*/
-extern "C" CUresult cuMemAllocPitch(CUdeviceptr *dptr, size_t *pPitch, size_t WidthInBytes, size_t Height, unsigned int ElementSizeBytes) {
+extern "C" CUresult cuMemAllocPitch(CUdeviceptr *dptr, size_t *pPitch, size_t WidthInBytes,
+                                    size_t Height, unsigned int ElementSizeBytes) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(WidthInBytes);
     CudaDrFrontend::AddVariableForArguments(Height);
     CudaDrFrontend::AddVariableForArguments(ElementSizeBytes);
     CudaDrFrontend::Execute("cuMemAllocPitch");
     if (CudaDrFrontend::Success()) {
-        *dptr = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
-        *pPitch = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
+        *dptr = (CUdeviceptr)(CudaDrFrontend::GetOutputDevicePointer());
+        *pPitch = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
     }
     return CudaDrFrontend::GetExitCode();
 }
@@ -158,8 +162,8 @@ extern "C" CUresult cuMemGetAddressRange(CUdeviceptr *pbase, size_t *psize, CUde
     CudaDrFrontend::AddVariableForArguments(dptr);
     CudaDrFrontend::Execute("cuMemGetAddressRange");
     if (CudaDrFrontend::Success()) {
-        *pbase = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
-        *psize = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
+        *pbase = (CUdeviceptr)(CudaDrFrontend::GetOutputDevicePointer());
+        *psize = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
     }
     return CudaDrFrontend::GetExitCode();
 }
@@ -169,175 +173,190 @@ extern "C" CUresult cuMemGetInfo(size_t *free, size_t *total) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::Execute("cuMemGetInfo");
     if (CudaDrFrontend::Success()) {
-        *free = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
-        *total = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
+        *free = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
+        *total = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
     }
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuArray3DGetDescriptor(CUDA_ARRAY3D_DESCRIPTOR *pArrayDescriptor, CUarray hArray) {
+extern "C" CUresult cuArray3DGetDescriptor(CUDA_ARRAY3D_DESCRIPTOR *pArrayDescriptor,
+                                           CUarray hArray) {
     // FIXME: implement
     cerr << "*** Error: cuArray3DGetDescriptor() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuArrayGetDescriptor(CUDA_ARRAY_DESCRIPTOR *pArrayDescriptor, CUarray hArray) {
     // FIXME: implement
     cerr << "*** Error: cuArrayGetDescriptor() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemAllocHost(void **pp, size_t bytesize) {
     // FIXME: implement
     cerr << "*** Error: cuMemAllocHost() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemcpy2DAsync(const CUDA_MEMCPY2D *pCopy, CUstream hStream) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpy2Dasync() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemcpy2DUnaligned(const CUDA_MEMCPY2D *pCopy) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpy2DUnaligned() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemcpy3D(const CUDA_MEMCPY3D *pCopy) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpy3D() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemcpy3DAsync(const CUDA_MEMCPY3D *pCopy, CUstream hStream) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpy3DAsync() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyAtoA(CUarray dstArray, size_t dstIndex, CUarray srcArray, size_t srcIndex, size_t ByteCount) {
+extern "C" CUresult cuMemcpyAtoA(CUarray dstArray, size_t dstIndex, CUarray srcArray,
+                                 size_t srcIndex, size_t ByteCount) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyAtoA() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyAtoD(CUdeviceptr dstDevice, CUarray hSrc, size_t SrcIndex, size_t ByteCount) {
+extern "C" CUresult cuMemcpyAtoD(CUdeviceptr dstDevice, CUarray hSrc, size_t SrcIndex,
+                                 size_t ByteCount) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyAtoD() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyAtoH(void *dstHost, CUarray srcArray, size_t srcIndex, size_t ByteCount) {
+extern "C" CUresult cuMemcpyAtoH(void *dstHost, CUarray srcArray, size_t srcIndex,
+                                 size_t ByteCount) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyAtoH() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyAtoHAsync(void *dstHost, CUarray srcArray, size_t srcIndex, size_t ByteCount, CUstream hStream) {
+extern "C" CUresult cuMemcpyAtoHAsync(void *dstHost, CUarray srcArray, size_t srcIndex,
+                                      size_t ByteCount, CUstream hStream) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyAtoHAsync() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyDtoA(CUarray dstArray, size_t dstIndex, CUdeviceptr srcDevice, size_t ByteCount) {
+extern "C" CUresult cuMemcpyDtoA(CUarray dstArray, size_t dstIndex, CUdeviceptr srcDevice,
+                                 size_t ByteCount) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyDtoA() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemcpyDtoD(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyDtoD() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyDtoDAsync(CUdeviceptr dstDevice, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) {
+extern "C" CUresult cuMemcpyDtoDAsync(CUdeviceptr dstDevice, CUdeviceptr srcDevice,
+                                      size_t ByteCount, CUstream hStream) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyDtoDAsync() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyDtoHAsync(void *dstHost, CUdeviceptr srcDevice, size_t ByteCount, CUstream hStream) {
+extern "C" CUresult cuMemcpyDtoHAsync(void *dstHost, CUdeviceptr srcDevice, size_t ByteCount,
+                                      CUstream hStream) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyDtoHAsync() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyHtoA(CUarray dstArray, size_t dstIndex, const void *pSrc, size_t ByteCount) {
+extern "C" CUresult cuMemcpyHtoA(CUarray dstArray, size_t dstIndex, const void *pSrc,
+                                 size_t ByteCount) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyHtoA() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyHtoAAsync(CUarray dstArray, size_t dstIndex, const void *pSrc, size_t ByteCount, CUstream hStream) {
+extern "C" CUresult cuMemcpyHtoAAsync(CUarray dstArray, size_t dstIndex, const void *pSrc,
+                                      size_t ByteCount, CUstream hStream) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyHtoAAsync() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemcpyHtoDAsync(CUdeviceptr dstDevice, const void *srcHost, size_t ByteCount, CUstream hStream) {
+extern "C" CUresult cuMemcpyHtoDAsync(CUdeviceptr dstDevice, const void *srcHost, size_t ByteCount,
+                                      CUstream hStream) {
     // FIXME: implement
     cerr << "*** Error: cuMemcpyHtoDAsync() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemFreeHost(void *p) {
     // FIXME: implement
     cerr << "*** Error: cuMemFreeHost() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemHostAlloc(void **pp, size_t bytesize, unsigned int Flags) {
     // FIXME: implement
     cerr << "*** Error: cuMemHostAlloc() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemHostGetDevicePointer(CUdeviceptr *pdptr, void *p, unsigned int Flags) {
     // FIXME: implement
     cerr << "*** Error: cuMemHostGetDevicePointer() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemHostGetFlags(unsigned int *pFlags, void *p) {
     // FIXME: implement
     cerr << "*** Error: cuMemHostGetFlags() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemsetD16(CUdeviceptr dstDevice, unsigned short us, size_t N) {
     // FIXME: implement
     cerr << "*** Error: cuMemsetD16() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemsetD2D16(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us, size_t Width, size_t Height) {
+extern "C" CUresult cuMemsetD2D16(CUdeviceptr dstDevice, size_t dstPitch, unsigned short us,
+                                  size_t Width, size_t Height) {
     // FIXME: implement
     cerr << "*** Error: cuMemsetD2D16() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemsetD2D32(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui, size_t Width, size_t Height) {
+extern "C" CUresult cuMemsetD2D32(CUdeviceptr dstDevice, size_t dstPitch, unsigned int ui,
+                                  size_t Width, size_t Height) {
     // FIXME: implement
     cerr << "*** Error: cuMemsetD2D32() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemsetD2D8(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc, size_t Width, size_t Height) {
+extern "C" CUresult cuMemsetD2D8(CUdeviceptr dstDevice, size_t dstPitch, unsigned char uc,
+                                 size_t Width, size_t Height) {
     // FIXME: implement
     cerr << "*** Error: cuMemsetD2D8() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
 extern "C" CUresult cuMemsetD32(CUdeviceptr dstDevice, unsigned int ui, size_t N) {
     // FIXME: implement
     cerr << "*** Error: cuMemsetD32() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_t N, CUstream hStream) {
+extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_t N,
+                                     CUstream hStream) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(dstDevice);
     CudaDrFrontend::AddVariableForArguments(ui);
@@ -350,5 +369,5 @@ extern "C" CUresult cuMemsetD32Async(CUdeviceptr dstDevice, unsigned int ui, siz
 extern "C" CUresult cuMemsetD8(CUdeviceptr dstDevice, unsigned char uc, size_t N) {
     // FIXME: implement
     cerr << "*** Error: cuMemsetD8() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }

@@ -21,18 +21,21 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
-//#define DEBUG
+// #define DEBUG
 #ifndef CUDADRFRONTEND_H
-#define	CUDADRFRONTEND_H
+#define CUDADRFRONTEND_H
 
 #include <cuda.h>
 #include <gvirtus/frontend/Frontend.h>
 
 class CudaDrFrontend {
-public:
-
-    static inline void Execute(const char *routine, const gvirtus::communicators::Buffer * input_buffer = nullptr) {
+   public:
+    static inline void Execute(const char *routine,
+                               const gvirtus::communicators::Buffer *input_buffer = nullptr) {
         gvirtus::frontend::Frontend::GetFrontend()->Execute(routine, input_buffer);
     }
 
@@ -41,9 +44,7 @@ public:
      * before any requests of execution or any method for adding parameters for
      * the next execution.
      */
-    static inline void Prepare() {
-        gvirtus::frontend::Frontend::GetFrontend()->Prepare();
-    }
+    static inline void Prepare() { gvirtus::frontend::Frontend::GetFrontend()->Prepare(); }
 
     static inline gvirtus::communicators::Buffer *GetLaunchBuffer() {
         return gvirtus::frontend::Frontend::GetFrontend()->GetInputBuffer();
@@ -55,7 +56,8 @@ public:
      *
      * @param var the variable to add as a parameter.
      */
-    template <class T> static inline void AddVariableForArguments(T var) {
+    template <class T>
+    static inline void AddVariableForArguments(T var) {
         gvirtus::frontend::Frontend::GetFrontend()->GetInputBuffer()->Add(var);
     }
 
@@ -78,7 +80,8 @@ public:
      * @param ptr the pointer to add as a parameter.
      * @param n the length of the array, if ptr is an array.
      */
-    template <class T>static inline void AddHostPointerForArguments(T *ptr, size_t n = 1) {
+    template <class T>
+    static inline void AddHostPointerForArguments(T *ptr, size_t n = 1) {
         gvirtus::frontend::Frontend::GetFrontend()->GetInputBuffer()->Add(ptr, n);
     }
 
@@ -89,7 +92,7 @@ public:
      * @param ptr the pointer to add as a parameter.
      */
     static inline void AddDevicePointerForArguments(const void *ptr) {
-        gvirtus::frontend::Frontend::GetFrontend()->GetInputBuffer()->Add((uint64_t) ptr);
+        gvirtus::frontend::Frontend::GetFrontend()->GetInputBuffer()->Add((uint64_t)ptr);
     }
 
     /**
@@ -104,14 +107,15 @@ public:
     }
 
     static inline CUresult GetExitCode() {
-        return (CUresult) gvirtus::frontend::Frontend::GetFrontend()->GetExitCode();
+        return (CUresult)gvirtus::frontend::Frontend::GetFrontend()->GetExitCode();
     }
 
     static inline bool Success() {
         return gvirtus::frontend::Frontend::GetFrontend()->Success(CUDA_SUCCESS);
     }
 
-    template <class T> static inline T GetOutputVariable() {
+    template <class T>
+    static inline T GetOutputVariable() {
         return gvirtus::frontend::Frontend::GetFrontend()->GetOutputBuffer()->Get<T>();
     }
 
@@ -125,7 +129,8 @@ public:
      *
      * @return the pointer from the output parameters.
      */
-    template <class T>static inline T * GetOutputHostPointer(size_t n = 1) {
+    template <class T>
+    static inline T *GetOutputHostPointer(size_t n = 1) {
         return gvirtus::frontend::Frontend::GetFrontend()->GetOutputBuffer()->Assign<T>(n);
     }
 
@@ -135,8 +140,10 @@ public:
      *
      * @return the pointer to the device memory.
      */
-    static inline void * GetOutputDevicePointer() {
-        return (void *) gvirtus::frontend::Frontend::GetFrontend()->GetOutputBuffer()->Get<uint64_t>();
+    static inline void *GetOutputDevicePointer() {
+        return (void *)gvirtus::frontend::Frontend::GetFrontend()
+            ->GetOutputBuffer()
+            ->Get<uint64_t>();
     }
 
     /**
@@ -145,11 +152,10 @@ public:
      *
      * @return the string from the output parameters.
      */
-    static inline char * GetOutputString() {
+    static inline char *GetOutputString() {
         return gvirtus::frontend::Frontend::GetFrontend()->GetOutputBuffer()->AssignString();
     }
     CudaDrFrontend();
 };
 
-#endif	/* CUDADRFRONTEND_H */
-
+#endif /* CUDADRFRONTEND_H */

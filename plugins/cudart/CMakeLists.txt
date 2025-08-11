@@ -1,3 +1,9 @@
+# Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+#             Department of Applied Science
+#
+# Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+#             School of Computer Science, University College Dublin
+
 project(gvirtus-plugin-cudart)
 find_package(CUDA REQUIRED)
 
@@ -31,7 +37,6 @@ gvirtus_add_backend(cudart ${CUDA_VERSION}
 target_link_libraries(${PROJECT_NAME} ${CUDA_CUDART_LIBRARY} lz4)
 
 gvirtus_add_frontend(cudart ${CUDA_VERSION}
-        frontend/CudaRt.cpp
         frontend/CudaRt_api.cpp
         frontend/CudaRt_device.cpp
         frontend/CudaRt_driver_entry_point.cpp

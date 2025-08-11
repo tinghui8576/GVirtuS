@@ -1,3 +1,6 @@
+# Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+#             School of Computer Science, University College Dublin
+
 project(gvirtus-plugin-cuda)
 
 function(configure_cudadr_plugin)
@@ -78,7 +81,6 @@ function(configure_cudadr_plugin)
         frontend/CudaDr_unified.cpp
         frontend/CudaDr_version.cpp
         frontend/CudaDr_virtmemory.cpp
-        frontend/CudaDr.cpp
         frontend/CudaDrFrontend.cpp
     )
 

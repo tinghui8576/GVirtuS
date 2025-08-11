@@ -1,3 +1,11 @@
+# Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+#             Department of Applied Science
+#             Raffaele Montella <raffaele.montella@uniparthenope.it>,
+#             Department of Applied Science
+#
+# Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+#            School of Computer Science, University College Dublin
+
 project(gvirtus-plugin-cufft)
 find_package(CUDAToolkit REQUIRED)
 

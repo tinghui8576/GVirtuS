@@ -1,6 +1,11 @@
-#include <gtest/gtest.h>
-#include <cuda_runtime.h>
+/*
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             School of Computer Science, University College Dublin
+ */
+
 #include <cuda.h> /* cuuint64_t */
+#include <cuda_runtime.h>
+#include <gtest/gtest.h>
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess)
 
@@ -104,26 +109,19 @@ TEST(cudaRT, SetDevice) {
     CUDA_CHECK(cudaSetDevice(device));
 }
 
-TEST(cudaRT, DeviceSynchronize) {
-    CUDA_CHECK(cudaDeviceSynchronize());
-}
+TEST(cudaRT, DeviceSynchronize) { CUDA_CHECK(cudaDeviceSynchronize()); }
 
-__global__ void simpleKernel(int* output) {
-    *output = 123;
-}
+__global__ void simpleKernel(int* output) { *output = 123; }
 
 TEST(cudaRT, LaunchKernel) {
     int* d_output;
     CUDA_CHECK(cudaMalloc(&d_output, sizeof(int)));
     CUDA_CHECK(cudaMemset(d_output, 0, sizeof(int)));
 
-    void* args[] = { &d_output };
+    void* args[] = {&d_output};
 
     dim3 grid(1), block(1);
-    CUDA_CHECK(cudaLaunchKernel((const void*)simpleKernel,
-                                grid, block,
-                                args,
-                                0, nullptr));
+    CUDA_CHECK(cudaLaunchKernel((const void*)simpleKernel, grid, block, args, 0, nullptr));
 
     int h_output = 0;
     CUDA_CHECK(cudaMemcpy(&h_output, d_output, sizeof(int), cudaMemcpyDeviceToHost));

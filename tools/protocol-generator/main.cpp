@@ -7,21 +7,19 @@
 #include <iostream>
 
 class Generator {
-public:
+   public:
     void Generate();
 
-private:
+   private:
     static CXChildVisitResult visit(CXCursor cursor, CXCursor parent, CXClientData client_data);
     CXChildVisitResult visit(CXCursor cursor, CXCursor parent);
 };
 
 void Generator::Generate() {
-    char *args[] = { "-I/usr/local/cuda/include" };
+    char *args[] = {"-I/usr/local/cuda/include"};
     auto index = clang_createIndex(0, 0);
-    auto tu = clang_createTranslationUnitFromSourceFile(index, "test.cpp", 1, args,
-                                                        0, nullptr);
-    clang_visitChildren(clang_getTranslationUnitCursor(tu),
-                        Generator::visit, this);
+    auto tu = clang_createTranslationUnitFromSourceFile(index, "test.cpp", 1, args, 0, nullptr);
+    clang_visitChildren(clang_getTranslationUnitCursor(tu), Generator::visit, this);
     clang_disposeTranslationUnit(tu);
 }
 
@@ -70,7 +68,7 @@ CXChildVisitResult Generator::visit(CXCursor cursor, CXCursor parent) {
         type = clang_getCanonicalType(type);
         auto typeName = clang_getTypeSpelling(type);
         std::cout << "  Field: " << reinterpret_cast<const char *>(typeName.data) << " "
-        << reinterpret_cast<const char *>(name.data) << std::endl;
+                  << reinterpret_cast<const char *>(name.data) << std::endl;
     } else if (kind == CXCursor_EnumDecl) {
         std::cout << "Enum: " << reinterpret_cast<const char *>(name.data) << std::endl;
     }

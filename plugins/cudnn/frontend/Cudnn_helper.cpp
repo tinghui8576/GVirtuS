@@ -19,8 +19,11 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             School of Computer Science, University College Dublin
  */
 
 #include "CudnnFrontend.h"
@@ -28,8 +31,7 @@
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnCreate(cudnnHandle_t *handle) {
     CudnnFrontend::Prepare();
     CudnnFrontend::Execute("cudnnCreate");
-    if(CudnnFrontend::Success())
-        *handle = CudnnFrontend::GetOutputVariable<cudnnHandle_t>();
+    if (CudnnFrontend::Success()) *handle = CudnnFrontend::GetOutputVariable<cudnnHandle_t>();
     return CudnnFrontend::GetExitCode();
 }
 
@@ -50,7 +52,6 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnGetStream(cudnnHandle_t handle, cudaSt
     CudnnFrontend::Prepare();
     CudnnFrontend::AddDevicePointerForArguments(handle);
     CudnnFrontend::Execute("cudnnGetStream");
-    if (CudnnFrontend::Success())
-        *streamId = CudnnFrontend::GetOutputVariable<cudaStream_t>();
-    return CudnnFrontend::GetExitCode();    
+    if (CudnnFrontend::Success()) *streamId = CudnnFrontend::GetOutputVariable<cudaStream_t>();
+    return CudnnFrontend::GetExitCode();
 }

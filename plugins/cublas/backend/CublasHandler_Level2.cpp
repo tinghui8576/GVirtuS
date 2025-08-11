@@ -21,28 +21,29 @@
  *
  * Written by: Giuseppe Coviello <vincenzo.santopietro@uniparthenope.it>,
  *             Department of Science and Technologies
+ * Edited by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             School of Computer Science, University College Dublin
  */
- 
+
 #include "CublasHandler.h"
 
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
-CUBLAS_ROUTINE_HANDLER(Sgemv_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Sgemv_v2) {
     cublasHandle_t handle;
     handle = in->Get<cublasHandle_t>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
-    int m  = in->Get<int>();
-    int n  = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * A = in->GetFromMarshal<float*>();
+    int m = in->Get<int>();
+    int n = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    float* A = in->GetFromMarshal<float*>();
     int lda = in->Get<int>();
-    float * x = in->GetFromMarshal<float*>();
+    float* x = in->GetFromMarshal<float*>();
     int incx = in->Get<int>();
-    
-    const float * beta = in->Assign<float>();
-    float * y = in->GetFromMarshal<float*>();
+
+    const float* beta = in->Assign<float>();
+    float* y = in->GetFromMarshal<float*>();
     int incy = in->Get<int>();
 
     cublasStatus_t cs = cublasSgemv_v2(handle, trans, m, n, alpha, A, lda, x, incx, beta, y, incy);
@@ -50,21 +51,20 @@ CUBLAS_ROUTINE_HANDLER(Sgemv_v2){
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Dgemv_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Dgemv_v2) {
     cublasHandle_t handle;
     handle = in->Get<cublasHandle_t>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
-    int m  = in->Get<int>();
-    int n  = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * A = in->GetFromMarshal<double*>();
+    int m = in->Get<int>();
+    int n = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    double* A = in->GetFromMarshal<double*>();
     int lda = in->Get<int>();
-    double * x = in->GetFromMarshal<double*>();
+    double* x = in->GetFromMarshal<double*>();
     int incx = in->Get<int>();
-    
-    const double * beta = in->Assign<double>();
-    double * y = in->GetFromMarshal<double*>();
+
+    const double* beta = in->Assign<double>();
+    double* y = in->GetFromMarshal<double*>();
     int incy = in->Get<int>();
 
     cublasStatus_t cs = cublasDgemv_v2(handle, trans, m, n, alpha, A, lda, x, incx, beta, y, incy);
@@ -72,1285 +72,1212 @@ CUBLAS_ROUTINE_HANDLER(Dgemv_v2){
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Cgemv_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Cgemv_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
-    int m  = in->Get<int>();
-    int n  = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
+    int m = in->Get<int>();
+    int n = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
     int lda = in->Get<int>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
     int incx = in->Get<int>();
-    
-    const cuComplex * beta = in->Assign<cuComplex>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
+
+    const cuComplex* beta = in->Assign<cuComplex>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
     int incy = in->Get<int>();
     cublasStatus_t cs;
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-    try{
-        cs = cublasCgemv_v2(handle,trans,m,n,alpha,A,lda,x,incx,beta,y,incy);
-        out->AddMarshal<cuComplex *>(y);
+    try {
+        cs = cublasCgemv_v2(handle, trans, m, n, alpha, A, lda, x, incx, beta, y, incy);
+        out->AddMarshal<cuComplex*>(y);
     } catch (const std::exception& e) {
         LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasCgemv_v2 Executed");
-    return std::make_shared<Result>(cs,out);
+    return std::make_shared<Result>(cs, out);
 }
 
-
-CUBLAS_ROUTINE_HANDLER(Zgemv_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Zgemv_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
-    int m  = in->Get<int>();
-    int n  = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
+    int m = in->Get<int>();
+    int n = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
     int lda = in->Get<int>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
     int incx = in->Get<int>();
-    
-    const cuDoubleComplex * beta = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
+
+    const cuDoubleComplex* beta = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
     int incy = in->Get<int>();
     cublasStatus_t cs;
-        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-    try{
-        cs = cublasZgemv_v2(handle,trans,m,n,alpha,A,lda,x,incx,beta,y,incy);
-        out->AddMarshal<cuDoubleComplex *>(y);
+    try {
+        cs = cublasZgemv_v2(handle, trans, m, n, alpha, A, lda, x, incx, beta, y, incy);
+        out->AddMarshal<cuDoubleComplex*>(y);
     } catch (const std::exception& e) {
         LOG4CPLUS_DEBUG(pThis->GetLogger(), LOG4CPLUS_TEXT("Exception: ") << e.what());
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
     LOG4CPLUS_DEBUG(pThis->GetLogger(), "cublasZgemv_v2 Executed");
-    return std::make_shared<Result>(cs,out);
+    return std::make_shared<Result>(cs, out);
 }
 
-CUBLAS_ROUTINE_HANDLER(Sgbmv_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Sgbmv_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasOperation_t trans = in->Get<cublasOperation_t>();
-    int m  = in->Get<int>();
-    int n  = in->Get<int>();
-    int kl  = in->Get<int>();
-    int ku  = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * A = in->GetFromMarshal<float*>();
-    int lda  = in->Get<int>();
-    const float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    const float * beta = in->Assign<float>();
-    float * y = in->GetFromMarshal<float*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasSgbmv_v2(handle,trans,m,n,kl,ku,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dgbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    int m  = in->Get<int>();
-    int n  = in->Get<int>();
-    int kl  = in->Get<int>();
-    int ku  = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * A = in->GetFromMarshal<double*>();
-    int lda  = in->Get<int>();
-    const double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    const double * beta = in->Assign<double>();
-    double * y = in->GetFromMarshal<double*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDgbmv_v2(handle,trans,m,n,kl,ku,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Cgbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    int m  = in->Get<int>();
-    int n  = in->Get<int>();
-    int kl  = in->Get<int>();
-    int ku  = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda  = in->Get<int>();
-    const cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    const cuComplex * beta = in->Assign<cuComplex>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCgbmv_v2(handle,trans,m,n,kl,ku,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Zgbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    int m  = in->Get<int>();
-    int n  = in->Get<int>();
-    int kl  = in->Get<int>();
-    int ku  = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda  = in->Get<int>();
-    const cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    const cuDoubleComplex * beta = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZgbmv_v2(handle,trans,m,n,kl,ku,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Strmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    float * A = in->GetFromMarshal<float*>();
-    int lda = in->Get<int>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasStrmv_v2(handle,uplo,trans,diag,n,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dtrmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    double * A = in->GetFromMarshal<double*>();
-    int lda = in->Get<int>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDtrmv_v2(handle,uplo,trans,diag,n,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ctrmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCtrmv_v2(handle,uplo,trans,diag,n,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ztrmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZtrmv_v2(handle,uplo,trans,diag,n,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Stbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    float * A = in->GetFromMarshal<float*>();
-    int lda = in->Get<int>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasStbmv_v2(handle,uplo,trans,diag,n,k,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dtbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    double * A = in->GetFromMarshal<double*>();
-    int lda = in->Get<int>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDtbmv_v2(handle,uplo,trans,diag,n,k,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ctbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCtbmv_v2(handle,uplo,trans,diag,n,k,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ztbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZtbmv_v2(handle,uplo,trans,diag,n,k,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Stpmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    float * AP = in->GetFromMarshal<float*>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasStpmv_v2(handle,uplo,trans,diag,n,AP,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dtpmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    double * AP = in->GetFromMarshal<double*>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDtpmv_v2(handle,uplo,trans,diag,n,AP,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ctpmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    cuComplex * AP = in->GetFromMarshal<cuComplex*>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCtpmv_v2(handle,uplo,trans,diag,n,AP,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ztpmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    cuDoubleComplex * AP = in->GetFromMarshal<cuDoubleComplex*>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZtpmv_v2(handle,uplo,trans,diag,n,AP,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Strsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    float * A = in->GetFromMarshal<float*>();
-    int lda = in->Get<int>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasStrsv_v2(handle,uplo,trans,diag,n,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dtrsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    double * A = in->GetFromMarshal<double*>();
-    int lda = in->Get<int>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDtrsv_v2(handle,uplo,trans,diag,n,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ctrsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCtrsv_v2(handle,uplo,trans,diag,n,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ztrsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZtrsv_v2(handle,uplo,trans,diag,n,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-
-CUBLAS_ROUTINE_HANDLER(Stpsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    float * AP = in->GetFromMarshal<float*>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasStpsv_v2(handle,uplo,trans,diag,n,AP,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dtpsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    double * AP = in->GetFromMarshal<double*>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDtpsv_v2(handle,uplo,trans,diag,n,AP,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ctpsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    cuComplex * AP = in->GetFromMarshal<cuComplex*>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCtpsv_v2(handle,uplo,trans,diag,n,AP,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ztpsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    cuDoubleComplex * AP = in->GetFromMarshal<cuDoubleComplex*>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZtpsv_v2(handle,uplo,trans,diag,n,AP,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Stbsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    float * A = in->GetFromMarshal<float*>();
-    int lda = in->Get<int>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-
-    cublasStatus_t cs = cublasStbsv_v2(handle,uplo,trans,diag,n,k,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dtbsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    double * A = in->GetFromMarshal<double*>();
-    int lda = in->Get<int>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-
-    cublasStatus_t cs = cublasDtbsv_v2(handle,uplo,trans,diag,n,k,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ctbsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-
-    cublasStatus_t cs = cublasCtbsv_v2(handle,uplo,trans,diag,n,k,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ztbsv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    cublasOperation_t trans = in->Get<cublasOperation_t>();
-    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-
-    cublasStatus_t cs = cublasZtbsv_v2(handle,uplo,trans,diag,n,k,A,lda,x,incx);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ssymv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * A = in->GetFromMarshal<float*>();
-    int lda = in->Get<int>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    
-    const float * beta = in->Assign<float>();
-    float * y = in->GetFromMarshal<float*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasSsymv_v2(handle,uplo,n,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dsymv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * A = in->GetFromMarshal<double*>();
-    int lda = in->Get<int>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    
-    const double * beta = in->Assign<double>();
-    double * y = in->GetFromMarshal<double*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDsymv_v2(handle,uplo,n,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Csymv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    const cuComplex * beta = in->Assign<cuComplex>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCsymv_v2(handle,uplo,n,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Zsymv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    const cuDoubleComplex * beta = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZsymv_v2(handle,uplo,n,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Chemv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    const cuComplex * beta = in->Assign<cuComplex>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasChemv_v2(handle,uplo,n,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Zhemv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    const cuDoubleComplex * beta = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZhemv_v2(handle,uplo,n,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ssbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * A = in->GetFromMarshal<float*>();
-    int lda = in->Get<int>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    
-    const float * beta = in->Assign<float>();
-    float * y = in->GetFromMarshal<float*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasSsbmv_v2(handle,uplo,n,k,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dsbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * A = in->GetFromMarshal<double*>();
-    int lda = in->Get<int>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    
-    const double * beta = in->Assign<double>();
-    double * y = in->GetFromMarshal<double*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDsbmv_v2(handle,uplo,n,k,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Chbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    const cuComplex * beta = in->Assign<cuComplex>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasChbmv_v2(handle,uplo,n,k,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Zhbmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    int k = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    const cuDoubleComplex * beta = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZhbmv_v2(handle,uplo,n,k,alpha,A,lda,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Sspmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * AP = in->GetFromMarshal<float*>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    
-    const float * beta = in->Assign<float>();
-    float * y = in->GetFromMarshal<float*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasSspmv_v2(handle,uplo,n,alpha,AP,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dspmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * AP = in->GetFromMarshal<double*>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    
-    const double * beta = in->Assign<double>();
-    double * y = in->GetFromMarshal<double*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDspmv_v2(handle,uplo,n,alpha,AP,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Chpmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * AP = in->GetFromMarshal<cuComplex*>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    
-    const cuComplex * beta = in->Assign<cuComplex>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasChpmv_v2(handle,uplo,n,alpha,AP,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Zhpmv_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * AP = in->GetFromMarshal<cuDoubleComplex*>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    
-    const cuDoubleComplex * beta = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
-    int incy = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZhpmv_v2(handle,uplo,n,alpha,AP,x,incx,beta,y,incy);
-    return std::make_shared<Result>(cs);
-}
-
-
-CUBLAS_ROUTINE_HANDLER(Sger_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
     int m = in->Get<int>();
     int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    float * y = in->GetFromMarshal<float*>();
-    int incy = in->Get<int>();
-    float * A = in->GetFromMarshal<float*>();
+    int kl = in->Get<int>();
+    int ku = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    float* A = in->GetFromMarshal<float*>();
     int lda = in->Get<int>();
+    const float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+    const float* beta = in->Assign<float>();
+    float* y = in->GetFromMarshal<float*>();
+    int incy = in->Get<int>();
 
-    cublasStatus_t cs = cublasSger_v2(handle,m,n,alpha,x,incx,y,incy,A,lda);
+    cublasStatus_t cs =
+        cublasSgbmv_v2(handle, trans, m, n, kl, ku, alpha, A, lda, x, incx, beta, y, incy);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Dger_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Dgbmv_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
     int m = in->Get<int>();
     int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    double * y = in->GetFromMarshal<double*>();
-    int incy = in->Get<int>();
-    double * A = in->GetFromMarshal<double*>();
+    int kl = in->Get<int>();
+    int ku = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    double* A = in->GetFromMarshal<double*>();
     int lda = in->Get<int>();
+    const double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+    const double* beta = in->Assign<double>();
+    double* y = in->GetFromMarshal<double*>();
+    int incy = in->Get<int>();
 
-    cublasStatus_t cs = cublasDger_v2(handle,m,n,alpha,x,incx,y,incy,A,lda);
+    cublasStatus_t cs =
+        cublasDgbmv_v2(handle, trans, m, n, kl, ku, alpha, A, lda, x, incx, beta, y, incy);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Cgeru_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Cgbmv_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
     int m = in->Get<int>();
     int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
+    int kl = in->Get<int>();
+    int ku = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
     int lda = in->Get<int>();
+    const cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+    const cuComplex* beta = in->Assign<cuComplex>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
+    int incy = in->Get<int>();
 
-    cublasStatus_t cs = cublasCgeru_v2(handle,m,n,alpha,x,incx,y,incy,A,lda);
+    cublasStatus_t cs =
+        cublasCgbmv_v2(handle, trans, m, n, kl, ku, alpha, A, lda, x, incx, beta, y, incy);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Cgerc_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Zgbmv_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
     int m = in->Get<int>();
     int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
+    int kl = in->Get<int>();
+    int ku = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
     int lda = in->Get<int>();
+    const cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+    const cuDoubleComplex* beta = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
+    int incy = in->Get<int>();
 
-    cublasStatus_t cs = cublasCgerc_v2(handle,m,n,alpha,x,incx,y,incy,A,lda);
+    cublasStatus_t cs =
+        cublasZgbmv_v2(handle, trans, m, n, kl, ku, alpha, A, lda, x, incx, beta, y, incy);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Zgeru_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Strmv_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    float* A = in->GetFromMarshal<float*>();
+    int lda = in->Get<int>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasStrmv_v2(handle, uplo, trans, diag, n, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dtrmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    double* A = in->GetFromMarshal<double*>();
+    int lda = in->Get<int>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasDtrmv_v2(handle, uplo, trans, diag, n, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ctrmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasCtrmv_v2(handle, uplo, trans, diag, n, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ztrmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasZtrmv_v2(handle, uplo, trans, diag, n, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Stbmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    float* A = in->GetFromMarshal<float*>();
+    int lda = in->Get<int>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasStbmv_v2(handle, uplo, trans, diag, n, k, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dtbmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    double* A = in->GetFromMarshal<double*>();
+    int lda = in->Get<int>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasDtbmv_v2(handle, uplo, trans, diag, n, k, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ctbmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasCtbmv_v2(handle, uplo, trans, diag, n, k, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ztbmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasZtbmv_v2(handle, uplo, trans, diag, n, k, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Stpmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    float* AP = in->GetFromMarshal<float*>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasStpmv_v2(handle, uplo, trans, diag, n, AP, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dtpmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    double* AP = in->GetFromMarshal<double*>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasDtpmv_v2(handle, uplo, trans, diag, n, AP, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ctpmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    cuComplex* AP = in->GetFromMarshal<cuComplex*>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasCtpmv_v2(handle, uplo, trans, diag, n, AP, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ztpmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    cuDoubleComplex* AP = in->GetFromMarshal<cuDoubleComplex*>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasZtpmv_v2(handle, uplo, trans, diag, n, AP, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Strsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    float* A = in->GetFromMarshal<float*>();
+    int lda = in->Get<int>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasStrsv_v2(handle, uplo, trans, diag, n, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dtrsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    double* A = in->GetFromMarshal<double*>();
+    int lda = in->Get<int>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasDtrsv_v2(handle, uplo, trans, diag, n, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ctrsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasCtrsv_v2(handle, uplo, trans, diag, n, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ztrsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasZtrsv_v2(handle, uplo, trans, diag, n, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Stpsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    float* AP = in->GetFromMarshal<float*>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasStpsv_v2(handle, uplo, trans, diag, n, AP, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dtpsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    double* AP = in->GetFromMarshal<double*>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasDtpsv_v2(handle, uplo, trans, diag, n, AP, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ctpsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    cuComplex* AP = in->GetFromMarshal<cuComplex*>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasCtpsv_v2(handle, uplo, trans, diag, n, AP, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ztpsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    cuDoubleComplex* AP = in->GetFromMarshal<cuDoubleComplex*>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasZtpsv_v2(handle, uplo, trans, diag, n, AP, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Stbsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    float* A = in->GetFromMarshal<float*>();
+    int lda = in->Get<int>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasStbsv_v2(handle, uplo, trans, diag, n, k, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dtbsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    double* A = in->GetFromMarshal<double*>();
+    int lda = in->Get<int>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasDtbsv_v2(handle, uplo, trans, diag, n, k, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ctbsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasCtbsv_v2(handle, uplo, trans, diag, n, k, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ztbsv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    cublasOperation_t trans = in->Get<cublasOperation_t>();
+    cublasDiagType_t diag = in->Get<cublasDiagType_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    cublasStatus_t cs = cublasZtbsv_v2(handle, uplo, trans, diag, n, k, A, lda, x, incx);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ssymv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    float* A = in->GetFromMarshal<float*>();
+    int lda = in->Get<int>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    const float* beta = in->Assign<float>();
+    float* y = in->GetFromMarshal<float*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasSsymv_v2(handle, uplo, n, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dsymv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    double* A = in->GetFromMarshal<double*>();
+    int lda = in->Get<int>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    const double* beta = in->Assign<double>();
+    double* y = in->GetFromMarshal<double*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasDsymv_v2(handle, uplo, n, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Csymv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    const cuComplex* beta = in->Assign<cuComplex>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasCsymv_v2(handle, uplo, n, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Zsymv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    const cuDoubleComplex* beta = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasZsymv_v2(handle, uplo, n, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Chemv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    const cuComplex* beta = in->Assign<cuComplex>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasChemv_v2(handle, uplo, n, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Zhemv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    const cuDoubleComplex* beta = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasZhemv_v2(handle, uplo, n, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ssbmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    float* A = in->GetFromMarshal<float*>();
+    int lda = in->Get<int>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    const float* beta = in->Assign<float>();
+    float* y = in->GetFromMarshal<float*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasSsbmv_v2(handle, uplo, n, k, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dsbmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    double* A = in->GetFromMarshal<double*>();
+    int lda = in->Get<int>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    const double* beta = in->Assign<double>();
+    double* y = in->GetFromMarshal<double*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasDsbmv_v2(handle, uplo, n, k, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Chbmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    const cuComplex* beta = in->Assign<cuComplex>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasChbmv_v2(handle, uplo, n, k, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Zhbmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    int k = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    const cuDoubleComplex* beta = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasZhbmv_v2(handle, uplo, n, k, alpha, A, lda, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Sspmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    float* AP = in->GetFromMarshal<float*>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+
+    const float* beta = in->Assign<float>();
+    float* y = in->GetFromMarshal<float*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasSspmv_v2(handle, uplo, n, alpha, AP, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dspmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    double* AP = in->GetFromMarshal<double*>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+
+    const double* beta = in->Assign<double>();
+    double* y = in->GetFromMarshal<double*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasDspmv_v2(handle, uplo, n, alpha, AP, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Chpmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* AP = in->GetFromMarshal<cuComplex*>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+
+    const cuComplex* beta = in->Assign<cuComplex>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasChpmv_v2(handle, uplo, n, alpha, AP, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Zhpmv_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* AP = in->GetFromMarshal<cuDoubleComplex*>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+
+    const cuDoubleComplex* beta = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
+    int incy = in->Get<int>();
+
+    cublasStatus_t cs = cublasZhpmv_v2(handle, uplo, n, alpha, AP, x, incx, beta, y, incy);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Sger_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
     int m = in->Get<int>();
     int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
+    const float* alpha = in->Assign<float>();
+    float* x = in->GetFromMarshal<float*>();
     int incx = in->Get<int>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
+    float* y = in->GetFromMarshal<float*>();
     int incy = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
+    float* A = in->GetFromMarshal<float*>();
     int lda = in->Get<int>();
 
-    cublasStatus_t cs = cublasZgeru_v2(handle,m,n,alpha,x,incx,y,incy,A,lda);
+    cublasStatus_t cs = cublasSger_v2(handle, m, n, alpha, x, incx, y, incy, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Zgerc_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Dger_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     int m = in->Get<int>();
     int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
+    const double* alpha = in->Assign<double>();
+    double* x = in->GetFromMarshal<double*>();
     int incx = in->Get<int>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
+    double* y = in->GetFromMarshal<double*>();
     int incy = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
+    double* A = in->GetFromMarshal<double*>();
     int lda = in->Get<int>();
 
-    cublasStatus_t cs = cublasZgerc_v2(handle,m,n,alpha,x,incx,y,incy,A,lda);
+    cublasStatus_t cs = cublasDger_v2(handle, m, n, alpha, x, incx, y, incy, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-
-CUBLAS_ROUTINE_HANDLER(Ssyr_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Cgeru_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    handle = (cublasHandle_t)in->Get<long long int>();
+    int m = in->Get<int>();
     int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * x = in->GetFromMarshal<float*>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
     int incx = in->Get<int>();
-    float * A = in->GetFromMarshal<float*>();
-    int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasSsyr_v2(handle,uplo,n,alpha,x,incx,A,lda);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Dsyr_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    double * A = in->GetFromMarshal<double*>();
-    int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDsyr_v2(handle,uplo,n,alpha,x,incx,A,lda);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Csyr_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCsyr_v2(handle,uplo,n,alpha,x,incx,A,lda);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Zsyr_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZsyr_v2(handle,uplo,n,alpha,x,incx,A,lda);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Cher_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
-    int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCher_v2(handle,uplo,n,alpha,x,incx,A,lda);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Zher_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
-    int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZher_v2(handle,uplo,n,alpha,x,incx,A,lda);
-    return std::make_shared<Result>(cs);
-}
-
-
-CUBLAS_ROUTINE_HANDLER(Sspr_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    float * AP = in->GetFromMarshal<float*>();
-    
-    cublasStatus_t cs = cublasSspr_v2(handle,uplo,n,alpha,x,incx,AP);
-    return std::make_shared<Result>(cs);
-}
-
-
-CUBLAS_ROUTINE_HANDLER(Dspr_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * x = in->GetFromMarshal<double*>();
-    int incx = in->Get<int>();
-    double * AP = in->GetFromMarshal<double*>();
-    
-    cublasStatus_t cs = cublasDspr_v2(handle,uplo,n,alpha,x,incx,AP);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Chpr_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
-    int incx = in->Get<int>();
-    cuComplex * AP = in->GetFromMarshal<cuComplex*>();
-    
-    cublasStatus_t cs = cublasChpr_v2(handle,uplo,n,alpha,x,incx,AP);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Zhpr_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
-    int incx = in->Get<int>();
-    cuDoubleComplex * AP = in->GetFromMarshal<cuDoubleComplex*>();
-    
-    cublasStatus_t cs = cublasZhpr_v2(handle,uplo,n,alpha,x,incx,AP);
-    return std::make_shared<Result>(cs);
-}
-
-CUBLAS_ROUTINE_HANDLER(Ssyr2_v2){
-        
-    cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
-    int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * x = in->GetFromMarshal<float*>();
-    int incx = in->Get<int>();
-    float * y = in->GetFromMarshal<float*>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
     int incy = in->Get<int>();
-    float * A = in->GetFromMarshal<float*>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
     int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasSsyr2_v2(handle,uplo,n,alpha,x,incx,y,incy,A,lda);
+
+    cublasStatus_t cs = cublasCgeru_v2(handle, m, n, alpha, x, incx, y, incy, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Dsyr2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Cgerc_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    handle = (cublasHandle_t)in->Get<long long int>();
+    int m = in->Get<int>();
     int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * x = in->GetFromMarshal<double*>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
     int incx = in->Get<int>();
-    double * y = in->GetFromMarshal<double*>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
     int incy = in->Get<int>();
-    double * A = in->GetFromMarshal<double*>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
     int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasDsyr2_v2(handle,uplo,n,alpha,x,incx,y,incy,A,lda);
+
+    cublasStatus_t cs = cublasCgerc_v2(handle, m, n, alpha, x, incx, y, incy, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Csyr2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Zgeru_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    handle = (cublasHandle_t)in->Get<long long int>();
+    int m = in->Get<int>();
     int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
     int incx = in->Get<int>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
     int incy = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
     int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCsyr2_v2(handle,uplo,n,alpha,x,incx,y,incy,A,lda);
+
+    cublasStatus_t cs = cublasZgeru_v2(handle, m, n, alpha, x, incx, y, incy, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Zsyr2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Zgerc_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
-    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    handle = (cublasHandle_t)in->Get<long long int>();
+    int m = in->Get<int>();
     int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
     int incx = in->Get<int>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
     int incy = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
     int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZsyr2_v2(handle,uplo,n,alpha,x,incx,y,incy,A,lda);
+
+    cublasStatus_t cs = cublasZgerc_v2(handle, m, n, alpha, x, incx, y, incy, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Cher2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Ssyr_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
     int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
+    const float* alpha = in->Assign<float>();
+    float* x = in->GetFromMarshal<float*>();
     int incx = in->Get<int>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    cuComplex * A = in->GetFromMarshal<cuComplex*>();
+    float* A = in->GetFromMarshal<float*>();
     int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasCher2_v2(handle,uplo,n,alpha,x,incx,y,incy,A,lda);
+
+    cublasStatus_t cs = cublasSsyr_v2(handle, uplo, n, alpha, x, incx, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Zher2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Dsyr_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
     int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
+    const double* alpha = in->Assign<double>();
+    double* x = in->GetFromMarshal<double*>();
     int incx = in->Get<int>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
-    int incy = in->Get<int>();
-    cuDoubleComplex * A = in->GetFromMarshal<cuDoubleComplex*>();
+    double* A = in->GetFromMarshal<double*>();
     int lda = in->Get<int>();
-    
-    cublasStatus_t cs = cublasZher2_v2(handle,uplo,n,alpha,x,incx,y,incy,A,lda);
+
+    cublasStatus_t cs = cublasDsyr_v2(handle, uplo, n, alpha, x, incx, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-
-CUBLAS_ROUTINE_HANDLER(Sspr2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Csyr_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
     int n = in->Get<int>();
-    const float * alpha = in->Assign<float>();
-    float * x = in->GetFromMarshal<float*>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
     int incx = in->Get<int>();
-    float * y = in->GetFromMarshal<float*>();
-    int incy = in->Get<int>();
-    float * AP = in->GetFromMarshal<float*>();
-    
-    cublasStatus_t cs = cublasSspr2_v2(handle,uplo,n,alpha,x,incx,y,incy,AP);
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasCsyr_v2(handle, uplo, n, alpha, x, incx, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Dspr2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Zsyr_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
     int n = in->Get<int>();
-    const double * alpha = in->Assign<double>();
-    double * x = in->GetFromMarshal<double*>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
     int incx = in->Get<int>();
-    double * y = in->GetFromMarshal<double*>();
-    int incy = in->Get<int>();
-    double * AP = in->GetFromMarshal<double*>();
-    
-    cublasStatus_t cs = cublasDspr2_v2(handle,uplo,n,alpha,x,incx,y,incy,AP);
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasZsyr_v2(handle, uplo, n, alpha, x, incx, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Chpr2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Cher_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
     int n = in->Get<int>();
-    const cuComplex * alpha = in->Assign<cuComplex>();
-    cuComplex * x = in->GetFromMarshal<cuComplex*>();
+    const float* alpha = in->Assign<float>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
     int incx = in->Get<int>();
-    cuComplex * y = in->GetFromMarshal<cuComplex*>();
-    int incy = in->Get<int>();
-    cuComplex * AP = in->GetFromMarshal<cuComplex*>();
-    
-    cublasStatus_t cs = cublasChpr2_v2(handle,uplo,n,alpha,x,incx,y,incy,AP);
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasCher_v2(handle, uplo, n, alpha, x, incx, A, lda);
     return std::make_shared<Result>(cs);
 }
 
-CUBLAS_ROUTINE_HANDLER(Zhpr2_v2){
-        
+CUBLAS_ROUTINE_HANDLER(Zher_v2) {
     cublasHandle_t handle;
-    handle = (cublasHandle_t) in->Get<long long int>();
+    handle = (cublasHandle_t)in->Get<long long int>();
     cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
     int n = in->Get<int>();
-    const cuDoubleComplex * alpha = in->Assign<cuDoubleComplex>();
-    cuDoubleComplex * x = in->GetFromMarshal<cuDoubleComplex*>();
+    const double* alpha = in->Assign<double>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
     int incx = in->Get<int>();
-    cuDoubleComplex * y = in->GetFromMarshal<cuDoubleComplex*>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasZher_v2(handle, uplo, n, alpha, x, incx, A, lda);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Sspr_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+    float* AP = in->GetFromMarshal<float*>();
+
+    cublasStatus_t cs = cublasSspr_v2(handle, uplo, n, alpha, x, incx, AP);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dspr_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+    double* AP = in->GetFromMarshal<double*>();
+
+    cublasStatus_t cs = cublasDspr_v2(handle, uplo, n, alpha, x, incx, AP);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Chpr_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+    cuComplex* AP = in->GetFromMarshal<cuComplex*>();
+
+    cublasStatus_t cs = cublasChpr_v2(handle, uplo, n, alpha, x, incx, AP);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Zhpr_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+    cuDoubleComplex* AP = in->GetFromMarshal<cuDoubleComplex*>();
+
+    cublasStatus_t cs = cublasZhpr_v2(handle, uplo, n, alpha, x, incx, AP);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Ssyr2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+    float* y = in->GetFromMarshal<float*>();
     int incy = in->Get<int>();
-    cuDoubleComplex * AP = in->GetFromMarshal<cuDoubleComplex*>();
-    
-    cublasStatus_t cs = cublasZhpr2_v2(handle,uplo,n,alpha,x,incx,y,incy,AP);
+    float* A = in->GetFromMarshal<float*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasSsyr2_v2(handle, uplo, n, alpha, x, incx, y, incy, A, lda);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dsyr2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+    double* y = in->GetFromMarshal<double*>();
+    int incy = in->Get<int>();
+    double* A = in->GetFromMarshal<double*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasDsyr2_v2(handle, uplo, n, alpha, x, incx, y, incy, A, lda);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Csyr2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
+    int incy = in->Get<int>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasCsyr2_v2(handle, uplo, n, alpha, x, incx, y, incy, A, lda);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Zsyr2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
+    int incy = in->Get<int>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasZsyr2_v2(handle, uplo, n, alpha, x, incx, y, incy, A, lda);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Cher2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
+    int incy = in->Get<int>();
+    cuComplex* A = in->GetFromMarshal<cuComplex*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasCher2_v2(handle, uplo, n, alpha, x, incx, y, incy, A, lda);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Zher2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
+    int incy = in->Get<int>();
+    cuDoubleComplex* A = in->GetFromMarshal<cuDoubleComplex*>();
+    int lda = in->Get<int>();
+
+    cublasStatus_t cs = cublasZher2_v2(handle, uplo, n, alpha, x, incx, y, incy, A, lda);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Sspr2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const float* alpha = in->Assign<float>();
+    float* x = in->GetFromMarshal<float*>();
+    int incx = in->Get<int>();
+    float* y = in->GetFromMarshal<float*>();
+    int incy = in->Get<int>();
+    float* AP = in->GetFromMarshal<float*>();
+
+    cublasStatus_t cs = cublasSspr2_v2(handle, uplo, n, alpha, x, incx, y, incy, AP);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Dspr2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const double* alpha = in->Assign<double>();
+    double* x = in->GetFromMarshal<double*>();
+    int incx = in->Get<int>();
+    double* y = in->GetFromMarshal<double*>();
+    int incy = in->Get<int>();
+    double* AP = in->GetFromMarshal<double*>();
+
+    cublasStatus_t cs = cublasDspr2_v2(handle, uplo, n, alpha, x, incx, y, incy, AP);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Chpr2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuComplex* alpha = in->Assign<cuComplex>();
+    cuComplex* x = in->GetFromMarshal<cuComplex*>();
+    int incx = in->Get<int>();
+    cuComplex* y = in->GetFromMarshal<cuComplex*>();
+    int incy = in->Get<int>();
+    cuComplex* AP = in->GetFromMarshal<cuComplex*>();
+
+    cublasStatus_t cs = cublasChpr2_v2(handle, uplo, n, alpha, x, incx, y, incy, AP);
+    return std::make_shared<Result>(cs);
+}
+
+CUBLAS_ROUTINE_HANDLER(Zhpr2_v2) {
+    cublasHandle_t handle;
+    handle = (cublasHandle_t)in->Get<long long int>();
+    cublasFillMode_t uplo = in->Get<cublasFillMode_t>();
+    int n = in->Get<int>();
+    const cuDoubleComplex* alpha = in->Assign<cuDoubleComplex>();
+    cuDoubleComplex* x = in->GetFromMarshal<cuDoubleComplex*>();
+    int incx = in->Get<int>();
+    cuDoubleComplex* y = in->GetFromMarshal<cuDoubleComplex*>();
+    int incy = in->Get<int>();
+    cuDoubleComplex* AP = in->GetFromMarshal<cuDoubleComplex*>();
+
+    cublasStatus_t cs = cublasZhpr2_v2(handle, uplo, n, alpha, x, incx, y, incy, AP);
     return std::make_shared<Result>(cs);
 }

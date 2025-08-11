@@ -20,8 +20,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
- *             Department of Computer Science,
- *             University College Dublin, Ireland
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"
@@ -34,21 +33,17 @@ bool isMemPoolReuseAttr(cudaMemPoolAttr attr) {
             attr == cudaMemPoolReuseAllowInternalDependencies);
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolCreate(
-    cudaMemPool_t *pool,
-    const cudaMemPoolProps *poolProps
-) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolCreate(cudaMemPool_t* pool,
+                                                            const cudaMemPoolProps* poolProps) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments<const cudaMemPoolProps>(poolProps);
     CudaRtFrontend::Execute("cudaMemPoolCreate");
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolGetAttribute(
-    cudaMemPool_t pool,
-    cudaMemPoolAttr attr,
-    void *value
-) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolGetAttribute(cudaMemPool_t pool,
+                                                                  cudaMemPoolAttr attr,
+                                                                  void* value) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(pool);
     CudaRtFrontend::AddVariableForArguments(attr);
@@ -60,11 +55,9 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolGetAttribute(
 }
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolSetAttribute(
-    cudaMemPool_t pool,
-    cudaMemPoolAttr attr,
-    void *value
-) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolSetAttribute(cudaMemPool_t pool,
+                                                                  cudaMemPoolAttr attr,
+                                                                  void* value) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(pool);
     CudaRtFrontend::AddVariableForArguments(attr);
@@ -76,11 +69,9 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolSetAttribute(
 }
 
 // TODO: implement
-extern "C" __host__ cudaError_t cudaMemPoolSetAccess(
-    cudaMemPool_t memPool,
-    const cudaMemAccessDesc* descList,
-    size_t count
-) {
+extern "C" __host__ cudaError_t cudaMemPoolSetAccess(cudaMemPool_t memPool,
+                                                     const cudaMemAccessDesc* descList,
+                                                     size_t count) {
     cout << "cudaMemPoolSetAccess not yet implemented" << endl;
     return cudaErrorNotYetImplemented;
 }
@@ -111,11 +102,8 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolDestroy(cudaMemPool_t pool)
 }
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaMallocAsync(
-    void** devPtr,
-    size_t size,
-    cudaStream_t hStream
-) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaMallocAsync(void** devPtr, size_t size,
+                                                          cudaStream_t hStream) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(devPtr);
     CudaRtFrontend::AddVariableForArguments(size);
@@ -127,7 +115,8 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMallocAsync(
 }
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolTrimTo(cudaMemPool_t memPool, size_t minBytesToKeep) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaMemPoolTrimTo(cudaMemPool_t memPool,
+                                                            size_t minBytesToKeep) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(memPool);
     CudaRtFrontend::AddVariableForArguments(minBytesToKeep);

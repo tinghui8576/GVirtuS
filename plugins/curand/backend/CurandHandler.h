@@ -21,40 +21,42 @@
  *
  * Written by: Vincenzo Santopietro <vincenzo.santopietro@uniparthenope.it>,
  *             Department of Science and Technologies
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            School of Computer Science, University College Dublin
  */
 
 #ifndef _CURANDHANDLER_H
 #define _CURANDHANDLER_H
 
+#include <curand.h>
 #include <gvirtus/backend/Handler.h>
 #include <gvirtus/communicators/Result.h>
 
-#include <curand.h>
-
+#include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
-#include "log4cplus/configurator.h"
 
 class CurandHandler : public gvirtus::backend::Handler {
-public:
+   public:
     CurandHandler();
     virtual ~CurandHandler();
     bool CanExecute(std::string routine);
-    std::shared_ptr<gvirtus::communicators::Result> Execute(std::string routine,
-        std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
-    log4cplus::Logger& GetLogger() {
-        return logger;
-    }
+    std::shared_ptr<gvirtus::communicators::Result> Execute(
+        std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
+    log4cplus::Logger &GetLogger() { return logger; }
 
-private:
+   private:
     log4cplus::Logger logger;
     void Initialize();
-    typedef std::shared_ptr<gvirtus::communicators::Result> (*CurandRoutineHandler)(CurandHandler *,
-        std::shared_ptr<gvirtus::communicators::Buffer>);
-    static std::map<std::string, CurandRoutineHandler> * mspHandlers;
+    typedef std::shared_ptr<gvirtus::communicators::Result> (*CurandRoutineHandler)(
+        CurandHandler *, std::shared_ptr<gvirtus::communicators::Buffer>);
+    static std::map<std::string, CurandRoutineHandler> *mspHandlers;
 };
 
-#define CURAND_ROUTINE_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CurandHandler *pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)
+#define CURAND_ROUTINE_HANDLER(name)                              \
+    std::shared_ptr<gvirtus::communicators::Result> handle##name( \
+        CurandHandler *pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)
 #define CURAND_ROUTINE_HANDLER_PAIR(name) make_pair("curand" #name, handle##name)
 
 /* CurandHandler_Platform */
@@ -74,4 +76,4 @@ CURAND_ROUTINE_HANDLER(GenerateNormalDouble);
 CURAND_ROUTINE_HANDLER(GenerateLogNormalDouble);
 CURAND_ROUTINE_HANDLER(DestroyGenerator);
 
-#endif //_CURANDHANDLER_H
+#endif  //_CURANDHANDLER_H

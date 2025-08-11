@@ -8,12 +8,13 @@
 #ifndef VMSOCKETCOMMUNICATOR_H
 #define VMSOCKETCOMMUNICATOR_H
 
-#include "Communicator.h"
 #include <string>
 
+#include "Communicator.h"
+
 namespace gvirtus {
-  class VMSocketCommunicator : public Communicator {
-  public:
+class VMSocketCommunicator : public Communicator {
+   public:
     VMSocketCommunicator(const std::string &communicator);
     void Serve();
     const Communicator *const Accept() const;
@@ -23,10 +24,10 @@ namespace gvirtus {
     void Sync();
     void Close();
 
-  private:
+   private:
     int mFd;
     std::string mPath;
     std::string mDevice;
-  };
-} // namespace gvirtus
+};
+}  // namespace gvirtus
 #endif /* VMSOCKETCOMMUNICATOR_H */

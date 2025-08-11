@@ -19,28 +19,27 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"
 
 using namespace std;
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaDriverGetVersion(int *driverVersion) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaDriverGetVersion");
-  if (CudaRtFrontend::Success())
-    *driverVersion = CudaRtFrontend::GetOutputVariable<int>();
-  return CudaRtFrontend::GetExitCode();
+extern "C" __host__ cudaError_t CUDARTAPI cudaDriverGetVersion(int *driverVersion) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaDriverGetVersion");
+    if (CudaRtFrontend::Success()) *driverVersion = CudaRtFrontend::GetOutputVariable<int>();
+    return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaRuntimeGetVersion(int *runtimeVersion) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaDriverGetVersion");
-  if (CudaRtFrontend::Success())
-    *runtimeVersion = CudaRtFrontend::GetOutputVariable<int>();
-  return CudaRtFrontend::GetExitCode();
+extern "C" __host__ cudaError_t CUDARTAPI cudaRuntimeGetVersion(int *runtimeVersion) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaRuntimeGetVersion");
+    if (CudaRtFrontend::Success()) *runtimeVersion = CudaRtFrontend::GetOutputVariable<int>();
+    return CudaRtFrontend::GetExitCode();
 }

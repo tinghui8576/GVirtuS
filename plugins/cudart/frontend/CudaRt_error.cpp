@@ -19,8 +19,11 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"
@@ -28,26 +31,26 @@
 using namespace std;
 
 extern "C" __host__ const char* CUDARTAPI cudaGetErrorString(cudaError_t error) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddVariableForArguments(error);
-  CudaRtFrontend::Execute("cudaGetErrorString");
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddVariableForArguments(error);
+    CudaRtFrontend::Execute("cudaGetErrorString");
 #ifdef _WIN32
-  char* error_string = _strdup(CudaRtFrontend::GetOutputString());
+    char* error_string = _strdup(CudaRtFrontend::GetOutputString());
 #else
-  char* error_string = strdup(CudaRtFrontend::GetOutputString());
+    char* error_string = strdup(CudaRtFrontend::GetOutputString());
 #endif
-  return error_string;
+    return error_string;
 }
 extern "C" __host__ cudaError_t CUDARTAPI cudaPeekAtLastError(void) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaPeekAtLastError");
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaPeekAtLastError");
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaGetLastError(void) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaGetLastError");
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaGetLastError");
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ __device__ const char* CUDARTAPI cudaGetErrorName(cudaError_t error) {

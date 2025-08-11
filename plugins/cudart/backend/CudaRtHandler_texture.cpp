@@ -21,49 +21,44 @@
  *
  * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRtHandler.h"
 
-#ifndef CUDART_VERSION
-#error CUDART_VERSION not defined
-#endif
-
 CUDA_ROUTINE_HANDLER(GetChannelDesc) {
-  try {
-    cudaChannelFormatDesc *guestDesc =
-        input_buffer->Assign<cudaChannelFormatDesc>();
-    cudaArray *array = (cudaArray *)input_buffer->GetFromMarshal<cudaArray *>();
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        cudaChannelFormatDesc *guestDesc = input_buffer->Assign<cudaChannelFormatDesc>();
+        cudaArray *array = (cudaArray *)input_buffer->GetFromMarshal<cudaArray *>();
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-    cudaChannelFormatDesc *desc = out->Delegate<cudaChannelFormatDesc>();
-    memmove(desc, guestDesc, sizeof(cudaChannelFormatDesc));
-    cudaError_t exit_code = cudaGetChannelDesc(desc, array);
-    return std::make_shared<Result>(exit_code, out);
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+        cudaChannelFormatDesc *desc = out->Delegate<cudaChannelFormatDesc>();
+        memmove(desc, guestDesc, sizeof(cudaChannelFormatDesc));
+        cudaError_t exit_code = cudaGetChannelDesc(desc, array);
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception &e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(CreateTextureObject) {
-  cudaTextureObject_t tex = 0;
-  std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-  try {
-    cudaResourceDesc *pResDesc = input_buffer->Assign<cudaResourceDesc>();
-    cudaTextureDesc *pTexDesc =
-        CudaUtil::UnmarshalTextureDesc(input_buffer.get());
-    cudaResourceViewDesc *pResViewDesc =
-        input_buffer->Assign<cudaResourceViewDesc>();
+    cudaTextureObject_t tex = 0;
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        cudaResourceDesc *pResDesc = input_buffer->Assign<cudaResourceDesc>();
+        cudaTextureDesc *pTexDesc = CudaUtil::UnmarshalTextureDesc(input_buffer.get());
+        cudaResourceViewDesc *pResViewDesc = input_buffer->Assign<cudaResourceViewDesc>();
 
-    cudaError_t exit_code =
-        cudaCreateTextureObject(&tex, pResDesc, pTexDesc, pResViewDesc);
+        cudaError_t exit_code = cudaCreateTextureObject(&tex, pResDesc, pTexDesc, pResViewDesc);
 
-    out->Add<cudaTextureObject_t>(tex);
-    return std::make_shared<Result>(exit_code, out);
+        out->Add<cudaTextureObject_t>(tex);
+        return std::make_shared<Result>(exit_code, out);
 
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorUnknown);
-  }
+    } catch (const std::exception &e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorUnknown);
+    }
 }

@@ -21,6 +21,9 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaDr.h"
@@ -49,8 +52,10 @@ using namespace std;
 // Add backward compatibility
 extern "C" CUresult cuCtxPushCurrent(CUcontext ctx) __attribute__((alias("cuCtxPushCurrent_v2")));
 extern "C" CUresult cuCtxPopCurrent(CUcontext *pctx) __attribute__((alias("cuCtxPopCurrent_v2")));
-extern "C" CUresult cuDevicePrimaryCtxRelease(CUdevice dev) __attribute__((alias("cuDevicePrimaryCtxRelease_v2")));
-extern "C" CUresult cuDevicePrimaryCtxReset(CUdevice dev) __attribute__((alias("cuDevicePrimaryCtxReset_v2")));
+extern "C" CUresult cuDevicePrimaryCtxRelease(CUdevice dev)
+    __attribute__((alias("cuDevicePrimaryCtxRelease_v2")));
+extern "C" CUresult cuDevicePrimaryCtxReset(CUdevice dev)
+    __attribute__((alias("cuDevicePrimaryCtxReset_v2")));
 
 /*Create a CUDA context*/
 extern "C" CUresult cuCtxCreate(CUcontext *pctx, unsigned int flags, CUdevice dev) {
@@ -59,7 +64,7 @@ extern "C" CUresult cuCtxCreate(CUcontext *pctx, unsigned int flags, CUdevice de
     CudaDrFrontend::AddVariableForArguments(dev);
     CudaDrFrontend::Execute("cuCtxCreate");
     if (CudaDrFrontend::Success()) {
-        *pctx = (CUcontext) (CudaDrFrontend::GetOutputDevicePointer());
+        *pctx = (CUcontext)(CudaDrFrontend::GetOutputDevicePointer());
     }
     return CudaDrFrontend::GetExitCode();
 }
@@ -70,8 +75,7 @@ extern "C" CUresult cuCtxAttach(CUcontext *pctx, unsigned int flags) {
     CudaDrFrontend::AddVariableForArguments(flags);
     CudaDrFrontend::AddHostPointerForArguments(pctx);
     CudaDrFrontend::Execute("cuCtxAttach");
-    if (CudaDrFrontend::Success())
-        *pctx = (CUcontext) CudaDrFrontend::GetOutputDevicePointer();
+    if (CudaDrFrontend::Success()) *pctx = (CUcontext)CudaDrFrontend::GetOutputDevicePointer();
     return CudaDrFrontend::GetExitCode();
 }
 
@@ -108,8 +112,7 @@ extern "C" CUresult cuCtxPopCurrent_v2(CUcontext *pctx) {
     CUcontext ctx;
     pctx = &ctx;
     CudaDrFrontend::Execute("cuCtxPopCurrent");
-    if (CudaDrFrontend::Success())
-        *pctx = (CUcontext) (CudaDrFrontend::GetOutputDevicePointer());
+    if (CudaDrFrontend::Success()) *pctx = (CUcontext)(CudaDrFrontend::GetOutputDevicePointer());
     return CudaDrFrontend::GetExitCode();
 }
 
@@ -152,8 +155,7 @@ extern "C" CUresult cuDeviceCanAccessPeer(int *canAccessPeer, CUdevice dev, CUde
     CudaDrFrontend::AddVariableForArguments(dev);
     CudaDrFrontend::AddVariableForArguments(peerDev);
     CudaDrFrontend::Execute("cuDeviceCanAccessPeer");
-    if (CudaDrFrontend::Success())
-        *canAccessPeer = *(CudaDrFrontend::GetOutputHostPointer<int>());
+    if (CudaDrFrontend::Success()) *canAccessPeer = *(CudaDrFrontend::GetOutputHostPointer<int>());
     return CudaDrFrontend::GetExitCode();
 }
 
@@ -164,7 +166,7 @@ extern "C" CUresult cuDevicePrimaryCtxRetain(CUcontext *pctx, CUdevice dev) {
     CudaDrFrontend::AddVariableForArguments(dev);
     CudaDrFrontend::Execute("cuDevicePrimaryCtxRetain");
     if (CudaDrFrontend::Success()) {
-        *pctx = (CUcontext) (CudaDrFrontend::GetOutputDevicePointer());
+        *pctx = (CUcontext)(CudaDrFrontend::GetOutputDevicePointer());
     }
     return CudaDrFrontend::GetExitCode();
 }
@@ -186,7 +188,7 @@ extern "C" CUresult cuDevicePrimaryCtxReset_v2(CUdevice dev) {
 }
 
 // TODO: test
-extern "C" CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int* flags, int* active) {
+extern "C" CUresult cuDevicePrimaryCtxGetState(CUdevice dev, unsigned int *flags, int *active) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(dev);
     CudaDrFrontend::Execute("cuDevicePrimaryCtxGetState");
@@ -201,7 +203,7 @@ extern "C" CUresult cuCtxGetCurrent(CUcontext *pctx) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::Execute("cuCtxGetCurrent");
     if (CudaDrFrontend::Success()) {
-        *pctx = (CUcontext) (CudaDrFrontend::GetOutputDevicePointer());
+        *pctx = (CUcontext)(CudaDrFrontend::GetOutputDevicePointer());
     }
     return CudaDrFrontend::GetExitCode();
 }

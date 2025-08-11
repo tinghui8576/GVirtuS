@@ -21,27 +21,30 @@
  *
  * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             School of Computer Science, University College Dublin
  */
-#ifndef CUDNNFRONTEND_H
-#define	CUDNNFRONTEND_H
 
-#include <iostream>
+#ifndef CUDNNFRONTEND_H
+#define CUDNNFRONTEND_H
 
 #include <cudnn.h>
-
 #include <gvirtus/frontend/Frontend.h>
+
+#include <iostream>
 
 using gvirtus::communicators::Buffer;
 using gvirtus::frontend::Frontend;
 
 typedef struct __configureFunction {
-      gvirtus::common::funcs __f;
-      gvirtus::communicators::Buffer* buffer;
+    gvirtus::common::funcs __f;
+    gvirtus::communicators::Buffer *buffer;
 } configureFunction;
 
 class CudnnFrontend {
-public:
-    static inline void Execute(const char * routine, const Buffer * input_buffer = NULL) {
+   public:
+    static inline void Execute(const char *routine, const Buffer *input_buffer = NULL) {
         Frontend::GetFrontend()->Execute(routine, input_buffer);
     }
 
@@ -50,13 +53,9 @@ public:
      * before any requests of execution or any method for adding parameters for
      * the next execution.
      */
-    static inline void Prepare() {
-        Frontend::GetFrontend()->Prepare();
-    }
+    static inline void Prepare() { Frontend::GetFrontend()->Prepare(); }
 
-    static inline Buffer *GetLaunchBuffer() {
-        return Frontend::GetFrontend()->GetInputBuffer();
-    }
+    static inline Buffer *GetLaunchBuffer() { return Frontend::GetFrontend()->GetInputBuffer(); }
 
     /**
      * Adds a scalar variabile as an input parameter for the next execution
@@ -64,7 +63,8 @@ public:
      *
      * @param var the variable to add as a parameter.
      */
-    template <class T> static inline void AddVariableForArguments(T var) {
+    template <class T>
+    static inline void AddVariableForArguments(T var) {
         Frontend::GetFrontend()->GetInputBuffer()->Add(var);
     }
 
@@ -87,7 +87,8 @@ public:
      * @param ptr the pointer to add as a parameter.
      * @param n the length of the array, if ptr is an array.
      */
-    template <class T>static inline void AddHostPointerForArguments(T *ptr, size_t n = 1) {
+    template <class T>
+    static inline void AddHostPointerForArguments(T *ptr, size_t n = 1) {
         Frontend::GetFrontend()->GetInputBuffer()->Add(ptr, n);
     }
 
@@ -98,7 +99,7 @@ public:
      * @param ptr the pointer to add as a parameter.
      */
     static inline void AddDevicePointerForArguments(const void *ptr) {
-        Frontend::GetFrontend()->GetInputBuffer()->Add((uint64_t) ptr);
+        Frontend::GetFrontend()->GetInputBuffer()->Add((uint64_t)ptr);
     }
 
     /**
@@ -115,14 +116,13 @@ public:
     }
 
     static inline cudnnStatus_t GetExitCode() {
-        return (cudnnStatus_t) Frontend::GetFrontend()->GetExitCode();
+        return (cudnnStatus_t)Frontend::GetFrontend()->GetExitCode();
     }
 
-    static inline bool Success() {
-        return Frontend::GetFrontend()->Success(cudaSuccess);
-    }
+    static inline bool Success() { return Frontend::GetFrontend()->Success(cudaSuccess); }
 
-    template <class T> static inline T GetOutputVariable() {
+    template <class T>
+    static inline T GetOutputVariable() {
         return Frontend::GetFrontend()->GetOutputBuffer()->Get<T>();
     }
 
@@ -136,8 +136,9 @@ public:
      *
      * @return the pointer from the output parameters.
      */
-    template <class T>static inline T * GetOutputHostPointer(size_t n = 1) {
-        return Frontend::GetFrontend()->GetOutputBuffer()->Assign<T> (n);
+    template <class T>
+    static inline T *GetOutputHostPointer(size_t n = 1) {
+        return Frontend::GetFrontend()->GetOutputBuffer()->Assign<T>(n);
     }
 
     /**
@@ -146,8 +147,8 @@ public:
      *
      * @return the pointer to the device memory.
      */
-    static inline void * GetOutputDevicePointer() {
-        return (void *) Frontend::GetFrontend()->GetOutputBuffer()->Get<uint64_t>();
+    static inline void *GetOutputDevicePointer() {
+        return (void *)Frontend::GetFrontend()->GetOutputBuffer()->Get<uint64_t>();
     }
 
     /**
@@ -156,10 +157,10 @@ public:
      *
      * @return the string from the output parameters.
      */
-    static inline char * GetOutputString() {
+    static inline char *GetOutputString() {
         return Frontend::GetFrontend()->GetOutputBuffer()->AssignString();
     }
     CudnnFrontend();
-    static void * handler;
+    static void *handler;
 };
-#endif	/* CUDNNFRONTEND_H */
+#endif /* CUDNNFRONTEND_H */

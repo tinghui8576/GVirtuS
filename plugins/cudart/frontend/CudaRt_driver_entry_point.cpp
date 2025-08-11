@@ -19,9 +19,8 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
- *             Department of Computer Science,
- *             University College Dublin, Ireland
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"
@@ -29,12 +28,9 @@
 using namespace std;
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaGetDriverEntryPoint(
-    const char* symbol,
-    void** funcPtr,
-    unsigned long long flags,
-    cudaDriverEntryPointQueryResult* driverStatus)
-{
+extern "C" __host__ cudaError_t CUDARTAPI
+cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long flags,
+                        cudaDriverEntryPointQueryResult* driverStatus) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(symbol);
     CudaRtFrontend::AddDevicePointerForArguments(funcPtr);

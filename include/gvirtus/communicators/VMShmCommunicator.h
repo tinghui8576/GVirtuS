@@ -44,13 +44,13 @@
 
 namespace gvirtus {
 
-  typedef struct {
+typedef struct {
     pthread_spinlock_t *mLock;
     int *mCounter;
-  } vmshm_sem_t;
+} vmshm_sem_t;
 
-  class VMShmCommunicator : public Communicator {
-  public:
+class VMShmCommunicator : public Communicator {
+   public:
     VMShmCommunicator(const std::string &communicator);
     VMShmCommunicator(const char *hostname, short port);
     virtual ~VMShmCommunicator();
@@ -62,7 +62,7 @@ namespace gvirtus {
     void Sync();
     void Close();
 
-  private:
+   private:
     VMShmCommunicator(const char *name);
     size_t ReadPacket(char *buffer);
     std::string mHostname;
@@ -86,6 +86,6 @@ namespace gvirtus {
     char *mpLocalOut;
     size_t mLocalOutSize;
     size_t mLocalOutOffset;
-  };
-} // namespace gvirtus
+};
+}  // namespace gvirtus
 #endif /* VMSHMCOMMUNICATOR_H */

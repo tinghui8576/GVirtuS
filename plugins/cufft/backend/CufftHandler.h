@@ -19,68 +19,60 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
- */
-
-/**
- * @file   CudaRtHandler.h
- * @author Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>
- * @author Vincenzo Santopietro <vincenzo.santopietro@uniparthenope.it>
- * @date   Sat Oct 10 10:51:58 2009
- * 
- * @brief  
- * 
- * 
+ *             Vincenzo Santopietro <vincenzo.santopietro@uniparthenope.it>,
+ *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             School of Computer Science, University College Dublin
  */
 
 #ifndef _CUFFTHANDLER_H
-#define	_CUFFTHANDLER_H
+#define _CUFFTHANDLER_H
 
 #include <cuda.h>
 #include <cuda_runtime_api.h>
-
-#include <gvirtus/backend/Handler.h>
-#include <gvirtus/communicators/Result.h>
-
 #include <cufft.h>
 #include <cufftXt.h>
+#include <gvirtus/backend/Handler.h>
+#include <gvirtus/communicators/Result.h>
+#include <limits.h>
 
+#include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
-#include "log4cplus/configurator.h"
-
-#include <limits.h>
-#if ( __WORDSIZE == 64 )
-    #define BUILD_64   1
+#if (__WORDSIZE == 64)
+#define BUILD_64 1
 #endif
 
-/**						
+/**
  * CudaRtHandler is used by Backend's Process(es) for storing and retrieving
- * device related data and functions. 
+ * device related data and functions.
  * CudaRtHandler has also the method Execute() that is responsible to execute a
  * named CUDA Runtime routine unmarshalling the input parameters from the
  * provided Buffer.
  */
 class CufftHandler : public gvirtus::backend::Handler {
-public:
+   public:
     CufftHandler();
     virtual ~CufftHandler();
     bool CanExecute(std::string routine);
-    std::shared_ptr<gvirtus::communicators::Result> Execute(std::string routine,
-        std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
-    log4cplus::Logger& GetLogger() {
-        return logger;
-    }
-private:
+    std::shared_ptr<gvirtus::communicators::Result> Execute(
+        std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
+    log4cplus::Logger& GetLogger() { return logger; }
+
+   private:
     log4cplus::Logger logger;
     void Initialize();
-    typedef std::shared_ptr<gvirtus::communicators::Result> (*CufftRoutineHandler)(CufftHandler *,
-        std::shared_ptr<gvirtus::communicators::Buffer>);
-    static std::map<std::string, CufftRoutineHandler> * mspHandlers;
+    typedef std::shared_ptr<gvirtus::communicators::Result> (*CufftRoutineHandler)(
+        CufftHandler*, std::shared_ptr<gvirtus::communicators::Buffer>);
+    static std::map<std::string, CufftRoutineHandler>* mspHandlers;
 };
 
-#define CUFFT_ROUTINE_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CufftHandler * pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)
+#define CUFFT_ROUTINE_HANDLER(name)                               \
+    std::shared_ptr<gvirtus::communicators::Result> handle##name( \
+        CufftHandler* pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)
 #define CUFFT_ROUTINE_HANDLER_PAIR(name) make_pair("cufft" #name, handle##name)
 
 /* CufftHandler.cpp */
@@ -96,27 +88,18 @@ CUFFT_ROUTINE_HANDLER(MakePlan1d);
 CUFFT_ROUTINE_HANDLER(MakePlan2d);
 CUFFT_ROUTINE_HANDLER(MakePlan3d);
 CUFFT_ROUTINE_HANDLER(MakePlanMany);
-#if CUDART_VERSION >= 7000
 CUFFT_ROUTINE_HANDLER(MakePlanMany64);
-#endif
 CUFFT_ROUTINE_HANDLER(GetSize1d);
 CUFFT_ROUTINE_HANDLER(GetSize2d);
 CUFFT_ROUTINE_HANDLER(GetSize3d);
 CUFFT_ROUTINE_HANDLER(GetSizeMany);
-#if CUDART_VERSION >= 7000
 CUFFT_ROUTINE_HANDLER(GetSizeMany64);
-#endif
 CUFFT_ROUTINE_HANDLER(GetSize);
 CUFFT_ROUTINE_HANDLER(SetWorkArea);
-#if CUDART_VERSION <= 9000
-CUFFT_ROUTINE_HANDLER(SetCompatibilityMode);
-#endif
 CUFFT_ROUTINE_HANDLER(SetAutoAllocation);
 CUFFT_ROUTINE_HANDLER(GetVersion);
 CUFFT_ROUTINE_HANDLER(SetStream);
-#if __CUDA_API_VERSION >= 7000
 CUFFT_ROUTINE_HANDLER(GetProperty);
-#endif
 /* Create/Destroy */
 CUFFT_ROUTINE_HANDLER(Create);
 CUFFT_ROUTINE_HANDLER(Destroy);
@@ -128,9 +111,7 @@ CUFFT_ROUTINE_HANDLER(ExecZ2Z);
 CUFFT_ROUTINE_HANDLER(ExecD2Z);
 CUFFT_ROUTINE_HANDLER(ExecZ2D);
 /* CufftXt */
-#if __CUDA_API_VERSION >= 7000 
 CUFFT_ROUTINE_HANDLER(XtMakePlanMany);
-#endif
 CUFFT_ROUTINE_HANDLER(XtSetGPUs);
 CUFFT_ROUTINE_HANDLER(XtExecDescriptorC2C);
 CUFFT_ROUTINE_HANDLER(XtSetCallback);
@@ -138,4 +119,4 @@ CUFFT_ROUTINE_HANDLER(XtSetCallback);
 CUFFT_ROUTINE_HANDLER(XtMalloc);
 CUFFT_ROUTINE_HANDLER(XtMemcpy);
 CUFFT_ROUTINE_HANDLER(XtFree);
-#endif	/* _CUFFTHANDLER_H */
+#endif /* _CUFFTHANDLER_H */

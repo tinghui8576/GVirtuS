@@ -19,8 +19,11 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Raffaele Montella <raffaele.montella@uniparthenope.it>,
+ * Written By: Raffaele Montella <raffaele.montella@uniparthenope.it>,
  *             Department of Science and Technologies
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            School of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"
@@ -31,37 +34,28 @@ using gvirtus::common::pointer_t;
 /* cudaOccupancyMaxActiveBlocksPerMultiprocessor */
 extern "C" __host__ cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessor(
     int* numBlocks, const void* func, int blockSize, size_t dynamicSMemSize) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(numBlocks);
-  CudaRtFrontend::AddVariableForArguments((pointer_t)func);
-  CudaRtFrontend::AddVariableForArguments(blockSize);
-  CudaRtFrontend::AddVariableForArguments(dynamicSMemSize);
-  CudaRtFrontend::Execute("cudaOccupancyMaxActiveBlocksPerMultiprocessor");
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddHostPointerForArguments(numBlocks);
+    CudaRtFrontend::AddVariableForArguments((pointer_t)func);
+    CudaRtFrontend::AddVariableForArguments(blockSize);
+    CudaRtFrontend::AddVariableForArguments(dynamicSMemSize);
+    CudaRtFrontend::Execute("cudaOccupancyMaxActiveBlocksPerMultiprocessor");
 
-  if (CudaRtFrontend::Success())
-    *numBlocks = *(CudaRtFrontend::GetOutputHostPointer<int>());
-  return CudaRtFrontend::GetExitCode();
+    if (CudaRtFrontend::Success()) *numBlocks = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    return CudaRtFrontend::GetExitCode();
 }
 
 /* cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags */
-#if (CUDART_VERSION >= 7000)
-extern "C" __host__ cudaError_t
-cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBlocks,
-                                                       const void* func,
-                                                       int blockSize,
-                                                       size_t dynamicSMemSize,
-                                                       unsigned int flags) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(numBlocks);
-  CudaRtFrontend::AddVariableForArguments((pointer_t)func);
-  CudaRtFrontend::AddVariableForArguments(blockSize);
-  CudaRtFrontend::AddVariableForArguments(dynamicSMemSize);
-  CudaRtFrontend::AddVariableForArguments(flags);
-  CudaRtFrontend::Execute(
-      "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags");
+extern "C" __host__ cudaError_t cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(
+    int* numBlocks, const void* func, int blockSize, size_t dynamicSMemSize, unsigned int flags) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddHostPointerForArguments(numBlocks);
+    CudaRtFrontend::AddVariableForArguments((pointer_t)func);
+    CudaRtFrontend::AddVariableForArguments(blockSize);
+    CudaRtFrontend::AddVariableForArguments(dynamicSMemSize);
+    CudaRtFrontend::AddVariableForArguments(flags);
+    CudaRtFrontend::Execute("cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags");
 
-  if (CudaRtFrontend::Success())
-    *numBlocks = *(CudaRtFrontend::GetOutputHostPointer<int>());
-  return CudaRtFrontend::GetExitCode();
+    if (CudaRtFrontend::Success()) *numBlocks = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    return CudaRtFrontend::GetExitCode();
 }
-#endif

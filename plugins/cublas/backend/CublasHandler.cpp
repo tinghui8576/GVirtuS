@@ -19,6 +19,10 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+ * Written by: Raffaele Montella <raffaele.montella@uniparthenope.it>,
+ *             Department of Science and Technologies
+ * Edited by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             School of Computer Science, University College Dublin
  */
 
 #include "CublasHandler.h"
@@ -26,11 +30,9 @@
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
-std::map<string, CublasHandler::CublasRoutineHandler> *CublasHandler::mspHandlers = NULL;
+std::map<string, CublasHandler::CublasRoutineHandler>* CublasHandler::mspHandlers = NULL;
 
-extern "C" std::shared_ptr<CublasHandler> create_t() {
-    return std::make_shared<CublasHandler>();
-}
+extern "C" std::shared_ptr<CublasHandler> create_t() { return std::make_shared<CublasHandler>(); }
 
 CublasHandler::CublasHandler() {
     logger = Logger::getInstance(LOG4CPLUS_TEXT("CublasHandler"));
@@ -43,12 +45,12 @@ bool CublasHandler::CanExecute(std::string routine) {
     return mspHandlers->find(routine) != mspHandlers->end();
 }
 
-std::shared_ptr<Result> CublasHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
+std::shared_ptr<Result> CublasHandler::Execute(std::string routine,
+                                               std::shared_ptr<Buffer> input_buffer) {
     LOG4CPLUS_DEBUG(logger, "Called " << routine);
     map<string, CublasHandler::CublasRoutineHandler>::iterator it;
     it = mspHandlers->find(routine);
-    if (it == mspHandlers->end())
-        throw runtime_error("No handler for '" + routine + "' found!");
+    if (it == mspHandlers->end()) throw runtime_error("No handler for '" + routine + "' found!");
     try {
         return it->second(this, input_buffer);
     } catch (const std::exception& e) {
@@ -58,8 +60,7 @@ std::shared_ptr<Result> CublasHandler::Execute(std::string routine, std::shared_
 }
 
 void CublasHandler::Initialize() {
-    if (mspHandlers != NULL)
-        return;
+    if (mspHandlers != NULL) return;
     mspHandlers = new map<string, CublasHandler::CublasRoutineHandler>();
 
     /* CublasHandler Helper functions */

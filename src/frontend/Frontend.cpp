@@ -19,32 +19,32 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Carlo Palmieri <carlo.palmieri@uniparthenope.it>,
  *             Department of Applied Science
- */
-
-/**
- * @file   Frontend.cpp
- * @author Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>
- * @date   Wed Sep 30 12:57:11 2009
- *
- * @brief
- *
- *
+ *             Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ *             Department of Applied Science
+ *             Raffaele Montella <raffaele.montella@uniparthenope.it>,
+ *             Department of Science and Technologies
+ *             Antonio Mentone <antonio.mentone@uniparthenope.it>,
+ *             Department of Science and Technologies
+ * Edited By: Mariano Aponte <aponte2001@gmail.com>,
+ *            Department of Science and Technologies, University of Naples Parthenope
+ *            Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            Department of Computer Science, University College Dublin
  */
 
 #include <gvirtus/communicators/CommunicatorFactory.h>
 #include <gvirtus/communicators/EndpointFactory.h>
 #include <gvirtus/frontend/Frontend.h>
-
 #include <pthread.h>
+#include <stdlib.h> /* getenv */
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <chrono>
 #include <iostream>
 #include <mutex>
-#include <chrono>
-#include <stdlib.h> /* getenv */
 
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
@@ -84,9 +84,9 @@ void Frontend::Init(Communicator *c) {
     if (!logLevelString.empty()) {
         try {
             logLevel = static_cast<LogLevel>(std::stoi(logLevelString));
-        } catch (const std::exception& e) {
+        } catch (const std::exception &e) {
             std::cerr << "[GVIRTUS WARNING] Invalid GVIRTUS_LOGLEVEL value: '" << logLevelString
-                    << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
+                      << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
             logLevel = INFO_LOG_LEVEL;
         }
     }
@@ -127,21 +127,21 @@ void Frontend::Init(Communicator *c) {
     try {
         auto endpoint = EndpointFactory::get_endpoint(config_path);
 
-        mpFrontends->find(tid)->second->_communicator = CommunicatorFactory::get_communicator(endpoint);
+        mpFrontends->find(tid)->second->_communicator =
+            CommunicatorFactory::get_communicator(endpoint);
         mpFrontends->find(tid)->second->_communicator->obj_ptr()->Connect();
-    }
-    catch (const std::exception& e) {
-        LOG4CPLUS_FATAL(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Exception occurred: " << e.what());
+    } catch (const std::exception &e) {
+        LOG4CPLUS_FATAL(logger, fs::path(__FILE__).filename()
+                                    << ":" << __LINE__ << ":"
+                                    << " Exception occurred: " << e.what());
         exit(EXIT_FAILURE);
     }
-
 
     mpFrontends->find(tid)->second->mpInputBuffer = std::make_shared<Buffer>();
     mpFrontends->find(tid)->second->mpOutputBuffer = std::make_shared<Buffer>();
     mpFrontends->find(tid)->second->mpLaunchBuffer = std::make_shared<Buffer>();
     mpFrontends->find(tid)->second->mExitCode = -1;
     mpFrontends->find(tid)->second->mpInitialized = true;
-
 }
 
 Frontend::~Frontend() {
@@ -154,7 +154,8 @@ Frontend::~Frontend() {
         pid_t tid = syscall(SYS_gettid);
 
         auto env = getenv("GVIRTUS_DUMP_STATS");
-        bool dump_stats = env && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
+        bool dump_stats = env && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 ||
+                                  strcmp(env, "1") == 0);
 
         // Safe iteration while erasing entries
         for (auto it = mpFrontends->begin(); it != mpFrontends->end(); /* no increment here */) {
@@ -164,14 +165,14 @@ Frontend::~Frontend() {
             }
 
             if (dump_stats) {
-                std::cerr << "[GVIRTUS_STATS] Executed " << it->second->mRoutinesExecuted << " routine(s) in "
-                        << it->second->mRoutineExecutionTime << " second(s)\n"
-                        << "[GVIRTUS_STATS] Sent " << it->second->mDataSent / (1024 * 1024.0) << " Mb(s) in "
-                        << it->second->mSendingTime
-                        << " second(s)\n"
-                        << "[GVIRTUS_STATS] Received " << it->second->mDataReceived / (1024 * 1024.0) << " Mb(s) in "
-                        << it->second->mReceivingTime
-                        << " second(s)\n";
+                std::cerr << "[GVIRTUS_STATS] Executed " << it->second->mRoutinesExecuted
+                          << " routine(s) in " << it->second->mRoutineExecutionTime
+                          << " second(s)\n"
+                          << "[GVIRTUS_STATS] Sent " << it->second->mDataSent / (1024 * 1024.0)
+                          << " Mb(s) in " << it->second->mSendingTime << " second(s)\n"
+                          << "[GVIRTUS_STATS] Received "
+                          << it->second->mDataReceived / (1024 * 1024.0) << " Mb(s) in "
+                          << it->second->mReceivingTime << " second(s)\n";
             }
 
             delete it->second;
@@ -187,8 +188,7 @@ Frontend::~Frontend() {
 Frontend *Frontend::GetFrontend(Communicator *c) {
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
-        if (mpFrontends == nullptr)
-            mpFrontends = new map<pthread_t, Frontend *>();
+        if (mpFrontends == nullptr) mpFrontends = new map<pthread_t, Frontend *>();
     }
 
     pid_t tid = syscall(SYS_gettid);  // getting frontend's tid
@@ -196,8 +196,7 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
         auto it = mpFrontends->find(tid);
-        if (it != mpFrontends->end())
-            return it->second;
+        if (it != mpFrontends->end()) return it->second;
     }
 
     Frontend *f = new Frontend();
@@ -207,8 +206,7 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
             std::lock_guard<std::mutex> lock(gFrontendMutex);
             mpFrontends->insert(make_pair(tid, f));
         }
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         LOG4CPLUS_ERROR(logger, "Error initializing Frontend: " << e.what());
         delete f;  // Clean up on failure
         return nullptr;
@@ -222,10 +220,10 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     // if (!strcmp(routine, "cudaLaunchKernel")) {
     //     cerr << "cudaLaunchKernel called" << endl;
     // }
-    
+
     pid_t tid = syscall(SYS_gettid);
 
-    Frontend* frontend = nullptr;
+    Frontend *frontend = nullptr;
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
         auto it = mpFrontends->find(tid);
@@ -242,10 +240,12 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     frontend->mDataSent += input_buffer->GetBufferSize();
     input_buffer->Dump(frontend->_communicator->obj_ptr().get());
     frontend->_communicator->obj_ptr()->Sync();
-    frontend->mSendingTime += std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start) .count() / 1000.0;
+    frontend->mSendingTime +=
+        std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() /
+        1000.0;
     frontend->mpOutputBuffer->Reset();
 
-    frontend->_communicator->obj_ptr()->Read((char *) &frontend->mExitCode, sizeof(int));
+    frontend->_communicator->obj_ptr()->Read((char *)&frontend->mExitCode, sizeof(int));
     LOG4CPLUS_DEBUG(logger, "Routine '" << routine << "' returned " << frontend->mExitCode);
     // if (frontend->mExitCode != 0
     //     && strcmp(routine, "cudnnGetVersion") != 0
@@ -256,24 +256,28 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     //     && strcmp(routine, "cusparseGetErrorString") != 0
     //     && strcmp(routine, "nvrtcGetErrorString") != 0
     // ) {
-    //     LOG4CPLUS_ERROR(logger, "Error executing routine '" << routine << "': exit code " << frontend->mExitCode);
-    //     return;
+    //     LOG4CPLUS_ERROR(logger, "Error executing routine '" << routine << "': exit code " <<
+    //     frontend->mExitCode); return;
     // }
     double time_taken;
-    frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&time_taken), sizeof(time_taken));
+    frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&time_taken),
+                                             sizeof(time_taken));
     frontend->mRoutineExecutionTime += time_taken;
 
     start = steady_clock::now();
     size_t out_buffer_size;
-    frontend->_communicator->obj_ptr()->Read((char *) &out_buffer_size, sizeof(size_t));
+    frontend->_communicator->obj_ptr()->Read((char *)&out_buffer_size, sizeof(size_t));
     LOG4CPLUS_DEBUG(logger, "Output buffer size: " << out_buffer_size);
     frontend->mDataReceived += out_buffer_size;
     if (out_buffer_size > 0) {
         LOG4CPLUS_DEBUG(logger, "Output buffer size is greater than 0, reading...");
-        frontend->mpOutputBuffer->Read<char>(frontend->_communicator->obj_ptr().get(), out_buffer_size);
+        frontend->mpOutputBuffer->Read<char>(frontend->_communicator->obj_ptr().get(),
+                                             out_buffer_size);
         LOG4CPLUS_DEBUG(logger, "Output buffer read successfully.");
     }
-    frontend->mReceivingTime += std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() / 1000.0;
+    frontend->mReceivingTime +=
+        std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() /
+        1000.0;
 }
 
 void Frontend::Prepare() {

@@ -19,60 +19,56 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
+ * Written By: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRtHandler.h"
 
-#ifndef CUDART_VERSION
-#error CUDART_VERSION not defined
-#endif
-
 /*OccupancyMaxActiveBlocksPerMultiprocessor.*/
 CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessor) {
-  int *numBlocks = input_buffer->Assign<int>();
-  const char *func = (const char *)(input_buffer->Get<pointer_t>());
-  int blockSize = input_buffer->Get<int>();
-  size_t dynamicSMemSize = input_buffer->Get<size_t>();
+    int *numBlocks = input_buffer->Assign<int>();
+    const char *func = (const char *)(input_buffer->Get<pointer_t>());
+    int blockSize = input_buffer->Get<int>();
+    size_t dynamicSMemSize = input_buffer->Get<size_t>();
 
-  cudaError_t exit_code = cudaOccupancyMaxActiveBlocksPerMultiprocessor(
-      numBlocks, func, blockSize, dynamicSMemSize);
+    cudaError_t exit_code =
+        cudaOccupancyMaxActiveBlocksPerMultiprocessor(numBlocks, func, blockSize, dynamicSMemSize);
 
-  std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-  try {
-    out->Add(numBlocks);
-  } catch (const std::exception& e) {
-      cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    try {
+        out->Add(numBlocks);
+    } catch (const std::exception &e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 
-  return std::make_shared<Result>(exit_code, out);
+    return std::make_shared<Result>(exit_code, out);
 }
 
 /*OccupancyMaxActiveBlocksPerMultiprocessorWithFlags.*/
-#if (CUDART_VERSION >= 7000)
 CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessorWithFlags) {
-  int *numBlocks = input_buffer->Assign<int>();
-  const char *func = (const char *)(input_buffer->Get<pointer_t>());
-  int blockSize = input_buffer->Get<int>();
-  size_t dynamicSMemSize = input_buffer->Get<size_t>();
-  unsigned int flags = input_buffer->Get<unsigned int>();
+    int *numBlocks = input_buffer->Assign<int>();
+    const char *func = (const char *)(input_buffer->Get<pointer_t>());
+    int blockSize = input_buffer->Get<int>();
+    size_t dynamicSMemSize = input_buffer->Get<size_t>();
+    unsigned int flags = input_buffer->Get<unsigned int>();
 
-  cudaError_t exit_code =
-      cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(
-          numBlocks, func, blockSize, dynamicSMemSize, flags);
+    cudaError_t exit_code = cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(
+        numBlocks, func, blockSize, dynamicSMemSize, flags);
 
-  std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-  try {
-    out->Add(numBlocks);
-  } catch (const std::exception& e) {
-      cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    try {
+        out->Add(numBlocks);
+    } catch (const std::exception &e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 
-  return std::make_shared<Result>(exit_code, out);
+    return std::make_shared<Result>(exit_code, out);
 }
-#endif

@@ -19,16 +19,18 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"
 
 using namespace std;
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaDeviceSetCacheConfig(cudaFuncCache cacheConfig) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceSetCacheConfig(cudaFuncCache cacheConfig) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(cacheConfig);
     CudaRtFrontend::Execute("cudaDeviceSetCacheConfig");
@@ -36,22 +38,20 @@ cudaDeviceSetCacheConfig(cudaFuncCache cacheConfig) {
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaChooseDevice(int *device, const cudaDeviceProp *prop) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaChooseDevice(int *device,
+                                                           const cudaDeviceProp *prop) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(device);
     CudaRtFrontend::AddHostPointerForArguments(prop);
     CudaRtFrontend::Execute("cudaChooseDevice");
-    if (CudaRtFrontend::Success())
-        *device = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    if (CudaRtFrontend::Success()) *device = *(CudaRtFrontend::GetOutputHostPointer<int>());
     return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ __device__ cudaError_t CUDARTAPI cudaGetDevice(int *device) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::Execute("cudaGetDevice");
-    if (CudaRtFrontend::Success())
-        *device = CudaRtFrontend::GetOutputVariable<int>();
+    if (CudaRtFrontend::Success()) *device = CudaRtFrontend::GetOutputVariable<int>();
     return CudaRtFrontend::GetExitCode();
 }
 
@@ -59,19 +59,19 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGetDeviceCount(int *count) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(count);
     CudaRtFrontend::Execute("cudaGetDeviceCount");
-    if (CudaRtFrontend::Success())
-        *count = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    if (CudaRtFrontend::Success()) *count = *(CudaRtFrontend::GetOutputHostPointer<int>());
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaGetDeviceProperties(cudaDeviceProp *prop, int device) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaGetDeviceProperties(cudaDeviceProp *prop,
+                                                                  int device) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(prop);
     CudaRtFrontend::AddVariableForArguments(device);
     CudaRtFrontend::Execute("cudaGetDeviceProperties");
     if (CudaRtFrontend::Success()) {
-        memmove(prop, CudaRtFrontend::GetOutputHostPointer<cudaDeviceProp>(), sizeof(cudaDeviceProp));
+        memmove(prop, CudaRtFrontend::GetOutputHostPointer<cudaDeviceProp>(),
+                sizeof(cudaDeviceProp));
         strncat(prop->name, " (GVirtuS)", sizeof(prop->name) - strlen(prop->name) - 1);
         prop->canMapHostMemory = 0;
         // cout << "device: " << device << endl;
@@ -82,8 +82,7 @@ cudaGetDeviceProperties(cudaDeviceProp *prop, int device) {
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t cudaDeviceGetAttribute(int *value,
-                                                       cudaDeviceAttr attr,
+extern "C" __host__ cudaError_t cudaDeviceGetAttribute(int *value, cudaDeviceAttr attr,
                                                        int device) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(value);
@@ -91,8 +90,7 @@ extern "C" __host__ cudaError_t cudaDeviceGetAttribute(int *value,
     CudaRtFrontend::AddVariableForArguments(device);
 
     CudaRtFrontend::Execute("cudaDeviceGetAttribute");
-    if (CudaRtFrontend::Success())
-        *value = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    if (CudaRtFrontend::Success()) *value = *(CudaRtFrontend::GetOutputHostPointer<int>());
     return CudaRtFrontend::GetExitCode();
 }
 
@@ -122,8 +120,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceSynchronize(void) {
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaSetValidDevices(int *device_arr,
-                                                              int len) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaSetValidDevices(int *device_arr, int len) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(device_arr, len);
     CudaRtFrontend::AddVariableForArguments(len);
@@ -135,8 +132,8 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaSetValidDevices(int *device_arr,
     return CudaRtFrontend::GetExitCode();
 }
 // testing vpelliccia
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaIpcGetMemHandle(cudaIpcMemHandle_t *handle, void *devPtr) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaIpcGetMemHandle(cudaIpcMemHandle_t *handle,
+                                                              void *devPtr) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(handle);
     CudaRtFrontend::AddDevicePointerForArguments(devPtr);
@@ -146,8 +143,8 @@ cudaIpcGetMemHandle(cudaIpcMemHandle_t *handle, void *devPtr) {
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaIpcGetEventHandle(cudaIpcEventHandle_t *handle, cudaEvent_t event) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaIpcGetEventHandle(cudaIpcEventHandle_t *handle,
+                                                                cudaEvent_t event) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(handle);
     CudaRtFrontend::AddDevicePointerForArguments(event);
@@ -156,8 +153,7 @@ cudaIpcGetEventHandle(cudaIpcEventHandle_t *handle, cudaEvent_t event) {
         *handle = *(CudaRtFrontend::GetOutputHostPointer<cudaIpcEventHandle_t>());
     return CudaRtFrontend::GetExitCode();
 }
-extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceSetLimit(cudaLimit limit,
-                                                             size_t value) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceSetLimit(cudaLimit limit, size_t value) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(limit);
     CudaRtFrontend::AddVariableForArguments(value);
@@ -165,31 +161,30 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceSetLimit(cudaLimit limit,
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaIpcOpenEventHandle(cudaEvent_t *event, cudaIpcEventHandle_t handle) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaIpcOpenEventHandle(cudaEvent_t *event,
+                                                                 cudaIpcEventHandle_t handle) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(event);
     CudaRtFrontend::AddVariableForArguments(handle);
     CudaRtFrontend::Execute("cudaIpcOpenEventHandle");
-    if (CudaRtFrontend::Success())
-        *event = *(CudaRtFrontend::GetOutputHostPointer<cudaEvent_t>());
+    if (CudaRtFrontend::Success()) *event = *(CudaRtFrontend::GetOutputHostPointer<cudaEvent_t>());
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaIpcOpenMemHandle(
-    void **devPtr, cudaIpcMemHandle_t handle, unsigned int flags) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaIpcOpenMemHandle(void **devPtr,
+                                                               cudaIpcMemHandle_t handle,
+                                                               unsigned int flags) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(handle);
     CudaRtFrontend::AddVariableForArguments(flags);
     CudaRtFrontend::Execute("cudaIpcOpenMemHandle");
-    if (CudaRtFrontend::Success())
-        *devPtr = CudaRtFrontend::GetOutputDevicePointer();
+    if (CudaRtFrontend::Success()) *devPtr = CudaRtFrontend::GetOutputDevicePointer();
 
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaDeviceEnablePeerAccess(int peerDevice, unsigned int flags) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceEnablePeerAccess(int peerDevice,
+                                                                     unsigned int flags) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(peerDevice);
     CudaRtFrontend::AddVariableForArguments(flags);
@@ -197,21 +192,20 @@ cudaDeviceEnablePeerAccess(int peerDevice, unsigned int flags) {
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaDeviceCanAccessPeer(int *canAccessPeer, int device, int peerDevice) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceCanAccessPeer(int *canAccessPeer, int device,
+                                                                  int peerDevice) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(canAccessPeer);
     CudaRtFrontend::AddVariableForArguments(device);
     CudaRtFrontend::AddVariableForArguments(peerDevice);
 
     CudaRtFrontend::Execute("cudaDeviceCanAccessPeer");
-    if (CudaRtFrontend::Success())
-        *canAccessPeer = *(CudaRtFrontend::GetOutputHostPointer<int>());
+    if (CudaRtFrontend::Success()) *canAccessPeer = *(CudaRtFrontend::GetOutputHostPointer<int>());
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaDeviceGetStreamPriorityRange(int *leastPriority, int *greatestPriority) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceGetStreamPriorityRange(int *leastPriority,
+                                                                           int *greatestPriority) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::Execute("cudaDeviceGetStreamPriorityRange");
     if (CudaRtFrontend::Success()) {
@@ -221,8 +215,7 @@ cudaDeviceGetStreamPriorityRange(int *leastPriority, int *greatestPriority) {
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaDeviceDisablePeerAccess(int peerDevice) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceDisablePeerAccess(int peerDevice) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(peerDevice);
 
@@ -230,17 +223,18 @@ cudaDeviceDisablePeerAccess(int peerDevice) {
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceGetDefaultMemPool(cudaMemPool_t *memPool, int device) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceGetDefaultMemPool(cudaMemPool_t *memPool,
+                                                                      int device) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(device);
     CudaRtFrontend::Execute("cudaDeviceGetDefaultMemPool");
-    if (CudaRtFrontend::Success())
-        *memPool = CudaRtFrontend::GetOutputVariable<cudaMemPool_t>();
+    if (CudaRtFrontend::Success()) *memPool = CudaRtFrontend::GetOutputVariable<cudaMemPool_t>();
     return CudaRtFrontend::GetExitCode();
 }
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceGetPCIBusId(char* pciBusId, int len, int device) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaDeviceGetPCIBusId(char *pciBusId, int len,
+                                                                int device) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(pciBusId, len);
     CudaRtFrontend::AddVariableForArguments(len);

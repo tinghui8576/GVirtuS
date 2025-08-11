@@ -23,23 +23,13 @@
  *             Department of Applied Science
  */
 
-/**
- * @file   CudaRt.h
- * @author Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>
- * @date   Fri Oct 9 15:55:40 2009
- *
- * @brief
- *
- *
- */
-
 #ifndef _CUDART_H
 #define _CUDART_H
 
+#include <CudaUtil.h>
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 
-#include <CudaUtil.h>
 #include "CudaRtFrontend.h"
 
 #endif /* _CUDART_H */

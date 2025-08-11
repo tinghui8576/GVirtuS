@@ -48,11 +48,11 @@
 
 namespace gvirtus {
 
-  /**
-   * ZmqCommunicator implements a Communicator for the ZMQ.
-   */
-  class ZmqCommunicator : public Communicator {
-  public:
+/**
+ * ZmqCommunicator implements a Communicator for the ZMQ.
+ */
+class ZmqCommunicator : public Communicator {
+   public:
     ZmqCommunicator(const std::string &communicator);
     ZmqCommunicator(const char *hostname, short port);
     ZmqCommunicator(int fd, const char *hostname);
@@ -65,7 +65,7 @@ namespace gvirtus {
     void Sync();
     void Close();
 
-  private:
+   private:
     void InitializeStream();
     std::istream *mpInput;
     std::ostream *mpOutput;
@@ -83,6 +83,6 @@ namespace gvirtus {
 #endif
     zmq::context_t *zmq_context;
     zmq::socket_t *zmq_socket;
-  };
-} // namespace gvirtus
+};
+}  // namespace gvirtus
 #endif /* _ZMQCOMMUNICATOR_H */

@@ -1,5 +1,5 @@
 /*
- * GVirtuS - A Virtualization Framework for GPU-Accelerated Applications 
+ * GVirtuS - A Virtualization Framework for GPU-Accelerated Applications
  * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
  *             Department of Computer Science, University College Dublin
  */
@@ -22,8 +22,8 @@ CUDA_DRIVER_HANDLER(PointerGetAttribute) {
     if (exit_code == CUDA_SUCCESS) {
         std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
         out->Add(data, sizeof(void*));
-        return std::make_shared<Result>((cudaError_t) exit_code, out);
+        return std::make_shared<Result>((cudaError_t)exit_code, out);
     }
 
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }

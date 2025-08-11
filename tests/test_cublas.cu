@@ -1,7 +1,12 @@
-#include <gtest/gtest.h>
-#include <cuda_runtime.h>
-#include <cublas_v2.h>
+/*
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             School of Computer Science, University College Dublin
+ */
+
 #include <cublasLt.h>
+#include <cublas_v2.h>
+#include <cuda_runtime.h>
+#include <gtest/gtest.h>
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA error: " << cudaGetErrorString(err)
 #define CUBLAS_CHECK(err) ASSERT_EQ((err), CUBLAS_STATUS_SUCCESS)
@@ -18,7 +23,7 @@ TEST(cuBLAS, GetVersion) {
     CUBLAS_CHECK(cublasCreate(&handle));
     int version;
     CUBLAS_CHECK(cublasGetVersion(handle, &version));
-    ASSERT_GT(version, 0); // Ensure version is a positive integer
+    ASSERT_GT(version, 0);  // Ensure version is a positive integer
     CUBLAS_CHECK(cublasDestroy(handle));
 }
 
@@ -54,14 +59,8 @@ TEST(cuBLAS, Sgemm) {
     float alpha = 1.0f, beta = 0.0f;
 
     // SGEMM: C = alpha * A * B + beta * C
-    CUBLAS_CHECK(cublasSgemm(handle,
-                             CUBLAS_OP_N, CUBLAS_OP_N,
-                             N, N, N,
-                             &alpha,
-                             d_A, N,
-                             d_B, N,
-                             &beta,
-                             d_C, N));
+    CUBLAS_CHECK(cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, N, N, &alpha, d_A, N, d_B, N,
+                             &beta, d_C, N));
 
     CUDA_CHECK(cudaMemcpy(h_C, d_C, sizeof(h_C), cudaMemcpyDeviceToHost));
 
@@ -77,7 +76,7 @@ TEST(cuBLAS, Sgemm) {
     // C[0,1] = 1*7 + 3*8 = 7 + 24 = 31
     // C[1,1] = 2*7 + 4*8 = 14 + 32 = 46
 
-    ASSERT_FLOAT_EQ(h_C[0], 23.0f); // 1*5+3*6=5+18=23 (wait: col-major, careful!)
+    ASSERT_FLOAT_EQ(h_C[0], 23.0f);  // 1*5+3*6=5+18=23 (wait: col-major, careful!)
     ASSERT_FLOAT_EQ(h_C[1], 34.0f);
     ASSERT_FLOAT_EQ(h_C[2], 31.0f);
     ASSERT_FLOAT_EQ(h_C[3], 46.0f);
@@ -108,19 +107,12 @@ TEST(cuBLAS, Sgemv) {
 
     float alpha = 1.0f, beta = 0.0f;
 
-    CUBLAS_CHECK(cublasSgemv(handle,
-                             CUBLAS_OP_N,
-                             M, N,
-                             &alpha,
-                             d_A, M,
-                             d_x, 1,
-                             &beta,
-                             d_y, 1));
+    CUBLAS_CHECK(cublasSgemv(handle, CUBLAS_OP_N, M, N, &alpha, d_A, M, d_x, 1, &beta, d_y, 1));
 
     CUDA_CHECK(cudaMemcpy(h_y, d_y, M * sizeof(float), cudaMemcpyDeviceToHost));
 
-//     y[0] = 1*1 + 2*2 = 1 + 4 = 5
-//     y[1] = 3*1 + 4*2 = 3 + 8 = 11
+    //     y[0] = 1*1 + 2*2 = 1 + 4 = 5
+    //     y[1] = 3*1 + 4*2 = 3 + 8 = 11
     ASSERT_FLOAT_EQ(h_y[0], 5.0f);
     ASSERT_FLOAT_EQ(h_y[1], 11.0f);
 
@@ -243,12 +235,10 @@ TEST(cuBLAS, Dgemm) {
     double alpha = 1.0, beta = 0.0;
 
     // A is m x k
-    double h_A[] = {1.0, 3.0,
-                    2.0, 4.0};
+    double h_A[] = {1.0, 3.0, 2.0, 4.0};
 
     // B is k x n
-    double h_B[] = {5.0, 6.0, 7.0,
-                    8.0, 9.0, 10.0};
+    double h_B[] = {5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
 
     // C is m x n
     double h_C[6] = {0};
@@ -267,14 +257,8 @@ TEST(cuBLAS, Dgemm) {
     // Using row-major layout, specify operation flags as CUBLAS_OP_T to transpose inputs
 
     // Here, to keep it simple, we use the matrices as column-major:
-    CUBLAS_CHECK(cublasDgemm(handle,
-                             CUBLAS_OP_N, CUBLAS_OP_N,
-                             m, n, k,
-                             &alpha,
-                             d_A, m,
-                             d_B, k,
-                             &beta,
-                             d_C, m));
+    CUBLAS_CHECK(cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, m, n, k, &alpha, d_A, m, d_B, k,
+                             &beta, d_C, m));
 
     CUDA_CHECK(cudaMemcpy(h_C, d_C, sizeof(h_C), cudaMemcpyDeviceToHost));
 
@@ -297,8 +281,7 @@ TEST(cuBLAS, Dgemv) {
     double alpha = 1.0, beta = 0.0;
 
     // A is m x n
-    double h_A[] = {1.0, 2.0, 3.0,
-                    4.0, 5.0, 6.0};
+    double h_A[] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
 
     double h_x[] = {1.0, 1.0, 1.0};
     double h_y[] = {0.0, 0.0};
@@ -313,14 +296,7 @@ TEST(cuBLAS, Dgemv) {
     CUDA_CHECK(cudaMemcpy(d_y, h_y, sizeof(h_y), cudaMemcpyHostToDevice));
 
     // y = alpha * A * x + beta * y
-    CUBLAS_CHECK(cublasDgemv(handle,
-                             CUBLAS_OP_N,
-                             m, n,
-                             &alpha,
-                             d_A, m,
-                             d_x, 1,
-                             &beta,
-                             d_y, 1));
+    CUBLAS_CHECK(cublasDgemv(handle, CUBLAS_OP_N, m, n, &alpha, d_A, m, d_x, 1, &beta, d_y, 1));
 
     CUDA_CHECK(cudaMemcpy(h_y, d_y, sizeof(h_y), cudaMemcpyDeviceToHost));
 
@@ -446,8 +422,8 @@ TEST(cuBLAS, SetWorkspace) {
     cublasHandle_t handle;
     CUBLAS_CHECK(cublasCreate(&handle));
 
-    size_t workspaceSize = 1 << 20; // 1 MB workspace
-    void* d_workspace;
+    size_t workspaceSize = 1 << 20;  // 1 MB workspace
+    void *d_workspace;
     CUDA_CHECK(cudaMalloc(&d_workspace, workspaceSize));
 
     // Attach GPU workspace to the cuBLAS handle
@@ -477,12 +453,11 @@ TEST(cuBLASLt, MatmulDescSetAttribute) {
 
     // Set an attribute (Transpose A)
     cublasOperation_t transa = CUBLAS_OP_T;
-    CUBLAS_CHECK(cublasLtMatmulDescSetAttribute(
-        matmulDesc,
-        CUBLASLT_MATMUL_DESC_TRANSA,   // Attribute to set
-        &transa,                       // Host pointer
-        sizeof(transa)                 // Attribute size
-    ));
+    CUBLAS_CHECK(cublasLtMatmulDescSetAttribute(matmulDesc,
+                                                CUBLASLT_MATMUL_DESC_TRANSA,  // Attribute to set
+                                                &transa,                      // Host pointer
+                                                sizeof(transa)                // Attribute size
+                                                ));
 
     // Clean up
     CUBLAS_CHECK(cublasLtMatmulDescDestroy(matmulDesc));
@@ -493,7 +468,7 @@ TEST(cuBLASLt, MatrixLayoutCreateDestroy) {
 
     int64_t rows = 128;
     int64_t cols = 256;
-    int64_t ld   = 128; // leading dimension
+    int64_t ld = 128;  // leading dimension
 
     // Create layout for a FP32 matrix
     CUBLAS_CHECK(cublasLtMatrixLayoutCreate(&layout, CUDA_R_32F, rows, cols, ld));
@@ -513,13 +488,10 @@ TEST(cuBLASLt, MatmulPreferenceCreateSetAttributeDestroy) {
     ASSERT_NE(preference, nullptr) << "Matmul preference should be successfully created";
 
     // Set an attribute (for example, max workspace size)
-    size_t maxWorkspaceSize = 1 << 20; // 1 MB
-    CUBLAS_CHECK(cublasLtMatmulPreferenceSetAttribute(
-        preference,
-        CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
-        &maxWorkspaceSize,
-        sizeof(maxWorkspaceSize)
-    ));
+    size_t maxWorkspaceSize = 1 << 20;  // 1 MB
+    CUBLAS_CHECK(cublasLtMatmulPreferenceSetAttribute(preference,
+                                                      CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
+                                                      &maxWorkspaceSize, sizeof(maxWorkspaceSize)));
 
     // Destroy preference object
     CUBLAS_CHECK(cublasLtMatmulPreferenceDestroy(preference));
@@ -544,30 +516,21 @@ TEST(cuBLASLt, MatmulAlgoGetHeuristic) {
     cublasLtMatmulPreference_t preference;
     CUBLAS_CHECK(cublasLtMatmulPreferenceCreate(&preference));
 
-    size_t workspaceSize = 1 << 20; // 1 MB
-    CUBLAS_CHECK(cublasLtMatmulPreferenceSetAttribute(
-        preference,
-        CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
-        &workspaceSize,
-        sizeof(workspaceSize)
-    ));
+    size_t workspaceSize = 1 << 20;  // 1 MB
+    CUBLAS_CHECK(cublasLtMatmulPreferenceSetAttribute(preference,
+                                                      CUBLASLT_MATMUL_PREF_MAX_WORKSPACE_BYTES,
+                                                      &workspaceSize, sizeof(workspaceSize)));
 
     // Query heuristics
     cublasLtMatmulHeuristicResult_t heuristicResult;
     int returnedResults = 0;
 
-    CUBLAS_CHECK(cublasLtMatmulAlgoGetHeuristic(
-        (cublasLtHandle_t) handle,
-        matmulDesc,
-        layoutA,
-        layoutB,
-        layoutC,
-        layoutC, // D same as C
-        preference,
-        1, // Request just 1 heuristic
-        &heuristicResult,
-        &returnedResults
-    ));
+    CUBLAS_CHECK(cublasLtMatmulAlgoGetHeuristic((cublasLtHandle_t)handle, matmulDesc, layoutA,
+                                                layoutB, layoutC,
+                                                layoutC,  // D same as C
+                                                preference,
+                                                1,  // Request just 1 heuristic
+                                                &heuristicResult, &returnedResults));
 
     // Validate we got at least one heuristic
     ASSERT_GT(returnedResults, 0) << "Expected at least one heuristic result";
@@ -593,12 +556,12 @@ TEST(cuBLASLt, MatmulBasic) {
     int m = 2, n = 2, k = 2;
 
     // Host data
-    float h_A[4] = {1, 2, 3, 4};       // 2x2
-    float h_B[4] = {5, 6, 7, 8};       // 2x2
-    float h_C[4] = {0, 0, 0, 0};       // Output placeholder
+    float h_A[4] = {1, 2, 3, 4};  // 2x2
+    float h_B[4] = {5, 6, 7, 8};  // 2x2
+    float h_C[4] = {0, 0, 0, 0};  // Output placeholder
 
     float alpha = 1.0f;
-    float beta  = 0.0f;
+    float beta = 0.0f;
 
     // --- Allocate device memory ---
     float *d_A, *d_B, *d_C;
@@ -627,18 +590,9 @@ TEST(cuBLASLt, MatmulBasic) {
     // Query heuristic (get a working algorithm)
     cublasLtMatmulHeuristicResult_t heuristic;
     int returnedResults = 0;
-    CUBLAS_CHECK(cublasLtMatmulAlgoGetHeuristic(
-        ltHandle,
-        operationDesc,
-        layoutA,
-        layoutB,
-        layoutC,
-        layoutC,
-        preference,
-        1,
-        &heuristic,
-        &returnedResults
-    ));
+    CUBLAS_CHECK(cublasLtMatmulAlgoGetHeuristic(ltHandle, operationDesc, layoutA, layoutB, layoutC,
+                                                layoutC, preference, 1, &heuristic,
+                                                &returnedResults));
     ASSERT_GT(returnedResults, 0) << "No matmul heuristic found";
 
     // ✅ Check heuristic validity
@@ -648,19 +602,11 @@ TEST(cuBLASLt, MatmulBasic) {
     ASSERT_NE(&heuristic.algo, nullptr) << "Invalid algorithm";
 
     // --- Run the matmul ---
-    CUBLAS_CHECK(cublasLtMatmul(
-        ltHandle,
-        operationDesc,
-        &alpha,
-        d_A, layoutA,
-        d_B, layoutB,
-        &beta,
-        d_C, layoutC,
-        d_C, layoutC,   // Output in same buffer as C
-        &heuristic.algo,
-        nullptr, 0,     // no workspace
-        0               // stream 0
-    ));
+    CUBLAS_CHECK(cublasLtMatmul(ltHandle, operationDesc, &alpha, d_A, layoutA, d_B, layoutB, &beta,
+                                d_C, layoutC, d_C, layoutC,   // Output in same buffer as C
+                                &heuristic.algo, nullptr, 0,  // no workspace
+                                0                             // stream 0
+                                ));
 
     // --- Copy back result ---
     cudaMemcpy(h_C, d_C, sizeof(h_C), cudaMemcpyDeviceToHost);

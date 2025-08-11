@@ -19,15 +19,14 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
- *             Department of Computer Science,
- *             University College Dublin, Ireland
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaFuncSetAttribute(const void* func, cudaFuncAttribute attr, int value)
-{
+extern "C" __host__ cudaError_t CUDARTAPI cudaFuncSetAttribute(const void* func,
+                                                               cudaFuncAttribute attr, int value) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(func);
     CudaRtFrontend::AddVariableForArguments(attr);

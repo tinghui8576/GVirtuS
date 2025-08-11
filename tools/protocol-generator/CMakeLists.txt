@@ -1,3 +1,6 @@
+# Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+#             Department of Applied Science
+
 project("protocol-generator")
 
 find_library(LIBCLANG_CPP_LIBRARY clang)

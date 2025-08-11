@@ -23,16 +23,17 @@
  *             Department of Applied Science
  */
 
- #include <fstream>
-
 #include <gvirtus/common/Decoder.h>
+
+#include <fstream>
+
 #include "CudaDrHandler.h"
 
 using namespace std;
 
+using gvirtus::common::Decoder;
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
-using gvirtus::common::Decoder;
 
 /*Load a module's data. */
 CUDA_DRIVER_HANDLER(ModuleLoadData) {
@@ -41,18 +42,18 @@ CUDA_DRIVER_HANDLER(ModuleLoadData) {
     CUresult exit_code = cuModuleLoadData(&module, image);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(module);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Returns a function handle*/
 CUDA_DRIVER_HANDLER(ModuleGetFunction) {
     CUfunction hfunc = 0;
     char *name = input_buffer->AssignString();
-    CUmodule hmod = input_buffer->Get<CUmodule > ();
+    CUmodule hmod = input_buffer->Get<CUmodule>();
     CUresult exit_code = cuModuleGetFunction(&hfunc, hmod, name);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(hfunc);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Returns a global pointer from a module.*/
@@ -60,22 +61,21 @@ CUDA_DRIVER_HANDLER(ModuleGetGlobal) {
     CUdeviceptr dptr;
     size_t bytes;
     char *name = input_buffer->AssignString();
-    CUmodule hmod = input_buffer->Get<CUmodule > ();
+    CUmodule hmod = input_buffer->Get<CUmodule>();
     CUresult exit_code = cuModuleGetGlobal(&dptr, &bytes, hmod, name);
     std::shared_ptr<Buffer> output_buffer = std::make_shared<Buffer>();
     output_buffer->AddMarshal(dptr);
     output_buffer->AddMarshal(bytes);
-    return std::make_shared<Result>((cudaError_t) exit_code, output_buffer);
+    return std::make_shared<Result>((cudaError_t)exit_code, output_buffer);
 }
 
 /*Load a module's data with options.*/
 CUDA_DRIVER_HANDLER(ModuleLoadDataEx) {
-    
     CUmodule module;
     unsigned int numOptions = input_buffer->Get<unsigned int>();
     CUjit_option *options = input_buffer->AssignAll<CUjit_option>();
     char *image = input_buffer->AssignString();
-    void **optionValues = new void*[numOptions];
+    void **optionValues = new void *[numOptions];
     int log_buffer_size_bytes = 1024;
     int error_log_buffer_size_bytes = 1024;
     for (unsigned int i = 0; i < numOptions; i++) {
@@ -106,17 +106,15 @@ CUDA_DRIVER_HANDLER(ModuleLoadDataEx) {
     out->AddMarshal(module);
     for (unsigned int i = 0; i < numOptions; i++) {
         if (options[i] == CU_JIT_INFO_LOG_BUFFER || options[i] == CU_JIT_ERROR_LOG_BUFFER) {
-            int len_string = strlen((char *) (optionValues[i]));
+            int len_string = strlen((char *)(optionValues[i]));
             out->Add<int>(len_string);
-            out->Add((char *) (optionValues[i]), len_string);
-        } else{
+            out->Add((char *)(optionValues[i]), len_string);
+        } else {
             out->Add(&optionValues[i]);
-
         }
-           
     }
     LOG4CPLUS_DEBUG(pThis->GetLogger(), "End ModuleLoadDataEx");
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Returns a handle to a texture-reference.*/
@@ -127,7 +125,7 @@ CUDA_DRIVER_HANDLER(ModuleGetTexRef) {
     CUresult exit_code = cuModuleGetTexRef(&pTexRef, hmod, name);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(pTexRef);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Load a module's data with options.*/
@@ -146,7 +144,7 @@ CUDA_DRIVER_HANDLER(ModuleLoad) {
     CUresult exit_code = cuModuleLoad(&module, "/tmp/file.bin");
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(module);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Load a module's data with options.*/
@@ -157,14 +155,13 @@ CUDA_DRIVER_HANDLER(ModuleLoadFatBinary) {
     CUresult exit_code = cuModuleLoadFatBinary(&module, fname);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(module);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Load a module's data with options.*/
 CUDA_DRIVER_HANDLER(ModuleUnload) {
-    CUmodule module = input_buffer->Get<CUmodule> ();
+    CUmodule module = input_buffer->Get<CUmodule>();
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     CUresult exit_code = cuModuleUnload(module);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
-

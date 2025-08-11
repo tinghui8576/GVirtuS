@@ -21,32 +21,33 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
-
-
 #ifndef _CUDADRHANDLER_H
-#define	_CUDADRHANDLER_H
+#define _CUDADRHANDLER_H
 
+#include <builtin_types.h>
+#include <cuda.h>
+#include <driver_types.h>
+#include <fcntl.h>
+#include <gvirtus/backend/Handler.h>
+#include <gvirtus/communicators/Result.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
+
+#include <cstdio>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
-#include <cstdio>
-#include <builtin_types.h>
-#include <driver_types.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <cuda.h>
 
-#include <gvirtus/backend/Handler.h>
-#include <gvirtus/communicators/Result.h>
-
+#include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
-#include "log4cplus/configurator.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -54,40 +55,39 @@
 using namespace log4cplus;
 
 class CudaDrHandler : public gvirtus::backend::Handler {
-public:
+   public:
     CudaDrHandler();
     virtual ~CudaDrHandler();
     bool CanExecute(std::string routine);
-    std::shared_ptr<gvirtus::communicators::Result> Execute(std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
+    std::shared_ptr<gvirtus::communicators::Result> Execute(
+        std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
 
-    void RegisterFatBinary(std::string & handler, void **fatCubinHandle);
-    void RegisterFatBinary(const char * handler, void **fatCubinHandle);
-    void **GetFatBinary(std::string & handler);
-    void **GetFatBinary(const char * handler);
-    void UnregisterFatBinary(std::string & handler);
-    void UnregisterFatBinary(const char * handler);
+    void RegisterFatBinary(std::string &handler, void **fatCubinHandle);
+    void RegisterFatBinary(const char *handler, void **fatCubinHandle);
+    void **GetFatBinary(std::string &handler);
+    void **GetFatBinary(const char *handler);
+    void UnregisterFatBinary(std::string &handler);
+    void UnregisterFatBinary(const char *handler);
 
-    void RegisterDeviceFunction(std::string & handler, std::string & function);
-    void RegisterDeviceFunction(const char * handler, const char * function);
-    const char *GetDeviceFunction(std::string & handler);
-    const char *GetDeviceFunction(const char * handler);
+    void RegisterDeviceFunction(std::string &handler, std::string &function);
+    void RegisterDeviceFunction(const char *handler, const char *function);
+    const char *GetDeviceFunction(std::string &handler);
+    const char *GetDeviceFunction(const char *handler);
 
-    void RegisterVar(std::string & handler, std::string &deviceName);
+    void RegisterVar(std::string &handler, std::string &deviceName);
     void RegisterVar(const char *handler, const char *deviceName);
-    const char *GetVar(std::string & handler);
+    const char *GetVar(std::string &handler);
     const char *GetVar(const char *handler);
 
-    const char *GetSymbol(gvirtus::communicators::Buffer * in);
+    const char *GetSymbol(gvirtus::communicators::Buffer *in);
 
-    Logger& GetLogger() {
-        return logger;
-    }
+    Logger &GetLogger() { return logger; }
 
     void RegisterSharedMemory(const char *name) {
         mShmFd = shm_open(name, O_RDWR, S_IRWXU);
 
-        if((mpShm = mmap(NULL, 256 * 1024 * 1024, PROT_READ | PROT_WRITE, MAP_SHARED, mShmFd,
-                0)) == MAP_FAILED) {
+        if ((mpShm = mmap(NULL, 256 * 1024 * 1024, PROT_READ | PROT_WRITE, MAP_SHARED, mShmFd,
+                          0)) == MAP_FAILED) {
             std::cerr << "Failed to mmap" << std::endl;
             mpShm = NULL;
         }
@@ -99,43 +99,40 @@ public:
 
         mShmFd = shm_open(name, O_RDWR | O_CREAT, 00666);
 
-        if(ftruncate(mShmFd, *size) != 0) {
+        if (ftruncate(mShmFd, *size) != 0) {
             std::cerr << "Failed to truncate" << std::endl;
             mpShm = NULL;
             return;
         }
 
-	if((mpShm = mmap(NULL, *size, PROT_READ | PROT_WRITE, MAP_SHARED, mShmFd,
-            0)) == MAP_FAILED) {
-		std::cerr << "Failed to mmap" << std::endl;
-                mpShm = NULL;
+        if ((mpShm = mmap(NULL, *size, PROT_READ | PROT_WRITE, MAP_SHARED, mShmFd, 0)) ==
+            MAP_FAILED) {
+            std::cerr << "Failed to mmap" << std::endl;
+            mpShm = NULL;
         }
     }
 
-    void *GetSharedMemory() {
-        return mpShm;
-    }
+    void *GetSharedMemory() { return mpShm; }
 
-    bool HasSharedMemory() {
-        return mpShm != NULL;
-    }
-    
+    bool HasSharedMemory() { return mpShm != NULL; }
 
-private:
+   private:
     log4cplus::Logger logger;
     void Initialize();
-    typedef std::shared_ptr<gvirtus::communicators::Result> (*CudaDriverHandler)(CudaDrHandler *, std::shared_ptr<gvirtus::communicators::Buffer>);
-    static std::map<std::string, CudaDriverHandler> * mspHandlers;
-    std::map<std::string, void **> * mpFatBinary;
-    std::map<std::string, std::string> * mpDeviceFunction;
-    std::map<std::string, std::string> * mpVar;
-    std::map<std::string, cudaTextureObject_t*> * mpTexture;
+    typedef std::shared_ptr<gvirtus::communicators::Result> (*CudaDriverHandler)(
+        CudaDrHandler *, std::shared_ptr<gvirtus::communicators::Buffer>);
+    static std::map<std::string, CudaDriverHandler> *mspHandlers;
+    std::map<std::string, void **> *mpFatBinary;
+    std::map<std::string, std::string> *mpDeviceFunction;
+    std::map<std::string, std::string> *mpVar;
+    std::map<std::string, cudaTextureObject_t *> *mpTexture;
     void *mpShm;
     int mShmFd;
 };
 
-
-#define CUDA_DRIVER_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CudaDrHandler * pThis, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer)
+#define CUDA_DRIVER_HANDLER(name)                                 \
+    std::shared_ptr<gvirtus::communicators::Result> handle##name( \
+        CudaDrHandler *pThis, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer)
 #define CUDA_DRIVER_HANDLER_PAIR(name) make_pair("cu" #name, handle##name)
 
 /*CudaDrHandler_initialization*/
@@ -256,5 +253,4 @@ CUDA_DRIVER_HANDLER(TensorMapEncodeTiled);
 /* CudaDrHandler_unified */
 CUDA_DRIVER_HANDLER(PointerGetAttribute);
 
-#endif	/* _CUDADRHANDLER_H */
-
+#endif /* _CUDADRHANDLER_H */

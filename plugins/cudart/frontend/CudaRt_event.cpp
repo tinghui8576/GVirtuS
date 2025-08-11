@@ -25,111 +25,60 @@
 
 #include "CudaRt.h"
 
-#ifndef CUDART_VERSION
-#error CUDART_VERSION not defined
-#endif
-
 using namespace std;
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaEventCreate(cudaEvent_t *event) {
-  CudaRtFrontend::Prepare();
-#if CUDART_VERSION >= 3010
-  CudaRtFrontend::Execute("cudaEventCreate");
-  if (CudaRtFrontend::Success())
-    *event = (cudaEvent_t)CudaRtFrontend::GetOutputDevicePointer();
-#else
-  CudaRtFrontend::AddHostPointerForArguments(event);
-  CudaRtFrontend::Execute("cudaEventCreate");
-  if (CudaRtFrontend::Success())
-    *event = *(CudaRtFrontend::GetOutputHostPointer<cudaEvent_t>());
-#endif
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaEventCreate");
+    if (CudaRtFrontend::Success()) *event = (cudaEvent_t)CudaRtFrontend::GetOutputDevicePointer();
+    return CudaRtFrontend::GetExitCode();
 }
 
-#if CUDART_VERSION >= 3000
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaEventCreateWithFlags(cudaEvent_t *event, unsigned int flags) {
-#else
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaEventCreateWithFlags(cudaEvent_t *event, int flags) {
-#endif
-  CudaRtFrontend::Prepare();
-#if CUDART_VERSION >= 3010
-  CudaRtFrontend::AddVariableForArguments(flags);
-  CudaRtFrontend::Execute("cudaEventCreateWithFlags");
-  if (CudaRtFrontend::Success())
-    *event = (cudaEvent_t)CudaRtFrontend::GetOutputDevicePointer();
-#else
-  CudaRtFrontend::AddHostPointerForArguments(event);
-  CudaRtFrontend::AddVariableForArguments(flags);
-  CudaRtFrontend::Execute("cudaEventCreateWithFlags");
-  if (CudaRtFrontend::Success())
-    *event = *(CudaRtFrontend::GetOutputHostPointer<cudaEvent_t>());
-#endif
-  return CudaRtFrontend::GetExitCode();
+extern "C" __host__ cudaError_t CUDARTAPI cudaEventCreateWithFlags(cudaEvent_t *event,
+                                                                   unsigned int flags) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddVariableForArguments(flags);
+    CudaRtFrontend::Execute("cudaEventCreateWithFlags");
+    if (CudaRtFrontend::Success()) *event = (cudaEvent_t)CudaRtFrontend::GetOutputDevicePointer();
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaEventDestroy(cudaEvent_t event) {
-  CudaRtFrontend::Prepare();
-#if CUDART_VERSION >= 3010
-  CudaRtFrontend::AddDevicePointerForArguments(event);
-#else
-  CudaRtFrontend::AddVariableForArguments(event);
-#endif
-  CudaRtFrontend::Execute("cudaEventDestroy");
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(event);
+    CudaRtFrontend::Execute("cudaEventDestroy");
+    return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaEventElapsedTime(float *ms, cudaEvent_t start, cudaEvent_t end) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(ms);
-#if CUDART_VERSION >= 3010
-  CudaRtFrontend::AddDevicePointerForArguments(start);
-  CudaRtFrontend::AddDevicePointerForArguments(end);
-#else
-  CudaRtFrontend::AddVariableForArguments(start);
-  CudaRtFrontend::AddVariableForArguments(end);
-#endif
-  CudaRtFrontend::Execute("cudaEventElapsedTime");
-  if (CudaRtFrontend::Success())
-    *ms = *(CudaRtFrontend::GetOutputHostPointer<float>());
-  return CudaRtFrontend::GetExitCode();
+extern "C" __host__ cudaError_t CUDARTAPI cudaEventElapsedTime(float *ms, cudaEvent_t start,
+                                                               cudaEvent_t end) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddHostPointerForArguments(ms);
+    CudaRtFrontend::AddDevicePointerForArguments(start);
+    CudaRtFrontend::AddDevicePointerForArguments(end);
+    CudaRtFrontend::Execute("cudaEventElapsedTime");
+    if (CudaRtFrontend::Success()) *ms = *(CudaRtFrontend::GetOutputHostPointer<float>());
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaEventQuery(cudaEvent_t event) {
-  CudaRtFrontend::Prepare();
-#if CUDART_VERSION >= 3010
-  CudaRtFrontend::AddDevicePointerForArguments(event);
-#else
-  CudaRtFrontend::AddVariableForArguments(event);
-#endif
-  CudaRtFrontend::Execute("cudaEventQuery");
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(event);
+    CudaRtFrontend::Execute("cudaEventQuery");
+    return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaEventRecord(cudaEvent_t event,
-                                                          cudaStream_t stream) {
-  CudaRtFrontend::Prepare();
-#if CUDART_VERSION >= 3010
-  CudaRtFrontend::AddDevicePointerForArguments(event);
-  CudaRtFrontend::AddDevicePointerForArguments(stream);
-#else
-  CudaRtFrontend::AddVariableForArguments(event);
-  CudaRtFrontend::AddVariableForArguments(stream);
-#endif
-  CudaRtFrontend::Execute("cudaEventRecord");
-  return CudaRtFrontend::GetExitCode();
+extern "C" __host__ cudaError_t CUDARTAPI cudaEventRecord(cudaEvent_t event, cudaStream_t stream) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(event);
+    CudaRtFrontend::AddDevicePointerForArguments(stream);
+    CudaRtFrontend::Execute("cudaEventRecord");
+    return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaEventSynchronize(cudaEvent_t event) {
-  CudaRtFrontend::Prepare();
-#if CUDART_VERSION >= 3010
-  CudaRtFrontend::AddDevicePointerForArguments(event);
-#else
-  CudaRtFrontend::AddVariableForArguments(event);
-#endif
-  CudaRtFrontend::Execute("cudaEventSynchronize");
-  return CudaRtFrontend::GetExitCode();
+extern "C" __host__ cudaError_t CUDARTAPI cudaEventSynchronize(cudaEvent_t event) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(event);
+    CudaRtFrontend::Execute("cudaEventSynchronize");
+    return CudaRtFrontend::GetExitCode();
 }

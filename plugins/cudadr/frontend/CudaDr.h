@@ -26,13 +26,13 @@
 #ifndef CUDADR_H_
 #define CUDADR_H_
 
-#include <builtin_types.h>
-#include <driver_types.h>
 #include <GL/gl.h>
+#include <builtin_types.h>
 #include <cuda.h>
+#include <driver_types.h>
+
 #include "CudaDrFrontend.h"
 
 #define __dv(v)
-
 
 #endif /* CUDADR_H_ */

@@ -48,11 +48,11 @@
 
 namespace gvirtus {
 
-  /**
-   * AfUnixCommunicator implements a Communicator for the AF_UNIX socket in the unix domain.
-   */
-  class AfUnixCommunicator : public Communicator {
-  public:
+/**
+ * AfUnixCommunicator implements a Communicator for the AF_UNIX socket in the unix domain.
+ */
+class AfUnixCommunicator : public Communicator {
+   public:
     AfUnixCommunicator(const std::string &communicator);
     /**
      * Creates a new AfUnixCommunicator for binding or connecting it to the
@@ -91,7 +91,7 @@ namespace gvirtus {
     void Sync();
     void Close();
 
-  private:
+   private:
     /**
      * Initializes the input and output streams.
      */
@@ -103,9 +103,9 @@ namespace gvirtus {
     __gnu_cxx::stdio_filebuf<char> *mpInputBuf;
     __gnu_cxx::stdio_filebuf<char> *mpOutputBuf;
     mode_t mMode;
-  };
+};
 
-} // namespace gvirtus
+}  // namespace gvirtus
 
 #endif
 

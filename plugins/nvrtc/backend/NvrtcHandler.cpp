@@ -9,7 +9,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * gVirtuS is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -32,15 +32,11 @@ using namespace log4cplus;
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
-std::map<string, NvrtcHandler::NvrtcRoutineHandler> * NvrtcHandler::mspHandlers = NULL;
+std::map<string, NvrtcHandler::NvrtcRoutineHandler>* NvrtcHandler::mspHandlers = NULL;
 
-extern "C" std::shared_ptr<NvrtcHandler> create_t() {
-    return std::make_shared<NvrtcHandler>();
-}
+extern "C" std::shared_ptr<NvrtcHandler> create_t() { return std::make_shared<NvrtcHandler>(); }
 
-extern "C" int HandlerInit() {
-    return 0;
-}
+extern "C" int HandlerInit() { return 0; }
 
 NvrtcHandler::NvrtcHandler() {
     logger = Logger::getInstance(LOG4CPLUS_TEXT("NvrtcHandler"));
@@ -53,12 +49,12 @@ bool NvrtcHandler::CanExecute(std::string routine) {
     return mspHandlers->find(routine) != mspHandlers->end();
 }
 
-std::shared_ptr<Result> NvrtcHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
+std::shared_ptr<Result> NvrtcHandler::Execute(std::string routine,
+                                              std::shared_ptr<Buffer> input_buffer) {
     LOG4CPLUS_DEBUG(logger, "Called " << routine);
     map<string, NvrtcHandler::NvrtcRoutineHandler>::iterator it;
     it = mspHandlers->find(routine);
-    if (it == mspHandlers->end())
-        throw runtime_error("No handler for '" + routine + "' found!");
+    if (it == mspHandlers->end()) throw runtime_error("No handler for '" + routine + "' found!");
     try {
         return it->second(this, input_buffer);
     } catch (const std::exception& e) {
@@ -68,8 +64,7 @@ std::shared_ptr<Result> NvrtcHandler::Execute(std::string routine, std::shared_p
 }
 
 void NvrtcHandler::Initialize() {
-   if (mspHandlers != NULL)
-        return;
+    if (mspHandlers != NULL) return;
     mspHandlers = new map<string, NvrtcHandler::NvrtcRoutineHandler>();
 
     mspHandlers->insert(NVRTC_ROUTINE_HANDLER_PAIR(GetErrorString));

@@ -19,8 +19,11 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"
@@ -29,14 +32,14 @@ using namespace std;
 
 // deprecated
 extern "C" __host__ cudaError_t CUDARTAPI cudaThreadSynchronize() {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaThreadSynchronize");
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaThreadSynchronize");
+    return CudaRtFrontend::GetExitCode();
 }
 
 // deprecated
 extern "C" __host__ cudaError_t CUDARTAPI cudaThreadExit() {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaThreadExit");
-  return CudaRtFrontend::GetExitCode();
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaThreadExit");
+    return CudaRtFrontend::GetExitCode();
 }

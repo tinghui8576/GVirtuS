@@ -19,8 +19,11 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            School of Computer Science, University College Dublin
  */
 
 #include <mutex>
@@ -30,8 +33,9 @@
 
 using namespace std;
 
-static std::mutex generator_type_mutex; // Mutex to protect access to generator_is_host_map
-static std::unordered_map<curandGenerator_t, bool> generator_is_host_map;  // true if host, false if device
+static std::mutex generator_type_mutex;  // Mutex to protect access to generator_is_host_map
+static std::unordered_map<curandGenerator_t, bool>
+    generator_is_host_map;  // true if host, false if device
 
 /* Helper Functions */
 
@@ -47,7 +51,8 @@ bool isHostGenerator(curandGenerator_t generator) {
 
 /* HOST API */
 
-extern "C" curandStatus_t CURANDAPI curandCreateGenerator(curandGenerator_t* generator, curandRngType_t rng_type) {
+extern "C" curandStatus_t CURANDAPI curandCreateGenerator(curandGenerator_t* generator,
+                                                          curandRngType_t rng_type) {
     CurandFrontend::Prepare();
     CurandFrontend::AddVariableForArguments<curandRngType_t>(rng_type);
     CurandFrontend::Execute("curandCreateGenerator");
@@ -59,7 +64,8 @@ extern "C" curandStatus_t CURANDAPI curandCreateGenerator(curandGenerator_t* gen
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t CURANDAPI curandCreateGeneratorHost(curandGenerator_t* generator, curandRngType_t rng_type) {
+extern "C" curandStatus_t CURANDAPI curandCreateGeneratorHost(curandGenerator_t* generator,
+                                                              curandRngType_t rng_type) {
     CurandFrontend::Prepare();
     CurandFrontend::AddVariableForArguments<curandRngType_t>(rng_type);
     CurandFrontend::Execute("curandCreateGeneratorHost");
@@ -71,9 +77,8 @@ extern "C" curandStatus_t CURANDAPI curandCreateGeneratorHost(curandGenerator_t*
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandSetPseudoRandomGeneratorSeed(
-    curandGenerator_t generator, unsigned long long seed) {
-    
+extern "C" curandStatus_t curandSetPseudoRandomGeneratorSeed(curandGenerator_t generator,
+                                                             unsigned long long seed) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<unsigned long long>(seed);
@@ -81,7 +86,8 @@ extern "C" curandStatus_t curandSetPseudoRandomGeneratorSeed(
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandSetGeneratorOffset(curandGenerator_t generator, unsigned long long offset) {
+extern "C" curandStatus_t curandSetGeneratorOffset(curandGenerator_t generator,
+                                                   unsigned long long offset) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<unsigned long long>(offset);
@@ -89,9 +95,8 @@ extern "C" curandStatus_t curandSetGeneratorOffset(curandGenerator_t generator, 
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandSetQuasiRandomGeneratorDimensions(
-    curandGenerator_t generator, unsigned int num_dimensions) {
-
+extern "C" curandStatus_t curandSetQuasiRandomGeneratorDimensions(curandGenerator_t generator,
+                                                                  unsigned int num_dimensions) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<unsigned int>(num_dimensions);
@@ -99,7 +104,8 @@ extern "C" curandStatus_t curandSetQuasiRandomGeneratorDimensions(
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGenerate(curandGenerator_t generator, unsigned int *outputPtr, size_t num) {
+extern "C" curandStatus_t curandGenerate(curandGenerator_t generator, unsigned int* outputPtr,
+                                         size_t num) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(num);
@@ -113,7 +119,8 @@ extern "C" curandStatus_t curandGenerate(curandGenerator_t generator, unsigned i
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGenerateLongLong(curandGenerator_t generator, unsigned long long *outputPtr, size_t num) {
+extern "C" curandStatus_t curandGenerateLongLong(curandGenerator_t generator,
+                                                 unsigned long long* outputPtr, size_t num) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(num);
@@ -121,13 +128,15 @@ extern "C" curandStatus_t curandGenerateLongLong(curandGenerator_t generator, un
     CurandFrontend::Execute("curandGenerateLongLong");
 
     if (isHostGenerator(generator) && CurandFrontend::Success()) {
-        unsigned long long* backend_output = CurandFrontend::GetOutputHostPointer<unsigned long long>(num);
+        unsigned long long* backend_output =
+            CurandFrontend::GetOutputHostPointer<unsigned long long>(num);
         std::memcpy(outputPtr, backend_output, sizeof(unsigned long long) * num);
     }
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, float *outputPtr, size_t num) {
+extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, float* outputPtr,
+                                                size_t num) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(num);
@@ -141,7 +150,8 @@ extern "C" curandStatus_t curandGenerateUniform(curandGenerator_t generator, flo
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, float *outputPtr, size_t num, float mean, float stddev) {
+extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, float* outputPtr,
+                                               size_t num, float mean, float stddev) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(num);
@@ -149,7 +159,7 @@ extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, floa
     CurandFrontend::AddVariableForArguments<float>(stddev);
     CurandFrontend::AddDevicePointerForArguments(outputPtr);
     CurandFrontend::Execute("curandGenerateNormal");
-    
+
     if (isHostGenerator(generator) && CurandFrontend::Success()) {
         float* backend_output = CurandFrontend::GetOutputHostPointer<float>(num);
         std::memcpy(outputPtr, backend_output, sizeof(float) * num);
@@ -160,10 +170,11 @@ extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, floa
 // Alternative implementation for curandGenerateNormal. Use only with the alternative implementation
 // of backend also. The only difference is that here,
 // in case of a host generator, we pass the whole output array to the backend.
-// This is more clear, but we do not really need to pass the whole array, as the array before the execution
-// of the function does not contain any meaningful data and also the backend
-// will either way need to allocate a new array locally
-// extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, float *outputPtr, size_t num, float mean, float stddev) {
+// This is more clear, but we do not really need to pass the whole array, as the array before the
+// execution of the function does not contain any meaningful data and also the backend will either
+// way need to allocate a new array locally extern "C" curandStatus_t
+// curandGenerateNormal(curandGenerator_t generator, float *outputPtr, size_t num, float mean, float
+// stddev) {
 //     CurandFrontend::Prepare();
 //     CurandFrontend::AddDevicePointerForArguments(generator);
 //     CurandFrontend::AddVariableForArguments<size_t>(num);
@@ -173,7 +184,7 @@ extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, floa
 //     ? CurandFrontend::AddHostPointerForArguments<float>(outputPtr, num)
 //     : CurandFrontend::AddDevicePointerForArguments(outputPtr);
 //     CurandFrontend::Execute("curandGenerateNormal");
-    
+
 //     if (isHostGenerator(generator) && CurandFrontend::Success()) {
 //         float* backend_output = CurandFrontend::GetOutputHostPointer<float>(num);
 //         std::memcpy(outputPtr, backend_output, sizeof(float) * num);
@@ -181,7 +192,8 @@ extern "C" curandStatus_t curandGenerateNormal(curandGenerator_t generator, floa
 //     return CurandFrontend::GetExitCode();
 // }
 
-extern "C" curandStatus_t curandGenerateLogNormal(curandGenerator_t generator, float *outputPtr, size_t num, float mean, float stddev) {
+extern "C" curandStatus_t curandGenerateLogNormal(curandGenerator_t generator, float* outputPtr,
+                                                  size_t num, float mean, float stddev) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(num);
@@ -197,7 +209,9 @@ extern "C" curandStatus_t curandGenerateLogNormal(curandGenerator_t generator, f
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGeneratePoisson(curandGenerator_t generator, unsigned int *outputPtr, size_t num, double lambda) {
+extern "C" curandStatus_t curandGeneratePoisson(curandGenerator_t generator,
+                                                unsigned int* outputPtr, size_t num,
+                                                double lambda) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(num);
@@ -212,7 +226,8 @@ extern "C" curandStatus_t curandGeneratePoisson(curandGenerator_t generator, uns
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGenerateUniformDouble(curandGenerator_t generator, double *outputPtr, size_t num) {
+extern "C" curandStatus_t curandGenerateUniformDouble(curandGenerator_t generator,
+                                                      double* outputPtr, size_t num) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(num);
@@ -226,7 +241,8 @@ extern "C" curandStatus_t curandGenerateUniformDouble(curandGenerator_t generato
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGenerateNormalDouble(curandGenerator_t generator, double *outputPtr, size_t n, double mean, double stddev) {
+extern "C" curandStatus_t curandGenerateNormalDouble(curandGenerator_t generator, double* outputPtr,
+                                                     size_t n, double mean, double stddev) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(n);
@@ -242,10 +258,9 @@ extern "C" curandStatus_t curandGenerateNormalDouble(curandGenerator_t generator
     return CurandFrontend::GetExitCode();
 }
 
-extern "C" curandStatus_t curandGenerateLogNormalDouble(
-    curandGenerator_t generator, double *outputPtr, size_t n,
-    double mean, double stddev) {
-
+extern "C" curandStatus_t curandGenerateLogNormalDouble(curandGenerator_t generator,
+                                                        double* outputPtr, size_t n, double mean,
+                                                        double stddev) {
     CurandFrontend::Prepare();
     CurandFrontend::AddDevicePointerForArguments(generator);
     CurandFrontend::AddVariableForArguments<size_t>(n);

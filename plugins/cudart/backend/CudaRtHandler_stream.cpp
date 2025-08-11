@@ -19,15 +19,14 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRtHandler.h"
-
-#ifndef CUDART_VERSION
-#error CUDART_VERSION not defined
-#endif
 
 CUDA_ROUTINE_HANDLER(StreamCreate) {
     try {
@@ -37,72 +36,71 @@ CUDA_ROUTINE_HANDLER(StreamCreate) {
         out->Add<cudaStream_t>(pStream);
         return std::make_shared<Result>(exit_code, out);
     } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 }
 
 CUDA_ROUTINE_HANDLER(StreamCreateWithPriority) {
-  try {
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
 
-    cudaStream_t pStream;
-    unsigned int flags = input_buffer->Get<unsigned int>();
-    int priority = input_buffer->Get<int>();
-    cudaError_t exit_code =
-        cudaStreamCreateWithPriority(&pStream, flags, priority);
-    out->Add((pointer_t)pStream);
-    return std::make_shared<Result>(exit_code, out);
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+        cudaStream_t pStream;
+        unsigned int flags = input_buffer->Get<unsigned int>();
+        int priority = input_buffer->Get<int>();
+        cudaError_t exit_code = cudaStreamCreateWithPriority(&pStream, flags, priority);
+        out->Add((pointer_t)pStream);
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(StreamCreateWithFlags) {
-  try {
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    cudaStream_t pStream;
-    unsigned int flags = input_buffer->Get<unsigned int>();
-    cudaError_t exit_code = cudaStreamCreateWithFlags(&pStream, flags);
-    out->Add<cudaStream_t>(pStream);
-    return std::make_shared<Result>(exit_code, out);
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    try {
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+        cudaStream_t pStream;
+        unsigned int flags = input_buffer->Get<unsigned int>();
+        cudaError_t exit_code = cudaStreamCreateWithFlags(&pStream, flags);
+        out->Add<cudaStream_t>(pStream);
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(StreamDestroy) {
-  try {
-    cudaStream_t stream = input_buffer->Get<cudaStream_t>();
-    return std::make_shared<Result>(cudaStreamDestroy(stream));
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    try {
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+        return std::make_shared<Result>(cudaStreamDestroy(stream));
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(StreamWaitEvent) {
-  try {
-    cudaStream_t stream = input_buffer->Get<cudaStream_t>();
-    cudaEvent_t event = input_buffer->Get<cudaEvent_t>();
-    unsigned int flags = input_buffer->Get<unsigned int>();
-    return std::make_shared<Result>(cudaStreamWaitEvent(stream, event, flags));
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    try {
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+        cudaEvent_t event = input_buffer->Get<cudaEvent_t>();
+        unsigned int flags = input_buffer->Get<unsigned int>();
+        return std::make_shared<Result>(cudaStreamWaitEvent(stream, event, flags));
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(StreamQuery) {
-  try {
-    cudaStream_t stream = input_buffer->Get<cudaStream_t>();
-    return std::make_shared<Result>(cudaStreamQuery(stream));
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+    try {
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+        return std::make_shared<Result>(cudaStreamQuery(stream));
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(StreamSynchronize) {
@@ -116,16 +114,16 @@ CUDA_ROUTINE_HANDLER(StreamSynchronize) {
 }
 
 CUDA_ROUTINE_HANDLER(ThreadExchangeStreamCaptureMode) {
-  try {
-    cudaStreamCaptureMode mode = input_buffer->Get<cudaStreamCaptureMode>();
-    cudaError_t exit_code = cudaThreadExchangeStreamCaptureMode(&mode);
-    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-    out->Add<cudaStreamCaptureMode>(mode);
-    return std::make_shared<Result>(exit_code, out);
-  } catch (const std::exception& e) {
+    try {
+        cudaStreamCaptureMode mode = input_buffer->Get<cudaStreamCaptureMode>();
+        cudaError_t exit_code = cudaThreadExchangeStreamCaptureMode(&mode);
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+        out->Add<cudaStreamCaptureMode>(mode);
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
         cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(StreamIsCapturing) {
@@ -142,20 +140,15 @@ CUDA_ROUTINE_HANDLER(StreamIsCapturing) {
     }
 }
 
-/*
 CUDA_ROUTINE_HANDLER(StreamAddCallback) {
     try {
         cudaStream_t stream = input_buffer->Get<cudaStream_t>();
-        cudaStreamCallback_t callback =
-input_buffer->Get<cudaStreamCallback_t>();
-        ////
-        void *userData = input_buffer->GetFromMarshal<void *>();
+        cudaStreamCallback_t callback = input_buffer->Get<cudaStreamCallback_t>();
+        void* userData = input_buffer->GetFromMarshal<void*>();
         unsigned int flags = input_buffer->Get<unsigned int>();
-        return
-std::make_shared<Result>(cudaStreamAddCallback(stream,callback,userData,flags));
+        return std::make_shared<Result>(cudaStreamAddCallback(stream, callback, userData, flags));
     } catch (const std::exception& e) {
         cerr << e.what() << endl;
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 }
-*/

@@ -1,3 +1,6 @@
+# Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+#             School of Computer Science, University College Dublin
+
 project(gvirtus-plugin-nvrtc)
 find_package(CUDAToolkit REQUIRED)
 
@@ -25,4 +28,8 @@ gvirtus_add_frontend(nvrtc ${NVRTC_VERSION}
 	frontend/Nvrtc_host.cpp
 	frontend/Nvrtc_pch.cpp
 	frontend/NvrtcFrontend.cpp
+)
+
+target_compile_definitions(nvrtc
+	PUBLIC NVRTC_VERSION=${NVRTC_VERSION}
 )

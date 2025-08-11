@@ -2,22 +2,23 @@
 // Created by Mariano Aponte on 07/12/23.
 //
 
-#include <iostream>
-#include <sstream>
-#include <arpa/inet.h>
-
 #include "RdmaCommunicator.h"
 
+#include <arpa/inet.h>
 #include <gvirtus/communicators/Endpoint.h>
-#include <gvirtus/communicators/Endpoint_Tcp.h>
 #include <gvirtus/communicators/Endpoint_Rdma.h>
+#include <gvirtus/communicators/Endpoint_Tcp.h>
 
+#include <iostream>
+#include <sstream>
 
 using gvirtus::communicators::RdmaCommunicator;
 
-RdmaCommunicator::RdmaCommunicator(const std::string& hostname, const std::string& port) {
+RdmaCommunicator::RdmaCommunicator(const std::string &hostname, const std::string &port) {
 #ifdef DEBUG
-    std::cout << "Called " << "RdmaCommunicator(const std::string& hostname, const std::string& port)" << std::endl;
+    std::cout << "Called "
+              << "RdmaCommunicator(const std::string& hostname, const std::string& port)"
+              << std::endl;
 #endif
 
     if (port.empty()) {
@@ -31,9 +32,9 @@ RdmaCommunicator::RdmaCommunicator(const std::string& hostname, const std::strin
         throw std::runtime_error(oss.str());
     }
 
-    //auto addrLen = ent->h_length;
-    //this->hostname = new char[addrLen];
-    //memcpy(this->hostname, *ent->h_addr_list, addrLen);
+    // auto addrLen = ent->h_length;
+    // this->hostname = new char[addrLen];
+    // memcpy(this->hostname, *ent->h_addr_list, addrLen);
     strcpy(this->hostname, hostname.c_str());
     strcpy(this->port, port.c_str());
 
@@ -72,7 +73,7 @@ void RdmaCommunicator::Serve() {
     hints.ai_port_space = rdma_port_space::RDMA_PS_IB;
     hints.ai_flags = RAI_PASSIVE;
 
-    rdma_addrinfo * rdmaAddrinfo;
+    rdma_addrinfo *rdmaAddrinfo;
 
     ktm_rdma_getaddrinfo(this->hostname, this->port, &hints, &rdmaAddrinfo);
 
@@ -98,7 +99,7 @@ const gvirtus::communicators::Communicator *const RdmaCommunicator::Accept() con
 #ifdef DEBUG
     std::cout << "Called " << "Accept()" << std::endl;
 #endif
-    rdma_cm_id * clientRdmaCmId;
+    rdma_cm_id *clientRdmaCmId;
 
     ktm_rdma_get_request(rdmaCmListenId, &clientRdmaCmId);
     ktm_rdma_accept(clientRdmaCmId, nullptr);
@@ -122,7 +123,7 @@ void RdmaCommunicator::Connect() {
     hints.ai_family = AF_INET;
     hints.ai_port_space = rdma_port_space::RDMA_PS_IB;
 
-    rdma_addrinfo * rdmaAddrinfo;
+    rdma_addrinfo *rdmaAddrinfo;
 
     ktm_rdma_getaddrinfo(this->hostname, this->port, &hints, &rdmaAddrinfo);
 
@@ -157,16 +158,17 @@ size_t RdmaCommunicator::Read(char *buffer, size_t size) {
 #endif
     if (size < 1024 * 5) {
         ktm_rdma_post_recv(rdmaCmId, nullptr, preregisteredBuffer, size, preregisteredMr);
-    }
-    else {
+    } else {
         memoryRegion = ktm_rdma_reg_msgs(rdmaCmId, buffer, size);
         ktm_rdma_post_recv(rdmaCmId, nullptr, buffer, size, memoryRegion);
     }
 
     int num_comp;
-    do num_comp = ibv_poll_cq(rdmaCmId->recv_cq, 1, &workCompletion); while (num_comp == 0);
+    do num_comp = ibv_poll_cq(rdmaCmId->recv_cq, 1, &workCompletion);
+    while (num_comp == 0);
     if (num_comp < 0) throw "ibv_poll_cq() failed";
-    if (workCompletion.status != IBV_WC_SUCCESS) throw "Failed status " + std::string(ibv_wc_status_str(workCompletion.status));
+    if (workCompletion.status != IBV_WC_SUCCESS)
+        throw "Failed status " + std::string(ibv_wc_status_str(workCompletion.status));
 
     if (size < 1024 * 5) {
         memcpy(buffer, preregisteredBuffer, size);
@@ -180,23 +182,25 @@ size_t RdmaCommunicator::Write(const char *buffer, size_t size) {
     std::cout << "Called " << "Write(const char *buffer, size_t size)" << std::endl;
     std::cout << "Size: " << size << std::endl;
 #endif
-    char * actualBuffer = nullptr;
+    char *actualBuffer = nullptr;
 
     if (size < 1024 * 5) {
         memcpy(preregisteredBuffer, buffer, size);
-        ktm_rdma_post_send(rdmaCmId, nullptr, preregisteredBuffer, size, preregisteredMr, IBV_SEND_SIGNALED);
-    }
-    else {
-        actualBuffer = (char *) malloc(size);
+        ktm_rdma_post_send(rdmaCmId, nullptr, preregisteredBuffer, size, preregisteredMr,
+                           IBV_SEND_SIGNALED);
+    } else {
+        actualBuffer = (char *)malloc(size);
         memcpy(actualBuffer, buffer, size);
         memoryRegion = ktm_rdma_reg_msgs(rdmaCmId, actualBuffer, size);
         ktm_rdma_post_send(rdmaCmId, nullptr, actualBuffer, size, memoryRegion, IBV_SEND_SIGNALED);
     }
 
     int num_comp;
-    do num_comp = ibv_poll_cq(rdmaCmId->send_cq, 1, &workCompletion); while (num_comp == 0);
+    do num_comp = ibv_poll_cq(rdmaCmId->send_cq, 1, &workCompletion);
+    while (num_comp == 0);
     if (num_comp < 0) throw "ibv_poll_cq() failed";
-    if (workCompletion.status != IBV_WC_SUCCESS) throw "Failed status " + std::string(ibv_wc_status_str(workCompletion.status));
+    if (workCompletion.status != IBV_WC_SUCCESS)
+        throw "Failed status " + std::string(ibv_wc_status_str(workCompletion.status));
 
     if (size > 1024 * 5) {
         free(actualBuffer);
@@ -219,8 +223,8 @@ void RdmaCommunicator::Close() {
     rdma_destroy_id(rdmaCmId);
 }
 
-
-extern "C" std::shared_ptr <RdmaCommunicator> create_communicator(std::shared_ptr <gvirtus::communicators::Endpoint> end) {
+extern "C" std::shared_ptr<RdmaCommunicator> create_communicator(
+    std::shared_ptr<gvirtus::communicators::Endpoint> end) {
     /*
     std::string arg =
             "rdma://" +
@@ -232,9 +236,8 @@ extern "C" std::shared_ptr <RdmaCommunicator> create_communicator(std::shared_pt
     std::string port;
 
     hostname = std::dynamic_pointer_cast<gvirtus::communicators::Endpoint_Rdma>(end)->address();
-    port = std::to_string(std::dynamic_pointer_cast<gvirtus::communicators::Endpoint_Rdma>(end)->port());
+    port = std::to_string(
+        std::dynamic_pointer_cast<gvirtus::communicators::Endpoint_Rdma>(end)->port());
 
     return std::make_shared<RdmaCommunicator>(hostname, port);
 }
-
-

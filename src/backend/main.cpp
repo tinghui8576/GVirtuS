@@ -13,15 +13,28 @@
  * different deployment scenarios, such as providing GPGPU power to cloud
  * computing based HPC clusters and sharing remotely hosted GPGPUs among HPC
  * nodes.
+ *
+ * Written By: Carlo Palmieri <carlo.palmieri@uniparthenope.it>,
+ *             Department of Applied Science
+ *             Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ *             Department of Applied Science
+ *             Raffaele Montella <raffaele.montella@uniparthenope.it>,
+ *             Department of Science and Technologies
+ *             Antonio Mentone <antonio.mentone@uniparthenope.it>,
+ *             Department of Science and Technologies
+ * Edited By: Mariano Aponte <aponte2001@gmail.com>,
+ *            Department of Science and Technologies, University of Naples Parthenope
+ *            Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            Department of Computer Science, University College Dublin
  */
+
+#include <log4cplus/consoleappender.h>
 
 #include "gvirtus/backend/Backend.h"
 #include "gvirtus/backend/Property.h"
-
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
-#include <log4cplus/consoleappender.h>
 
 using namespace log4cplus;
 
@@ -38,9 +51,8 @@ void rootLoggerConfig() {
     consoleAppender->setName(LOG4CPLUS_TEXT("console"));
 
     // Define the pattern layout string
-    std::string pattern =
-        "[%p] [%c] (%F:%L) - %m%n";
-        // "%D{%Y-%m-%d %H:%M:%S} [%-5p] [%c] %F:%L (%M) - %m%n";
+    std::string pattern = "[%p] [%c] (%F:%L) - %m%n";
+    // "%D{%Y-%m-%d %H:%M:%S} [%-5p] [%c] %F:%L (%M) - %m%n";
     // %D = date/time
     // %p = log level
     // %c = logger name
@@ -50,13 +62,12 @@ void rootLoggerConfig() {
     // %m = log message
     // %n = newline
 
-    consoleAppender->setLayout(std::unique_ptr<Layout>(
-        new PatternLayout(LOG4CPLUS_TEXT(pattern))));
+    consoleAppender->setLayout(std::unique_ptr<Layout>(new PatternLayout(LOG4CPLUS_TEXT(pattern))));
 
     // Get the root logger
     Logger root = Logger::getRoot();
-    root.removeAllAppenders(); // Remove any default appender
-    root.addAppender(consoleAppender); // Add our configured one
+    root.removeAllAppenders();          // Remove any default appender
+    root.addAppender(consoleAppender);  // Add our configured one
 
     // Set log level from env
     std::string logLevelString = getEnvVar("GVIRTUS_LOGLEVEL");
@@ -74,7 +85,7 @@ void rootLoggerConfig() {
     root.setLogLevel(logLevel);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     rootLoggerConfig();
 
     // Get the main logger (GVirtuS); other loggers will inherit unless overridden
@@ -96,11 +107,7 @@ int main(int argc, char **argv) {
 
         LOG4CPLUS_INFO(logger, "[Process " << getpid() << "] Up and running!");
         backend.Start();
-    }
-    catch (std::string & exc) {
-        LOG4CPLUS_ERROR(logger, "Exception:" << exc);
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         LOG4CPLUS_ERROR(logger, "Exception:" << e.what());
     }
 

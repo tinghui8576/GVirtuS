@@ -23,7 +23,6 @@
  *             Department of Applied Science
  */
 
-
 #include "CudaDrHandler.h"
 
 using gvirtus::communicators::Buffer;
@@ -36,45 +35,45 @@ CUDA_DRIVER_HANDLER(EventCreate) {
     CUresult exit_code = cuEventCreate(&phEvent, Flags);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(phEvent);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Destroys an event.*/
 CUDA_DRIVER_HANDLER(EventDestroy) {
-    CUevent phEvent = input_buffer->Get<CUevent > ();
+    CUevent phEvent = input_buffer->Get<CUevent>();
     CUresult exit_code = cuEventDestroy(phEvent);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Computes the elapsed time between two events.*/
 CUDA_DRIVER_HANDLER(EventElapsedTime) {
     float *pMilliseconds = input_buffer->Assign<float>();
-    CUevent hStart = input_buffer->Get<CUevent > ();
-    CUevent hEnd = input_buffer->Get<CUevent > ();
+    CUevent hStart = input_buffer->Get<CUevent>();
+    CUevent hEnd = input_buffer->Get<CUevent>();
     CUresult exit_code = cuEventElapsedTime(pMilliseconds, hStart, hEnd);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->Add(pMilliseconds);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Queries an event's status.*/
 CUDA_DRIVER_HANDLER(EventQuery) {
-    CUevent hEvent = input_buffer->Get<CUevent > ();
+    CUevent hEvent = input_buffer->Get<CUevent>();
     CUresult exit_code = cuEventQuery(hEvent);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Records an event. */
 CUDA_DRIVER_HANDLER(EventRecord) {
-    CUevent hEvent = input_buffer->Get<CUevent > ();
-    CUstream hStream = input_buffer->Get<CUstream > ();
+    CUevent hEvent = input_buffer->Get<CUevent>();
+    CUstream hStream = input_buffer->Get<CUstream>();
     CUresult exit_code = cuEventRecord(hEvent, hStream);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Waits for an event to complete.*/
 CUDA_DRIVER_HANDLER(EventSynchronize) {
-    CUevent hEvent = input_buffer->Get<CUevent > ();
+    CUevent hEvent = input_buffer->Get<CUevent>();
     CUresult exit_code = cuEventSynchronize(hEvent);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }

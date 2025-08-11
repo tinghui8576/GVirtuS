@@ -19,8 +19,11 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            School of Computer Science, University College Dublin
  */
 
 #include <mutex>
@@ -63,7 +66,7 @@ CURAND_ROUTINE_HANDLER(CreateGenerator) {
 }
 
 CURAND_ROUTINE_HANDLER(CreateGeneratorHost) {
-        // Create host generator
+    // Create host generator
     curandGenerator_t generator;
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     curandRngType_t gnrType = in->Get<curandRngType_t>();
@@ -79,7 +82,6 @@ CURAND_ROUTINE_HANDLER(CreateGeneratorHost) {
 }
 
 CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed) {
-    
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     unsigned long long seed = in->Get<unsigned long long>();
 
@@ -88,59 +90,53 @@ CURAND_ROUTINE_HANDLER(SetPseudoRandomGeneratorSeed) {
 }
 
 CURAND_ROUTINE_HANDLER(SetGeneratorOffset) {
-    
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     unsigned long long offset = in->Get<unsigned long long>();
 
-    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Generator pointer: " << generator << ", offset: " << offset);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(),
+                    "Generator pointer: " << generator << ", offset: " << offset);
 
     curandStatus_t cs = curandSetGeneratorOffset(generator, offset);
     return std::make_shared<Result>(cs);
 }
 
 CURAND_ROUTINE_HANDLER(SetQuasiRandomGeneratorDimensions) {
-    
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     unsigned int num_dimensions = in->Get<unsigned int>();
 
-    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Generator pointer: " << generator << ", num_dimensions: " << num_dimensions);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(),
+                    "Generator pointer: " << generator << ", num_dimensions: " << num_dimensions);
 
     curandStatus_t cs = curandSetQuasiRandomGeneratorDimensions(generator, num_dimensions);
     return std::make_shared<Result>(cs);
 }
 
 CURAND_ROUTINE_HANDLER(Generate) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
     bool isHost = isHostGenerator(generator);
     std::shared_ptr<Buffer> out = isHost ? std::make_shared<Buffer>() : nullptr;
-    unsigned int* outputPtr = isHost
-            ? out->Delegate<unsigned int>(num)
-            : in->Get<unsigned int*>();
+    unsigned int* outputPtr = isHost ? out->Delegate<unsigned int>(num) : in->Get<unsigned int*>();
 
     cs = curandGenerate(generator, outputPtr, num);
     return isHost ? std::make_shared<Result>(cs, out) : std::make_shared<Result>(cs);
 }
 
 CURAND_ROUTINE_HANDLER(GenerateLongLong) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
     bool isHost = isHostGenerator(generator);
     std::shared_ptr<Buffer> out = isHost ? std::make_shared<Buffer>() : nullptr;
-    unsigned long long* outputPtr = isHost
-            ? out->Delegate<unsigned long long>(num)
-            : in->Get<unsigned long long*>();
-            
+    unsigned long long* outputPtr =
+        isHost ? out->Delegate<unsigned long long>(num) : in->Get<unsigned long long*>();
+
     cs = curandGenerateLongLong(generator, outputPtr, num);
     return isHost ? std::make_shared<Result>(cs, out) : std::make_shared<Result>(cs);
 }
 
 CURAND_ROUTINE_HANDLER(GenerateUniform) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -153,7 +149,6 @@ CURAND_ROUTINE_HANDLER(GenerateUniform) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateNormal) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -169,7 +164,7 @@ CURAND_ROUTINE_HANDLER(GenerateNormal) {
 
 // alternative implementation of GenerateNormal without using Delegate
 // CURAND_ROUTINE_HANDLER(GenerateNormal) {
-//     
+//
 //     curandStatus_t cs;
 //     curandGenerator_t generator = in->Get<curandGenerator_t>();
 //     size_t num = in->Get<size_t>();
@@ -188,7 +183,6 @@ CURAND_ROUTINE_HANDLER(GenerateNormal) {
 // }
 
 CURAND_ROUTINE_HANDLER(GenerateLogNormal) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -203,7 +197,6 @@ CURAND_ROUTINE_HANDLER(GenerateLogNormal) {
 }
 
 CURAND_ROUTINE_HANDLER(GeneratePoisson) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -217,7 +210,6 @@ CURAND_ROUTINE_HANDLER(GeneratePoisson) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateUniformDouble) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -230,7 +222,6 @@ CURAND_ROUTINE_HANDLER(GenerateUniformDouble) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateNormalDouble) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     size_t num = in->Get<size_t>();
@@ -245,7 +236,6 @@ CURAND_ROUTINE_HANDLER(GenerateNormalDouble) {
 }
 
 CURAND_ROUTINE_HANDLER(GenerateLogNormalDouble) {
-    
     curandStatus_t cs;
     curandGenerator_t generator = in->Get<curandGenerator_t>();
     bool isHost = isHostGenerator(generator);

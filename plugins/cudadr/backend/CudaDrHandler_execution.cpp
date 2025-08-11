@@ -28,30 +28,27 @@
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
-typedef const struct CUfunc_st
-{
-	int id;
-	char *name;
-	unsigned int inst_buf_size;
-	unsigned long int *inst_buf;
-	int binaryVersion;
-	int constSizeBytes;
-	int localSizeBytes;
-	int maxThreadsPerBlock;
-	int numRegs;
-	int ptxVersion;
-	int sharedSizeBytes;
-	unsigned int host_func_ptr;
-}  *CUfunctionW;
-
-
+typedef const struct CUfunc_st {
+    int id;
+    char *name;
+    unsigned int inst_buf_size;
+    unsigned long int *inst_buf;
+    int binaryVersion;
+    int constSizeBytes;
+    int localSizeBytes;
+    int maxThreadsPerBlock;
+    int numRegs;
+    int ptxVersion;
+    int sharedSizeBytes;
+    unsigned int host_func_ptr;
+} *CUfunctionW;
 
 /*Sets the parameter size for the function.*/
 CUDA_DRIVER_HANDLER(ParamSetSize) {
     unsigned int numbytes = input_buffer->Get<unsigned int>();
-    CUfunction hfunc = input_buffer->Get<CUfunction > ();
+    CUfunction hfunc = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuParamSetSize(hfunc, numbytes);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Sets the block-dimensions for the function.*/
@@ -59,62 +56,62 @@ CUDA_DRIVER_HANDLER(FuncSetBlockShape) {
     int x = input_buffer->Get<int>();
     int y = input_buffer->Get<int>();
     int z = input_buffer->Get<int>();
-    CUfunction hfunc = input_buffer->Get<CUfunction > ();
+    CUfunction hfunc = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuFuncSetBlockShape(hfunc, x, y, z);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Launches a CUDA function.*/
 CUDA_DRIVER_HANDLER(LaunchGrid) {
     int grid_width = input_buffer->Get<int>();
     int grid_height = input_buffer->Get<int>();
-    CUfunction f = input_buffer->Get<CUfunction > ();
+    CUfunction f = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuLaunchGrid(f, grid_width, grid_height);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Returns information about a function.*/
 CUDA_DRIVER_HANDLER(FuncGetAttribute) {
     int *pi = input_buffer->Assign<int>();
-    CUfunction_attribute attrib = input_buffer->Get<CUfunction_attribute > ();
-    CUfunction hfunc = input_buffer->Get<CUfunction > ();
+    CUfunction_attribute attrib = input_buffer->Get<CUfunction_attribute>();
+    CUfunction hfunc = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuFuncGetAttribute(pi, attrib, hfunc);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->Add(pi);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Sets the dynamic shared-memory size for the function.*/
 CUDA_DRIVER_HANDLER(FuncSetSharedSize) {
     unsigned int bytes = input_buffer->Get<unsigned int>();
-    CUfunction hfunc = input_buffer->Get<CUfunction > ();
+    CUfunction hfunc = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuFuncSetSharedSize(hfunc, bytes);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Launches a CUDA function.*/
 CUDA_DRIVER_HANDLER(Launch) {
-    CUfunction f = input_buffer->Get<CUfunction > ();
+    CUfunction f = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuLaunch(f);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Adds a floating-point parameter to the function's argument list.*/
 CUDA_DRIVER_HANDLER(ParamSetf) {
     int offset = input_buffer->Get<int>();
     float value = input_buffer->Get<float>();
-    CUfunction hfunc = input_buffer->Get<CUfunction > ();
+    CUfunction hfunc = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuParamSetf(hfunc, offset, value);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Adds an integer parameter to the function's argument list.*/
 CUDA_DRIVER_HANDLER(ParamSeti) {
     int offset = input_buffer->Get<int>();
     unsigned int value = input_buffer->Get<unsigned int>();
-    CUfunction hfunc = input_buffer->Get<CUfunction > ();
+    CUfunction hfunc = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuParamSeti(hfunc, offset, value);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Adds arbitrary data to the function's argument list.*/
@@ -122,42 +119,42 @@ CUDA_DRIVER_HANDLER(ParamSetv) {
     int offset = input_buffer->Get<int>();
     unsigned int numbytes = input_buffer->Get<unsigned int>();
     void *ptr = input_buffer->Assign<void *>();
-    CUfunction hfunc = input_buffer->Get<CUfunction > ();
+    CUfunction hfunc = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuParamSetv(hfunc, offset, ptr, numbytes);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Adds a texture-reference to the function's argument list. */
 CUDA_DRIVER_HANDLER(ParamSetTexRef) {
-    CUfunction hfunc = input_buffer->GetFromMarshal<CUfunction > ();
+    CUfunction hfunc = input_buffer->GetFromMarshal<CUfunction>();
     int texunit = input_buffer->Get<int>();
-    CUtexref hTexRef = input_buffer->GetFromMarshal<CUtexref > ();
+    CUtexref hTexRef = input_buffer->GetFromMarshal<CUtexref>();
     CUresult exit_code = cuParamSetTexRef(hfunc, texunit, hTexRef);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Launches a CUDA function.*/
 CUDA_DRIVER_HANDLER(LaunchGridAsync) {
     int grid_width = input_buffer->Get<int>();
     int grid_height = input_buffer->Get<int>();
-    CUfunction f = input_buffer->Get<CUfunction > ();
-    CUstream hStream = input_buffer->Get<CUstream > ();
+    CUfunction f = input_buffer->Get<CUfunction>();
+    CUstream hStream = input_buffer->Get<CUstream>();
     CUresult exit_code = cuLaunchGridAsync(f, grid_width, grid_height, hStream);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Sets the preferred cache configuration for a device function. */
 CUDA_DRIVER_HANDLER(FuncSetCacheConfig) {
-    CUfunc_cache config = input_buffer->Get<CUfunc_cache > ();
-    CUfunction f = input_buffer->Get<CUfunction > ();
+    CUfunc_cache config = input_buffer->Get<CUfunc_cache>();
+    CUfunction f = input_buffer->Get<CUfunction>();
     CUresult exit_code = cuFuncSetCacheConfig(f, config);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
-//new functions CUDA 6.5
-CUDA_DRIVER_HANDLER(LaunchKernel){
-    LOG4CPLUS_DEBUG(pThis->GetLogger(),"Start LaunchKernel");
-    CUfunction f =  input_buffer->Get<CUfunction >();
+// new functions CUDA 6.5
+CUDA_DRIVER_HANDLER(LaunchKernel) {
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "Start LaunchKernel");
+    CUfunction f = input_buffer->Get<CUfunction>();
     unsigned int gridDimX = input_buffer->Get<unsigned int>();
     unsigned int gridDimY = input_buffer->Get<unsigned int>();
     unsigned int gridDimZ = input_buffer->Get<unsigned int>();
@@ -169,8 +166,10 @@ CUDA_DRIVER_HANDLER(LaunchKernel){
 
     void *kernelParams = input_buffer->Get<void *>();
     void *extra = input_buffer->Get<void *>();
-    LOG4CPLUS_DEBUG(pThis->GetLogger(),"LaunchKernel: all parameters read");
-    CUresult exit_code = cuLaunchKernel((CUfunction)f,gridDimX,gridDimY,gridDimZ,blockDimX,blockDimY,blockDimZ,sharedMemBytes,hstream,NULL,(void **) &extra);
-    LOG4CPLUS_DEBUG(pThis->GetLogger(),"End LaunchKernel");
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "LaunchKernel: all parameters read");
+    CUresult exit_code =
+        cuLaunchKernel((CUfunction)f, gridDimX, gridDimY, gridDimZ, blockDimX, blockDimY, blockDimZ,
+                       sharedMemBytes, hstream, NULL, (void **)&extra);
+    LOG4CPLUS_DEBUG(pThis->GetLogger(), "End LaunchKernel");
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }

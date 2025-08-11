@@ -23,6 +23,8 @@
  *             Department of Science and Technologies
  *             Vincenzo Santopietro <vincenzo.santopietro@uniparthenope.it>,
  *             Department of Science and Technologies
+ * Edited by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             School of Computer Science, University College Dublin
  */
 #ifndef _CUBLASHANDLER
 #define _CUBLASHANDLER
@@ -36,9 +38,8 @@
 
 #endif
 
-#include <cublas_v2.h>
 #include <cublasLt.h>
-
+#include <cublas_v2.h>
 #include <gvirtus/backend/Handler.h>
 #include <gvirtus/communicators/Result.h>
 
@@ -50,23 +51,25 @@ using namespace std;
 using namespace log4cplus;
 
 class CublasHandler : public gvirtus::backend::Handler {
-    public:
-        CublasHandler();
-        virtual ~CublasHandler();
-        bool CanExecute(std::string routine);
-        std::shared_ptr<gvirtus::communicators::Result> Execute(std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
-        log4cplus::Logger& GetLogger() {
-            return logger;
-        }
+   public:
+    CublasHandler();
+    virtual ~CublasHandler();
+    bool CanExecute(std::string routine);
+    std::shared_ptr<gvirtus::communicators::Result> Execute(
+        std::string routine, std::shared_ptr<gvirtus::communicators::Buffer> input_buffer);
+    log4cplus::Logger &GetLogger() { return logger; }
 
-    private:
-        log4cplus::Logger logger;
-        void Initialize();
-        typedef std::shared_ptr<gvirtus::communicators::Result>(*CublasRoutineHandler)(CublasHandler *, std::shared_ptr<gvirtus::communicators::Buffer>);
-        static std::map<std::string, CublasRoutineHandler> *mspHandlers;
+   private:
+    log4cplus::Logger logger;
+    void Initialize();
+    typedef std::shared_ptr<gvirtus::communicators::Result> (*CublasRoutineHandler)(
+        CublasHandler *, std::shared_ptr<gvirtus::communicators::Buffer>);
+    static std::map<std::string, CublasRoutineHandler> *mspHandlers;
 };
 
-#define CUBLAS_ROUTINE_HANDLER(name) std::shared_ptr<gvirtus::communicators::Result> handle##name(CublasHandler *pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)
+#define CUBLAS_ROUTINE_HANDLER(name)                              \
+    std::shared_ptr<gvirtus::communicators::Result> handle##name( \
+        CublasHandler *pThis, std::shared_ptr<gvirtus::communicators::Buffer> in)
 #define CUBLAS_ROUTINE_HANDLER_PAIR(name) make_pair("cublas" #name, handle##name)
 
 /* CublasHandler_Helper */
@@ -291,4 +294,4 @@ CUBLAS_ROUTINE_HANDLER(LtMatmul);
 CUBLAS_ROUTINE_HANDLER(GemmEx);
 CUBLAS_ROUTINE_HANDLER(GemmStridedBatchedEx);
 
-#endif // _CUBLASHANDLER
+#endif  // _CUBLASHANDLER

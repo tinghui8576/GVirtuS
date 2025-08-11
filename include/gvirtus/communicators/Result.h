@@ -42,21 +42,21 @@ namespace gvirtus::communicators {
  * Result is used to store the results of a CUDA Runtime routine.
  */
 class Result {
- public:
-  Result(int exit_code);
-  Result(int exit_code, const std::shared_ptr<Buffer> output_buffer);
+   public:
+    Result(int exit_code);
+    Result(int exit_code, const std::shared_ptr<Buffer> output_buffer);
 
-  virtual ~Result() = default;
-  int GetExitCode();
+    virtual ~Result() = default;
+    int GetExitCode();
 
-  void Dump(Communicator *c);
+    void Dump(Communicator *c);
 
-  void TimeTaken(double time_taken);
-  double TimeTaken() const;
+    void TimeTaken(double time_taken);
+    double TimeTaken() const;
 
- private:
-  int mExitCode;
-  std::shared_ptr<Buffer> mpOutputBuffer;
-  double mTimeTaken = 0;
+   private:
+    int mExitCode;
+    std::shared_ptr<Buffer> mpOutputBuffer;
+    double mTimeTaken = 0;
 };
 }  // namespace gvirtus::communicators

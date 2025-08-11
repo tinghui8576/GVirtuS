@@ -21,79 +21,94 @@
  *
  * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *             Vincenzo Santopietro <vincenzo.santopietro@uniparthenope.it>,
+ *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             School of Computer Science, University College Dublin
  */
 
 #include "CublasFrontend.h"
 
 using namespace std;
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCreate_v2(cublasHandle_t* handle) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCreate_v2(cublasHandle_t *handle) {
     CublasFrontend::Prepare();
     CublasFrontend::Execute("cublasCreate_v2");
-    if (CublasFrontend::Success())
-        *handle = CublasFrontend::GetOutputVariable<cublasHandle_t>();
-        // *handle = reinterpret_cast<cublasHandle_t>(CublasFrontend::GetOutputDevicePointer()); // equivalent
-        // *handle = reinterpret_cast<cublasHandle_t>(CublasFrontend::GetOutputVariable<uintptr_t>()); // also equivalent
-        // reinterpret_cast<cublasHandle_t> is equivalent to (cublasHandle_t)
+    if (CublasFrontend::Success()) *handle = CublasFrontend::GetOutputVariable<cublasHandle_t>();
+    // *handle =
+    // reinterpret_cast<cublasHandle_t>(CublasFrontend::GetOutputDevicePointer());
+    // // equivalent *handle =
+    // reinterpret_cast<cublasHandle_t>(CublasFrontend::GetOutputVariable<uintptr_t>());
+    // // also equivalent reinterpret_cast<cublasHandle_t> is equivalent to
+    // (cublasHandle_t)
     return CublasFrontend::GetExitCode();
 }
 
-extern "C"  CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetVector(int n, int elemSize, const void *x, int incx, void *y, int incy) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetVector(int n, int elemSize, const void *x,
+                                                                 int incx, void *y, int incy) {
     CublasFrontend::Prepare();
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(elemSize);
-    //CublasFrontend::AddHostPointerForArguments(x,sizeof(x));
-            
+    // CublasFrontend::AddHostPointerForArguments(x,sizeof(x));
+
     CublasFrontend::AddVariableForArguments<int>(incx);
     CublasFrontend::AddVariableForArguments<int>(incy);
     CublasFrontend::AddDevicePointerForArguments(y);
-    CublasFrontend::AddHostPointerForArguments<char>(static_cast<char *>
-                    (const_cast<void *> (x)), n*elemSize);
+    CublasFrontend::AddHostPointerForArguments<char>(static_cast<char *>(const_cast<void *>(x)),
+                                                     n * elemSize);
     CublasFrontend::Execute("cublasSetVector");
-    return CublasFrontend::GetExitCode(); 
+    return CublasFrontend::GetExitCode();
 }
 
-extern "C"  CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetMatrix(int rows, int cols, int elemSize,
+                                                                 const void *A, int lda, void *B,
+                                                                 int ldb) {
     CublasFrontend::Prepare();
-    
+
     CublasFrontend::AddVariableForArguments<int>(rows);
     CublasFrontend::AddVariableForArguments<int>(cols);
     CublasFrontend::AddVariableForArguments<int>(elemSize);
     CublasFrontend::AddDevicePointerForArguments(B);
     CublasFrontend::AddVariableForArguments<int>(ldb);
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddHostPointerForArguments<char>(static_cast<char *>
-                    (const_cast<void *> (A)), rows*cols*elemSize);
+    CublasFrontend::AddHostPointerForArguments<char>(static_cast<char *>(const_cast<void *>(A)),
+                                                     rows * cols * elemSize);
     CublasFrontend::Execute("cublasSetMatrix");
     return CublasFrontend::GetExitCode();
 }
 
-/* This function copies n elements from a vector x in GPU memory space to a vector y in host memory space. 
- * Elements in both vectors are assumed to have a size of elemSize bytes. The storage spacing between consecutive elements is given by incx for the source vector and incy for the destination vector y.
+/* This function copies n elements from a vector x in GPU memory space to a
+ * vector y in host memory space. Elements in both vectors are assumed to have a
+ * size of elemSize bytes. The storage spacing between consecutive elements is
+ * given by incx for the source vector and incy for the destination vector y.
  */
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetVector(int n, int elemSize, const void *x, int incx, void *y, int incy){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetVector(int n, int elemSize, const void *x,
+                                                                 int incx, void *y, int incy) {
     CublasFrontend::Prepare();
-    
+
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(elemSize);
     CublasFrontend::AddVariableForArguments<int>(incx);
     CublasFrontend::AddVariableForArguments<int>(incy);
-    
-    //void * _x = const_cast<void *>(x);
+
+    // void * _x = const_cast<void *>(x);
     CublasFrontend::AddDevicePointerForArguments(x);
     CublasFrontend::AddHostPointerForArguments<void>(y);
-    
+
     CublasFrontend::Execute("cublasGetVector");
-    
-    if (CublasFrontend::Success()){
-        memmove(y,CublasFrontend::GetOutputHostPointer<char>(n*elemSize),n*elemSize);
+
+    if (CublasFrontend::Success()) {
+        memmove(y, CublasFrontend::GetOutputHostPointer<char>(n * elemSize), n * elemSize);
     }
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetMatrix(int rows, int cols, int elemSize, const void *A, int lda, void *B, int ldb){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetMatrix(int rows, int cols, int elemSize,
+                                                                 const void *A, int lda, void *B,
+                                                                 int ldb) {
     CublasFrontend::Prepare();
-    
+
     CublasFrontend::AddVariableForArguments<int>(rows);
     CublasFrontend::AddVariableForArguments<int>(cols);
     CublasFrontend::AddVariableForArguments<int>(elemSize);
@@ -101,66 +116,74 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetMatrix(int rows, int c
     CublasFrontend::AddVariableForArguments<int>(lda);
     CublasFrontend::AddHostPointerForArguments<void>(B);
     CublasFrontend::AddVariableForArguments<int>(ldb);
-    
+
     CublasFrontend::Execute("cublasGetMatrix");
-    
-    if(CublasFrontend::Success()){
-        memmove(B,CublasFrontend::GetOutputHostPointer<char>(rows*cols*elemSize),rows*cols*elemSize);
+
+    if (CublasFrontend::Success()) {
+        memmove(B, CublasFrontend::GetOutputHostPointer<char>(rows * cols * elemSize),
+                rows * cols * elemSize);
     }
     return CublasFrontend::GetExitCode();
 }
 
 extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDestroy_v2(cublasHandle_t handle) {
     CublasFrontend::Prepare();
-    // CublasFrontend::AddVariableForArguments<long long int>((long long int)handle); works until cublas < 12
-    // CublasFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)handle); // this works if backend also reads the handle as a uintptr_t and then casts it to cublasHandle_t
+    // CublasFrontend::AddVariableForArguments<long long int>((long long
+    // int)handle); works until cublas < 12
+    // CublasFrontend::AddVariableForArguments<uintptr_t>((uintptr_t)handle); //
+    // this works if backend also reads the handle as a uintptr_t and then casts
+    // it to cublasHandle_t
     CublasFrontend::AddDevicePointerForArguments(handle);
-    // CublasFrontend::AddVariableForArguments<cublasHandle_t>(handle); // this does not work as it tries to do sizeof cublasHandle_t which is an incomplete type (opaque struct)
+    // CublasFrontend::AddVariableForArguments<cublasHandle_t>(handle); // this
+    // does not work as it tries to do sizeof cublasHandle_t which is an
+    // incomplete type (opaque struct)
     CublasFrontend::Execute("cublasDestroy_v2");
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetVersion_v2(cublasHandle_t handle, int *version) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetVersion_v2(cublasHandle_t handle,
+                                                                     int *version) {
     CublasFrontend::Prepare();
     CublasFrontend::Execute("cublasGetVersion_v2");
-    if (CublasFrontend::Success())
-        *version = CublasFrontend::GetOutputVariable<int>();
+    if (CublasFrontend::Success()) *version = CublasFrontend::GetOutputVariable<int>();
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetStream_v2(cublasHandle_t handle, cudaStream_t streamId) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetStream_v2(cublasHandle_t handle,
+                                                                    cudaStream_t streamId) {
     CublasFrontend::Prepare();
-    
+
     CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
     CublasFrontend::AddVariableForArguments<long long int>((long long int)streamId);
     CublasFrontend::Execute("cublasSetStream_v2");
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetStream_v2(cublasHandle_t handle, cudaStream_t *streamId){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetStream_v2(cublasHandle_t handle,
+                                                                    cudaStream_t *streamId) {
     CublasFrontend::Prepare();
-    
+
     CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
     CublasFrontend::Execute("cublasGetStream_v2");
-    if(CublasFrontend::Success())
-        *streamId = (cudaStream_t) CublasFrontend::GetOutputVariable<long long int>();
+    if (CublasFrontend::Success())
+        *streamId = (cudaStream_t)CublasFrontend::GetOutputVariable<long long int>();
     return CublasFrontend::GetExitCode();
 }
 
-
-extern "C"  CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetPointerMode_v2(cublasHandle_t handle, cublasPointerMode_t *mode){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasGetPointerMode_v2(cublasHandle_t handle, cublasPointerMode_t *mode) {
     CublasFrontend::Prepare();
-    
+
     CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
     CublasFrontend::Execute("cublasGetPointerMode_v2");
-    if(CublasFrontend::Success())
-        *mode = CublasFrontend::GetOutputVariable<cublasPointerMode_t>();
+    if (CublasFrontend::Success()) *mode = CublasFrontend::GetOutputVariable<cublasPointerMode_t>();
     return CublasFrontend::GetExitCode();
-} 
+}
 
-extern "C"  CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetPointerMode_v2(cublasHandle_t handle, cublasPointerMode_t mode){
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetPointerMode_v2(cublasHandle_t handle,
+                                                                         cublasPointerMode_t mode) {
     CublasFrontend::Prepare();
-    
+
     CublasFrontend::AddVariableForArguments<long long int>((long long int)handle);
     CublasFrontend::AddVariableForArguments<cublasPointerMode_t>(mode);
     CublasFrontend::Execute("cublasSetPointerMode_v2");
@@ -168,24 +191,16 @@ extern "C"  CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetPointerMode_v2(cublas
 }
 
 // TODO:
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasStrsmBatched(cublasHandle_t handle,
-                                   cublasSideMode_t  side,
-                                   cublasFillMode_t  uplo,
-                                   cublasOperation_t trans,
-                                   cublasDiagType_t  diag,
-                                   int m,
-                                   int n,
-                                   const float *alpha,
-                                   const float *const A[],
-                                   int lda,
-                                   float *const B[],
-                                   int ldb,
-                                   int batchCount) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasStrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo,
+                   cublasOperation_t trans, cublasDiagType_t diag, int m, int n, const float *alpha,
+                   const float *const A[], int lda, float *const B[], int ldb, int batchCount) {
     CublasFrontend::Prepare();
-    return CUBLAS_STATUS_NOT_SUPPORTED; // Not implemented yet
+    return CUBLAS_STATUS_NOT_SUPPORTED;  // Not implemented yet
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetMathMode(cublasHandle_t handle, cublasMath_t mode) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetMathMode(cublasHandle_t handle,
+                                                                   cublasMath_t mode) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasMath_t>(mode);
@@ -193,30 +208,28 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetMathMode(cublasHandle_
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetMathMode(cublasHandle_t handle, cublasMath_t *mode) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasGetMathMode(cublasHandle_t handle,
+                                                                   cublasMath_t *mode) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::Execute("cublasGetMathMode");
-    if (CublasFrontend::Success())
-        *mode = CublasFrontend::GetOutputVariable<cublasMath_t>();
+    if (CublasFrontend::Success()) *mode = CublasFrontend::GetOutputVariable<cublasMath_t>();
     return CublasFrontend::GetExitCode();
 }
 
 // TODO:
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgetrfBatched(cublasHandle_t handle,
-                                   int n,
-                                   float *const Aarray[],
-                                   int lda,
-                                   int *PivotArray,
-                                   int *infoArray,
-                                   int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgetrfBatched(cublasHandle_t handle, int n,
+                                                                     float *const Aarray[], int lda,
+                                                                     int *PivotArray,
+                                                                     int *infoArray,
+                                                                     int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddHostPointerForArguments<int>(PivotArray); // Array of pivot indices
-    CublasFrontend::AddHostPointerForArguments<int>(infoArray); // Array of info values
+    CublasFrontend::AddHostPointerForArguments<int>(PivotArray);  // Array of pivot indices
+    CublasFrontend::AddHostPointerForArguments<int>(infoArray);   // Array of info values
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasSgetrfBatched
     // This is a placeholder as the actual implementation is not provided
@@ -225,28 +238,20 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgetrfBatched(cublasHandl
 }
 
 // TODO:
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgetrsBatched(cublasHandle_t handle,
-                                   cublasOperation_t trans,
-                                   int n,
-                                   int nrhs,
-                                   const float *const Aarray[],
-                                   int lda,
-                                   const int *devIpiv,
-                                   float *const Barray[],
-                                   int ldb,
-                                   int *info,
-                                   int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgetrsBatched(
+    cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const float *const Aarray[],
+    int lda, const int *devIpiv, float *const Barray[], int ldb, int *info, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(nrhs);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(devIpiv); // Device pointer to pivot indices
-    CublasFrontend::AddDevicePointerForArguments(Barray); // Array of pointers to matrices B
+    CublasFrontend::AddDevicePointerForArguments(devIpiv);  // Device pointer to pivot indices
+    CublasFrontend::AddDevicePointerForArguments(Barray);   // Array of pointers to matrices B
     CublasFrontend::AddVariableForArguments<int>(ldb);
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
+    CublasFrontend::AddHostPointerForArguments<int>(info);  // Host pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasSgetrsBatched
     // This is a placeholder as the actual implementation is not provided
@@ -255,19 +260,11 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgetrsBatched(cublasHandl
 }
 
 // TODO:
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgemmStridedBatched(cublasHandle_t handle,
-                                  cublasOperation_t transa,
-                                  cublasOperation_t transb,
-                                  int m, int n, int k,
-                                  const cuComplex       *alpha,
-                                  const cuComplex       *A, int lda,
-                                  long long int          strideA,
-                                  const cuComplex       *B, int ldb,
-                                  long long int          strideB,
-                                  const cuComplex       *beta,
-                                  cuComplex             *C, int ldc,
-                                  long long int          strideC,
-                                  int batchCount) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgemmStridedBatched(
+    cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k,
+    const cuComplex *alpha, const cuComplex *A, int lda, long long int strideA, const cuComplex *B,
+    int ldb, long long int strideB, const cuComplex *beta, cuComplex *C, int ldc,
+    long long int strideC, int batchCount) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
@@ -287,23 +284,18 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgemmStridedBatched(cubla
     CublasFrontend::AddVariableForArguments<int>(ldc);
     CublasFrontend::AddVariableForArguments<long long int>(strideC);
     CublasFrontend::AddVariableForArguments<int>(batchCount);
-    
+
     CublasFrontend::Execute("cublasCgemmStridedBatched");
     return CublasFrontend::GetExitCode();
 }
 
 // TODO:
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDotEx(cublasHandle_t handle,
-                            int n,
-                            const void *x,
-                            cudaDataType xType,
-                            int incx,
-                            const void *y,
-                            cudaDataType yType,
-                            int incy,
-                            void *result,
-                            cudaDataType resultType,
-                            cudaDataType executionType) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDotEx(cublasHandle_t handle, int n,
+                                                             const void *x, cudaDataType xType,
+                                                             int incx, const void *y,
+                                                             cudaDataType yType, int incy,
+                                                             void *result, cudaDataType resultType,
+                                                             cudaDataType executionType) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
@@ -326,20 +318,18 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDotEx(cublasHandle_t hand
 }
 
 // TODO:
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgetrfBatched(cublasHandle_t handle,
-                                   int n,
-                                   double *const Aarray[],
-                                   int lda,
-                                   int *PivotArray,
-                                   int *infoArray,
-                                   int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgetrfBatched(cublasHandle_t handle, int n,
+                                                                     double *const Aarray[],
+                                                                     int lda, int *PivotArray,
+                                                                     int *infoArray,
+                                                                     int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddHostPointerForArguments<int>(PivotArray); // Array of pivot indices
-    CublasFrontend::AddHostPointerForArguments<int>(infoArray); // Array of info values
+    CublasFrontend::AddHostPointerForArguments<int>(PivotArray);  // Array of pivot indices
+    CublasFrontend::AddHostPointerForArguments<int>(infoArray);   // Array of info values
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasDgetrfBatched
     // This is a placeholder as the actual implementation is not provided
@@ -348,19 +338,10 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgetrfBatched(cublasHandl
 }
 
 // TODO:
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrsmBatched(cublasHandle_t    handle,
-                                   cublasSideMode_t  side,
-                                   cublasFillMode_t  uplo,
-                                   cublasOperation_t trans,
-                                   cublasDiagType_t  diag,
-                                   int m,
-                                   int n,
-                                   const double *alpha,
-                                   const double *const A[],
-                                   int lda,
-                                   double *const B[],
-                                   int ldb,
-                                   int batchCount) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrsmBatched(
+    cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans,
+    cublasDiagType_t diag, int m, int n, const double *alpha, const double *const A[], int lda,
+    double *const B[], int ldb, int batchCount) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasSideMode_t>(side);
@@ -370,9 +351,9 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrsmBatched(cublasHandle
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddHostPointerForArguments<const double>(alpha);
-    CublasFrontend::AddDevicePointerForArguments(A); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(A);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(B); // Array of pointers to matrices B
+    CublasFrontend::AddDevicePointerForArguments(B);  // Array of pointers to matrices B
     CublasFrontend::AddVariableForArguments<int>(ldb);
     CublasFrontend::AddVariableForArguments<int>(batchCount);
     // Add the necessary arguments for cublasDtrsmBatched
@@ -382,30 +363,22 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDtrsmBatched(cublasHandle
 }
 
 // TODO:
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgelsBatched(cublasHandle_t handle,
-                                   cublasOperation_t trans,
-                                   int m,
-                                   int n,
-                                   int nrhs,
-                                   cuComplex *const Aarray[],
-                                   int lda,
-                                   cuComplex *const Carray[],
-                                   int ldc,
-                                   int *info,
-                                   int *devInfoArray,
-                                   int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasCgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs,
+                   cuComplex *const Aarray[], int lda, cuComplex *const Carray[], int ldc,
+                   int *info, int *devInfoArray, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(nrhs);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(Carray); // Array of pointers to matrices C
+    CublasFrontend::AddDevicePointerForArguments(Carray);  // Array of pointers to matrices C
     CublasFrontend::AddVariableForArguments<int>(ldc);
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
-    CublasFrontend::AddDevicePointerForArguments(devInfoArray); // Device pointer to info array
+    CublasFrontend::AddHostPointerForArguments<int>(info);       // Host pointer to info array
+    CublasFrontend::AddDevicePointerForArguments(devInfoArray);  // Device pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasCgelsBatched
     // This is a placeholder as the actual implementation is not provided
@@ -413,7 +386,8 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgelsBatched(cublasHandle
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetWorkspace_v2(cublasHandle_t handle, void *workspace, size_t workspaceSizeInBytes) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasSetWorkspace_v2(cublasHandle_t handle, void *workspace, size_t workspaceSizeInBytes) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddDevicePointerForArguments(workspace);
@@ -422,28 +396,21 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSetWorkspace_v2(cublasHan
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrsBatched(cublasHandle_t handle,
-                                                                    cublasOperation_t trans,
-                                                                    int n,
-                                                                    int nrhs,
-                                                                    const cuComplex *const Aarray[],
-                                                                    int lda,
-                                                                    const int *devIpiv,
-                                                                    cuComplex *const Barray[],
-                                                                    int ldb,
-                                                                    int *info,
-                                                                    int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasCgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs,
+                    const cuComplex *const Aarray[], int lda, const int *devIpiv,
+                    cuComplex *const Barray[], int ldb, int *info, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(nrhs);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(devIpiv); // Device pointer to pivot indices
-    CublasFrontend::AddDevicePointerForArguments(Barray); // Array of pointers to matrices B
+    CublasFrontend::AddDevicePointerForArguments(devIpiv);  // Device pointer to pivot indices
+    CublasFrontend::AddDevicePointerForArguments(Barray);   // Array of pointers to matrices B
     CublasFrontend::AddVariableForArguments<int>(ldb);
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
+    CublasFrontend::AddHostPointerForArguments<int>(info);  // Host pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasCgetrsBatched
     // This is a placeholder as the actual implementation is not provided
@@ -451,29 +418,21 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrsBatched(cublasHandl
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI  cublasZgetrsBatched(cublasHandle_t handle,
-                                                                    cublasOperation_t trans,
-                                                                    int n,
-                                                                    int nrhs,
-                                                                    const cuDoubleComplex *const Aarray[],
-                                                                    int lda,
-                                                                    const int *devIpiv,
-                                                                    cuDoubleComplex *const Barray[],
-                                                                    int ldb,
-                                                                    int *info,
-                                                                    int batchSize) {
-
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasZgetrsBatched(cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs,
+                    const cuDoubleComplex *const Aarray[], int lda, const int *devIpiv,
+                    cuDoubleComplex *const Barray[], int ldb, int *info, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(nrhs);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(devIpiv); // Device pointer to pivot indices
-    CublasFrontend::AddDevicePointerForArguments(Barray); // Array of pointers to matrices B
+    CublasFrontend::AddDevicePointerForArguments(devIpiv);  // Device pointer to pivot indices
+    CublasFrontend::AddDevicePointerForArguments(Barray);   // Array of pointers to matrices B
     CublasFrontend::AddVariableForArguments<int>(ldb);
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
+    CublasFrontend::AddHostPointerForArguments<int>(info);  // Host pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasZgetrsBatched
     // This is a placeholder as the actual implementation is not provided
@@ -481,20 +440,18 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI  cublasZgetrsBatched(cublasHand
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrfBatched(cublasHandle_t handle,
-                                                                    int n,
-                                                                    cuComplex *const Aarray[],
-                                                                    int lda,
-                                                                    int *PivotArray,
-                                                                    int *infoArray,
-                                                                    int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrfBatched(cublasHandle_t handle, int n,
+                                                                     cuComplex *const Aarray[],
+                                                                     int lda, int *PivotArray,
+                                                                     int *infoArray,
+                                                                     int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddHostPointerForArguments<int>(PivotArray); // Array of pivot indices
-    CublasFrontend::AddHostPointerForArguments<int>(infoArray); // Array of info values
+    CublasFrontend::AddHostPointerForArguments<int>(PivotArray);  // Array of pivot indices
+    CublasFrontend::AddHostPointerForArguments<int>(infoArray);   // Array of info values
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasCgetrfBatched
     // This is a placeholder as the actual implementation is not provided
@@ -502,19 +459,11 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgetrfBatched(cublasHandl
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrsmBatched(cublasHandle_t handle,
-                                                                    cublasSideMode_t  side,
-                                                                    cublasFillMode_t  uplo,
-                                                                    cublasOperation_t trans,
-                                                                    cublasDiagType_t  diag,
-                                                                    int m,
-                                                                    int n,
-                                                                    const cuDoubleComplex *alpha,
-                                                                    const cuDoubleComplex *const A[],
-                                                                    int lda,
-                                                                    cuDoubleComplex *const B[],
-                                                                    int ldb,
-                                                                    int batchCount) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasZtrsmBatched(cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo,
+                   cublasOperation_t trans, cublasDiagType_t diag, int m, int n,
+                   const cuDoubleComplex *alpha, const cuDoubleComplex *const A[], int lda,
+                   cuDoubleComplex *const B[], int ldb, int batchCount) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasSideMode_t>(side);
@@ -524,9 +473,9 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrsmBatched(cublasHandle
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddHostPointerForArguments<const cuDoubleComplex>(alpha);
-    CublasFrontend::AddDevicePointerForArguments(A); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(A);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(B); // Array of pointers to matrices B
+    CublasFrontend::AddDevicePointerForArguments(B);  // Array of pointers to matrices B
     CublasFrontend::AddVariableForArguments<int>(ldb);
     CublasFrontend::AddVariableForArguments<int>(batchCount);
     // Add the necessary arguments for cublasZtrsmBatched
@@ -535,22 +484,19 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZtrsmBatched(cublasHandle
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgeqrfBatched(cublasHandle_t handle,
-                                                                    int m,
-                                                                    int n,
-                                                                    double *const Aarray[],
-                                                                    int lda,
-                                                                    double *const TauArray[],
-                                                                    int *info,
-                                                                    int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgeqrfBatched(cublasHandle_t handle, int m,
+                                                                     int n, double *const Aarray[],
+                                                                     int lda,
+                                                                     double *const TauArray[],
+                                                                     int *info, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(TauArray); // Array of pointers to Tau
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
+    CublasFrontend::AddDevicePointerForArguments(TauArray);  // Array of pointers to Tau
+    CublasFrontend::AddHostPointerForArguments<int>(info);   // Host pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasDgeqrfBatched
     // This is a placeholder as the actual implementation is not provided
@@ -558,19 +504,11 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgeqrfBatched(cublasHandl
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmStridedBatched(cublasHandle_t handle,
-                                                                cublasOperation_t transa,
-                                                                cublasOperation_t transb,
-                                                                int m, int n, int k,
-                                                                const double          *alpha,
-                                                                const double          *A, int lda,
-                                                                long long int          strideA,
-                                                                const double          *B, int ldb,
-                                                                long long int          strideB,
-                                                                const double          *beta,
-                                                                double                *C, int ldc,
-                                                                long long int          strideC,
-                                                                int batchCount) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmStridedBatched(
+    cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k,
+    const double *alpha, const double *A, int lda, long long int strideA, const double *B, int ldb,
+    long long int strideB, const double *beta, double *C, int ldc, long long int strideC,
+    int batchCount) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
@@ -594,30 +532,21 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgemmStridedBatched(cubla
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgelsBatched(cublasHandle_t handle,
-                                                                    cublasOperation_t trans,
-                                                                    int m,
-                                                                    int n,
-                                                                    int nrhs,
-                                                                    double *const Aarray[],
-                                                                    int lda,
-                                                                    double *const Carray[],
-                                                                    int ldc,
-                                                                    int *info,
-                                                                    int *devInfoArray,
-                                                                    int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgelsBatched(
+    cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, double *const Aarray[],
+    int lda, double *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(nrhs);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(Carray); // Array of pointers to matrices C
+    CublasFrontend::AddDevicePointerForArguments(Carray);  // Array of pointers to matrices C
     CublasFrontend::AddVariableForArguments<int>(ldc);
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
-    CublasFrontend::AddDevicePointerForArguments(devInfoArray); // Device pointer to info array
+    CublasFrontend::AddHostPointerForArguments<int>(info);       // Host pointer to info array
+    CublasFrontend::AddDevicePointerForArguments(devInfoArray);  // Device pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasDgelsBatched
     // This is a placeholder as the actual implementation is not provided
@@ -625,22 +554,17 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgelsBatched(cublasHandle
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgeqrfBatched(cublasHandle_t handle,
-                                                                    int m,
-                                                                    int n,
-                                                                    cuComplex *const Aarray[],
-                                                                    int lda,
-                                                                    cuComplex *const TauArray[],
-                                                                    int *info,
-                                                                    int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasCgeqrfBatched(cublasHandle_t handle, int m, int n, cuComplex *const Aarray[], int lda,
+                    cuComplex *const TauArray[], int *info, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(TauArray); // Array of pointers to Tau
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
+    CublasFrontend::AddDevicePointerForArguments(TauArray);  // Array of pointers to Tau
+    CublasFrontend::AddHostPointerForArguments<int>(info);   // Host pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasCgeqrfBatched
     // This is a placeholder as the actual implementation is not provided
@@ -648,20 +572,16 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCgeqrfBatched(cublasHandl
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgetrfBatched(cublasHandle_t handle,
-                                                                    int n,
-                                                                    cuDoubleComplex *const Aarray[],
-                                                                    int lda,
-                                                                    int *PivotArray,
-                                                                    int *infoArray,
-                                                                    int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasZgetrfBatched(cublasHandle_t handle, int n, cuDoubleComplex *const Aarray[], int lda,
+                    int *PivotArray, int *infoArray, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(n);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddHostPointerForArguments<int>(PivotArray); // Array of pivot indices
-    CublasFrontend::AddHostPointerForArguments<int>(infoArray); // Array of info values
+    CublasFrontend::AddHostPointerForArguments<int>(PivotArray);  // Array of pivot indices
+    CublasFrontend::AddHostPointerForArguments<int>(infoArray);   // Array of info values
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasZgetrfBatched
     // This is a placeholder as the actual implementation is not provided
@@ -669,24 +589,10 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgetrfBatched(cublasHandl
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemmEx(cublasHandle_t handle,
-                                                                cublasOperation_t transa,
-                                                                cublasOperation_t transb,
-                                                                int m,
-                                                                int n,
-                                                                int k,
-                                                                const float    *alpha,
-                                                                const void     *A,
-                                                                cudaDataType_t Atype,
-                                                                int lda,
-                                                                const void     *B,
-                                                                cudaDataType_t Btype,
-                                                                int ldb,
-                                                                const float    *beta,
-                                                                void           *C,
-                                                                cudaDataType_t Ctype,
-                                                                int ldc) {
-
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemmEx(
+    cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k,
+    const float *alpha, const void *A, cudaDataType_t Atype, int lda, const void *B,
+    cudaDataType_t Btype, int ldb, const float *beta, void *C, cudaDataType_t Ctype, int ldc) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
@@ -711,20 +617,11 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgemmEx(cublasHandle_t ha
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgemmStridedBatched(cublasHandle_t handle,
-                                  cublasOperation_t transa,
-                                  cublasOperation_t transb,
-                                  int m, int n, int k,
-                                  const cuDoubleComplex *alpha,
-                                  const cuDoubleComplex *A, int lda,
-                                  long long int          strideA,
-                                  const cuDoubleComplex *B, int ldb,
-                                  long long int          strideB,
-                                  const cuDoubleComplex *beta,
-                                  cuDoubleComplex       *C, int ldc,
-                                  long long int          strideC,
-                                  int batchCount) {
-                            
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgemmStridedBatched(
+    cublasHandle_t handle, cublasOperation_t transa, cublasOperation_t transb, int m, int n, int k,
+    const cuDoubleComplex *alpha, const cuDoubleComplex *A, int lda, long long int strideA,
+    const cuDoubleComplex *B, int ldb, long long int strideB, const cuDoubleComplex *beta,
+    cuDoubleComplex *C, int ldc, long long int strideC, int batchCount) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(transa);
@@ -748,22 +645,17 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgemmStridedBatched(cubla
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgeqrfBatched(cublasHandle_t handle,
-                                    int m,
-                                    int n,
-                                    cuDoubleComplex *const Aarray[],
-                                    int lda,
-                                    cuDoubleComplex *const TauArray[],
-                                    int *info,
-                                    int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasZgeqrfBatched(cublasHandle_t handle, int m, int n, cuDoubleComplex *const Aarray[], int lda,
+                    cuDoubleComplex *const TauArray[], int *info, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(TauArray); // Array of pointers to Tau
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
+    CublasFrontend::AddDevicePointerForArguments(TauArray);  // Array of pointers to Tau
+    CublasFrontend::AddHostPointerForArguments<int>(info);   // Host pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasZgeqrfBatched
     // This is a placeholder as the actual implementation is not provided
@@ -771,30 +663,22 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgeqrfBatched(cublasHandl
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgelsBatched(cublasHandle_t handle,
-                                   cublasOperation_t trans,
-                                   int m,
-                                   int n,
-                                   int nrhs,
-                                   cuDoubleComplex *const Aarray[],
-                                   int lda,
-                                   cuDoubleComplex *const Carray[],
-                                   int ldc,
-                                   int *info,
-                                   int *devInfoArray,
-                                   int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI
+cublasZgelsBatched(cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs,
+                   cuDoubleComplex *const Aarray[], int lda, cuDoubleComplex *const Carray[],
+                   int ldc, int *info, int *devInfoArray, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(nrhs);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(Carray); // Array of pointers to matrices C
+    CublasFrontend::AddDevicePointerForArguments(Carray);  // Array of pointers to matrices C
     CublasFrontend::AddVariableForArguments<int>(ldc);
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
-    CublasFrontend::AddDevicePointerForArguments(devInfoArray); // Device pointer to info array
+    CublasFrontend::AddHostPointerForArguments<int>(info);       // Host pointer to info array
+    CublasFrontend::AddDevicePointerForArguments(devInfoArray);  // Device pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasZgelsBatched
     // This is a placeholder as the actual implementation is not provided
@@ -802,19 +686,10 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasZgelsBatched(cublasHandle
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrsmBatched(cublasHandle_t    handle,
-                                   cublasSideMode_t  side,
-                                   cublasFillMode_t  uplo,
-                                   cublasOperation_t trans,
-                                   cublasDiagType_t  diag,
-                                   int m,
-                                   int n,
-                                   const cuComplex *alpha,
-                                   const cuComplex *const A[],
-                                   int lda,
-                                   cuComplex *const B[],
-                                   int ldb,
-                                   int batchCount) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrsmBatched(
+    cublasHandle_t handle, cublasSideMode_t side, cublasFillMode_t uplo, cublasOperation_t trans,
+    cublasDiagType_t diag, int m, int n, const cuComplex *alpha, const cuComplex *const A[],
+    int lda, cuComplex *const B[], int ldb, int batchCount) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasSideMode_t>(side);
@@ -824,9 +699,9 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrsmBatched(cublasHandle
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddHostPointerForArguments<const cuComplex>(alpha);
-    CublasFrontend::AddDevicePointerForArguments(A); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(A);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(B); // Array of pointers to matrices B
+    CublasFrontend::AddDevicePointerForArguments(B);  // Array of pointers to matrices B
     CublasFrontend::AddVariableForArguments<int>(ldb);
     CublasFrontend::AddVariableForArguments<int>(batchCount);
     // Add the necessary arguments for cublasCtrsmBatched
@@ -835,30 +710,21 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasCtrsmBatched(cublasHandle
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgelsBatched(cublasHandle_t handle,
-                                   cublasOperation_t trans,
-                                   int m,
-                                   int n,
-                                   int nrhs,
-                                   float *const Aarray[],
-                                   int lda,
-                                   float *const Carray[],
-                                   int ldc,
-                                   int *info,
-                                   int *devInfoArray,
-                                   int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgelsBatched(
+    cublasHandle_t handle, cublasOperation_t trans, int m, int n, int nrhs, float *const Aarray[],
+    int lda, float *const Carray[], int ldc, int *info, int *devInfoArray, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(nrhs);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(Carray); // Array of pointers to matrices C
+    CublasFrontend::AddDevicePointerForArguments(Carray);  // Array of pointers to matrices C
     CublasFrontend::AddVariableForArguments<int>(ldc);
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
-    CublasFrontend::AddDevicePointerForArguments(devInfoArray); // Device pointer to info array
+    CublasFrontend::AddHostPointerForArguments<int>(info);       // Host pointer to info array
+    CublasFrontend::AddDevicePointerForArguments(devInfoArray);  // Device pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasSgelsBatched
     // This is a placeholder as the actual implementation is not provided
@@ -866,22 +732,19 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgelsBatched(cublasHandle
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgeqrfBatched(cublasHandle_t handle,
-                                    int m,
-                                    int n,
-                                    float *const Aarray[],
-                                    int lda,
-                                    float *const TauArray[],
-                                    int *info,
-                                    int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgeqrfBatched(cublasHandle_t handle, int m,
+                                                                     int n, float *const Aarray[],
+                                                                     int lda,
+                                                                     float *const TauArray[],
+                                                                     int *info, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<int>(m);
     CublasFrontend::AddVariableForArguments<int>(n);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(TauArray); // Array of pointers to Tau
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
+    CublasFrontend::AddDevicePointerForArguments(TauArray);  // Array of pointers to Tau
+    CublasFrontend::AddHostPointerForArguments<int>(info);   // Host pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasSgeqrfBatched
     // This is a placeholder as the actual implementation is not provided
@@ -889,28 +752,20 @@ extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasSgeqrfBatched(cublasHandl
     return CublasFrontend::GetExitCode();
 }
 
-extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgetrsBatched(cublasHandle_t handle,
-                                   cublasOperation_t trans,
-                                   int n,
-                                   int nrhs,
-                                   const double *const Aarray[],
-                                   int lda,
-                                   const int *devIpiv,
-                                   double *const Barray[],
-                                   int ldb,
-                                   int *info,
-                                   int batchSize) {
+extern "C" CUBLASAPI cublasStatus_t CUBLASWINAPI cublasDgetrsBatched(
+    cublasHandle_t handle, cublasOperation_t trans, int n, int nrhs, const double *const Aarray[],
+    int lda, const int *devIpiv, double *const Barray[], int ldb, int *info, int batchSize) {
     CublasFrontend::Prepare();
     CublasFrontend::AddDevicePointerForArguments(handle);
     CublasFrontend::AddVariableForArguments<cublasOperation_t>(trans);
     CublasFrontend::AddVariableForArguments<int>(n);
     CublasFrontend::AddVariableForArguments<int>(nrhs);
-    CublasFrontend::AddDevicePointerForArguments(Aarray); // Array of pointers to matrices A
+    CublasFrontend::AddDevicePointerForArguments(Aarray);  // Array of pointers to matrices A
     CublasFrontend::AddVariableForArguments<int>(lda);
-    CublasFrontend::AddDevicePointerForArguments(devIpiv); // Device pointer to pivot indices
-    CublasFrontend::AddDevicePointerForArguments(Barray); // Array of pointers to matrices B
+    CublasFrontend::AddDevicePointerForArguments(devIpiv);  // Device pointer to pivot indices
+    CublasFrontend::AddDevicePointerForArguments(Barray);   // Array of pointers to matrices B
     CublasFrontend::AddVariableForArguments<int>(ldb);
-    CublasFrontend::AddHostPointerForArguments<int>(info); // Host pointer to info array
+    CublasFrontend::AddHostPointerForArguments<int>(info);  // Host pointer to info array
     CublasFrontend::AddVariableForArguments<int>(batchSize);
     // Add the necessary arguments for cublasDgetrsBatched
     // This is a placeholder as the actual implementation is not provided

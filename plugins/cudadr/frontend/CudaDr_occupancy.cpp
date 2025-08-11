@@ -21,16 +21,21 @@
  *
  * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
  *             Department of Computer Science, University College Dublin
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaDr.h"
 
 using namespace std;
 
-extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSMemSize, CUfunction func, int  numBlocks, int  blockSize) {
+extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSMemSize,
+                                                            CUfunction func, int numBlocks,
+                                                            int blockSize) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(dynamicSMemSize);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) func);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)func);
     CudaDrFrontend::AddVariableForArguments(numBlocks);
     CudaDrFrontend::AddVariableForArguments(blockSize);
     CudaDrFrontend::Execute("cuOccupancyAvailableDynamicSMemPerBlock");
@@ -40,10 +45,12 @@ extern "C" CUresult cuOccupancyAvailableDynamicSMemPerBlock(size_t* dynamicSMemS
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, CUfunction func, int  blockSize, size_t dynamicSMemSize) {
+extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, CUfunction func,
+                                                                int blockSize,
+                                                                size_t dynamicSMemSize) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(numBlocks);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) func);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)func);
     CudaDrFrontend::AddVariableForArguments(blockSize);
     CudaDrFrontend::AddVariableForArguments(dynamicSMemSize);
     CudaDrFrontend::Execute("cuOccupancyMaxActiveBlocksPerMultiprocessor");
@@ -53,10 +60,11 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessor(int* numBlocks, 
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* numBlocks, CUfunction func, int  blockSize, size_t dynamicSMemSize, unsigned int  flags) {
+extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(
+    int* numBlocks, CUfunction func, int blockSize, size_t dynamicSMemSize, unsigned int flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(dynamicSMemSize);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) func);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)func);
     CudaDrFrontend::AddVariableForArguments(numBlocks);
     CudaDrFrontend::AddVariableForArguments(blockSize);
     CudaDrFrontend::Execute("cuOccupancyAvailableDynamicSMemPerBlock");
@@ -66,10 +74,11 @@ extern "C" CUresult cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(int* nu
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuOccupancyMaxActiveClusters(int* numClusters, CUfunction func, const CUlaunchConfig* config) {
+extern "C" CUresult cuOccupancyMaxActiveClusters(int* numClusters, CUfunction func,
+                                                 const CUlaunchConfig* config) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(numClusters);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) func);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)func);
     CudaDrFrontend::AddHostPointerForArguments<const CUlaunchConfig>(config);
     CudaDrFrontend::Execute("cuOccupancyMaxActiveClusters");
     if (CudaDrFrontend::Success()) {
@@ -78,11 +87,14 @@ extern "C" CUresult cuOccupancyMaxActiveClusters(int* numClusters, CUfunction fu
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int  blockSizeLimit) {
+extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int* minGridSize, int* blockSize,
+                                                     CUfunction func,
+                                                     CUoccupancyB2DSize blockSizeToDynamicSMemSize,
+                                                     size_t dynamicSMemSize, int blockSizeLimit) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(minGridSize);
     CudaDrFrontend::AddHostPointerForArguments(blockSize);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) func);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)func);
     CudaDrFrontend::AddVariableForArguments(blockSizeToDynamicSMemSize);
     CudaDrFrontend::AddVariableForArguments(dynamicSMemSize);
     CudaDrFrontend::AddVariableForArguments(blockSizeLimit);
@@ -94,11 +106,14 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSize(int* minGridSize, int* bloc
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int* minGridSize, int* blockSize, CUfunction func, CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int  blockSizeLimit, unsigned int  flags) {
+extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(
+    int* minGridSize, int* blockSize, CUfunction func,
+    CUoccupancyB2DSize blockSizeToDynamicSMemSize, size_t dynamicSMemSize, int blockSizeLimit,
+    unsigned int flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(minGridSize);
     CudaDrFrontend::AddHostPointerForArguments(blockSize);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) func);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)func);
     CudaDrFrontend::AddVariableForArguments(blockSizeToDynamicSMemSize);
     CudaDrFrontend::AddVariableForArguments(dynamicSMemSize);
     CudaDrFrontend::AddVariableForArguments(blockSizeLimit);
@@ -110,10 +125,11 @@ extern "C" CUresult cuOccupancyMaxPotentialBlockSizeWithFlags(int* minGridSize, 
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuOccupancyMaxPotentialClusterSize(int* clusterSize, CUfunction func, const CUlaunchConfig* config) {
+extern "C" CUresult cuOccupancyMaxPotentialClusterSize(int* clusterSize, CUfunction func,
+                                                       const CUlaunchConfig* config) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(clusterSize);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) func);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)func);
     CudaDrFrontend::AddHostPointerForArguments<const CUlaunchConfig>(config);
     CudaDrFrontend::Execute("cuOccupancyMaxPotentialClusterSize");
     if (CudaDrFrontend::Success()) {

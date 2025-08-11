@@ -21,38 +21,37 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
- #include <dirent.h>
- #include <errno.h>
+#include <dirent.h>
+#include <errno.h>
 
- #include "CudaDr.h"
+#include "CudaDr.h"
 
 using namespace std;
 
-void listFiles( const char* path )
-{
-   DIR* dirFile = opendir( path );
-   if ( dirFile ) 
-   {
-      struct dirent* hFile;
-      errno = 0;
-      while (( hFile = readdir( dirFile )) != NULL ) 
-      {
-         if ( !strcmp( hFile->d_name, "."  )) continue;
-         if ( !strcmp( hFile->d_name, ".." )) continue;
-         if ( strstr( hFile->d_name, ".ptx" ))
-            printf( "found a .ptx file: %s", hFile->d_name );
-      } 
-      closedir( dirFile );
-   }
+void listFiles(const char* path) {
+    DIR* dirFile = opendir(path);
+    if (dirFile) {
+        struct dirent* hFile;
+        errno = 0;
+        while ((hFile = readdir(dirFile)) != NULL) {
+            if (!strcmp(hFile->d_name, ".")) continue;
+            if (!strcmp(hFile->d_name, "..")) continue;
+            if (strstr(hFile->d_name, ".ptx")) printf("found a .ptx file: %s", hFile->d_name);
+        }
+        closedir(dirFile);
+    }
 }
 
 /*Sets the parameter size for the function.*/
 extern "C" CUresult cuParamSetSize(CUfunction hfunc, unsigned int numbytes) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(numbytes);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::Execute("cuParamSetSize");
     return CudaDrFrontend::GetExitCode();
 }
@@ -63,7 +62,7 @@ extern "C" CUresult cuFuncSetBlockShape(CUfunction hfunc, int x, int y, int z) {
     CudaDrFrontend::AddVariableForArguments(x);
     CudaDrFrontend::AddVariableForArguments(y);
     CudaDrFrontend::AddVariableForArguments(z);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::Execute("cuFuncSetBlockShape");
     return CudaDrFrontend::GetExitCode();
 }
@@ -73,47 +72,47 @@ extern "C" CUresult cuLaunchGrid(CUfunction f, int grid_width, int grid_height) 
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(grid_width);
     CudaDrFrontend::AddVariableForArguments(grid_height);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) f);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)f);
     CudaDrFrontend::Execute("cuLaunchGrid");
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Returns information about a function.*/
-extern "C" CUresult cuFuncGetAttribute(int *pi, CUfunction_attribute attrib, CUfunction hfunc) {
+extern "C" CUresult cuFuncGetAttribute(int* pi, CUfunction_attribute attrib, CUfunction hfunc) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(pi);
     CudaDrFrontend::AddVariableForArguments(attrib);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::Execute("cuFuncGetAttribute");
-    if (CudaDrFrontend::Success())
-        *pi = *(CudaDrFrontend::GetOutputHostPointer<int>());
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    if (CudaDrFrontend::Success()) *pi = *(CudaDrFrontend::GetOutputHostPointer<int>());
+    return (CUresult)(CudaDrFrontend::GetExitCode());
 }
 
 /*Sets the dynamic shared-memory size for the function.*/
 extern "C" CUresult cuFuncSetSharedSize(CUfunction hfunc, unsigned int bytes) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(bytes);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::Execute("cuFuncSetSharedSize");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return (CUresult)(CudaDrFrontend::GetExitCode());
 }
 
 /*Launches a CUDA function.*/
 extern "C" CUresult cuLaunch(CUfunction f) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) f);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)f);
     CudaDrFrontend::Execute("cuLaunch");
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Launches a CUDA function.*/
-extern "C" CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height, CUstream hStream) {
+extern "C" CUresult cuLaunchGridAsync(CUfunction f, int grid_width, int grid_height,
+                                      CUstream hStream) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(grid_width);
     CudaDrFrontend::AddVariableForArguments(grid_height);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) f);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)f);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hStream);
     CudaDrFrontend::Execute("cuLaunchGridAsync");
     return CudaDrFrontend::GetExitCode();
 }
@@ -123,7 +122,7 @@ extern "C" CUresult cuParamSetf(CUfunction hfunc, int offset, float value) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(offset);
     CudaDrFrontend::AddVariableForArguments(value);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::Execute("cuParamSetf");
     return CudaDrFrontend::GetExitCode();
 }
@@ -133,7 +132,7 @@ extern "C" CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(offset);
     CudaDrFrontend::AddVariableForArguments(value);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::Execute("cuParamSeti");
     return CudaDrFrontend::GetExitCode();
 }
@@ -141,20 +140,20 @@ extern "C" CUresult cuParamSeti(CUfunction hfunc, int offset, unsigned int value
 /*Adds a texture-reference to the function's argument list.*/
 extern "C" CUresult cuParamSetTexRef(CUfunction hfunc, int texunit, CUtexref hTexRef) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::AddVariableForArguments(texunit);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hTexRef);
     CudaDrFrontend::Execute("cuParamSetTexRef");
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Adds arbitrary data to the function's argument list.*/
-extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigned int numbytes) {
+extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void* ptr, unsigned int numbytes) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(offset);
     CudaDrFrontend::AddVariableForArguments(numbytes);
-    CudaDrFrontend::AddHostPointerForArguments((char *) ptr, numbytes);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddHostPointerForArguments((char*)ptr, numbytes);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::Execute("cuParamSetv");
     return CudaDrFrontend::GetExitCode();
 }
@@ -163,15 +162,19 @@ extern "C" CUresult cuParamSetv(CUfunction hfunc, int offset, void *ptr, unsigne
 extern "C" CUresult cuFuncSetCacheConfig(CUfunction hfunc, CUfunc_cache config) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(config);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hfunc);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hfunc);
     CudaDrFrontend::Execute("cuFuncSetCacheConfig");
     return CudaDrFrontend::GetExitCode();
 }
 
 // new Cuda 4.0 functions
-extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY, unsigned int gridDimZ, unsigned int blockDimX, unsigned int blockDimY, unsigned int blockDimZ, unsigned int sharedMemBytes, CUstream hstream , void** kernelParams, void** extra){
+extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned int gridDimY,
+                                   unsigned int gridDimZ, unsigned int blockDimX,
+                                   unsigned int blockDimY, unsigned int blockDimZ,
+                                   unsigned int sharedMemBytes, CUstream hstream,
+                                   void** kernelParams, void** extra) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) f);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)f);
     CudaDrFrontend::AddVariableForArguments(gridDimX);
     CudaDrFrontend::AddVariableForArguments(gridDimY);
     CudaDrFrontend::AddVariableForArguments(gridDimZ);
@@ -179,16 +182,17 @@ extern "C" CUresult cuLaunchKernel(CUfunction f, unsigned int gridDimX, unsigned
     CudaDrFrontend::AddVariableForArguments(blockDimY);
     CudaDrFrontend::AddVariableForArguments(blockDimZ);
     CudaDrFrontend::AddVariableForArguments(sharedMemBytes);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hstream);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)hstream);
     CudaDrFrontend::AddDevicePointerForArguments(kernelParams);
     CudaDrFrontend::AddHostPointerForArguments(&extra);
     CudaDrFrontend::Execute("cuLaunchKernel");
     return CudaDrFrontend::GetExitCode();
 }
 
-extern "C" CUresult cuLaunchKernelEx (const CUlaunchConfig* config, CUfunction f, void** kernelParams, void** extra) {
+extern "C" CUresult cuLaunchKernelEx(const CUlaunchConfig* config, CUfunction f,
+                                     void** kernelParams, void** extra) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) f);
+    CudaDrFrontend::AddDevicePointerForArguments((void*)f);
     CudaDrFrontend::AddHostPointerForArguments<const CUlaunchConfig>(config);
     CudaDrFrontend::AddDevicePointerForArguments(kernelParams);
     CudaDrFrontend::AddHostPointerForArguments(&extra);

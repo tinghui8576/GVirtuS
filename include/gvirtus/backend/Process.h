@@ -18,20 +18,21 @@ namespace gvirtus::backend {
  * Frontend.
  */
 class Process : public common::Observable {
- public:
-  Process(
-      std::shared_ptr<common::LD_Lib<communicators::Communicator,
-                                     std::shared_ptr<communicators::Endpoint>>>
-          communicator,
-      std::vector<std::string> &plugins);
-  ~Process() override;
-  void Start();
+   public:
+    Process(std::shared_ptr<common::LD_Lib<communicators::Communicator,
+                                           std::shared_ptr<communicators::Endpoint>>>
+                communicator,
+            std::vector<std::string> &plugins);
+    ~Process() override;
+    void Start();
 
- private:
-  std::shared_ptr<common::LD_Lib<communicators::Communicator, std::shared_ptr<communicators::Endpoint>>> _communicator;
-  std::vector<std::shared_ptr<common::LD_Lib<Handler>>> _handlers;
+   private:
+    std::shared_ptr<
+        common::LD_Lib<communicators::Communicator, std::shared_ptr<communicators::Endpoint>>>
+        _communicator;
+    std::vector<std::shared_ptr<common::LD_Lib<Handler>>> _handlers;
 
-  std::vector<std::string> mPlugins;
-  log4cplus::Logger logger;
+    std::vector<std::string> mPlugins;
+    log4cplus::Logger logger;
 };
 }  // namespace gvirtus::backend

@@ -19,18 +19,11 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
- */
-
-/**
- * @file   CudaRtHandler.h
- * @author Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>
- * @date   Sat Oct 10 10:51:58 2009
  *
- * @brief
- *
- *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #ifndef _CUDARTHANDLER_H
@@ -39,23 +32,21 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
-#include <cstdio>
-#include <iostream>
-#include <map>
-#include <string>
-
+#include <CudaRt_internal.h>
+#include <CudaUtil.h>
+#include <cuda_runtime_api.h>
 #include <fcntl.h>
+#include <gvirtus/backend/Handler.h>
+#include <gvirtus/communicators/Result.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <cuda_runtime_api.h>
-#include <CudaRt_internal.h>
-#include <CudaUtil.h>
-
-#include <gvirtus/backend/Handler.h>
-#include <gvirtus/communicators/Result.h>
+#include <cstdio>
+#include <iostream>
+#include <map>
+#include <string>
 
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
@@ -76,12 +67,11 @@ using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 class CudaRtHandler : public gvirtus::backend::Handler {
-public:
+   public:
     CudaRtHandler();
     virtual ~CudaRtHandler();
     bool CanExecute(std::string routine);
-    std::shared_ptr<Result> Execute(std::string routine,
-                                    std::shared_ptr<Buffer> input_buffer);
+    std::shared_ptr<Result> Execute(std::string routine, std::shared_ptr<Buffer> input_buffer);
 
     void RegisterFatBinary(std::string &handler, void **fatCubinHandle);
     void RegisterFatBinary(const char *handler, void **fatCubinHandle);
@@ -103,9 +93,7 @@ public:
 
     const char *GetSymbol(std::shared_ptr<Buffer> in);
 
-    Logger &GetLogger() {
-        return logger;
-    }
+    Logger &GetLogger() { return logger; }
 
     inline void addDeviceFunc2InfoFunc(std::string deviceFunc, NvInfoFunction infoFunction) {
         mapDeviceFunc2InfoFunc->insert(make_pair(deviceFunc, infoFunction));
@@ -113,13 +101,14 @@ public:
 
     inline NvInfoFunction getInfoFunc(std::string deviceFunc) {
         if (mapDeviceFunc2InfoFunc->find(deviceFunc) == mapDeviceFunc2InfoFunc->end()) {
-            LOG4CPLUS_ERROR(logger, "getInfoFunc: device function '" << deviceFunc << "' not found");
+            LOG4CPLUS_ERROR(logger,
+                            "getInfoFunc: device function '" << deviceFunc << "' not found");
             throw std::runtime_error("getInfoFunc: device function not found");
         }
         return mapDeviceFunc2InfoFunc->find(deviceFunc)->second;
     };
 
-    inline void addHost2DeviceFunc(const void* hostFunc, std::string deviceFunc) {
+    inline void addHost2DeviceFunc(const void *hostFunc, std::string deviceFunc) {
         mapHost2DeviceFunc->insert(make_pair(hostFunc, deviceFunc));
     }
 
@@ -132,23 +121,23 @@ public:
     };
 
     static void hexdump(void *ptr, int buflen) {
-        unsigned char *buf = (unsigned char*)ptr;
+        unsigned char *buf = (unsigned char *)ptr;
         int i, j;
-        for (i=0; i<buflen; i+=16) {
+        for (i = 0; i < buflen; i += 16) {
             printf("%06x: ", i);
-            for (j=0; j<16; j++)
-                if (i+j < buflen)
-                    printf("%02x ", buf[i+j]);
+            for (j = 0; j < 16; j++)
+                if (i + j < buflen)
+                    printf("%02x ", buf[i + j]);
                 else
                     printf("   ");
             printf(" ");
-            for (j=0; j<16; j++)
-                if (i+j < buflen)
-                    printf("%c", isprint(buf[i+j]) ? buf[i+j] : '.');
+            for (j = 0; j < 16; j++)
+                if (i + j < buflen) printf("%c", isprint(buf[i + j]) ? buf[i + j] : '.');
             printf("\n");
         }
     }
- private:
+
+   private:
     log4cplus::Logger logger;
     void Initialize();
     typedef std::shared_ptr<Result> (*CudaRoutineHandler)(CudaRtHandler *, std::shared_ptr<Buffer>);
@@ -156,15 +145,16 @@ public:
     std::map<std::string, void **> *mpFatBinary;
     std::map<std::string, std::string> *mpDeviceFunction;
     std::map<std::string, std::string> *mpVar;
-    std::map<std::string, cudaTextureObject_t*> *mpTexture;
-    std::map<std::string, cudaSurfaceObject_t*> *mpSurface;
-    map<std::string, NvInfoFunction>* mapDeviceFunc2InfoFunc;
-    map<const void *,std::string>* mapHost2DeviceFunc;
+    std::map<std::string, cudaTextureObject_t *> *mpTexture;
+    std::map<std::string, cudaSurfaceObject_t *> *mpSurface;
+    map<std::string, NvInfoFunction> *mapDeviceFunc2InfoFunc;
+    map<const void *, std::string> *mapHost2DeviceFunc;
     void *mpShm;
     int mShmFd;
 };
 
-#define CUDA_ROUTINE_HANDLER(name) std::shared_ptr<Result> handle##name(CudaRtHandler *pThis, std::shared_ptr<Buffer> input_buffer)
+#define CUDA_ROUTINE_HANDLER(name) \
+    std::shared_ptr<Result> handle##name(CudaRtHandler *pThis, std::shared_ptr<Buffer> input_buffer)
 #define CUDA_ROUTINE_HANDLER_PAIR(name) make_pair("cuda" #name, handle##name)
 
 /* CudaRtHandler_device */
@@ -211,17 +201,12 @@ CUDA_ROUTINE_HANDLER(ConfigureCall);
 CUDA_ROUTINE_HANDLER(FuncGetAttributes);
 CUDA_ROUTINE_HANDLER(FuncSetCacheConfig);
 CUDA_ROUTINE_HANDLER(Launch);
-#if CUDART_VERSION >= 9000
-    CUDA_ROUTINE_HANDLER(LaunchKernel);
-#endif
+CUDA_ROUTINE_HANDLER(LaunchKernel);
 CUDA_ROUTINE_HANDLER(SetDoubleForDevice);
 CUDA_ROUTINE_HANDLER(SetDoubleForHost);
 CUDA_ROUTINE_HANDLER(SetupArgument);
-
-#if CUDART_VERSION >= 9020
-    CUDA_ROUTINE_HANDLER(PushCallConfiguration);
-    CUDA_ROUTINE_HANDLER(PopCallConfiguration);
-#endif
+CUDA_ROUTINE_HANDLER(PushCallConfiguration);
+CUDA_ROUTINE_HANDLER(PopCallConfiguration);
 
 /* CudaRtHandler_internal */
 CUDA_ROUTINE_HANDLER(RegisterFatBinary);
@@ -294,9 +279,7 @@ CUDA_ROUTINE_HANDLER(RuntimeGetVersion);
 
 /* Occupancy */
 CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessor);
-#if (CUDART_VERSION >= 7000)
-    CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessorWithFlags);
-#endif
+CUDA_ROUTINE_HANDLER(OccupancyMaxActiveBlocksPerMultiprocessorWithFlags);
 
 /* CudaRtHandler_api */
 CUDA_ROUTINE_HANDLER(FuncSetAttribute);

@@ -19,30 +19,30 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Raffaele Montella <raffaele.montella@uniparthenope.it>,
+ * Written By: Raffaele Montella <raffaele.montella@uniparthenope.it>,
  *             Department of Science and Technologies
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             School of Computer Science, University College Dublin
  */
 
 #ifndef CUDNNHANDLER_H
 #define CUDNNHANDLER_H
 
+#include <cudnn.h>
 #include <gvirtus/backend/Handler.h>
 #include <gvirtus/communicators/Result.h>
-
-#include <cudnn.h>
-
+#include <limits.h>
+#include <log4cplus/configurator.h>
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
-#include <log4cplus/configurator.h>
-
-#include <limits.h>
-#if ( __WORDSIZE == 64 )
-    #define BUILD_64   1
+#if (__WORDSIZE == 64)
+#define BUILD_64 1
 #endif
 
-/*                                             
+/*
  * CudaRtHandler is used by Backend's Process(es) for storing and retrieving
- * device related data and functions. 
+ * device related data and functions.
  * CudaRtHandler has also the method Execute() that is responsible to execute a
  * named CUDA Runtime routine unmarshalling the input parameters from the
  * provided Buffer.
@@ -52,22 +52,22 @@ using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
 class CudnnHandler : public gvirtus::backend::Handler {
-public:
+   public:
     CudnnHandler();
     virtual ~CudnnHandler();
     bool CanExecute(std::string routine);
     std::shared_ptr<Result> Execute(std::string routine, std::shared_ptr<Buffer> input_buffer);
-    log4cplus::Logger& GetLogger() {
-        return logger;
-    }
-private:
+    log4cplus::Logger& GetLogger() { return logger; }
+
+   private:
     log4cplus::Logger logger;
     void Initialize();
-    typedef std::shared_ptr<Result> (*CudnnRoutineHandler)(CudnnHandler *, std::shared_ptr<Buffer>);
-    static std::map<std::string, CudnnRoutineHandler> * mspHandlers;
+    typedef std::shared_ptr<Result> (*CudnnRoutineHandler)(CudnnHandler*, std::shared_ptr<Buffer>);
+    static std::map<std::string, CudnnRoutineHandler>* mspHandlers;
 };
 
-#define CUDNN_ROUTINE_HANDLER(name) std::shared_ptr<Result> handle##name(CudnnHandler * pThis, std::shared_ptr<Buffer> in)
+#define CUDNN_ROUTINE_HANDLER(name) \
+    std::shared_ptr<Result> handle##name(CudnnHandler* pThis, std::shared_ptr<Buffer> in)
 #define CUDNN_ROUTINE_HANDLER_PAIR(name) make_pair("cudnn" #name, handle##name)
 
 /* CudnnHandler.cpp */
@@ -77,7 +77,8 @@ CUDNN_ROUTINE_HANDLER(GetLastErrorString);
 CUDNN_ROUTINE_HANDLER(Create);
 CUDNN_ROUTINE_HANDLER(Destroy);
 CUDNN_ROUTINE_HANDLER(SetStream);
-CUDNN_ROUTINE_HANDLER(GetStream); 
+CUDNN_ROUTINE_HANDLER(GetStream);
+CUDNN_ROUTINE_HANDLER(GetProperty);
 CUDNN_ROUTINE_HANDLER(CreateTensorDescriptor);
 CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptor);
 CUDNN_ROUTINE_HANDLER(SetTensor4dDescriptorEx);
@@ -238,7 +239,7 @@ CUDNN_ROUTINE_HANDLER(BackendFinalize);
 CUDNN_ROUTINE_HANDLER(BackendDestroyDescriptor);
 #if CUDNN_VERSION < 8000
 CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v5);
-//CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v5);
+// CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v5);
 #endif
 #if CUDNN_VERSION >= 8000
 CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v8);
@@ -288,57 +289,57 @@ CUDNN_ROUTINE_HANDLER(MakeFusedOpsPlan);
 CUDNN_ROUTINE_HANDLER(FusedOpsExecute);
 
 #if CUDNN_VERSION < 9000
-    CUDNN_ROUTINE_HANDLER(SetRNNMatrixMathType);
-    CUDNN_ROUTINE_HANDLER(GetRNNMatrixMathType);
-    CUDNN_ROUTINE_HANDLER(SetRNNBiasMode);
-    CUDNN_ROUTINE_HANDLER(GetRNNBiasMode);
-    CUDNN_ROUTINE_HANDLER(RNNSetClip);
-    CUDNN_ROUTINE_HANDLER(RNNGetClip);
-    CUDNN_ROUTINE_HANDLER(SetRNNProjectionLayers);
-    CUDNN_ROUTINE_HANDLER(GetRNNProjectionLayers);
-    CUDNN_ROUTINE_HANDLER(CreatePersistentRNNPlan);
-    CUDNN_ROUTINE_HANDLER(DestroyPersistentRNNPlan);
-    CUDNN_ROUTINE_HANDLER(SetPersistentRNNPlan);
-    CUDNN_ROUTINE_HANDLER(GetRNNWorkspaceSize);
-    CUDNN_ROUTINE_HANDLER(GetRNNTrainingReserveSize);
-    CUDNN_ROUTINE_HANDLER(GetRNNParamsSize);
-    CUDNN_ROUTINE_HANDLER(GetRNNLinLayerMatrixParams);
-    CUDNN_ROUTINE_HANDLER(GetRNNLinLayerBiasParams);
-    CUDNN_ROUTINE_HANDLER(RNNForwardInference);
-    CUDNN_ROUTINE_HANDLER(RNNForwardTraining);
-    CUDNN_ROUTINE_HANDLER(RNNBackwardData);
-    CUDNN_ROUTINE_HANDLER(RNNBackwardWeights);
-    CUDNN_ROUTINE_HANDLER(SetRNNPaddingMode);
-    CUDNN_ROUTINE_HANDLER(GetRNNPaddingMode);
-    CUDNN_ROUTINE_HANDLER(RNNForwardTrainingEx);
-    CUDNN_ROUTINE_HANDLER(RNNForwardInferenceEx);
-    CUDNN_ROUTINE_HANDLER(RNNBackwardDataEx);
-    CUDNN_ROUTINE_HANDLER(RNNBackwardWeightsEx);
-    CUDNN_ROUTINE_HANDLER(SetRNNAlgorithmDescriptor);
-    CUDNN_ROUTINE_HANDLER(GetRNNForwardInferenceAlgorithmMaxCount);
-    CUDNN_ROUTINE_HANDLER(FindRNNForwardInferenceAlgorithmEx);
-    CUDNN_ROUTINE_HANDLER(GetRNNForwardTrainingAlgorithmMaxCount);
-    CUDNN_ROUTINE_HANDLER(FindRNNForwardTrainingAlgorithmEx);
-    CUDNN_ROUTINE_HANDLER(GetRNNBackwardDataAlgorithmMaxCount);
-    CUDNN_ROUTINE_HANDLER(FindRNNBackwardDataAlgorithmEx);
-    CUDNN_ROUTINE_HANDLER(GetRNNBackwardWeightsAlgorithmMaxCount);
-    CUDNN_ROUTINE_HANDLER(FindRNNBackwardWeightsAlgorithmEx);
-    CUDNN_ROUTINE_HANDLER(CreateAlgorithmDescriptor);
-    CUDNN_ROUTINE_HANDLER(SetAlgorithmDescriptor);
-    CUDNN_ROUTINE_HANDLER(GetAlgorithmDescriptor);
-    CUDNN_ROUTINE_HANDLER(CopyAlgorithmDescriptor);
-    CUDNN_ROUTINE_HANDLER(DestroyAlgorithmDescriptor);
-    CUDNN_ROUTINE_HANDLER(CreateAlgorithmPerformance);
-    CUDNN_ROUTINE_HANDLER(SetAlgorithmPerformance);
-    CUDNN_ROUTINE_HANDLER(GetAlgorithmPerformance);
-    CUDNN_ROUTINE_HANDLER(DestroyAlgorithmPerformance);
-    CUDNN_ROUTINE_HANDLER(GetAlgorithmSpaceSize);
-    CUDNN_ROUTINE_HANDLER(SaveAlgorithm);
-    CUDNN_ROUTINE_HANDLER(RestoreAlgorithm);
+CUDNN_ROUTINE_HANDLER(SetRNNMatrixMathType);
+CUDNN_ROUTINE_HANDLER(GetRNNMatrixMathType);
+CUDNN_ROUTINE_HANDLER(SetRNNBiasMode);
+CUDNN_ROUTINE_HANDLER(GetRNNBiasMode);
+CUDNN_ROUTINE_HANDLER(RNNSetClip);
+CUDNN_ROUTINE_HANDLER(RNNGetClip);
+CUDNN_ROUTINE_HANDLER(SetRNNProjectionLayers);
+CUDNN_ROUTINE_HANDLER(GetRNNProjectionLayers);
+CUDNN_ROUTINE_HANDLER(CreatePersistentRNNPlan);
+CUDNN_ROUTINE_HANDLER(DestroyPersistentRNNPlan);
+CUDNN_ROUTINE_HANDLER(SetPersistentRNNPlan);
+CUDNN_ROUTINE_HANDLER(GetRNNWorkspaceSize);
+CUDNN_ROUTINE_HANDLER(GetRNNTrainingReserveSize);
+CUDNN_ROUTINE_HANDLER(GetRNNParamsSize);
+CUDNN_ROUTINE_HANDLER(GetRNNLinLayerMatrixParams);
+CUDNN_ROUTINE_HANDLER(GetRNNLinLayerBiasParams);
+CUDNN_ROUTINE_HANDLER(RNNForwardInference);
+CUDNN_ROUTINE_HANDLER(RNNForwardTraining);
+CUDNN_ROUTINE_HANDLER(RNNBackwardData);
+CUDNN_ROUTINE_HANDLER(RNNBackwardWeights);
+CUDNN_ROUTINE_HANDLER(SetRNNPaddingMode);
+CUDNN_ROUTINE_HANDLER(GetRNNPaddingMode);
+CUDNN_ROUTINE_HANDLER(RNNForwardTrainingEx);
+CUDNN_ROUTINE_HANDLER(RNNForwardInferenceEx);
+CUDNN_ROUTINE_HANDLER(RNNBackwardDataEx);
+CUDNN_ROUTINE_HANDLER(RNNBackwardWeightsEx);
+CUDNN_ROUTINE_HANDLER(SetRNNAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(GetRNNForwardInferenceAlgorithmMaxCount);
+CUDNN_ROUTINE_HANDLER(FindRNNForwardInferenceAlgorithmEx);
+CUDNN_ROUTINE_HANDLER(GetRNNForwardTrainingAlgorithmMaxCount);
+CUDNN_ROUTINE_HANDLER(FindRNNForwardTrainingAlgorithmEx);
+CUDNN_ROUTINE_HANDLER(GetRNNBackwardDataAlgorithmMaxCount);
+CUDNN_ROUTINE_HANDLER(FindRNNBackwardDataAlgorithmEx);
+CUDNN_ROUTINE_HANDLER(GetRNNBackwardWeightsAlgorithmMaxCount);
+CUDNN_ROUTINE_HANDLER(FindRNNBackwardWeightsAlgorithmEx);
+CUDNN_ROUTINE_HANDLER(CreateAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(SetAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(GetAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(CopyAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(DestroyAlgorithmDescriptor);
+CUDNN_ROUTINE_HANDLER(CreateAlgorithmPerformance);
+CUDNN_ROUTINE_HANDLER(SetAlgorithmPerformance);
+CUDNN_ROUTINE_HANDLER(GetAlgorithmPerformance);
+CUDNN_ROUTINE_HANDLER(DestroyAlgorithmPerformance);
+CUDNN_ROUTINE_HANDLER(GetAlgorithmSpaceSize);
+CUDNN_ROUTINE_HANDLER(SaveAlgorithm);
+CUDNN_ROUTINE_HANDLER(RestoreAlgorithm);
 #endif
 #if CUDNN_VERSION >= 6000 && CUDNN_VERSION < 9000
-    CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v6);
-    CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v6);
+CUDNN_ROUTINE_HANDLER(SetRNNDescriptor_v6);
+CUDNN_ROUTINE_HANDLER(GetRNNDescriptor_v6);
 #endif
 
-#endif  /* CUDNNHANDLER_H */
+#endif /* CUDNNHANDLER_H */

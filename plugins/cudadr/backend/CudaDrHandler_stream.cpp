@@ -35,26 +35,26 @@ CUDA_DRIVER_HANDLER(StreamCreate) {
     CUresult exit_code = cuStreamCreate(&phStream, Flags);
     std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
     out->AddMarshal(phStream);
-    return std::make_shared<Result>((cudaError_t) exit_code, out);
+    return std::make_shared<Result>((cudaError_t)exit_code, out);
 }
 
 /*Destroys a stream.*/
 CUDA_DRIVER_HANDLER(StreamDestroy) {
-    CUstream phStream = input_buffer->Get<CUstream > ();
+    CUstream phStream = input_buffer->Get<CUstream>();
     CUresult exit_code = cuStreamDestroy(phStream);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Determine status of a compute stream.*/
 CUDA_DRIVER_HANDLER(StreamQuery) {
-    CUstream phStream = input_buffer->Get<CUstream > ();
+    CUstream phStream = input_buffer->Get<CUstream>();
     CUresult exit_code = cuStreamQuery(phStream);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }
 
 /*Wait until a stream's tasks are completed.*/
 CUDA_DRIVER_HANDLER(StreamSynchronize) {
-    CUstream phStream = input_buffer->Get<CUstream > ();
+    CUstream phStream = input_buffer->Get<CUstream>();
     CUresult exit_code = cuStreamSynchronize(phStream);
-    return std::make_shared<Result>((cudaError_t) exit_code);
+    return std::make_shared<Result>((cudaError_t)exit_code);
 }

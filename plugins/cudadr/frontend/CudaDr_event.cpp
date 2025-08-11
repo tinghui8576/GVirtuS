@@ -21,6 +21,9 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaDr.h"
@@ -32,15 +35,14 @@ extern "C" CUresult cuEventCreate(CUevent *phEvent, unsigned int Flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(Flags);
     CudaDrFrontend::Execute("cuEventCreate");
-    if (CudaDrFrontend::Success())
-        *phEvent = (CUevent) (CudaDrFrontend::GetOutputDevicePointer());
+    if (CudaDrFrontend::Success()) *phEvent = (CUevent)(CudaDrFrontend::GetOutputDevicePointer());
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Destroys an event.*/
 extern "C" CUresult cuEventDestroy(CUevent hEvent) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hEvent);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hEvent);
     CudaDrFrontend::Execute("cuEventDestroy");
     return CudaDrFrontend::GetExitCode();
 }
@@ -49,8 +51,8 @@ extern "C" CUresult cuEventDestroy(CUevent hEvent) {
 extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUevent hEnd) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddHostPointerForArguments(pMilliseconds);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hStart);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hEnd);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hStart);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hEnd);
     CudaDrFrontend::Execute("cuEventElapsedTime");
     if (CudaDrFrontend::Success())
         *pMilliseconds = *(CudaDrFrontend::GetOutputHostPointer<float>());
@@ -60,7 +62,7 @@ extern "C" CUresult cuEventElapsedTime(float *pMilliseconds, CUevent hStart, CUe
 /*Queries an event's status.*/
 extern "C" CUresult cuEventQuery(CUevent hEvent) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hEvent);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hEvent);
     CudaDrFrontend::Execute("cuEventQuery");
     return CudaDrFrontend::GetExitCode();
 }
@@ -68,8 +70,8 @@ extern "C" CUresult cuEventQuery(CUevent hEvent) {
 /*Records an event.*/
 extern "C" CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hEvent);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hEvent);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hStream);
     CudaDrFrontend::Execute("cuEventRecord");
     return CudaDrFrontend::GetExitCode();
 }
@@ -77,7 +79,7 @@ extern "C" CUresult cuEventRecord(CUevent hEvent, CUstream hStream) {
 /*Waits for an event to complete.*/
 extern "C" CUresult cuEventSynchronize(CUevent hEvent) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hEvent);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hEvent);
     CudaDrFrontend::Execute("cuEventSynchronize");
     return CudaDrFrontend::GetExitCode();
 }

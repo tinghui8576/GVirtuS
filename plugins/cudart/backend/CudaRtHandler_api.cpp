@@ -27,7 +27,6 @@
 #include "CudaRtHandler.h"
 
 CUDA_ROUTINE_HANDLER(FuncSetAttribute) {
-
     const void* func = input_buffer->Get<const void*>();
     cudaFuncAttribute attr = input_buffer->Get<cudaFuncAttribute>();
     int value = input_buffer->Get<int>();
