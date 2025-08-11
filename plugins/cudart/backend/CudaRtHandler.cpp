@@ -344,6 +344,15 @@ void CudaRtHandler::Initialize() {
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreateWithPriority));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(ThreadExchangeStreamCaptureMode));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamIsCapturing));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamBeginCapture));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamEndCapture));
+
+    /* CudaRtHandler_graph */
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphCreate));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphDestroy));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphLaunch));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphGetNodes));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphInstantiate));
 
     /* CudaRtHandler_version */
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DriverGetVersion));

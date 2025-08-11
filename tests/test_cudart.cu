@@ -99,6 +99,61 @@ TEST(cudaRT, StreamCreateDestroySynchronize) {
     CUDA_CHECK(cudaStreamDestroy(stream));
 }
 
+TEST(cudaRT, StreamCaptureBeginEnd) {
+    cudaStream_t stream;
+    CUDA_CHECK(cudaStreamCreate(&stream));
+    cudaStreamCaptureMode mode = cudaStreamCaptureModeThreadLocal;
+    CUDA_CHECK(cudaStreamBeginCapture(stream, mode));
+    cudaGraph_t graph;
+    CUDA_CHECK(cudaStreamEndCapture(stream, &graph));
+    CUDA_CHECK(cudaStreamDestroy(stream));
+}
+
+TEST(cudaRT, GraphCreateDestroy) {
+    cudaGraph_t graph;
+    CUDA_CHECK(cudaGraphCreate(&graph, 0));
+    CUDA_CHECK(cudaGraphDestroy(graph));
+}
+
+__global__ void dummyKernel() {
+}
+
+TEST(cudaRT, GraphInstantiateDestroy) {
+    cudaGraph_t graph;
+    cudaStream_t stream;
+    CUDA_CHECK(cudaStreamCreate(&stream));
+    cudaStreamCaptureMode mode = cudaStreamCaptureModeThreadLocal;
+    cudaGraphNode_t* nodes = NULL;
+    size_t numNodes = 0;
+    CUDA_CHECK(cudaStreamBeginCapture(stream, mode));
+    dummyKernel<<<1, 1, 0, stream>>>(); 
+    CUDA_CHECK(cudaStreamEndCapture(stream, &graph));
+    CUDA_CHECK(cudaGraphGetNodes(graph, nodes, &numNodes));
+    ASSERT_EQ(numNodes, 1);
+    cudaGraphExec_t graphExec;
+    CUDA_CHECK(cudaGraphInstantiate(&graphExec, graph, 0));
+    CUDA_CHECK(cudaGraphDestroy(graph));
+    CUDA_CHECK(cudaStreamDestroy(stream));
+}
+
+TEST(cudaRT, GraphLaunch) {
+    cudaGraph_t graph;
+    cudaStream_t stream;
+    CUDA_CHECK(cudaStreamCreate(&stream));
+    cudaStreamCaptureMode mode = cudaStreamCaptureModeThreadLocal;
+    cudaGraphNode_t* nodes = NULL;
+    size_t numNodes = 0;
+    CUDA_CHECK(cudaStreamBeginCapture(stream, mode));
+    dummyKernel<<<1, 1, 0, stream>>>(); 
+    CUDA_CHECK(cudaStreamEndCapture(stream, &graph));
+    CUDA_CHECK(cudaGraphGetNodes(graph, nodes, &numNodes));
+    cudaGraphExec_t graphExec;
+    CUDA_CHECK(cudaGraphInstantiate(&graphExec, graph, 0));
+    CUDA_CHECK(cudaGraphDestroy(graph));
+    CUDA_CHECK(cudaGraphLaunch(graphExec, stream));
+    CUDA_CHECK(cudaStreamSynchronize(stream));
+}
+
 TEST(cudaRT, GetDevice) {
     int device;
     CUDA_CHECK(cudaGetDevice(&device));
