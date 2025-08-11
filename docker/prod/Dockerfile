@@ -18,7 +18,7 @@ RUN apt update && apt install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 ENV GVIRTUS_HOME=/usr/local/gvirtus
-ENV GVIRTUS_LOGLEVEL=0
+ENV GVIRTUS_LOGLEVEL=20000
 ENV LD_LIBRARY_PATH=${GVIRTUS_HOME}/lib:${LD_LIBRARY_PATH}
 
 COPY cmake /gvirtus/cmake

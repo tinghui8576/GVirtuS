@@ -2,11 +2,13 @@
 	docker-build-push-prod-remote \
 	docker-build-dev-local \
 	attach-gvirtus-dev \
+	run-gvirtus-dev \
+	run-gvirtus-dev-no-gpu \
 	run-gvirtus-tests \
 
 docker-build-push-dev-remote:
 	docker buildx build \
-		--platform linux/amd64 \
+		--platform linux/amd64,linux/arm64 \
 		--push \
 		--no-cache \
 		-f docker/dev/Dockerfile \
@@ -15,7 +17,7 @@ docker-build-push-dev-remote:
 
 docker-build-push-prod-remote:
 	docker buildx build \
-		--platform linux/amd64 \
+		--platform linux/amd64,linux/arm64 \
 		--push \
 		--no-cache \
 		-f docker/prod/Dockerfile \
@@ -24,7 +26,7 @@ docker-build-push-prod-remote:
 
 docker-build-dev-local:
 	docker buildx build \
-		--platform linux/amd64 \
+		--platform linux/$$(uname -m) \
 		--load \
 		-f docker/dev/Dockerfile \
 		-t gvirtus-dev:cuda12.6.3-cudnn-ubuntu22.04 \
