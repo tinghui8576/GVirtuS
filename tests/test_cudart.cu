@@ -133,6 +133,7 @@ TEST(cudaRT, GraphInstantiateDestroy) {
     cudaGraphExec_t graphExec;
     CUDA_CHECK(cudaGraphInstantiate(&graphExec, graph, 0));
     CUDA_CHECK(cudaGraphDestroy(graph));
+    CUDA_CHECK(cudaGraphExecDestroy(graphExec));
     CUDA_CHECK(cudaStreamDestroy(stream));
 }
 

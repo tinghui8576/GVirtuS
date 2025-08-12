@@ -353,6 +353,7 @@ void CudaRtHandler::Initialize() {
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphLaunch));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphGetNodes));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphInstantiate));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphExecDestroy));
 
     /* CudaRtHandler_version */
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DriverGetVersion));

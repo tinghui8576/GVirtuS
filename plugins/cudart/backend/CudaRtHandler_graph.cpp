@@ -53,6 +53,16 @@ CUDA_ROUTINE_HANDLER(GraphDestroy) {
     }
 }
 
+CUDA_ROUTINE_HANDLER(GraphExecDestroy) {
+    try {
+        cudaGraphExec_t graphExec = input_buffer->Get<cudaGraphExec_t>();
+        return std::make_shared<Result>(cudaGraphExecDestroy(graphExec));
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
+
 CUDA_ROUTINE_HANDLER(GraphGetNodes) {
     try {
         cudaGraph_t pGraph = input_buffer->Get<cudaGraph_t>();
