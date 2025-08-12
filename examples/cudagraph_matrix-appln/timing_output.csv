@@ -1,0 +1,13 @@
+RunType,Iteration,ExecutionTime(ms)
+WithoutGraph(NotSysc),1,1.77677
+WithoutGraph(Sysc),1,0.314263
+WithGraph,1,2.9002
+WithoutGraph(NotSysc),100,1.7217
+WithoutGraph(Sysc),100,0.238603
+WithGraph,100,2.65183
+WithoutGraph(NotSysc),1000,1.57781
+WithoutGraph(Sysc),1000,0.236735
+WithGraph,1000,2.5076
+WithoutGraph(NotSysc),10000,1.57417
+WithoutGraph(Sysc),10000,1.21521
+WithGraph,10000,1.62245

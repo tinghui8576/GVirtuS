@@ -77,6 +77,10 @@ int main() {
     dim3 gridDim((N + blockDim.x - 1) / blockDim.x,
                  (N + blockDim.y - 1) / blockDim.y);
 
+    cudaStream_t stream;
+    cudaStreamCreate(&stream);
+    matrixMul<<<gridDim, blockDim, 0, stream>>>(d_A, d_B, d_C, N);
+    cudaStreamSynchronize(stream);
     // Test with different iteration counts
     int testIterations[] = {1, 100, 1000, 10000};
 
@@ -137,8 +141,10 @@ int main() {
                   << " average: " << averageTimeMs << " ms\n";
         csvFile << "WithGraph," << iter << "," << averageTimeMs << "\n";
 
-        cudaStreamDestroy(stream);
+        
     }
+
+    cudaStreamDestroy(stream);
 
     // Copy result back to host
     cudaMemcpy(h_C, d_C, bytes, cudaMemcpyDeviceToHost);
