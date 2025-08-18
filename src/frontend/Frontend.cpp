@@ -43,12 +43,18 @@
 #include <unistd.h>
 
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <mutex>
 
+#include "communicators/hybrid/HybridCommunicator.h"
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
+
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+using std::chrono::steady_clock;
 
 using namespace std;
 using namespace log4cplus;
@@ -58,8 +64,6 @@ using gvirtus::communicators::Communicator;
 using gvirtus::communicators::CommunicatorFactory;
 using gvirtus::communicators::EndpointFactory;
 using gvirtus::frontend::Frontend;
-
-using std::chrono::steady_clock;
 
 static Frontend msFrontend;
 std::mutex gFrontendMutex;
@@ -217,11 +221,14 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
 
 void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     if (input_buffer == nullptr) input_buffer = mpInputBuffer.get();
-    // if (!strcmp(routine, "cudaLaunchKernel")) {
-    //     cerr << "cudaLaunchKernel called" << endl;
-    // }
 
     pid_t tid = syscall(SYS_gettid);
+    pid_t pid = getpid();
+    size_t in_size = input_buffer->GetBufferSize();
+    int exit_code = 0;
+    double server_exec_sec = 0.0;
+    double send_sec = 0.0;
+    double recv_sec = 0.0;
 
     Frontend *frontend = nullptr;
     {
@@ -234,50 +241,88 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
         frontend = it->second;
     }
 
+    LOG4CPLUS_DEBUG(logger, "DEBUG - Received routine " << routine << " [pid=" << pid
+                                                        << ", tid=" << tid << "]");
+
     frontend->mRoutinesExecuted++;
-    auto start = steady_clock::now();
+
+    // ===== send routine info first（under TCP）=====
+    auto start_send = steady_clock::now();
     frontend->_communicator->obj_ptr()->Write(routine, strlen(routine) + 1);
-    frontend->mDataSent += input_buffer->GetBufferSize();
+
+    // ===== chose protocol by different routine =====
+    if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
+        auto *hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator *>(
+            frontend->_communicator->obj_ptr().get());
+        if (hybrid) {
+            if (std::string(routine).find("cudaMemcpy") != std::string::npos ||
+                std::string(routine).find("cudaRegisterFatBinary") != std::string::npos ||
+                std::string(routine).find("cudaRegisterFatBinaryEnd") != std::string::npos ||
+                std::string(routine).find("cudaMemcpyAsync") != std::string::npos) {
+                hybrid->begin_call(routine, gvirtus::communicators::Transport::RDMA, in_size);
+            } else {
+                hybrid->begin_call(routine, gvirtus::communicators::Transport::TCP, in_size);
+            }
+        }
+    }
+
+    // ===== send paramemter data =====
+    frontend->mDataSent += in_size;
+    LOG4CPLUS_DEBUG(logger, "Write " << in_size << " bytes to the buffer");
     input_buffer->Dump(frontend->_communicator->obj_ptr().get());
+
+    // ===== sync by chosen channel =====
     frontend->_communicator->obj_ptr()->Sync();
-    frontend->mSendingTime +=
-        std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() /
-        1000.0;
+
+    send_sec = duration_cast<milliseconds>(steady_clock::now() - start_send).count() / 1000.0;
+
     frontend->mpOutputBuffer->Reset();
 
-    frontend->_communicator->obj_ptr()->Read((char *)&frontend->mExitCode, sizeof(int));
-    LOG4CPLUS_DEBUG(logger, "Routine '" << routine << "' returned " << frontend->mExitCode);
-    // if (frontend->mExitCode != 0
-    //     && strcmp(routine, "cudnnGetVersion") != 0
-    //     && strcmp(routine, "cudnnGetErrorString") != 0
-    //     && strcmp(routine, "cusolverDnGetVersion") != 0
-    //     && strcmp(routine, "cudaGetErrorString") != 0
-    //     && strcmp(routine, "cudaGetErrorName") != 0
-    //     && strcmp(routine, "cusparseGetErrorString") != 0
-    //     && strcmp(routine, "nvrtcGetErrorString") != 0
-    // ) {
-    //     LOG4CPLUS_ERROR(logger, "Error executing routine '" << routine << "': exit code " <<
-    //     frontend->mExitCode); return;
-    // }
-    double time_taken;
-    frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&time_taken),
-                                             sizeof(time_taken));
-    frontend->mRoutineExecutionTime += time_taken;
+    // ===== receive exit_code =====
+    auto start_recv = steady_clock::now();
+    frontend->_communicator->obj_ptr()->Read((char *)&exit_code, sizeof(int));
+    frontend->mExitCode = exit_code;
 
-    start = steady_clock::now();
-    size_t out_buffer_size;
+    // ===== receive backend time cost =====
+    frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&server_exec_sec),
+                                             sizeof(server_exec_sec));
+
+    // ===== receive output buffer =====
+    size_t out_buffer_size = 0;
     frontend->_communicator->obj_ptr()->Read((char *)&out_buffer_size, sizeof(size_t));
-    LOG4CPLUS_DEBUG(logger, "Output buffer size: " << out_buffer_size);
     frontend->mDataReceived += out_buffer_size;
+    LOG4CPLUS_DEBUG(logger, "Read " << out_buffer_size << " bytes from the buffer");
     if (out_buffer_size > 0) {
         LOG4CPLUS_DEBUG(logger, "Output buffer size is greater than 0, reading...");
         frontend->mpOutputBuffer->Read<char>(frontend->_communicator->obj_ptr().get(),
                                              out_buffer_size);
-        LOG4CPLUS_DEBUG(logger, "Output buffer read successfully.");
     }
-    frontend->mReceivingTime +=
-        std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() /
-        1000.0;
+    recv_sec = duration_cast<milliseconds>(steady_clock::now() - start_recv).count() / 1000.0;
+
+    // ===== update info =====
+    frontend->mRoutineExecutionTime += server_exec_sec;
+    frontend->mSendingTime += send_sec;
+    frontend->mReceivingTime += recv_sec;
+
+    // ===== print log =====
+    LOG4CPLUS_DEBUG(logger, "Routine '" << routine << "' returned " << exit_code
+                                        << " | server_exec=" << server_exec_sec << "s"
+                                        << " | send=" << send_sec << "s"
+                                        << " | recv=" << recv_sec << "s"
+                                        << " | in=" << in_size << "B"
+                                        << " | out=" << out_buffer_size << "B"
+                                        << " | pid=" << pid << " tid=" << tid);
+
+    LOG4CPLUS_DEBUG(logger, "DEBUG - Called: " << routine);
+
+    // ===== stop this call，clean HybridCommunicator status =====
+    if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
+        auto hybrid = std::dynamic_pointer_cast<gvirtus::communicators::HybridCommunicator>(
+            frontend->_communicator->obj_ptr());
+        if (hybrid) {
+            hybrid->end_call();
+        }
+    }
 }
 
 void Frontend::Prepare() {
