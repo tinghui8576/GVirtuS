@@ -21,6 +21,8 @@ typedef enum __funcs {
     RegisterFunction,
     RegisterVar,
     RegisterShared,
-    RegisterSharedVar
+    RegisterSharedVar,
+    RegisterTexture,
+    RegisterSurface
 } funcs;
 }  // namespace gvirtus::common

@@ -40,7 +40,9 @@
 #include <iostream>
 #include <thread>
 
-// #define DEBUG
+#include "communicators/hybrid/HybridCommunicator.h"
+
+#define DEBUG
 
 using gvirtus::backend::Process;
 using gvirtus::common::LD_Lib;
@@ -63,6 +65,24 @@ Process::Process(std::shared_ptr<LD_Lib<Communicator, std::shared_ptr<Endpoint>>
 }
 
 bool getstring(Communicator *c, string &s) {
+    printf("[getstring] c=%p to_string=%s\n", (void *)c, c ? c->to_string().c_str() : "<null>");
+
+#ifdef DEBUG
+    // print all to_string info
+    const char *rtti = "<no-rtti>";
+    try {
+        rtti = typeid(*c).name();
+    } catch (...) {
+    }
+    std::string name;
+    try {
+        name = c->to_string();
+    } catch (...) {
+        name = "<no to_string()>";
+    }
+    printf("[getstring] c=%p rtti=%s to_string()=%s\n", (void *)c, rtti, name.c_str());
+#endif
+
     // TODO: FIX LISKOV SUBSTITUTION AND DIPENDENCE INVERSION!!!!!
     if (c->to_string() == "tcpcommunicator") {
         s = "";
@@ -89,6 +109,17 @@ bool getstring(Communicator *c, string &s) {
             }
         } catch (const std::exception &e) {
             cerr << e.what() << endl;
+        }
+        return false;
+    } else if (c->to_string() == "hybridcommunicator") {
+        s.clear();
+        char ch = 0;
+        // same as tcp/ip, and stop until read /0
+        while (c->Read(&ch, 1) == 1) {
+            if (ch == 0) {
+                return true;  // take the complete routine name
+            }
+            s += ch;
         }
         return false;
     }
@@ -135,6 +166,29 @@ void Process::Start() {
         while (getstring(client_comm, routine)) {
             LOG4CPLUS_DEBUG(logger, "Received routine " << routine);
 
+            // === before reading buffer, chose the protocol of this round by rountine ===
+            gvirtus::communicators::HybridCommunicator *hybrid = nullptr;
+            if (client_comm && client_comm->to_string() == "hybridcommunicator") {
+                hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator *>(client_comm);
+            }
+            if (hybrid) {
+                // all those function payload will transfer by RDMA
+                const bool use_rdma = routine.rfind("cudaRegisterFatBinary", 0) == 0 ||
+                                      routine.rfind("cudaRegisterFatBinaryEnd", 0) == 0 ||
+                                      routine.rfind("cudaMemcpyAsync", 0) == 0 ||
+                                      routine.rfind("cudaMemcpy", 0) == 0;
+
+                if (use_rdma) {
+                    // bytes_hint if >0 ,then trigger the first 8B under TCP moniter.
+                    // real payload size after 8B head.
+                    hybrid->begin_call(routine, gvirtus::communicators::Transport::RDMA,
+                                       /*bytes_hint*/ 1);
+                } else {
+                    hybrid->begin_call(routine, gvirtus::communicators::Transport::TCP, 0);
+                }
+            }
+
+            // now reading buffer：8B from TCP, payload will transfer by the selected protocol
             input_buffer->Reset(client_comm);
 
             std::shared_ptr<Handler> h = nullptr;
@@ -151,7 +205,6 @@ void Process::Start() {
                                                     << routine << "'.");
                 result = std::make_shared<communicators::Result>(-1, std::make_shared<Buffer>());
             } else {
-                // esegue la routine e salva il risultato in result
                 auto start = steady_clock::now();
                 result = h->Execute(routine, input_buffer);
                 result->TimeTaken(std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -160,11 +213,18 @@ void Process::Start() {
                                   1000.0);
             }
 
-            // scrive il risultato sul communicator
+            // return info：control the head transfer by TCP，then payload RDMA
             result->Dump(client_comm);
+
+            // stop this round, and clean all context
+            if (hybrid) {
+                hybrid->end_call();
+            }
+
             LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "]: Routine '" << routine
                                                 << "' returned " << result->GetExitCode() << ".");
         }
+
         Notify("process-ended");
     };
 
@@ -179,6 +239,8 @@ void Process::Start() {
         int pid = 0;
         while (true) {
             Communicator *client = const_cast<Communicator *>(_communicator->obj_ptr()->Accept());
+            printf("[Process] Accept client=%p, comm=%s\n", (void *)client,
+                   client ? client->to_string().c_str() : "<null>");
 
             if (client != nullptr) {
                 //      if ((pid = fork()) == 0) {
