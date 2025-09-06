@@ -41,6 +41,9 @@ std::cout << "DEBUG: protocol string is [" << end->protocol() << "]" << std::end
                                                         "ws",
                                                         "ib",
                                                         "hybrid",
+                                                            "ucx",    
+    "ucp",       
+    "sockaddr"   
                                                         
                                                        
             };

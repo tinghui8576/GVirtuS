@@ -93,7 +93,8 @@ bool getstring(Communicator *c, string &s) {
         }
         return false;
     }
-else if (c->to_string() == "hybridcommunicator") {
+else if (c->to_string() == "hybridcommunicator" ||
+         c->to_string() == "ucxcommunicator") {
     s.clear();
     char ch = 0;
     // same as tcp/ip, and stop until read /0
