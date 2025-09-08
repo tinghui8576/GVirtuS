@@ -62,12 +62,10 @@ void UcxCommunicator::_init_context() {
     ucs_status_t st = ucp_config_read(nullptr, nullptr, &cfg);
     if (st != UCS_OK) throw std::runtime_error(std::string("ucp_config_read failed: ") + _ucs_str(st));
 
-    // 统一优先 TCP 作为 sockaddr CM；TLS 同时允许 IB + TCP（满足你“tcp+ib”双栈需求）
     (void)ucp_config_modify(cfg, "SOCKADDR_TLS_PRIORITY", "tcp");
     if (!_tls.empty()) {
         (void)ucp_config_modify(cfg, "TLS", _tls.c_str());
     } else {
-        // 默认既开 IB（rc/ud）也开 TCP、自环/共享内存
         (void)ucp_config_modify(cfg, "TLS", "rc,ud,sm,self,tcp");
     }
 
@@ -87,7 +85,7 @@ void UcxCommunicator::_create_worker() {
     ucp_worker_params_t wparams;
     memset(&wparams, 0, sizeof(wparams));
     wparams.field_mask  = UCP_WORKER_PARAM_FIELD_THREAD_MODE;
-    wparams.thread_mode = UCS_THREAD_MODE_SINGLE;
+    wparams.thread_mode = UCS_THREAD_MODE_MULTI;
 
     ucs_status_t st = ucp_worker_create(_context, &wparams, &_worker);
     if (st != UCS_OK) throw std::runtime_error("ucp_worker_create failed");
@@ -144,15 +142,13 @@ void UcxCommunicator::_progress_once() const {
 void UcxCommunicator::_wait_progress() const {
     if (!_worker) return;
 
-    // 事件驱动优先，否则 busy progress
     ucs_status_t st = ucp_worker_arm(_worker);
     if (st == UCS_ERR_BUSY) {
-        return; // 已有事件，下一轮 progress 会处理
+        return; 
     } else if (st == UCS_OK) {
-        ucp_worker_wait(_worker); // 旧版 API
+        ucp_worker_wait(_worker);
         return;
     }
-    // arm 失败就主动推进一次
     ucp_worker_progress(_worker);
 }
 
@@ -164,31 +160,10 @@ void UcxCommunicator::_ensure_progress_until(bool (*pred)(void*), void* arg) con
     }
 }
 
-void UcxCommunicator::_start_progress_thread() {
-    bool expected = false;
-    if (!_progress_run.compare_exchange_strong(expected, true)) return; // 已经在跑
-
-    _progress_th = std::thread([this] {
-        // 轻量推进循环
-        while (_progress_run.load(std::memory_order_relaxed)) {
-            if (_worker && (ucp_worker_progress(_worker) == 0)) {
-                _wait_progress();
-            }
-        }
-    });
-}
-
-void UcxCommunicator::_stop_progress_thread() {
-    if (_progress_run.exchange(false)) {
-        if (_progress_th.joinable()) _progress_th.join();
-    }
-}
-
 // ---------------- 回调 ----------------
 void UcxCommunicator::_on_conn_request(ucp_conn_request_h req, void* arg) {
     auto* self = reinterpret_cast<UcxCommunicator*>(arg);
 
-    // UCX 要求在 on_conn_request 里创建 server-side endpoint
     ucp_ep_params_t ep_params{};
     ep_params.field_mask =
         UCP_EP_PARAM_FIELD_CONN_REQUEST |
@@ -204,7 +179,6 @@ void UcxCommunicator::_on_conn_request(ucp_conn_request_h req, void* arg) {
     ucp_ep_h ep = nullptr;
     ucs_status_t st = ucp_ep_create(self->_worker, &ep_params, &ep);
     if (st != UCS_OK) {
-        // 如果失败，也可以考虑 ucp_listener_reject(req)；此处直接返回。
         return;
     }
 
@@ -217,8 +191,7 @@ void UcxCommunicator::_on_conn_request(ucp_conn_request_h req, void* arg) {
 
 void UcxCommunicator::_on_ep_error(void* arg, ucp_ep_h /*ep*/, ucs_status_t status) {
 #ifdef DEBUG
-    auto* self = reinterpret_cast<UcxCommunicator*>(arg);
-    (void)self;
+    (void)arg;
     std::cerr << "UCX endpoint error: " << _ucs_str(status) << std::endl;
 #else
     (void)arg; (void)status;
@@ -274,7 +247,7 @@ size_t UcxCommunicator::_blocking_stream_recv(void* buf, size_t size) {
     size_t got = 0;
     void* req = ucp_stream_recv_nbx(_ep, buf, size, &got, &p);
     if (req == nullptr) {
-        return got; // 立即完成
+        return got;
     }
     if (UCS_PTR_IS_ERR(req)) {
         throw std::runtime_error(std::string("ucp_stream_recv_nbx failed: ")
@@ -298,26 +271,29 @@ size_t UcxCommunicator::_blocking_stream_recv(void* buf, size_t size) {
 UcxCommunicator::UcxCommunicator(const std::string& hostname, const std::string& port)
 : _tls("rc,ud,sm,self,tcp") {
     strncpy(_hostname, hostname.c_str(), sizeof(_hostname)-1);
+    _hostname[sizeof(_hostname)-1] = '\0';
     strncpy(_port,     port.c_str(),     sizeof(_port)-1);
+    _port[sizeof(_port)-1] = '\0';
 }
 
 UcxCommunicator::UcxCommunicator(const std::string& hostname, const std::string& port, const std::string& tls)
 : _tls(tls) {
     strncpy(_hostname, hostname.c_str(), sizeof(_hostname)-1);
+    _hostname[sizeof(_hostname)-1] = '\0';
     strncpy(_port,     port.c_str(),     sizeof(_port)-1);
+    _port[sizeof(_port)-1] = '\0';
 }
 
 UcxCommunicator::UcxCommunicator(ucp_context_h context, ucp_worker_h worker, ucp_ep_h ep) {
     _context = context;
     _worker  = worker;
     _ep      = ep;
-    _is_server_side_wrapper = true; // 只包一层 EP，不负责清理 context/worker
+    _is_server_side_wrapper = true;
 }
 
 UcxCommunicator::~UcxCommunicator() {
-    try { Close(); } catch (...) {}
+    try { Close(); } catch (...) { /* Suppress exceptions in destructor */ }
     if (!_is_server_side_wrapper) {
-        _stop_progress_thread();
         _destroy_listener();
         _destroy_worker();
         _finalize_context();
@@ -331,11 +307,12 @@ void UcxCommunicator::Serve() {
     _setup_listener();
 }
 
+// MODIFIED: Restored const signature and the original logic with const_cast
 const gvirtus::communicators::Communicator* const UcxCommunicator::Accept() const {
     ucp_ep_h new_ep = nullptr;
 
     for (;;) {
-        {   // 先看看队列里有没有
+        {
             std::unique_lock<std::mutex> lk(_accept_mtx);
             if (!_accepted_eps.empty()) {
                 new_ep = _accepted_eps.front();
@@ -343,13 +320,12 @@ const gvirtus::communicators::Communicator* const UcxCommunicator::Accept() cons
                 break;
             }
         }
-        // 没有的话，推进一下；若没事件，再走唤醒等待
+        
         if (ucp_worker_progress(_worker) == 0) {
             ucs_status_t st = ucp_worker_arm(_worker);
             if (st == UCS_OK) {
-                ucp_worker_wait(_worker);  // 被唤醒后，再回到循环顶部
+                ucp_worker_wait(_worker);
             } else if (st != UCS_ERR_BUSY) {
-                // arm 失败（非 BUSY），退化为主动推进
                 sched_yield();
             }
         }
@@ -389,9 +365,6 @@ void UcxCommunicator::Connect() {
     if (st != UCS_OK) {
         throw std::runtime_error("ucp_ep_create failed: " + std::string(_ucs_str(st)));
     }
-
-
-    // 不要立刻 flush；等有首个消息再 Sync() 或由上层协议握手
 }
 
 size_t UcxCommunicator::Read(char* buffer, size_t size) {
@@ -408,10 +381,10 @@ void UcxCommunicator::Sync() {
     if (!_ep) return;
 
     ucp_request_param_t p;
-    memset(&p, 0, sizeof(p)); // 不设回调
+    memset(&p, 0, sizeof(p));
 
     void* req = ucp_ep_flush_nbx(_ep, &p);
-    if (req == nullptr) return;                    // 立即完成
+    if (req == nullptr) return;
     if (UCS_PTR_IS_ERR(req)) {
         throw std::runtime_error(std::string("ucp_ep_flush_nbx failed: ")
                                  + _ucs_str(UCS_PTR_STATUS(req)));
@@ -425,14 +398,8 @@ void UcxCommunicator::Sync() {
             throw std::runtime_error(std::string("Sync flush completion: ")
                                      + _ucs_str(st));
         }
-        // 单线程推进：没事件就 arm+wait，有事件就 progress
         if (ucp_worker_progress(_worker) == 0) {
-            ucs_status_t a = ucp_worker_arm(_worker);
-            if (a == UCS_OK) {
-                ucp_worker_wait(_worker);
-            } else if (a != UCS_ERR_BUSY) {
-                sched_yield();
-            }
+            _wait_progress();
         }
     }
 
@@ -459,9 +426,7 @@ void UcxCommunicator::Close() {
         _ep = nullptr;
     }
 
-    // 仅主对象（非 server-side wrapper）才停线程/销毁 listener/worker
     if (!_is_server_side_wrapper) {
-        _stop_progress_thread();
         _destroy_listener();
         _destroy_worker();
         _finalize_context();

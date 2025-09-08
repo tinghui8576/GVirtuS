@@ -38,6 +38,7 @@ public:
     void   Close() override;
 
     // 后端：阻塞等待新的连接，返回一个新的 Communicator*
+    // MODIFIED: Restored 'const' qualifiers to match the base class and user requirement.
     const gvirtus::communicators::Communicator* const Accept() const override;
 
 private:
@@ -65,9 +66,9 @@ private:
     int  _worker_event_fd = -1;
     bool _use_event_fd = false;
 
-    // 进度线程
-    std::atomic<bool> _progress_run{false};
-    std::thread       _progress_th;
+    // REMOVED: Progress thread members are no longer needed.
+    // std::atomic<bool> _progress_run{false};
+    // std::thread       _progress_th;
 
     // 请求状态（挂在 UCX request 的私有区）
     struct _req_state {
@@ -86,8 +87,9 @@ private:
     void _destroy_listener();
 
     // --- 事件推进 ---
-    void _start_progress_thread();
-    void _stop_progress_thread();
+    // REMOVED: Background thread methods are no longer needed.
+    // void _start_progress_thread();
+    // void _stop_progress_thread();
     void _progress_once() const;      // 单步 progress
     void _wait_progress() const;      // 事件驱动等待
     void _ensure_progress_until(bool (*pred)(void*), void* arg) const;
@@ -105,9 +107,6 @@ private:
     // --- 阻塞的 Stream 收发 ---
     size_t _blocking_stream_send(const void* buf, size_t size);
     size_t _blocking_stream_recv(void* buf, size_t size);
-
-    // --- 小工具 ---
-    static inline const char* _ucs_str(ucs_status_t st) { return ucs_status_string(st); }
 };
 
 } // namespace communicators
