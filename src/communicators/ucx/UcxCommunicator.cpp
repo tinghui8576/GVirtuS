@@ -16,7 +16,21 @@ using gvirtus::communicators::UcxCommunicator;
 
 namespace {
 inline const char* _ucs_str(ucs_status_t st) { return ucs_status_string(st); }
-}
+
+// 简单工具宏，统一报错
+#define UCS_THROW_IF_NOT_OK(expr, what) do { \
+    ucs_status_t __st = (expr);               \
+    if (__st != UCS_OK) {                     \
+        throw std::runtime_error(std::string(what) + ": " + _ucs_str(__st)); \
+    }                                         \
+} while(0)
+
+// 流分帧：4B 长度头（小端/主机序一致即可，双方一致就行）
+#pragma pack(push, 1)
+struct FrameHeader { uint32_t len; };
+#pragma pack(pop)
+
+} // anon
 
 // ---------------- sockaddr 解析 ----------------
 void UcxCommunicator::_resolve_sockaddr(struct sockaddr_storage& ss, socklen_t& slen) const {
@@ -59,19 +73,21 @@ void UcxCommunicator::_init_context() {
     params.name = "gvirtus_ucx";
 
     ucp_config_t* cfg = nullptr;
-    ucs_status_t st = ucp_config_read(nullptr, nullptr, &cfg);
-    if (st != UCS_OK) throw std::runtime_error(std::string("ucp_config_read failed: ") + _ucs_str(st));
+    UCS_THROW_IF_NOT_OK(ucp_config_read(nullptr, nullptr, &cfg), "ucp_config_read");
 
-    (void)ucp_config_modify(cfg, "SOCKADDR_TLS_PRIORITY", "tcp");
+    // 关键修正：SOCKADDR_TLS_PRIORITY 应该是 rdmacm/sockcm（连接管理层）
+    ucp_config_modify(cfg, "SOCKADDR_TLS_PRIORITY", "rdmacm,sockcm");
+
+    // 数据面 TLS
     if (!_tls.empty()) {
-        (void)ucp_config_modify(cfg, "TLS", _tls.c_str());
+        ucp_config_modify(cfg, "TLS", _tls.c_str());
     } else {
-        (void)ucp_config_modify(cfg, "TLS", "rc,ud,sm,self,tcp");
+        // 你可按实际 UCX 构建选择 rc_x, dc_x；保持兼容性用 rc,ud,sm,self,tcp
+        ucp_config_modify(cfg, "TLS", "rc,ud,sm,self,tcp");
     }
 
-    st = ucp_init(&params, cfg, &_context);
+    UCS_THROW_IF_NOT_OK(ucp_init(&params, cfg, &_context), "ucp_init");
     ucp_config_release(cfg);
-    if (st != UCS_OK) throw std::runtime_error(std::string("ucp_init failed: ") + _ucs_str(st));
 }
 
 void UcxCommunicator::_finalize_context() {
@@ -87,8 +103,7 @@ void UcxCommunicator::_create_worker() {
     wparams.field_mask  = UCP_WORKER_PARAM_FIELD_THREAD_MODE;
     wparams.thread_mode = UCS_THREAD_MODE_MULTI;
 
-    ucs_status_t st = ucp_worker_create(_context, &wparams, &_worker);
-    if (st != UCS_OK) throw std::runtime_error("ucp_worker_create failed");
+    UCS_THROW_IF_NOT_OK(ucp_worker_create(_context, &wparams, &_worker), "ucp_worker_create");
 
     int efd = -1;
     if (ucp_worker_get_efd(_worker, &efd) == UCS_OK) {
@@ -123,8 +138,7 @@ void UcxCommunicator::_setup_listener() {
     lp.conn_handler.cb  = &UcxCommunicator::_on_conn_request;
     lp.conn_handler.arg = this;
 
-    ucs_status_t st = ucp_listener_create(_worker, &lp, &_listener);
-    if (st != UCS_OK) throw std::runtime_error("ucp_listener_create failed");
+    UCS_THROW_IF_NOT_OK(ucp_listener_create(_worker, &lp, &_listener), "ucp_listener_create");
 }
 
 void UcxCommunicator::_destroy_listener() {
@@ -134,7 +148,7 @@ void UcxCommunicator::_destroy_listener() {
     }
 }
 
-// ---------------- 进度处理 ----------------
+// ---------------- 进度处理（支持进度线程） ----------------
 void UcxCommunicator::_progress_once() const {
     if (_worker) ucp_worker_progress(_worker);
 }
@@ -144,13 +158,15 @@ void UcxCommunicator::_wait_progress() const {
 
     ucs_status_t st = ucp_worker_arm(_worker);
     if (st == UCS_ERR_BUSY) {
-        return; 
+        // Already has events pending; fall back to progress
     } else if (st == UCS_OK) {
-        ucp_worker_wait(_worker);
+        ucp_worker_wait(_worker); // event-driven wait
         return;
     }
     ucp_worker_progress(_worker);
 }
+
+void UcxCommunicator::ProgressOnce() { _progress_once(); }
 
 void UcxCommunicator::_ensure_progress_until(bool (*pred)(void*), void* arg) const {
     while (!pred(arg)) {
@@ -158,6 +174,29 @@ void UcxCommunicator::_ensure_progress_until(bool (*pred)(void*), void* arg) con
             _wait_progress();
         }
     }
+}
+
+// 进度线程
+void UcxCommunicator::StartProgress() {
+    std::lock_guard<std::mutex> lk(_progress_mtx);
+    if (_progress_running) return;
+    _progress_running = true;
+    _progress_thread = std::thread([this](){
+        while (_progress_running && !_closing) {
+            if (ucp_worker_progress(_worker) == 0) {
+                _wait_progress();
+            }
+        }
+    });
+}
+
+void UcxCommunicator::StopProgress() {
+    {
+        std::lock_guard<std::mutex> lk(_progress_mtx);
+        if (!_progress_running) return;
+        _progress_running = false;
+    }
+    if (_progress_thread.joinable()) _progress_thread.join();
 }
 
 // ---------------- 回调 ----------------
@@ -179,6 +218,9 @@ void UcxCommunicator::_on_conn_request(ucp_conn_request_h req, void* arg) {
     ucp_ep_h ep = nullptr;
     ucs_status_t st = ucp_ep_create(self->_worker, &ep_params, &ep);
     if (st != UCS_OK) {
+#ifdef DEBUG
+        std::cerr << "ucp_ep_create on accept failed: " << _ucs_str(st) << std::endl;
+#endif
         return;
     }
 
@@ -198,73 +240,12 @@ void UcxCommunicator::_on_ep_error(void* arg, ucp_ep_h /*ep*/, ucs_status_t stat
 #endif
 }
 
-void UcxCommunicator::_on_send_complete(void* request, ucs_status_t status, void* /*user_data*/) {
-    auto* s = reinterpret_cast<_req_state*>(request);
+// ---------------- 异步请求：公共回调封装 ----------------
+static void _mark_done(void* request, ucs_status_t status, size_t bytes = 0) {
+    auto* s = reinterpret_cast<UcxCommunicator::_req_state*>(request);
     s->status    = status;
+    s->bytes     = bytes;
     s->completed = true;
-}
-
-void UcxCommunicator::_on_recv_complete(void* request, ucs_status_t status, size_t length, void* /*user_data*/) {
-    auto* s = reinterpret_cast<_req_state*>(request);
-    s->status    = status;
-    s->bytes     = length;
-    s->completed = true;
-}
-
-void UcxCommunicator::_on_ep_close_complete(void* request, ucs_status_t status, void* /*user_data*/) {
-    auto* s = reinterpret_cast<_req_state*>(request);
-    s->status    = status;
-    s->completed = true;
-}
-
-// ---------------- 阻塞 STREAM 收发 ----------------
-size_t UcxCommunicator::_blocking_stream_send(const void* buf, size_t size) {
-    ucp_request_param_t p;
-    memset(&p, 0, sizeof(p));
-    p.op_attr_mask = UCP_OP_ATTR_FIELD_CALLBACK | UCP_OP_ATTR_FIELD_USER_DATA;
-    p.cb.send      = &UcxCommunicator::_on_send_complete;
-
-    void* req = ucp_stream_send_nbx(_ep, buf, size, &p);
-    if (req == nullptr) return size;
-    if (UCS_PTR_IS_ERR(req)) throw std::runtime_error(std::string("ucp_stream_send_nbx failed: ") + _ucs_str(UCS_PTR_STATUS(req)));
-
-    auto* s = reinterpret_cast<_req_state*>(req);
-    auto pred = [](void* arg)->bool { return reinterpret_cast<_req_state*>(arg)->completed; };
-    _ensure_progress_until(pred, s);
-
-    ucs_status_t st = ucp_request_check_status(req);
-    ucp_request_free(req);
-    if (st != UCS_OK) throw std::runtime_error(std::string("stream send completion: ") + _ucs_str(st));
-    return size;
-}
-
-size_t UcxCommunicator::_blocking_stream_recv(void* buf, size_t size) {
-    ucp_request_param_t p;
-    memset(&p, 0, sizeof(p));
-    p.op_attr_mask   = UCP_OP_ATTR_FIELD_CALLBACK | UCP_OP_ATTR_FIELD_USER_DATA;
-    p.cb.recv_stream = &UcxCommunicator::_on_recv_complete;
-
-    size_t got = 0;
-    void* req = ucp_stream_recv_nbx(_ep, buf, size, &got, &p);
-    if (req == nullptr) {
-        return got;
-    }
-    if (UCS_PTR_IS_ERR(req)) {
-        throw std::runtime_error(std::string("ucp_stream_recv_nbx failed: ")
-                                 + _ucs_str(UCS_PTR_STATUS(req)));
-    }
-
-    auto* s = reinterpret_cast<_req_state*>(req);
-    auto pred = [](void* arg)->bool { return reinterpret_cast<_req_state*>(arg)->completed; };
-    _ensure_progress_until(pred, s);
-
-    ucs_status_t st = ucp_request_check_status(req);
-    size_t rx = s->bytes;
-    ucp_request_free(req);
-    if (st != UCS_OK) {
-        throw std::runtime_error(std::string("stream recv completion: ") + _ucs_str(st));
-    }
-    return rx;
 }
 
 // ---------------- 构造/析构 ----------------
@@ -300,35 +281,33 @@ UcxCommunicator::~UcxCommunicator() {
     }
 }
 
-// ---------------- 外部 API ----------------
+// ---------------- 外部 API：监听/连接 ----------------
 void UcxCommunicator::Serve() {
     if (_context == nullptr) _init_context();
     if (_worker  == nullptr) _create_worker();
     _setup_listener();
+    StartProgress(); // 建议：服务端默认起进度线程
 }
 
-// MODIFIED: Restored const signature and the original logic with const_cast
 const gvirtus::communicators::Communicator* const UcxCommunicator::Accept() const {
     ucp_ep_h new_ep = nullptr;
 
+    std::unique_lock<std::mutex> lk(_accept_mtx);
     for (;;) {
-        {
-            std::unique_lock<std::mutex> lk(_accept_mtx);
-            if (!_accepted_eps.empty()) {
-                new_ep = _accepted_eps.front();
-                const_cast<std::queue<ucp_ep_h>&>(_accepted_eps).pop();
-                break;
-            }
+        if (!_accepted_eps.empty()) {
+            new_ep = _accepted_eps.front();
+            const_cast<std::queue<ucp_ep_h>&>(_accepted_eps).pop();
+            break;
         }
-        
-        if (ucp_worker_progress(_worker) == 0) {
-            ucs_status_t st = ucp_worker_arm(_worker);
-            if (st == UCS_OK) {
-                ucp_worker_wait(_worker);
-            } else if (st != UCS_ERR_BUSY) {
-                sched_yield();
-            }
+        lk.unlock();
+        if (ucp_worker_arm(_worker) == UCS_OK) {
+            ucp_worker_wait(_worker);
+        } else {
+            ucp_worker_progress(_worker);
+            // 轻微休眠/等待条件变量，避免忙等
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
+        lk.lock();
     }
 
     return new UcxCommunicator(_context, _worker, new_ep);
@@ -361,28 +340,210 @@ void UcxCommunicator::Connect() {
     ep_params.sockaddr.addr    = reinterpret_cast<const sockaddr*>(&ss);
     ep_params.sockaddr.addrlen = slen;
 
-    ucs_status_t st = ucp_ep_create(_worker, &ep_params, &_ep);
-    if (st != UCS_OK) {
-        throw std::runtime_error("ucp_ep_create failed: " + std::string(_ucs_str(st)));
+    UCS_THROW_IF_NOT_OK(ucp_ep_create(_worker, &ep_params, &_ep), "ucp_ep_create");
+    StartProgress(); // 建议：客户端也默认起进度线程
+}
+
+// ---------------- 异步通信核心 ----------------
+
+// 内部：提交一个非阻塞 stream send，回调里只更新 req_state
+static void* _post_stream_send(ucp_ep_h ep, const void* buf, size_t len) {
+    ucp_request_param_t p{};
+    p.op_attr_mask = UCP_OP_ATTR_FIELD_CALLBACK;
+    p.cb.send = [](void* request, ucs_status_t status, void*) {
+        _mark_done(request, status, 0);
+    };
+
+    void* req = ucp_stream_send_nbx(ep, buf, len, &p);
+    if (UCS_PTR_IS_ERR(req)) {
+        throw std::runtime_error(std::string("ucp_stream_send_nbx failed: ") + _ucs_str(UCS_PTR_STATUS(req)));
     }
+    return req; // nullptr 代表立即完成；指针代表异步
+}
+
+// 内部：提交一个非阻塞 stream recv，回调里记录 bytes
+static void* _post_stream_recv(ucp_ep_h ep, void* buf, size_t len) {
+    size_t got = 0;
+    ucp_request_param_t p{};
+    p.op_attr_mask   = UCP_OP_ATTR_FIELD_CALLBACK;
+    p.cb.recv_stream = [](void* request, ucs_status_t status, size_t length, void*) {
+        _mark_done(request, status, length);
+    };
+
+    void* req = ucp_stream_recv_nbx(ep, buf, len, &got, &p);
+    if (UCS_PTR_IS_ERR(req)) {
+        throw std::runtime_error(std::string("ucp_stream_recv_nbx failed: ") + _ucs_str(UCS_PTR_STATUS(req)));
+    }
+    return req; // nullptr 代表立即完成（且 got>0），否则异步
+}
+
+// 组合一个“两段式分帧”的异步写：先发 header 再发 payload；外层 AsyncRequest 聚合两次完成
+std::shared_ptr<UcxCommunicator::AsyncRequest>
+
+UcxCommunicator::WriteAsync(const void* buf, size_t size) {
+    if (!_ep) throw std::runtime_error("WriteAsync on null endpoint");
+
+    auto areq = std::make_shared<AsyncRequest>();
+
+    // 1) 先发 4B 头
+    FrameHeader hdr{ static_cast<uint32_t>(size) };
+    void* req_h = _post_stream_send(_ep, &hdr, sizeof(hdr));
+
+    // 2) 再发 payload（可能立刻完成，也可能返回一个异步 req）
+    void* req_p = nullptr;
+    auto post_payload = [&]() {
+        req_p = _post_stream_send(_ep, buf, size);
+    };
+
+    // 组合两个完成：当 header 与 payload 都完成时，标记 areq 完成
+    auto try_finish = [this, areq, &req_h, &req_p, size]() {
+        bool h_done = (req_h == nullptr) ? true : reinterpret_cast<_req_state*>(req_h)->completed;
+        bool p_done = (req_p == nullptr) ? true : reinterpret_cast<_req_state*>(req_p)->completed;
+        if (h_done && p_done) {
+            ucs_status_t st = UCS_OK;
+            if (req_h && reinterpret_cast<_req_state*>(req_h)->status != UCS_OK) st = reinterpret_cast<_req_state*>(req_h)->status;
+            if (req_p && reinterpret_cast<_req_state*>(req_p)->status != UCS_OK) st = reinterpret_cast<_req_state*>(req_p)->status;
+            if (req_h) ucp_request_free(req_h);
+            if (req_p) ucp_request_free(req_p);
+            areq->status.store(st);
+            areq->bytes.store((st == UCS_OK) ? (sizeof(FrameHeader) + (size_t)areq->bytes.load()) : 0);
+            areq->completed.store(true);
+            if (areq->on_complete) areq->on_complete(st, size);
+        }
+    };
+
+    // 如果 header 立即完成，直接发 payload
+    if (req_h == nullptr) {
+        post_payload();
+        try_finish();
+    } else {
+        // 否则由进度线程推进，直到 header 的 req_state->completed=true 时再发 payload
+        // 我们在 progress 线程里周期性检查，不额外加锁，简单处理：
+        // 为了确保 payload 能够在 header 完成后尽快投递，这里用一个轻量的后台任务：
+        std::thread([this, post_payload, try_finish, req_h]() mutable {
+            // 等 header 完
+            auto* s = reinterpret_cast<_req_state*>(req_h);
+            while (!s->completed) {
+                if (ucp_worker_progress(_worker) == 0) _wait_progress();
+            }
+            // 发 payload
+            post_payload();
+            // 再等二者都完成
+            try_finish();
+        }).detach();
+    }
+
+    return areq;
+}
+
+// 组合一个“两段式分帧”的异步读：先收 header，再按长度收 payload
+std::shared_ptr<UcxCommunicator::AsyncRequest>
+UcxCommunicator::ReadAsync(void* buf, size_t max_size) {
+    if (!_ep) throw std::runtime_error("ReadAsync on null endpoint");
+
+    auto areq = std::make_shared<AsyncRequest>();
+    auto* hdr = new FrameHeader{}; // 临时头缓存，完成后释放
+
+    // 1) 先收 4B 头
+    void* req_h = _post_stream_recv(_ep, hdr, sizeof(FrameHeader));
+
+    auto do_payload = [this, areq, buf, max_size, hdr](void* req_h_in) {
+        // 等 header 完
+        if (req_h_in != nullptr) {
+            auto* s = reinterpret_cast<_req_state*>(req_h_in);
+            while (!s->completed) {
+                if (ucp_worker_progress(_worker) == 0) _wait_progress();
+            }
+            if (s->status != UCS_OK) {
+                ucs_status_t st = s->status;
+                ucp_request_free(req_h_in);
+                areq->status.store(st);
+                areq->completed.store(true);
+                if (areq->on_complete) areq->on_complete(st, 0);
+                delete hdr;
+                return;
+            }
+            ucp_request_free(req_h_in);
+        }
+        // 解析长度并收 payload
+        if (hdr->len > max_size) {
+            delete hdr;
+            areq->status.store(UCS_ERR_MESSAGE_TRUNCATED);
+            areq->completed.store(true);
+            if (areq->on_complete) areq->on_complete(UCS_ERR_MESSAGE_TRUNCATED, 0);
+            return;
+        }
+        void* req_p = _post_stream_recv(_ep, buf, hdr->len);
+
+        // 等 payload 完
+        size_t rx_bytes = 0;
+        if (req_p == nullptr) {
+            // 立即完成的路径；无法从 immediate path 拿到长度，这里保守设置为 len
+            rx_bytes = hdr->len;
+        } else {
+            auto* sp = reinterpret_cast<_req_state*>(req_p);
+            while (!sp->completed) {
+                if (ucp_worker_progress(_worker) == 0) _wait_progress();
+            }
+            rx_bytes = sp->bytes;
+            ucs_status_t st = sp->status;
+            ucp_request_free(req_p);
+            if (st != UCS_OK) {
+                delete hdr;
+                areq->status.store(st);
+                areq->completed.store(true);
+                if (areq->on_complete) areq->on_complete(st, 0);
+                return;
+            }
+        }
+        areq->bytes.store(rx_bytes);
+        areq->status.store(UCS_OK);
+        areq->completed.store(true);
+        if (areq->on_complete) areq->on_complete(UCS_OK, rx_bytes);
+        delete hdr;
+    };
+
+    // 如果 header 立即完成则直接处理 payload，否则后台等待 header 完成
+    if (req_h == nullptr) {
+        do_payload(nullptr);
+    } else {
+        std::thread([do_payload, req_h]() { do_payload(req_h); }).detach();
+    }
+
+    return areq;
+}
+
+// ---------------- 阻塞封装（保持原有 API 语义） ----------------
+size_t UcxCommunicator::Write(const char* buffer, size_t size) {
+    if (!_ep) throw std::runtime_error("Write on null endpoint");
+    auto r = WriteAsync(buffer, size);
+    // 同步 API：等待完成
+    while (!r->completed.load()) {
+        if (ucp_worker_progress(_worker) == 0) _wait_progress();
+    }
+    if (r->status.load() != UCS_OK) {
+        throw std::runtime_error(std::string("Write completion: ") + _ucs_str(r->status.load()));
+    }
+    return size;
 }
 
 size_t UcxCommunicator::Read(char* buffer, size_t size) {
     if (!_ep) throw std::runtime_error("Read on null endpoint");
-    return _blocking_stream_recv(buffer, size);
-}
-
-size_t UcxCommunicator::Write(const char* buffer, size_t size) {
-    if (!_ep) throw std::runtime_error("Write on null endpoint");
-    return _blocking_stream_send(buffer, size);
+    auto r = ReadAsync(buffer, size);
+    // 同步 API：等待完成
+    while (!r->completed.load()) {
+        if (ucp_worker_progress(_worker) == 0) _wait_progress();
+    }
+    if (r->status.load() != UCS_OK) {
+        throw std::runtime_error(std::string("Read completion: ") + _ucs_str(r->status.load()));
+    }
+    return r->bytes.load();
 }
 
 void UcxCommunicator::Sync() {
     if (!_ep) return;
 
-    ucp_request_param_t p;
-    memset(&p, 0, sizeof(p));
-
+    ucp_request_param_t p{};
     void* req = ucp_ep_flush_nbx(_ep, &p);
     if (req == nullptr) return;
     if (UCS_PTR_IS_ERR(req)) {
@@ -410,17 +571,18 @@ void UcxCommunicator::Close() {
     if (_closing) return;
     _closing = true;
 
-    if (_ep) {
-        ucp_request_param_t p;
-        memset(&p, 0, sizeof(p));
-        p.op_attr_mask = UCP_OP_ATTR_FIELD_CALLBACK | UCP_OP_ATTR_FIELD_USER_DATA;
-        p.cb.send      = &UcxCommunicator::_on_ep_close_complete;
+    StopProgress();
 
+    if (_ep) {
+        ucp_request_param_t p{};
+        p.op_attr_mask = UCP_OP_ATTR_FIELD_CALLBACK;
+        p.cb.send      = [](void* request, ucs_status_t status, void*) { _mark_done(request, status); };
         void* req = ucp_ep_close_nbx(_ep, &p);
         if (UCS_PTR_IS_PTR(req)) {
             auto* s = reinterpret_cast<_req_state*>(req);
-            auto pred = [](void* arg)->bool { return reinterpret_cast<_req_state*>(arg)->completed; };
-            _ensure_progress_until(pred, s);
+            while (!s->completed) {
+                if (ucp_worker_progress(_worker) == 0) _wait_progress();
+            }
             ucp_request_free(req);
         }
         _ep = nullptr;

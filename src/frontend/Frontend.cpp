@@ -38,6 +38,7 @@
 #include <gvirtus/frontend/Frontend.h>
 #include <filesystem>
 #include "communicators/hybrid/HybridCommunicator.h"
+#include "communicators/ucx/UcxCommunicator.h"
 
 #include <pthread.h>
 #include <sys/syscall.h>
@@ -51,6 +52,7 @@
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
+
 using std::chrono::steady_clock;
 using std::chrono::duration_cast;
 using std::chrono::milliseconds;
@@ -61,7 +63,6 @@ using gvirtus::communicators::Communicator;
 using gvirtus::communicators::CommunicatorFactory;
 using gvirtus::communicators::EndpointFactory;
 using gvirtus::frontend::Frontend;
-
 
 static Frontend msFrontend;
 std::mutex gFrontendMutex;
@@ -88,31 +89,24 @@ void Frontend::Init(Communicator *c) {
         try {
             logLevel = static_cast<log4cplus::LogLevel>(std::stoi(logLevelString));
         } catch (const std::exception& e) {
-            LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ": Exception occurred: " << e.what());
+            LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__
+                             << ": Exception occurred: " << e.what());
             logLevel = log4cplus::INFO_LOG_LEVEL;
         }
     }
-
     logger.setLogLevel(logLevel);
 
     pid_t tid = syscall(SYS_gettid);
 
-    // Get the GVIRTUS_CONFIG environment varibale
+    // Get the GVIRTUS_CONFIG environment variable
     std::string config_path = getEnvVar("GVIRTUS_CONFIG");
-
-    // Check if the configuration file is defined
     if (config_path.empty()) {
-        // Check if the configuration file is in the GVIRTUS_HOME directory
         config_path = getEnvVar("GVIRTUS_HOME") + "/etc/properties.json";
         if (config_path.empty()) {
-            // Finally consider the current directory
             config_path = "./properties.json";
         }
     }
 
-    std::unique_ptr<char> default_endpoint;
-
-    // no frontend found
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
         if (mpFrontends->find(tid) == mpFrontends->end()) {
@@ -125,22 +119,20 @@ void Frontend::Init(Communicator *c) {
 
     try {
         auto endpoint = EndpointFactory::get_endpoint(config_path);
-
-        mpFrontends->find(tid)->second->_communicator = CommunicatorFactory::get_communicator(endpoint);
+        mpFrontends->find(tid)->second->_communicator =
+            CommunicatorFactory::get_communicator(endpoint);
         mpFrontends->find(tid)->second->_communicator->obj_ptr()->Connect();
-    }
-    catch (const std::exception& e) {
-        LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Exception occurred: " << e.what());
+    } catch (const std::exception& e) {
+        LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__
+                         << ":" << " Exception occurred: " << e.what());
         exit(EXIT_FAILURE);
     }
-
 
     mpFrontends->find(tid)->second->mpInputBuffer = std::make_shared<Buffer>();
     mpFrontends->find(tid)->second->mpOutputBuffer = std::make_shared<Buffer>();
     mpFrontends->find(tid)->second->mpLaunchBuffer = std::make_shared<Buffer>();
     mpFrontends->find(tid)->second->mExitCode = -1;
     mpFrontends->find(tid)->second->mpInitialized = true;
-
 }
 
 Frontend::~Frontend() {
@@ -151,33 +143,35 @@ Frontend::~Frontend() {
     std::lock_guard<std::mutex> lock(gFrontendMutex);
     {
         pid_t tid = syscall(SYS_gettid);
-
         auto env = getenv("GVIRTUS_DUMP_STATS");
-        bool dump_stats = env && (strcasecmp(env, "on") == 0 || strcasecmp(env, "true") == 0 || strcmp(env, "1") == 0);
+        bool dump_stats = env && (strcasecmp(env, "on") == 0 ||
+                                  strcasecmp(env, "true") == 0 ||
+                                  strcmp(env, "1") == 0);
 
-        // Safe iteration while erasing entries
-        for (auto it = mpFrontends->begin(); it != mpFrontends->end(); /* no increment here */) {
+        for (auto it = mpFrontends->begin(); it != mpFrontends->end();) {
             if (it->second == this) {
                 it = mpFrontends->erase(it);
                 continue;
             }
 
             if (dump_stats) {
-                std::cerr << "[GVIRTUS_STATS] Executed " << it->second->mRoutinesExecuted << " routine(s) in "
-                        << it->second->mRoutineExecutionTime << " second(s)\n"
-                        << "[GVIRTUS_STATS] Sent " << it->second->mDataSent / (1024 * 1024.0) << " Mb(s) in "
-                        << it->second->mSendingTime
-                        << " second(s)\n"
-                        << "[GVIRTUS_STATS] Received " << it->second->mDataReceived / (1024 * 1024.0) << " Mb(s) in "
-                        << it->second->mReceivingTime
-                        << " second(s)\n";
+                std::cerr << "[GVIRTUS_STATS] Executed " << it->second->mRoutinesExecuted
+                          << " routine(s) in "
+                          << it->second->mRoutineExecutionTime << " second(s)\n"
+                          << "[GVIRTUS_STATS] Sent "
+                          << it->second->mDataSent / (1024 * 1024.0)
+                          << " Mb(s) in "
+                          << it->second->mSendingTime << " second(s)\n"
+                          << "[GVIRTUS_STATS] Received "
+                          << it->second->mDataReceived / (1024 * 1024.0)
+                          << " Mb(s) in "
+                          << it->second->mReceivingTime << " second(s)\n";
             }
 
             delete it->second;
             it = mpFrontends->erase(it);
         }
 
-        // Delete the map itself and set pointer to nullptr
         delete mpFrontends;
         mpFrontends = nullptr;
     }
@@ -190,7 +184,7 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
             mpFrontends = new map<pthread_t, Frontend *>();
     }
 
-    pid_t tid = syscall(SYS_gettid);  // getting frontend's tid
+    pid_t tid = syscall(SYS_gettid);
 
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
@@ -206,14 +200,21 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
             std::lock_guard<std::mutex> lock(gFrontendMutex);
             mpFrontends->insert(make_pair(tid, f));
         }
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         LOG4CPLUS_ERROR(logger, "Error initializing Frontend: " << e.what());
-        delete f;  // Clean up on failure
+        delete f;
         return nullptr;
     }
 
     return f;
+}
+
+// ---------------- 工具函数：判断是否需要同步 ----------------
+static bool isSyncRoutine(const std::string &routine) {
+    return (routine.find("cudaMemcpy") != std::string::npos) ||
+           (routine.find("cudaStreamSynchronize") != std::string::npos) ||
+           (routine.find("cudaMalloc") != std::string::npos) ||
+           (routine.find("cudaFree") != std::string::npos);
 }
 
 void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
@@ -239,88 +240,110 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     }
 
     LOG4CPLUS_DEBUG(logger, "DEBUG - Received routine " << routine
-                      << " [pid=" << pid << ", tid=" << tid << "]");
+                       << " [pid=" << pid << ", tid=" << tid << "]");
 
     frontend->mRoutinesExecuted++;
 
-    // ===== send routine info first（under TCP）=====
-    auto start_send = steady_clock::now();
-    frontend->_communicator->obj_ptr()->Write(routine, strlen(routine) + 1);
+    std::string rname(routine);
 
-    // ===== chose protocol by different routine =====
-    if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
-        auto* hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator*>(
-            frontend->_communicator->obj_ptr().get());
-        if (hybrid) {
-            if (std::string(routine).find("cudaMemcpy") != std::string::npos ||
-                std::string(routine).find("cudaRegisterFatBinary")   != std::string::npos ||
-                std::string(routine).find("cudaRegisterFatBinaryEnd")   != std::string::npos ||
-                std::string(routine).find("cudaMemcpyAsync")   != std::string::npos) {
-                hybrid->begin_call(routine, gvirtus::communicators::Transport::RDMA, in_size);
-            } else {
-                hybrid->begin_call(routine, gvirtus::communicators::Transport::TCP, in_size);
+    // ================== 同步路径 ==================
+    if (isSyncRoutine(rname)) {
+        auto start_send = steady_clock::now();
+
+        frontend->_communicator->obj_ptr()->Write(routine, strlen(routine) + 1);
+
+        if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
+            auto* hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator*>(
+                frontend->_communicator->obj_ptr().get());
+            if (hybrid) {
+                if (rname.find("cudaMemcpy") != std::string::npos ||
+                    rname.find("cudaRegisterFatBinary") != std::string::npos ||
+                    rname.find("cudaRegisterFatBinaryEnd") != std::string::npos ||
+                    rname.find("cudaMemcpyAsync") != std::string::npos) {
+                    hybrid->begin_call(routine, gvirtus::communicators::Transport::RDMA, in_size);
+                } else {
+                    hybrid->begin_call(routine, gvirtus::communicators::Transport::TCP, in_size);
+                }
+            }
+        }
+
+        frontend->mDataSent += in_size;
+        input_buffer->Dump(frontend->_communicator->obj_ptr().get());
+
+        frontend->_communicator->obj_ptr()->Sync();
+
+        send_sec = duration_cast<milliseconds>(
+                       steady_clock::now() - start_send).count() / 1000.0;
+
+        frontend->mpOutputBuffer->Reset();
+
+        auto start_recv = steady_clock::now();
+        frontend->_communicator->obj_ptr()->Read((char *)&exit_code, sizeof(int));
+        frontend->mExitCode = exit_code;
+        frontend->_communicator->obj_ptr()->Read(
+            reinterpret_cast<char *>(&server_exec_sec), sizeof(server_exec_sec));
+        size_t out_buffer_size = 0;
+        frontend->_communicator->obj_ptr()->Read((char *)&out_buffer_size, sizeof(size_t));
+        frontend->mDataReceived += out_buffer_size;
+        if (out_buffer_size > 0) {
+            frontend->mpOutputBuffer->Read<char>(
+                frontend->_communicator->obj_ptr().get(), out_buffer_size);
+        }
+        recv_sec = duration_cast<milliseconds>(
+                       steady_clock::now() - start_recv).count() / 1000.0;
+
+        frontend->mRoutineExecutionTime += server_exec_sec;
+        frontend->mSendingTime += send_sec;
+        frontend->mReceivingTime += recv_sec;
+
+        LOG4CPLUS_DEBUG(logger,
+            "Routine '" << routine << "' returned " << exit_code
+            << " | server_exec=" << server_exec_sec << "s"
+            << " | send=" << send_sec << "s"
+            << " | recv=" << recv_sec << "s"
+            << " | in=" << in_size << "B"
+            << " | out=" << out_buffer_size << "B"
+            << " | pid=" << pid << " tid=" << tid);
+
+        if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
+            auto hybrid = std::dynamic_pointer_cast<
+                gvirtus::communicators::HybridCommunicator>(
+                frontend->_communicator->obj_ptr());
+            if (hybrid) {
+                hybrid->end_call();
             }
         }
     }
+    // ================== 异步路径 ==================
+    else {
+        auto start_send = steady_clock::now();
 
-    // ===== send paramemter data =====
-    frontend->mDataSent += in_size;
-    LOG4CPLUS_DEBUG(logger, "Write " << in_size << " bytes to the buffer");
-    input_buffer->Dump(frontend->_communicator->obj_ptr().get());
+        auto ucx = dynamic_cast<gvirtus::communicators::UcxCommunicator*>(
+               frontend->_communicator->obj_ptr().get());
 
-    // ===== sync by chosen channle =====
-    frontend->_communicator->obj_ptr()->Sync();
+            if (ucx) {
+    // UCX 支持异步
+                ucx->WriteAsync(routine, strlen(routine) + 1);
+                frontend->mDataSent += in_size;
+                input_buffer->Dump(ucx);
+            } else {
+    // fallback: 非 UCX 的 communicator，继续用同步接口
+                frontend->_communicator->obj_ptr()->Write(routine, strlen(routine) + 1);
+                frontend->mDataSent += in_size;
+                input_buffer->Dump(frontend->_communicator->obj_ptr().get());
+                frontend->_communicator->obj_ptr()->Sync();
+            }
 
-    send_sec = duration_cast<milliseconds>(
-                   steady_clock::now() - start_send).count() / 1000.0;
 
-    frontend->mpOutputBuffer->Reset();
 
-    // ===== receive exit_code =====
-    auto start_recv = steady_clock::now();
-    frontend->_communicator->obj_ptr()->Read((char *)&exit_code, sizeof(int));
-    frontend->mExitCode = exit_code;
+        send_sec = duration_cast<milliseconds>(
+                       steady_clock::now() - start_send).count() / 1000.0;
+        frontend->mSendingTime += send_sec;
 
-    // ===== receive backend time cost =====
-    frontend->_communicator->obj_ptr()->Read(
-        reinterpret_cast<char *>(&server_exec_sec), sizeof(server_exec_sec));
-
-    // ===== receive output buffer =====
-    size_t out_buffer_size = 0;
-    frontend->_communicator->obj_ptr()->Read((char *)&out_buffer_size, sizeof(size_t));
-    frontend->mDataReceived += out_buffer_size;
-    LOG4CPLUS_DEBUG(logger, "Read " << out_buffer_size << " bytes from the buffer");
-    if (out_buffer_size > 0) {
-        frontend->mpOutputBuffer->Read<char>(
-            frontend->_communicator->obj_ptr().get(), out_buffer_size);
-    }
-    recv_sec = duration_cast<milliseconds>(
-                   steady_clock::now() - start_recv).count() / 1000.0;
-
-    // ===== update info =====
-    frontend->mRoutineExecutionTime += server_exec_sec;
-    frontend->mSendingTime += send_sec;
-    frontend->mReceivingTime += recv_sec;
-
-    // ===== print log =====
-    LOG4CPLUS_DEBUG(logger,
-        "Routine '" << routine << "' returned " << exit_code
-        << " | server_exec=" << server_exec_sec << "s"
-        << " | send=" << send_sec << "s"
-        << " | recv=" << recv_sec << "s"
-        << " | in=" << in_size << "B"
-        << " | out=" << out_buffer_size << "B"
-        << " | pid=" << pid << " tid=" << tid);
-
-    LOG4CPLUS_DEBUG(logger, "DEBUG - Called: " << routine);
-
-    // ===== stop this call，clean HybridCommunicator status =====
-    if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
-        auto hybrid = std::dynamic_pointer_cast<gvirtus::communicators::HybridCommunicator>(
-            frontend->_communicator->obj_ptr());
-        if (hybrid) {
-            hybrid->end_call();
-        }
+        LOG4CPLUS_DEBUG(logger,
+            "Routine '" << routine << "' launched asynchronously"
+            << " | in=" << in_size << "B"
+            << " | pid=" << pid << " tid=" << tid);
     }
 }
 
