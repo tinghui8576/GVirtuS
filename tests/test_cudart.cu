@@ -44,6 +44,13 @@ TEST(cudaRT, MallocFree) {
     CUDA_CHECK(cudaFree(devPtr));
 }
 
+TEST(cudaRT, MallocAsyncFree) {
+    void* devPtr = nullptr;
+    cudaStream_t stream;
+    CUDA_CHECK(cudaStreamCreate(&stream));
+    CUDA_CHECK(cudaMallocAsync(&devPtr, 1024, stream));
+    CUDA_CHECK(cudaFreeAsync(devPtr, stream));
+}
 TEST(cudaRT, MemcpySync) {
     int h_src = 42;
     int h_dst = 0;

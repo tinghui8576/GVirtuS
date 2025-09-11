@@ -117,12 +117,12 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaMallocAsync(
     cudaStream_t hStream
 ) {
     CudaRtFrontend::Prepare();
-    CudaRtFrontend::AddHostPointerForArguments(devPtr);
+    // CudaRtFrontend::AddHostPointerForArguments(devPtr);
     CudaRtFrontend::AddVariableForArguments(size);
     CudaRtFrontend::AddDevicePointerForArguments(hStream);
     CudaRtFrontend::Execute("cudaMallocAsync");
-    // if (CudaRtFrontend::Success())
-    //     *devPtr = CudaRtFrontend::GetOutputDevicePointer();
+    if (CudaRtFrontend::Success())
+        *devPtr = CudaRtFrontend::GetOutputDevicePointer();
     return CudaRtFrontend::GetExitCode();
 }
 

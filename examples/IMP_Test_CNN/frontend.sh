@@ -18,12 +18,12 @@ rm -f "BatchGraph.csv"
 #   ./example 10000
 nvcc cnn_batch.cu -o batch -L ${GVIRTUS_HOME}/lib/frontend -L ${GVIRTUS_HOME}/lib/ -lcuda --cudart=shared 
 ./batch 1
-./batch 2
-./batch 4
-./batch 8
-./batch 16
-./batch 32
-./batch 64
+# ./batch 2
+# ./batch 4
+# ./batch 8
+# ./batch 16
+# ./batch 32
+# ./batch 64
 # ./batch 10
 # ./batch 100
 # ./batch 1000
@@ -37,14 +37,14 @@ nvcc cnn_batch.cu -o batch -L ${GVIRTUS_HOME}/lib/frontend -L ${GVIRTUS_HOME}/li
 # ./batch 9000
 # ./batch 10000
 
-nvcc cnn_batch_graph.cu -o batch_graph -L ${GVIRTUS_HOME}/lib/frontend -L ${GVIRTUS_HOME}/lib/ -lcuda --cudart=shared 
-./batch_graph  1
-./batch_graph  2
-./batch_graph  4
-./batch_graph  8
-./batch_graph  16
-./batch_graph  32
-./batch_graph  64
+# nvcc cnn_batch_graph.cu -o batch_graph -L ${GVIRTUS_HOME}/lib/frontend -L ${GVIRTUS_HOME}/lib/ -lcuda --cudart=shared 
+# ./batch_graph  1
+# ./batch_graph  2
+# ./batch_graph  4
+# ./batch_graph  8
+# ./batch_graph  16
+# ./batch_graph  32
+# ./batch_graph  64
 # ./batch_graph 10
 # ./batch_graph 100
 # ./batch_graph 1000

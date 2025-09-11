@@ -387,6 +387,8 @@ void CudaRtHandler::Initialize() {
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolGetAttribute));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolSetAttribute));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolDestroy));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MallocAsync));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FreeAsync));
 
     /* CudaRtHandler_stream */
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreate));

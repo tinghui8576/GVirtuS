@@ -85,3 +85,33 @@ CUDA_ROUTINE_HANDLER(MemPoolDestroy) {
     LOG4CPLUS_DEBUG(logger, LOG4CPLUS_TEXT("cudaMemPoolDestroy: ") << exit_code);
     return std::make_shared<Result>(exit_code);
 }
+
+CUDA_ROUTINE_HANDLER(MallocAsync) {
+    void *devPtr = NULL;
+    try {
+        size_t size = input_buffer->Get<size_t>();
+        cudaStream_t hStream = input_buffer->Get<cudaStream_t>();
+        cudaError_t exit_code = cudaMallocAsync(&devPtr, size, hStream);
+        
+    #ifdef DEBUG
+        std::cout << "Allocated DevicePointer " << devPtr << " with a size of "
+            << size << std::endl;
+    #endif
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+
+        out->AddMarshal(devPtr);
+        cout << "MallocAsync: allocated " << size << " bytes at " << devPtr << endl;
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
+            cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
+
+CUDA_ROUTINE_HANDLER(FreeAsync) {
+    void *devPtr = input_buffer->GetFromMarshal<void *>();
+    cudaStream_t hStream = input_buffer->Get<cudaStream_t>();
+    cudaError_t exit_code = cudaFreeAsync(devPtr, hStream);
+
+    return std::make_shared<Result>(exit_code);
+}

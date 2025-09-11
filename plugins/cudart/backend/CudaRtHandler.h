@@ -274,6 +274,8 @@ CUDA_ROUTINE_HANDLER(MemPoolCreate);
 CUDA_ROUTINE_HANDLER(MemPoolGetAttribute);
 CUDA_ROUTINE_HANDLER(MemPoolSetAttribute);
 CUDA_ROUTINE_HANDLER(MemPoolDestroy);
+CUDA_ROUTINE_HANDLER(FreeAsync);
+CUDA_ROUTINE_HANDLER(MallocAsync);
 
 /* CudaRtHandler_stream */
 CUDA_ROUTINE_HANDLER(StreamCreate);
