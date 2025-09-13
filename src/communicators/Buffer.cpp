@@ -126,7 +126,7 @@ void Buffer::Dump(Communicator *c) const {
    */
   c->Write((char *)&mLength, sizeof(size_t));
   c->Write(mpBuffer, mLength);
-  c->Sync();
+  //c->Sync();
 
   /**
    * TO-DO rilascia il lock
