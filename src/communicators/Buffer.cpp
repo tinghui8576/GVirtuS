@@ -134,3 +134,15 @@ void Buffer::Dump(Communicator *c) const {
    *
    */
 }
+void Buffer::Append(const void* data, size_t len) {
+    if (data == nullptr || len == 0) return;
+
+    if ((mLength + len) >= mSize) {
+        mSize = ((mLength + len) / mBlockSize + 1) * mBlockSize;
+        if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
+            throw std::runtime_error("Buffer::Append: Can't reallocate memory.");
+    }
+    memmove(mpBuffer + mLength, data, len);
+    mLength += len;
+    mBackOffset = mLength;
+}

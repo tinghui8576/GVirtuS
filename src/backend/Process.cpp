@@ -4,6 +4,7 @@
 #include <gvirtus/common/SignalException.h>
 #include <gvirtus/common/SignalState.h>
 #include "communicators/hybrid/HybridCommunicator.h"
+#include "communicators/ucx/UcxCommunicator.h"
 #include <signal.h>
 #include <gvirtus/backend/Process.h>
 #include <pthread.h>
@@ -13,9 +14,9 @@
 #include <thread>
 #include <iostream>
 #include <vector>
-
+#include <gvirtus/communicators/UcxProtocol.h>
 #define DEBUG
-
+using namespace gvirtus::communicators;
 using gvirtus::backend::Process;
 using gvirtus::common::LD_Lib;
 using gvirtus::communicators::Buffer;
@@ -96,95 +97,98 @@ std::string getGVirtuSHome() {
 void Process::Start() {
     LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "] Process::Start() called.");
     for_each(mPlugins.begin(), mPlugins.end(), [this](const std::string &plug) {
-                 std::string gvirtus_home = getGVirtuSHome();
-                 std::string to_append = "libgvirtus-plugin-" + plug + ".so";
-                 LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "] appending " << to_append << ".");
-                 auto ld_path = fs::path(gvirtus_home + "/lib").append(to_append);
-                 try {
-                     auto dl = std::make_shared<LD_Lib<Handler>>(ld_path, "create_t");
-                     dl->build_obj();
-                     _handlers.push_back(dl);
-                 }
-                 catch (const std::string &e) {
-                     LOG4CPLUS_ERROR(logger, e);
-                 }
-             }
-    );
+        std::string gvirtus_home = getGVirtuSHome();
+        std::string to_append = "libgvirtus-plugin-" + plug + ".so";
+        LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "] appending " << to_append << ".");
+        auto ld_path = fs::path(gvirtus_home + "/lib").append(to_append);
+        try {
+            auto dl = std::make_shared<LD_Lib<Handler>>(ld_path, "create_t");
+            dl->build_obj();
+            _handlers.push_back(dl);
+        }
+        catch (const std::string &e) {
+            LOG4CPLUS_ERROR(logger, e);
+        }
+    });
 
     std::function<void(Communicator *)> execute = [this](Communicator *client_comm) {
-        LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]" << " execute lambda called");
-        string routine;
+        LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "] execute lambda called");
         std::shared_ptr<Buffer> input_buffer = std::make_shared<Buffer>();
 
+        auto* ucx = dynamic_cast<gvirtus::communicators::UcxCommunicator*>(client_comm);
+        if (!ucx) {
+            LOG4CPLUS_ERROR(logger, "✖ - Unsupported communicator type in backend.");
+            return;
+        }
+
         while (true) {
-            // MODIFIED: Main loop now first reads the header
-            CommandHeader hdr;
             try {
-                if (client_comm->Read(reinterpret_cast<char*>(&hdr), sizeof(hdr)) != sizeof(hdr)) {
-                    LOG4CPLUS_DEBUG(logger, "Client disconnected while reading header.");
-                    break; 
-                }
-            } catch (const std::exception& e) {
-                LOG4CPLUS_WARN(logger, "Failed to read command header, closing session: " << e.what());
-                break;
-            }
+                // === 先读请求头 ===
+                ReqHdr hdr{};
+                ucx->Read(reinterpret_cast<char*>(&hdr), sizeof(hdr));
 
-            if (!getstring(client_comm, routine)) {
-                LOG4CPLUS_DEBUG(logger, "Client disconnected while reading routine name.");
-                break;
-            }
-            
-            LOG4CPLUS_DEBUG(logger, "✓ - Received routine " << routine << " (expect_response=" << (int)hdr.expect_response << ")");
-
-            gvirtus::communicators::HybridCommunicator* hybrid = nullptr;
-            if (client_comm && client_comm->to_string() == "hybridcommunicator") {
-                hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator*>(client_comm);
-            }
-            if (hybrid) {
-                const bool use_rdma =
-                    routine.rfind("cudaRegisterFatBinary", 0)== 0 ||
-                    routine.rfind("cudaRegisterFatBinaryEnd", 0)== 0 ||
-                    routine.rfind("cudaMemcpyAsync", 0) == 0 ||   
-                    routine.rfind("cudaMemcpy",      0) == 0;     
-                if (use_rdma) {
-                    hybrid->begin_call(routine, gvirtus::communicators::Transport::RDMA, 1);
-                } else {
-                    hybrid->begin_call(routine, gvirtus::communicators::Transport::TCP, 0);
-                }
-            }
-            
-            input_buffer->Reset(client_comm);
-
-            std::shared_ptr<Handler> h = nullptr;
-            for (auto &ptr_el : _handlers) {
-                if (ptr_el->obj_ptr()->CanExecute(routine)) {
-                    h = ptr_el->obj_ptr();
+                // 校验协议
+                if (hdr.magic != kMagic || hdr.version != kProtoVersion) {
+                    LOG4CPLUS_ERROR(logger, "Protocol mismatch, closing session.");
                     break;
                 }
-            }
 
-            std::shared_ptr<communicators::Result> result;
-            if (h == nullptr) {
-                LOG4CPLUS_ERROR(logger, "✖ - [Process " << getpid() << "]: Requested unknown routine " << routine << ".");
-                result = std::make_shared<communicators::Result>(-1, std::make_shared<Buffer>());
-            } else {
-                auto start = steady_clock::now();
-                result = h->Execute(routine, input_buffer);
-                result->TimeTaken(std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - start).count() / 1000.0);
-            }
-            
-            // MODIFIED: CRITICAL CHANGE - Only dump response if header says so
-            if (hdr.expect_response) {
-                result->Dump(client_comm);
-            }
+                // === 读 routine ===
+                std::string routine;
+                if (hdr.routine_len > 0) {
+                    routine.resize(hdr.routine_len);
+                    ucx->Read(routine.data(), hdr.routine_len);
+                }
 
-            if (hybrid) {
-                hybrid->end_call();
-            }
+                // === 读 payload ===
+                std::vector<char> payload;
+                if (hdr.payload_len > 0) {
+                    payload.resize(hdr.payload_len);
+                    ucx->Read(payload.data(), hdr.payload_len);
+                }
 
-            if (result->GetExitCode() != 0 && routine.compare("cudaLaunch")) {
-                LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]: Requested '" << routine << "' routine.");
-                LOG4CPLUS_DEBUG(logger, "✓ - - [Process " << getpid() << "]: Exit Code '" << result->GetExitCode() << "'.");
+                LOG4CPLUS_DEBUG(logger, "✓ - Received routine " << routine
+                                   << " (expect_response=" << (hdr.flags & FLAG_EXPECT_RESPONSE) << ")");
+
+                // === 填充 input buffer ===
+                input_buffer->Reset();
+                if (!payload.empty()) {
+                    input_buffer->Append(payload.data(), payload.size());
+                }
+
+                // === Handler 查找并执行 ===
+                std::shared_ptr<Handler> h = nullptr;
+                for (auto &ptr_el : _handlers) {
+                    if (ptr_el->obj_ptr()->CanExecute(routine)) {
+                        h = ptr_el->obj_ptr();
+                        break;
+                    }
+                }
+
+                std::shared_ptr<communicators::Result> result;
+                if (!h) {
+                    LOG4CPLUS_ERROR(logger, "✖ - [Process " << getpid() << "]: Unknown routine " << routine);
+                    result = std::make_shared<communicators::Result>(-1, std::make_shared<Buffer>());
+                } else {
+                    auto start = steady_clock::now();
+                    result = h->Execute(routine, input_buffer);
+                    result->TimeTaken(std::chrono::duration_cast<std::chrono::milliseconds>(
+                        steady_clock::now() - start).count() / 1000.0);
+                }
+
+                // === 返回结果 ===
+                if (hdr.flags & FLAG_EXPECT_RESPONSE) {
+                    result->Dump(client_comm);
+                }
+
+                if (result->GetExitCode() != 0 && routine.compare("cudaLaunch")) {
+                    LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "]: Requested '" << routine << "' routine.");
+                    LOG4CPLUS_DEBUG(logger, "✓ - - [Process " << getpid() << "]: Exit Code '" << result->GetExitCode() << "'.");
+                }
+            }
+            catch (const std::exception& e) {
+                LOG4CPLUS_WARN(logger, "Failed to read request, closing session: " << e.what());
+                break;
             }
         }
         Notify("process-ended");
@@ -194,7 +198,6 @@ void Process::Start() {
         _communicator->obj_ptr()->Serve();
         while (true) {
             Communicator *client = const_cast<Communicator *>(_communicator->obj_ptr()->Accept());
-            
             if (client != nullptr) {
                 std::thread(execute, client).detach();
             } else {
@@ -208,11 +211,13 @@ void Process::Start() {
         }
     }
     catch (std::string &exc) {
-        LOG4CPLUS_ERROR(logger, "✖ - [Process " << getpid() << "]: " << exc);
+        LOG4CPLUS_ERROR(logger, "✖ - [Process " << getpid() << "]: " << exc); 
     }
 
     LOG4CPLUS_DEBUG(logger, "✓ - Process::Start() returned [Process " << getpid() << "].");
 }
+
+
 
 Process::~Process() {
     _communicator.reset();

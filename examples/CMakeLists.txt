@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.18)
 cmake_policy(SET CMP0104 NEW)
 
 project(GVirtuS LANGUAGES CXX)
+
 # ===== LZ4 check & link =====
 find_package(LZ4 QUIET)
 if(LZ4_FOUND)
@@ -78,6 +79,7 @@ add_library(gvirtus-communicators SHARED
     src/communicators/EndpointFactory.cpp
     src/communicators/rdma/ktmrdma.cpp
     src/communicators/Result.cpp
+    include/gvirtus/communicators/UcxProtocol.h
 )
 target_link_libraries(gvirtus-communicators gvirtus-common rdmacm ibverbs)
 gvirtus_install_target(gvirtus-communicators)
@@ -111,7 +113,6 @@ target_link_libraries(gvirtus-communicators-hybrid
 )
 gvirtus_install_target(gvirtus-communicators-hybrid)
 
-
 ## UCX COMMUNICATOR
 find_package(PkgConfig QUIET)
 if (PkgConfig_FOUND)
@@ -131,19 +132,24 @@ endif()
 
 add_library(gvirtus-communicators-ucx SHARED
     src/communicators/ucx/UcxCommunicator.cpp
-
 )
 target_include_directories(gvirtus-communicators-ucx
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
     PRIVATE
         ${PROJECT_SOURCE_DIR}/src
         ${UCX_INCLUDE_DIRS}
 )
 target_link_libraries(gvirtus-communicators-ucx
     PRIVATE
-        gvirtus-communicators   
-        ${UCX_LIBRARIES}         
+        gvirtus-communicators
+        ${UCX_LIBRARIES}
 )
 gvirtus_install_target(gvirtus-communicators-ucx)
+
+# 安装协议头
+install(FILES include/gvirtus/communicators/UcxProtocol.h
+        DESTINATION ${GVIRTUS_HOME}/include/gvirtus/communicators)
 
 # ===== FRONTEND =====
 add_library(gvirtus-frontend SHARED
@@ -178,6 +184,7 @@ target_link_libraries(gvirtus-backend
     PRIVATE
         gvirtus-communicators
         gvirtus-communicators-hybrid
+        gvirtus-communicators-ucx 
         Threads::Threads
         rdmacm
         ibverbs

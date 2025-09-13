@@ -187,10 +187,7 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     pid_t tid = syscall(SYS_gettid);
     pid_t pid = getpid();
     size_t in_size = input_buffer->GetBufferSize();
-    int exit_code = 0;
-    double server_exec_sec = 0.0;
-    double send_sec = 0.0;
-    double recv_sec = 0.0;
+
     Frontend* frontend = nullptr;
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
@@ -201,20 +198,21 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
         }
         frontend = it->second;
     }
+
+    std::string rname(routine);
+    frontend->mRoutinesExecuted++;
     LOG4CPLUS_DEBUG(logger, "DEBUG - Received routine " << routine
                        << " [pid=" << pid << ", tid=" << tid << "]");
-    frontend->mRoutinesExecuted++;
-    std::string rname(routine);
+
+    auto* comm = frontend->_communicator->obj_ptr().get();
 
     if (isSyncRoutine(rname)) {
         // ================== 同步路径 ==================
         auto start_send = steady_clock::now();
-        CommandHeader hdr{1};
-        frontend->_communicator->obj_ptr()->Write(reinterpret_cast<const char*>(&hdr), sizeof(hdr));
-        frontend->_communicator->obj_ptr()->Write(routine, strlen(routine) + 1);
 
-        if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
-            auto* hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator*>(frontend->_communicator->obj_ptr().get());
+        // Hybrid 特殊逻辑
+        if (comm->to_string() == "hybridcommunicator") {
+            auto* hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator*>(comm);
             if (hybrid) {
                 if (rname.find("cudaMemcpy") != std::string::npos ||
                     rname.find("cudaRegisterFatBinary") != std::string::npos ||
@@ -227,58 +225,69 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
             }
         }
 
+        // 真正通过 communicator 发请求
+        auto result = dynamic_cast<gvirtus::communicators::UcxCommunicator*>(comm)
+            ->SubmitRequest(routine,
+                            input_buffer->GetBuffer(),
+                            input_buffer->GetBufferSize(),
+                            true);
+
+        double send_sec = duration_cast<milliseconds>(
+                              steady_clock::now() - start_send).count() / 1000.0;
+
         frontend->mDataSent += in_size;
-        input_buffer->Dump(frontend->_communicator->obj_ptr().get());
-        send_sec = duration_cast<milliseconds>(steady_clock::now() - start_send).count() / 1000.0;
         frontend->mpOutputBuffer->Reset();
-        auto start_recv = steady_clock::now();
-        frontend->_communicator->obj_ptr()->Read((char *)&exit_code, sizeof(int));
-        frontend->mExitCode = exit_code;
-        frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&server_exec_sec), sizeof(server_exec_sec));
-        size_t out_buffer_size = 0;
-        frontend->_communicator->obj_ptr()->Read((char *)&out_buffer_size, sizeof(size_t));
-        
-        // CRITICAL FIX 1: Use Reset to correctly parse the Buffer protocol
-        if (out_buffer_size > 0) {
-            frontend->mpOutputBuffer->Reset(frontend->_communicator->obj_ptr().get());
-            frontend->mDataReceived += frontend->mpOutputBuffer->GetBufferSize();
+
+        size_t out_size = 0;
+        if (!result.out.empty()) {
+            frontend->mpOutputBuffer->Append(result.out.data(), result.out.size());
+            out_size = result.out.size();
+            frontend->mDataReceived += out_size;
         }
 
-        recv_sec = duration_cast<milliseconds>(steady_clock::now() - start_recv).count() / 1000.0;
-        frontend->mRoutineExecutionTime += server_exec_sec;
+        frontend->mExitCode = result.exit_code;
+        frontend->mRoutineExecutionTime += result.server_exec_sec;
         frontend->mSendingTime += send_sec;
-        frontend->mReceivingTime += recv_sec;
+        frontend->mReceivingTime += 0; // 已包含在 SubmitRequest 内部的等待
+
         LOG4CPLUS_DEBUG(logger,
-            "Routine '" << routine << "' returned " << exit_code
-            << " | server_exec=" << server_exec_sec << "s"
+            "Routine '" << routine << "' returned " << result.exit_code
+            << " | server_exec=" << result.server_exec_sec << "s"
             << " | send=" << send_sec << "s"
-            << " | recv=" << recv_sec << "s"
             << " | in=" << in_size << "B"
-            << " | out=" << (out_buffer_size > 0 ? frontend->mpOutputBuffer->GetBufferSize() : 0) << "B"
+            << " | out=" << out_size << "B"
             << " | pid=" << pid << " tid=" << tid);
 
-        if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
-            auto hybrid = std::dynamic_pointer_cast<gvirtus::communicators::HybridCommunicator>(frontend->_communicator->obj_ptr());
+        if (comm->to_string() == "hybridcommunicator") {
+            auto hybrid = std::dynamic_pointer_cast<gvirtus::communicators::HybridCommunicator>(
+                frontend->_communicator->obj_ptr());
             if (hybrid) {
                 hybrid->end_call();
             }
         }
+
     } else {
         // ================== 异步路径 ==================
         auto start_send = steady_clock::now();
-        CommandHeader hdr{0};
-        frontend->_communicator->obj_ptr()->Write(reinterpret_cast<const char*>(&hdr), sizeof(hdr));
-        frontend->_communicator->obj_ptr()->Write(routine, strlen(routine) + 1);
+
+        dynamic_cast<gvirtus::communicators::UcxCommunicator*>(comm)
+            ->SubmitRequestAsync(routine,
+                                 input_buffer->GetBuffer(),
+                                 input_buffer->GetBufferSize());
+
+        double send_sec = duration_cast<milliseconds>(
+                              steady_clock::now() - start_send).count() / 1000.0;
         frontend->mDataSent += in_size;
-        input_buffer->Dump(frontend->_communicator->obj_ptr().get());
-        send_sec = duration_cast<milliseconds>(steady_clock::now() - start_send).count() / 1000.0;
         frontend->mSendingTime += send_sec;
+
         LOG4CPLUS_DEBUG(logger,
             "Routine '" << routine << "' launched asynchronously"
             << " | in=" << in_size << "B"
             << " | pid=" << pid << " tid=" << tid);
     }
 }
+
+
 
 void Frontend::Prepare() {
     pid_t tid = syscall(SYS_gettid);

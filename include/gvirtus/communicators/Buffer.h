@@ -75,7 +75,7 @@ class Buffer {
   Buffer(std::istream &in);
   Buffer(char *buffer, size_t buffer_size, size_t block_size = BLOCK_SIZE);
   virtual ~Buffer();
-
+  
   template <class T>
   void Add(T item) {
     if ((mLength + safe_sizeof<T>()) >= mSize) {
@@ -146,7 +146,8 @@ class Buffer {
   void AddMarshal(T item) {
     Add((gvirtus::common::pointer_t)item);
   }
-
+  
+  void Append(const void* data, size_t len);
   template <class T>
   void Read(Communicator *c) {
     auto required_size = mLength + safe_sizeof<T>();
