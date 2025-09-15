@@ -136,6 +136,7 @@ TEST(cudaRT, GraphInstantiateDestroy) {
     CUDA_CHECK(cudaGraphInstantiate(&graphExec, graph, 0));
     CUDA_CHECK(cudaGraphDestroy(graph));
     CUDA_CHECK(cudaStreamDestroy(stream));
+    CUDA_CHECK(cudaGraphExecDestroy(graphExec));
 }
 
 TEST(cudaRT, GraphLaunch) {
@@ -153,6 +154,7 @@ TEST(cudaRT, GraphLaunch) {
     CUDA_CHECK(cudaGraphInstantiate(&graphExec, graph, 0));
     CUDA_CHECK(cudaGraphDestroy(graph));
     CUDA_CHECK(cudaGraphLaunch(graphExec, stream));
+    CUDA_CHECK(cudaGraphUpload(graphExec, stream));
     CUDA_CHECK(cudaStreamSynchronize(stream));
 }
 

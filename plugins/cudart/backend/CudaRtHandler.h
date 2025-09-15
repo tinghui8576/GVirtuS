@@ -296,6 +296,8 @@ CUDA_ROUTINE_HANDLER(GraphDestroy);
 CUDA_ROUTINE_HANDLER(GraphLaunch);
 CUDA_ROUTINE_HANDLER(GraphGetNodes);
 CUDA_ROUTINE_HANDLER(GraphInstantiate);
+CUDA_ROUTINE_HANDLER(GraphExecDestroy);
+CUDA_ROUTINE_HANDLER(GraphUpload);
 
 /* CudaRtHandler_version */
 CUDA_ROUTINE_HANDLER(DriverGetVersion);

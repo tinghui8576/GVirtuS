@@ -44,7 +44,6 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphGetNodes(cudaGraph_t graph, c
     return CudaRtFrontend::GetExitCode();
 }
 
-// TODO: needs testing
 extern "C" __host__ cudaError_t CUDARTAPI cudaGraphExecDestroy(cudaGraphExec_t graphExec) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graphExec);
@@ -101,7 +100,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphDebugDotPrint(
     return CudaRtFrontend::GetExitCode();
 }
 
-// TODO: needs testing
+
 extern "C" __host__ cudaError_t CUDARTAPI cudaGraphLaunch(cudaGraphExec_t graphExec, cudaStream_t stream) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graphExec);
@@ -125,5 +124,14 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphDestroy(cudaGraph_t graph) {
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::Execute("cudaGraphDestroy");
 
+    return CudaRtFrontend::GetExitCode();
+}
+
+extern "C" __host__ cudaError_t CUDARTAPI cudaGraphUpload(cudaGraphExec_t graphExec, cudaStream_t stream) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(graphExec);
+    CudaRtFrontend::AddDevicePointerForArguments(stream);
+    CudaRtFrontend::Execute("cudaGraphLaunch");
+    
     return CudaRtFrontend::GetExitCode();
 }

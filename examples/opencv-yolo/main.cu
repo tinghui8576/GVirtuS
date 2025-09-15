@@ -33,6 +33,9 @@ class YOLO
 public:
 	YOLO(Net_config config);
 	void detect(Mat& frame);
+	cudaStream_t stream = nullptr;
+    cudaGraph_t graph = nullptr;
+	cudaGraphExec_t instance = nullptr;
 private:
 	float* anchors;
 	int num_stride;
@@ -91,6 +94,8 @@ YOLO::YOLO(Net_config config)
 		this->inpHeight = 640;
 		this->inpWidth = 640;
 	}
+
+	cudaStreamCreate(&stream);
 }
 
 Mat YOLO::resize_image(Mat srcimg, int *newh, int *neww, int *top, int *left)
@@ -144,6 +149,8 @@ void YOLO::detect(Mat& frame)
 	int newh = 0, neww = 0, padh = 0, padw = 0;
 	Mat dstimg = this->resize_image(frame, &newh, &neww, &padh, &padw);
 	Mat blob = blobFromImage(dstimg, 1 / 255.0, Size(this->inpWidth, this->inpHeight), Scalar(0, 0, 0), true, false);
+
+	
 	this->net.setInput(blob);
 	vector<Mat> outs;
 	this->net.forward(outs, this->net.getUnconnectedOutLayersNames());
@@ -230,9 +237,14 @@ int main()
         cerr << "Could not read the image: " << imgpath << endl;
         return -1;
     }
-
+	float total_time = 0.0f;
+	const int N_runs = 1;
+	auto t0 = std::chrono::steady_clock::now();
     yolo_model.detect(srcimg);
-
+	auto t1 = std::chrono::steady_clock::now();
+	float ms = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() / 1000.0f;
+	total_time += ms;
+	printf("Total Time= %.3f ms Avg Time = %.3f ms\n", total_time, total_time/N_runs );
     imwrite("output.jpg", srcimg);
 
     cout << "Detection finished. Results saved to output.jpg" << endl;

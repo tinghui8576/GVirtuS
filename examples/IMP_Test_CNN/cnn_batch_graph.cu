@@ -480,7 +480,7 @@ public:
             CUDA_CHECK(cudaGraphInstantiate(&instance, graph, nullptr, nullptr, 0));
             // CUDA_CHECK(cudaGraphUpload(instance, stream));
             // CUDA_CHECK(cudaGraphDebugDotPrint(graph, "graph.dot", cudaGraphDebugDotFlagsVerbose));
-            // cudaGraphUpload(instance, stream);
+            cudaGraphUpload(instance, stream);
             cudaGraphDestroy(graph);  
             graph_built = true;
         }
