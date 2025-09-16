@@ -21,32 +21,35 @@
  *
  * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRtHandler.h"
 
 CUDA_ROUTINE_HANDLER(GetErrorString) {
-  /* const char* cudaGetErrorString(cudaError_t error) */
+    /* const char* cudaGetErrorString(cudaError_t error) */
 
-  try {
-    cudaError_t error = input_buffer->Get<cudaError_t>();
-    const char *error_string = cudaGetErrorString(error);
-    std::shared_ptr<Buffer> output_buffer = std::make_shared<Buffer>();
+    try {
+        cudaError_t error = input_buffer->Get<cudaError_t>();
+        const char* error_string = cudaGetErrorString(error);
+        std::shared_ptr<Buffer> output_buffer = std::make_shared<Buffer>();
 
-    output_buffer->AddString(error_string);
-    return std::make_shared<Result>(cudaSuccess, output_buffer);
-  } catch (const std::exception& e) {
-      cerr << e.what() << endl;
-      return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
+        output_buffer->AddString(error_string);
+        return std::make_shared<Result>(cudaSuccess, output_buffer);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
 }
 
 CUDA_ROUTINE_HANDLER(PeekAtLastError) {
-  /* cudaError_t  cudaPeekAtLastError(void) */
-  return std::make_shared<Result>(cudaPeekAtLastError());
+    /* cudaError_t  cudaPeekAtLastError(void) */
+    return std::make_shared<Result>(cudaPeekAtLastError());
 }
 
 CUDA_ROUTINE_HANDLER(GetLastError) {
-  /* cudaError_t cudaGetLastError(void) */
-  return std::make_shared<Result>(cudaGetLastError());
+    /* cudaError_t cudaGetLastError(void) */
+    return std::make_shared<Result>(cudaGetLastError());
 }

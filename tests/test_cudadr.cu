@@ -1,5 +1,10 @@
-#include <gtest/gtest.h>
+/*
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             School of Computer Science, University College Dublin
+ */
+
 #include <cuda.h>
+#include <gtest/gtest.h>
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), CUDA_SUCCESS)
 

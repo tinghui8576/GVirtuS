@@ -1,10 +1,40 @@
+/*
+ * gVirtuS -- A GPGPU transparent virtualization component.
+ *
+ * Copyright (C) 2009-2010  The University of Napoli Parthenope at Naples.
+ *
+ * This file is part of gVirtuS.
+ *
+ * gVirtuS is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * gVirtuS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with gVirtuS; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Written By: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ *             Department of Applied Science
+ *
+ * Edited By: Mariano Aponte <aponte2001@gmail.com>,
+ *            Department of Science and Technologies, University of Naples Parthenope
+ *            Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            Department of Computer Science, University College Dublin
+ */
+
 #include "gvirtus/backend/Backend.h"
 
 #include <gvirtus/communicators/CommunicatorFactory.h>
 #include <gvirtus/communicators/EndpointFactory.h>
-
 #include <sys/wait.h>
 #include <unistd.h>
+
 #include <cerrno>
 
 using gvirtus::backend::Backend;
@@ -13,28 +43,13 @@ Backend::Backend(const fs::path &path) {
     // logger setup
     this->logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("Backend"));
 
-    char *logLevel_envVar = getenv("GVIRTUS_LOGLEVEL");
-    std::string logLevelString = (logLevel_envVar == nullptr ? std::string("") : std::string(logLevel_envVar));
-
-    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
-    if (!logLevelString.empty()) {
-        try {
-            logLevel = static_cast<log4cplus::LogLevel>(std::stoi(logLevelString));
-        } catch (const std::exception& e) {
-            std::cerr << "[GVIRTUS WARNING] Invalid GVIRTUS_LOGLEVEL value: '" << logLevelString
-                    << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
-            logLevel = log4cplus::INFO_LOG_LEVEL;
-        }
-    }
-    this->logger.setLogLevel(logLevel);
-
     // json setup
-    if (not (fs::exists(path) and fs::is_regular_file(path) and path.extension() == ".json")) {
-        LOG4CPLUS_ERROR(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " json path error: no such file.");
+    if (not(fs::exists(path) and fs::is_regular_file(path) and path.extension() == ".json")) {
+        LOG4CPLUS_ERROR(logger, " json path error: no such file.");
         exit(EXIT_FAILURE);
     }
 
-    LOG4CPLUS_DEBUG(logger, fs::path(__FILE__).filename() << ":" << __LINE__ << ":" << " Json file has been loaded.");
+    LOG4CPLUS_DEBUG(logger, " Json file has been loaded.");
 
     // endpoints setup
     LOG4CPLUS_TRACE(logger, "Initializing endpoints setup");
@@ -44,19 +59,16 @@ Backend::Backend(const fs::path &path) {
 
     LOG4CPLUS_TRACE(logger, "Got properties and reserved children array");
 
-    if (_properties.endpoints() > 1) LOG4CPLUS_INFO(logger, "Application serves on " << _properties.endpoints() << " several endpoint");
+    if (_properties.endpoints() > 1)
+        LOG4CPLUS_INFO(logger,
+                       "Application serves on " << _properties.endpoints() << " several endpoint");
 
     try {
         for (int i = 0; i < _properties.endpoints(); i++) {
-            _children.push_back(
-                    std::make_unique<Process>(
-                            communicators::CommunicatorFactory::get_communicator(
-                                    communicators::EndpointFactory::get_endpoint(path),
-                                    _properties.secure()
-                            ),
-                            _properties.plugins().at(i)
-                    )
-            );
+            _children.push_back(std::make_unique<Process>(
+                communicators::CommunicatorFactory::get_communicator(
+                    communicators::EndpointFactory::get_endpoint(path), _properties.secure()),
+                _properties.plugins().at(i)));
         }
         /*
         for (int i = 0; i < _properties.endpoints(); i++) {
@@ -68,8 +80,8 @@ Backend::Backend(const fs::path &path) {
             auto endpoint = communicators::EndpointFactory::get_endpoint(path);
             LOG4CPLUS_TRACE(logger, "Endpoint: ok!");
 
-            auto communicator = communicators::CommunicatorFactory::get_communicator(endpoint, secure);
-            LOG4CPLUS_TRACE(logger, "Communicator: ok!");
+            auto communicator = communicators::CommunicatorFactory::get_communicator(endpoint,
+        secure); LOG4CPLUS_TRACE(logger, "Communicator: ok!");
 
             auto plugins = _properties.plugins().at(i);
             LOG4CPLUS_TRACE(logger, "Properties: ok!");
@@ -80,11 +92,9 @@ Backend::Backend(const fs::path &path) {
             _children.push_back(child);
         }
          */
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         LOG4CPLUS_ERROR(logger, "Exception during process setup: " << e.what());
     }
-
 
     LOG4CPLUS_INFO(logger, "Backend Initialization is complete!");
 }
@@ -121,7 +131,10 @@ void Backend::Start() {
 
         int status;
         do {
-            LOG4CPLUS_DEBUG(logger, "[Process " << getpid() << "] " << "Waiting for childs to terminate. Current active childs: " << activeChilds);
+            LOG4CPLUS_DEBUG(
+                logger, "[Process " << getpid() << "] "
+                                    << "Waiting for childs to terminate. Current active childs: "
+                                    << activeChilds);
             int waitres = wait(&status);
             activeChilds--;
 
@@ -129,14 +142,15 @@ void Backend::Start() {
 
             if (waitres < 0) {
                 LOG4CPLUS_TRACE(logger, "Error " << strerror(errno) << " on wait.");
-            }
-            else {
+            } else {
                 LOG4CPLUS_TRACE(logger, "Process " << waitres << " returned successfully.");
                 break;
             }
         } while (not WIFEXITED(status) and not WIFSIGNALED(status));
 
-        LOG4CPLUS_INFO(logger, "No child processes are currently running. Use CTRL + C to terminate the backend.");
+        LOG4CPLUS_INFO(
+            logger,
+            "No child processes are currently running. Use CTRL + C to terminate the backend.");
 
         signal(SIGINT, sigint_handler);
         pause();
@@ -148,4 +162,3 @@ void Backend::Start() {
 void Backend::EventOccurred(std::string &event, void *object) {
     LOG4CPLUS_DEBUG(logger, "EventOccurred: " << event);
 }
-

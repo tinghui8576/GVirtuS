@@ -20,8 +20,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
- *             Department of Computer Science,
- *             University College Dublin, Ireland
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRt.h"

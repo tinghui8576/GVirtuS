@@ -1,6 +1,12 @@
-#include <gtest/gtest.h>
-#include <iostream>
+/*
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             School of Computer Science, University College Dublin
+ */
+
 #include <curand.h>
+#include <gtest/gtest.h>
+
+#include <iostream>
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA error: " << cudaGetErrorString(err)
 #define CURAND_CHECK(err) ASSERT_EQ((err), CURAND_STATUS_SUCCESS)
@@ -45,7 +51,7 @@ TEST(cuRAND, GenerateDevice) {
             break;
         }
     }
-    ASSERT_FALSE(all_zero); // Generated numbers should not all be zero
+    ASSERT_FALSE(all_zero);  // Generated numbers should not all be zero
 
     CURAND_CHECK(curandDestroyGenerator(generator));
     CUDA_CHECK(cudaFree(output));
@@ -69,7 +75,7 @@ TEST(cuRAND, GenerateHost) {
             break;
         }
     }
-    ASSERT_FALSE(all_zero); // Generated numbers should not all be zero
+    ASSERT_FALSE(all_zero);  // Generated numbers should not all be zero
 
     CURAND_CHECK(curandDestroyGenerator(generator));
     free(output);
@@ -94,7 +100,8 @@ TEST(cuRAND, GenerateLongLongDevice) {
 
     // Copy results back to host for checking
     unsigned long long h_output[num];
-    CUDA_CHECK(cudaMemcpy(h_output, d_output, num * sizeof(unsigned long long), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(h_output, d_output, num * sizeof(unsigned long long), cudaMemcpyDeviceToHost));
 
     // Clean up
     CUDA_CHECK(cudaFree(d_output));
@@ -108,7 +115,7 @@ TEST(cuRAND, GenerateLongLongHost) {
     // Create a QUASI-random number generator (host generator)
     CURAND_CHECK(curandCreateGeneratorHost(&generator, CURAND_RNG_QUASI_SOBOL64));
 
-     // Set dimensions (required for quasi generators)
+    // Set dimensions (required for quasi generators)
     CURAND_CHECK(curandSetQuasiRandomGeneratorDimensions(generator, 1));
 
     // Allocate host memory for output
@@ -453,8 +460,8 @@ TEST(cuRAND, GenerateLogNormalDoubleDevice) {
     double* output;
     CUDA_CHECK(cudaMalloc(&output, n * sizeof(double)));
 
-    const double mean = 0.0;   // mean of underlying normal
-    const double stddev = 0.5; // stddev of underlying normal
+    const double mean = 0.0;    // mean of underlying normal
+    const double stddev = 0.5;  // stddev of underlying normal
     CURAND_CHECK(curandGenerateLogNormalDouble(generator, output, n, mean, stddev));
 
     double host_output[n];

@@ -35,13 +35,14 @@
 #ifndef VIRTIOCOMMUNICATOR_H
 #define VIRTIOCOMMUNICATOR_H
 
-#include "Communicator.h"
 #include <string>
+
+#include "Communicator.h"
 
 namespace gvirtus {
 
-  class VirtioCommunicator : public Communicator {
-  public:
+class VirtioCommunicator : public Communicator {
+   public:
     VirtioCommunicator(const std::string &communicator);
     void Serve();
     const Communicator *const Accept() const;
@@ -51,9 +52,9 @@ namespace gvirtus {
     void Sync();
     void Close();
 
-  private:
+   private:
     int mFd;
     std::string mDevice;
-  };
-} // namespace gvirtus
+};
+}  // namespace gvirtus
 #endif /* VIRTIOCOMMUNICATOR_H */

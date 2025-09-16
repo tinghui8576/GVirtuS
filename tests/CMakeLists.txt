@@ -1,3 +1,6 @@
+# Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+#             School of Computer Science, University College Dublin
+
 enable_language(CUDA)
 set(CMAKE_CUDA_STANDARD 17)
 

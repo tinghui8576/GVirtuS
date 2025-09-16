@@ -28,11 +28,8 @@
 using namespace std;
 
 CurandFrontend msInstance __attribute_used__;
-void * CurandFrontend::handler = NULL;
+void* CurandFrontend::handler = NULL;
 
 using gvirtus::frontend::Frontend;
 
-CurandFrontend::CurandFrontend() {
-    Frontend::GetFrontend();
-}
-
+CurandFrontend::CurandFrontend() { Frontend::GetFrontend(); }

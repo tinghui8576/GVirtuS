@@ -21,18 +21,19 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
-
 
 #include "CudaDr.h"
 
 using namespace std;
 
 /*Return the Cuda Driver Version */
-extern CUresult cuDriverGetVersion(int *driverVersion) {
+extern "C" CUresult cuDriverGetVersion(int *driverVersion) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::Execute("cuDriverGetVersion");
-    if (CudaDrFrontend::Success())
-        *driverVersion = CudaDrFrontend::GetOutputVariable<int>();
+    if (CudaDrFrontend::Success()) *driverVersion = CudaDrFrontend::GetOutputVariable<int>();
     return CudaDrFrontend::GetExitCode();
 }

@@ -27,41 +27,41 @@
 
 using namespace std;
 
-extern "C" __host__ cudaChannelFormatDesc CUDARTAPI
-cudaCreateChannelDesc(int x, int y, int z, int w, cudaChannelFormatKind f) {
-  cudaChannelFormatDesc desc;
-  desc.x = x;
-  desc.y = y;
-  desc.z = z;
-  desc.w = w;
-  desc.f = f;
-  return desc;
+extern "C" __host__ cudaChannelFormatDesc CUDARTAPI cudaCreateChannelDesc(int x, int y, int z,
+                                                                          int w,
+                                                                          cudaChannelFormatKind f) {
+    cudaChannelFormatDesc desc;
+    desc.x = x;
+    desc.y = y;
+    desc.z = z;
+    desc.w = w;
+    desc.f = f;
+    return desc;
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaGetChannelDesc(cudaChannelFormatDesc *desc, const cudaArray *array) {
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::AddHostPointerForArguments(desc);
-  CudaRtFrontend::AddDevicePointerForArguments(array);
-  CudaRtFrontend::Execute("cudaGetChannelDesc");
-  if (CudaRtFrontend::Success())
-    memmove(desc, CudaRtFrontend::GetOutputHostPointer<cudaChannelFormatDesc>(),
-            sizeof(cudaChannelFormatDesc));
-  return CudaRtFrontend::GetExitCode();
+extern "C" __host__ cudaError_t CUDARTAPI cudaGetChannelDesc(cudaChannelFormatDesc *desc,
+                                                             const cudaArray *array) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddHostPointerForArguments(desc);
+    CudaRtFrontend::AddDevicePointerForArguments(array);
+    CudaRtFrontend::Execute("cudaGetChannelDesc");
+    if (CudaRtFrontend::Success())
+        memmove(desc, CudaRtFrontend::GetOutputHostPointer<cudaChannelFormatDesc>(),
+                sizeof(cudaChannelFormatDesc));
+    return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaCreateTextureObject(
     cudaTextureObject_t *pTexObject, const struct cudaResourceDesc *pResDesc,
-    const struct cudaTextureDesc *pTexDesc,
-    const struct cudaResourceViewDesc *pResViewDesc) {
-  Buffer *input_buffer = new Buffer();
+    const struct cudaTextureDesc *pTexDesc, const struct cudaResourceViewDesc *pResViewDesc) {
+    Buffer *input_buffer = new Buffer();
 
-  input_buffer->Add(pResDesc);
-  CudaUtil::MarshalTextureDescForArguments(pTexDesc, input_buffer);
-  input_buffer->Add(pResDesc);
-  CudaRtFrontend::Prepare();
-  CudaRtFrontend::Execute("cudaCreateTextureObject", input_buffer);
-  if (CudaRtFrontend::Success())
-    (*pTexObject) = CudaRtFrontend::GetOutputVariable<cudaTextureObject_t>();
-  return CudaRtFrontend::GetExitCode();
+    input_buffer->Add(pResDesc);
+    CudaUtil::MarshalTextureDescForArguments(pTexDesc, input_buffer);
+    input_buffer->Add(pResDesc);
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::Execute("cudaCreateTextureObject", input_buffer);
+    if (CudaRtFrontend::Success())
+        (*pTexObject) = CudaRtFrontend::GetOutputVariable<cudaTextureObject_t>();
+    return CudaRtFrontend::GetExitCode();
 }

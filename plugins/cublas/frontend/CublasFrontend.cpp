@@ -26,10 +26,8 @@
 #include "CublasFrontend.h"
 
 CublasFrontend msInstance __attribute_used__;
-void * CublasFrontend::handler = NULL;
+void* CublasFrontend::handler = NULL;
 
 using gvirtus::frontend::Frontend;
 
-CublasFrontend::CublasFrontend() {
-    Frontend::GetFrontend();
-}
+CublasFrontend::CublasFrontend() { Frontend::GetFrontend(); }

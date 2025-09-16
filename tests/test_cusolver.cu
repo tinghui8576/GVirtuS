@@ -1,6 +1,11 @@
-#include <gtest/gtest.h>
-#include <cusolverDn.h>
+/*
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             School of Computer Science, University College Dublin
+ */
+
 #include <cuda_runtime.h>
+#include <cusolverDn.h>
+#include <gtest/gtest.h>
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess)
 #define CUSOLVER_CHECK(err) ASSERT_EQ((err), CUSOLVER_STATUS_SUCCESS)

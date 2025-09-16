@@ -25,5 +25,3 @@
 #include <iostream>
 
 #include "CudaRtHandler.h"
-
-using namespace std;

@@ -19,25 +19,25 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
- *             Department of Computer Science,
- *             University College Dublin, Ireland
- * ,and
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             Department of Computer Science, University College Dublin
+ *
  *             Ting-Hui Cheng <tinghc@es.aau.dk>
- *             Department of Electronic Systems,
- *             Aalborg University, Denmark
+ *             Department of Electronic Systems, Aalborg University
  */
 
 #include "CudaRt.h"
 
 using namespace std;
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaGraphGetNodes(cudaGraph_t graph, cudaGraphNode_t* nodes, size_t* numNodes) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaGraphGetNodes(cudaGraph_t graph,
+                                                            cudaGraphNode_t* nodes,
+                                                            size_t* numNodes) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::AddHostPointerForArguments(nodes);
     CudaRtFrontend::Execute("cudaGraphGetNodes");
-    
+
     if (CudaRtFrontend::Success()) {
         *numNodes = CudaRtFrontend::GetOutputVariable<size_t>();
     }
@@ -51,16 +51,14 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphExecDestroy(cudaGraphExec_t g
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiate(
-    cudaGraphExec_t* pGraphExec,
-    cudaGraph_t graph,
-    unsigned long long flags
-) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiate(cudaGraphExec_t* pGraphExec,
+                                                               cudaGraph_t graph,
+                                                               unsigned long long flags) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::AddVariableForArguments(flags);
     CudaRtFrontend::Execute("cudaGraphInstantiate");
-    
+
     if (CudaRtFrontend::Success()) {
         *pGraphExec = CudaRtFrontend::GetOutputVariable<cudaGraphExec_t>();
     }
@@ -68,45 +66,42 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiate(
 }
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiateWithFlags(
-    cudaGraphExec_t* pGraphExec, 
-    cudaGraph_t graph, 
-    unsigned long long flags
-) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiateWithFlags(cudaGraphExec_t* pGraphExec,
+                                                                        cudaGraph_t graph,
+                                                                        unsigned long long flags) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddHostPointerForArguments(pGraphExec);
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::AddVariableForArguments(flags);
     CudaRtFrontend::Execute("cudaGraphInstantiateWithFlags");
-    
+
     if (CudaRtFrontend::Success()) {
-        *pGraphExec = (cudaGraphExec_t) CudaRtFrontend::GetOutputDevicePointer();
+        *pGraphExec = (cudaGraphExec_t)CudaRtFrontend::GetOutputDevicePointer();
     }
     return CudaRtFrontend::GetExitCode();
 }
 
 // TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI cudaGraphDebugDotPrint(
-    cudaGraph_t graph,
-    const char* path,
-    unsigned int flags
-) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaGraphDebugDotPrint(cudaGraph_t graph,
+                                                                 const char* path,
+                                                                 unsigned int flags) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::AddStringForArguments(path);
     CudaRtFrontend::AddVariableForArguments<unsigned int>(flags);
     CudaRtFrontend::Execute("cudaGraphDebugDotPrint");
-    
+
     return CudaRtFrontend::GetExitCode();
 }
 
 
-extern "C" __host__ cudaError_t CUDARTAPI cudaGraphLaunch(cudaGraphExec_t graphExec, cudaStream_t stream) {
+extern "C" __host__ cudaError_t CUDARTAPI cudaGraphLaunch(cudaGraphExec_t graphExec,
+                                                          cudaStream_t stream) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graphExec);
     CudaRtFrontend::AddDevicePointerForArguments(stream);
     CudaRtFrontend::Execute("cudaGraphLaunch");
-    
+
     return CudaRtFrontend::GetExitCode();
 }
 
@@ -114,8 +109,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphCreate(cudaGraph_t* pGraph, u
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(flags);
     CudaRtFrontend::Execute("cudaGraphCreate");
-    if (CudaRtFrontend::Success())
-        *pGraph = CudaRtFrontend::GetOutputVariable<cudaGraph_t>();
+    if (CudaRtFrontend::Success()) *pGraph = CudaRtFrontend::GetOutputVariable<cudaGraph_t>();
     return CudaRtFrontend::GetExitCode();
 }
 

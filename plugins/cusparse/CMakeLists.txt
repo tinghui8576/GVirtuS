@@ -1,3 +1,9 @@
+# Written By: Raffaele Montella <raffaele.montella@uniparthenope.it>,
+#              Department of Science and Technologies
+#
+# Edited By: Theodoros Aslanidis <theodoros.aslanidis@uniparthenope.it>,
+#              School of Computer Science, University College Dublin
+
 project(gvirtus-plugin-cusparse)
 find_package(CUDAToolkit REQUIRED)
 

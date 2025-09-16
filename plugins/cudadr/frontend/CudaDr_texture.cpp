@@ -21,6 +21,9 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaDr.h"
@@ -28,127 +31,127 @@
 using namespace std;
 
 /*Binds an address as a texture reference.*/
-extern CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned int Flags) {
+extern "C" CUresult cuTexRefSetArray(CUtexref hTexRef, CUarray hArray, unsigned int Flags) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hArray);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hArray);
     CudaDrFrontend::AddVariableForArguments(Flags);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::Execute("cuTexRefSetArray");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return (CUresult)(CudaDrFrontend::GetExitCode());
 }
 
 /*Sets the addressing mode for a texture reference.*/
-extern CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_mode am) {
+extern "C" CUresult cuTexRefSetAddressMode(CUtexref hTexRef, int dim, CUaddress_mode am) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(dim);
     CudaDrFrontend::AddVariableForArguments(am);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::Execute("cuTexRefSetAddressMode");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return (CUresult)(CudaDrFrontend::GetExitCode());
 }
 
 /*Sets the filtering mode for a texture reference.*/
-extern CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) {
+extern "C" CUresult cuTexRefSetFilterMode(CUtexref hTexRef, CUfilter_mode fm) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(fm);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::Execute("cuTexRefSetFilterMode");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return (CUresult)(CudaDrFrontend::GetExitCode());
 }
 
 /*Sets the flags for a texture reference.*/
-extern CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) {
+extern "C" CUresult cuTexRefSetFlags(CUtexref hTexRef, unsigned int Flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(Flags);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::Execute("cuTexRefSetFlags");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return (CUresult)(CudaDrFrontend::GetExitCode());
 }
 
 /*Sets the format for a texture reference.*/
-extern CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt, int NumPackedComponents) {
+extern "C" CUresult cuTexRefSetFormat(CUtexref hTexRef, CUarray_format fmt,
+                                      int NumPackedComponents) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(NumPackedComponents);
     CudaDrFrontend::AddVariableForArguments(fmt);
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::Execute("cuTexRefSetFormat");
-    return (CUresult) (CudaDrFrontend::GetExitCode());
+    return (CUresult)(CudaDrFrontend::GetExitCode());
 }
 
 /*Gets the address associated with a texture reference. */
-extern CUresult cuTexRefGetAddress(CUdeviceptr *pdptr, CUtexref hTexRef) {
+extern "C" CUresult cuTexRefGetAddress(CUdeviceptr *pdptr, CUtexref hTexRef) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::Execute("cuTexRefGetAddress");
-    if (CudaDrFrontend::Success())
-        *pdptr = (CUdeviceptr) (CudaDrFrontend::GetOutputDevicePointer());
+    if (CudaDrFrontend::Success()) *pdptr = (CUdeviceptr)(CudaDrFrontend::GetOutputDevicePointer());
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Gets the array bound to a texture reference.*/
-extern CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
+extern "C" CUresult cuTexRefGetArray(CUarray *phArray, CUtexref hTexRef) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::Execute("cuTexRefGetArray");
-    if (CudaDrFrontend::Success())
-        *phArray = (CUarray) (CudaDrFrontend::GetOutputDevicePointer());
+    if (CudaDrFrontend::Success()) *phArray = (CUarray)(CudaDrFrontend::GetOutputDevicePointer());
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Gets the flags used by a texture reference. */
-extern CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
+extern "C" CUresult cuTexRefGetFlags(unsigned int *pFlags, CUtexref hTexRef) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::Execute("cuTexRefGetFlags");
-    if (CudaDrFrontend::Success())
-        *pFlags = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
+    if (CudaDrFrontend::Success()) *pFlags = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Binds an address as a texture reference.*/
-extern CUresult cuTexRefSetAddress(size_t *ByteOffset, CUtexref hTexRef, CUdeviceptr dptr, size_t bytes) {
+extern "C" CUresult cuTexRefSetAddress(size_t *ByteOffset, CUtexref hTexRef, CUdeviceptr dptr,
+                                       size_t bytes) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hTexRef);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hTexRef);
     CudaDrFrontend::AddVariableForArguments(dptr);
     CudaDrFrontend::AddVariableForArguments(bytes);
     CudaDrFrontend::Execute("cuTexRefSetAddress");
-    if (CudaDrFrontend::Success())
-        *ByteOffset = *(CudaDrFrontend::GetOutputHostPointer<size_t > ());
+    if (CudaDrFrontend::Success()) *ByteOffset = *(CudaDrFrontend::GetOutputHostPointer<size_t>());
     return CudaDrFrontend::GetExitCode();
 }
 
-extern CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef, int dim) {
+extern "C" CUresult cuTexRefGetAddressMode(CUaddress_mode *pam, CUtexref hTexRef, int dim) {
     // FIXME: implement
     cerr << "*** Error: cuTexRefGetAddressMode() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef) {
+extern "C" CUresult cuTexRefGetFilterMode(CUfilter_mode *pfm, CUtexref hTexRef) {
     // FIXME: implement
     cerr << "*** Error: cuTexRefGetFilterMode() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels, CUtexref hTexRef) {
+extern "C" CUresult cuTexRefGetFormat(CUarray_format *pFormat, int *pNumChannels,
+                                      CUtexref hTexRef) {
     // FIXME: implement
     cerr << "*** Error: cuTexRefGetFormat() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern CUresult cuTexRefSetAddress2D(CUtexref hTexRef, const CUDA_ARRAY_DESCRIPTOR *desc, CUdeviceptr dptr, size_t Pitch) {
+extern "C" CUresult cuTexRefSetAddress2D(CUtexref hTexRef, const CUDA_ARRAY_DESCRIPTOR *desc,
+                                         CUdeviceptr dptr, size_t Pitch) {
     // FIXME: implement
     cerr << "*** Error: cuTexRefSetAddress2D() not yet implemented!" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern CUresult cuTexRefCreate(CUtexref *pTexRef) {
+extern "C" CUresult cuTexRefCreate(CUtexref *pTexRef) {
     // FIXME: implement
     cerr << "*** Error: cuTexRefCreate() not yet implemented! : DEPRECATED" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }
 
-extern CUresult cuTexRefDestroy(CUtexref hTexRef) {
+extern "C" CUresult cuTexRefDestroy(CUtexref hTexRef) {
     // FIXME: implement
     cerr << "*** Error: cuTexRefDestroy() not yet implemented! : DEPRECATED" << endl;
-    return (CUresult) 1;
+    return (CUresult)1;
 }

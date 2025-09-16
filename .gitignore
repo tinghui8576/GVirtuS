@@ -63,3 +63,5 @@ gvirtus/uWebSockets-prefix/
 
 # models
 *.pth
+
+__pycache__

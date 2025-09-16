@@ -29,6 +29,4 @@ using namespace std;
 
 CudaDrFrontend msInstance __attribute_used__;
 
-CudaDrFrontend::CudaDrFrontend() {
-    gvirtus::frontend::Frontend::GetFrontend();
-}
+CudaDrFrontend::CudaDrFrontend() { gvirtus::frontend::Frontend::GetFrontend(); }

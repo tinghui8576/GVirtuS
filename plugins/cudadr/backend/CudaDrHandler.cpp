@@ -21,8 +21,12 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
-//#define DEBUG
+
+// #define DEBUG
 
 #include "CudaDrHandler.h"
 
@@ -34,127 +38,119 @@ using gvirtus::communicators::Result;
 
 map<string, CudaDrHandler::CudaDriverHandler> *CudaDrHandler::mspHandlers = NULL;
 
-
-extern "C" std::shared_ptr<CudaDrHandler> create_t() {
-    return std::make_shared<CudaDrHandler>();
-}
+extern "C" std::shared_ptr<CudaDrHandler> create_t() { return std::make_shared<CudaDrHandler>(); }
 
 CudaDrHandler::CudaDrHandler() {
-    logger=Logger::getInstance(LOG4CPLUS_TEXT("CudaDrHandler"));
+    logger = Logger::getInstance(LOG4CPLUS_TEXT("CudaDrHandler"));
     mpFatBinary = new map<string, void **>();
-    mpDeviceFunction = new map<string, string > ();
-    mpVar = new map<string, string > ();
-    mpTexture = new map<string, cudaTextureObject_t*>();
+    mpDeviceFunction = new map<string, string>();
+    mpVar = new map<string, string>();
+    mpTexture = new map<string, cudaTextureObject_t *>();
     Initialize();
 }
 
-CudaDrHandler::~CudaDrHandler() {
-
-}
+CudaDrHandler::~CudaDrHandler() {}
 
 bool CudaDrHandler::CanExecute(std::string routine) {
     map<string, CudaDrHandler::CudaDriverHandler>::iterator it;
     it = mspHandlers->find(routine);
-    if (it == mspHandlers->end())
-        return false;
+    if (it == mspHandlers->end()) return false;
     return true;
 }
 
-std::shared_ptr<Result> CudaDrHandler::Execute(std::string routine, std::shared_ptr<Buffer> input_buffer) {
+std::shared_ptr<Result> CudaDrHandler::Execute(std::string routine,
+                                               std::shared_ptr<Buffer> input_buffer) {
     map<string, CudaDrHandler::CudaDriverHandler>::iterator it;
     LOG4CPLUS_DEBUG(logger, "Called " << routine);
 
     it = mspHandlers->find(routine);
-    if (it == mspHandlers->end())
-        throw runtime_error("No handler for '" + routine + "' found!");
+    if (it == mspHandlers->end()) throw runtime_error("No handler for '" + routine + "' found!");
     return it->second(this, input_buffer);
 }
 
-void CudaDrHandler::RegisterFatBinary(std::string& handler, void ** fatCubinHandle) {
+void CudaDrHandler::RegisterFatBinary(std::string &handler, void **fatCubinHandle) {
     map<string, void **>::iterator it = mpFatBinary->find(handler);
     if (it != mpFatBinary->end()) {
         mpFatBinary->erase(it);
     }
     mpFatBinary->insert(make_pair(handler, fatCubinHandle));
-    LOG4CPLUS_DEBUG(logger, "Registered FatBinary " << fatCubinHandle << " with handler " << handler);
+    LOG4CPLUS_DEBUG(logger,
+                    "Registered FatBinary " << fatCubinHandle << " with handler " << handler);
 }
 
-void CudaDrHandler::RegisterFatBinary(const char* handler, void ** fatCubinHandle) {
+void CudaDrHandler::RegisterFatBinary(const char *handler, void **fatCubinHandle) {
     string tmp(handler);
     RegisterFatBinary(tmp, fatCubinHandle);
 }
 
-void ** CudaDrHandler::GetFatBinary(string & handler) {
+void **CudaDrHandler::GetFatBinary(string &handler) {
     map<string, void **>::iterator it = mpFatBinary->find(handler);
-    if (it == mpFatBinary->end())
-        throw runtime_error("Fat Binary '" + handler + "' not found");
+    if (it == mpFatBinary->end()) throw runtime_error("Fat Binary '" + handler + "' not found");
     return it->second;
 }
 
-void ** CudaDrHandler::GetFatBinary(const char * handler) {
+void **CudaDrHandler::GetFatBinary(const char *handler) {
     string tmp(handler);
     return GetFatBinary(tmp);
 }
 
-void CudaDrHandler::UnregisterFatBinary(std::string& handler) {
+void CudaDrHandler::UnregisterFatBinary(std::string &handler) {
     map<string, void **>::iterator it = mpFatBinary->find(handler);
-    if (it == mpFatBinary->end())
-        return;
+    if (it == mpFatBinary->end()) return;
     /* FIXME: think about freeing memory */
-    LOG4CPLUS_DEBUG(logger, "Unregistered FatBinary " << it->second << " with handler "<< handler);
+    LOG4CPLUS_DEBUG(logger, "Unregistered FatBinary " << it->second << " with handler " << handler);
     mpFatBinary->erase(it);
 }
 
-void CudaDrHandler::UnregisterFatBinary(const char * handler) {
+void CudaDrHandler::UnregisterFatBinary(const char *handler) {
     string tmp(handler);
     UnregisterFatBinary(tmp);
 }
 
-void CudaDrHandler::RegisterDeviceFunction(std::string & handler, std::string & function) {
+void CudaDrHandler::RegisterDeviceFunction(std::string &handler, std::string &function) {
     map<string, string>::iterator it = mpDeviceFunction->find(handler);
-    if (it != mpDeviceFunction->end())
-        mpDeviceFunction->erase(it);
+    if (it != mpDeviceFunction->end()) mpDeviceFunction->erase(it);
     mpDeviceFunction->insert(make_pair(handler, function));
-    LOG4CPLUS_DEBUG(logger, "Registered DeviceFunction " << function << " with handler " << handler);
+    LOG4CPLUS_DEBUG(logger,
+                    "Registered DeviceFunction " << function << " with handler " << handler);
 }
 
-void CudaDrHandler::RegisterDeviceFunction(const char * handler, const char * function) {
+void CudaDrHandler::RegisterDeviceFunction(const char *handler, const char *function) {
     string tmp1(handler);
     string tmp2(function);
     RegisterDeviceFunction(tmp1, tmp2);
 }
 
-const char *CudaDrHandler::GetDeviceFunction(std::string & handler) {
+const char *CudaDrHandler::GetDeviceFunction(std::string &handler) {
     map<string, string>::iterator it = mpDeviceFunction->find(handler);
     if (it == mpDeviceFunction->end())
         throw runtime_error("Device Function '" + handler + "' not found");
     return it->second.c_str();
 }
 
-const char *CudaDrHandler::GetDeviceFunction(const char * handler) {
+const char *CudaDrHandler::GetDeviceFunction(const char *handler) {
     string tmp(handler);
     return GetDeviceFunction(tmp);
 }
 
-void CudaDrHandler::RegisterVar(string & handler, string & symbol) {
+void CudaDrHandler::RegisterVar(string &handler, string &symbol) {
     mpVar->insert(make_pair(handler, symbol));
-    LOG4CPLUS_DEBUG(logger,"Registered Var " << symbol << " with handler " << handler );
+    LOG4CPLUS_DEBUG(logger, "Registered Var " << symbol << " with handler " << handler);
 }
 
-void CudaDrHandler::RegisterVar(const char* handler, const char* symbol) {
+void CudaDrHandler::RegisterVar(const char *handler, const char *symbol) {
     string tmp1(handler);
     string tmp2(symbol);
     RegisterVar(tmp1, tmp2);
 }
 
-const char *CudaDrHandler::GetVar(string & handler) {
+const char *CudaDrHandler::GetVar(string &handler) {
     map<string, string>::iterator it = mpVar->find(handler);
-    if (it == mpVar->end())
-        return NULL;
+    if (it == mpVar->end()) return NULL;
     return it->second.c_str();
 }
 
-const char * CudaDrHandler::GetVar(const char* handler) {
+const char *CudaDrHandler::GetVar(const char *handler) {
     string tmp(handler);
     return GetVar(tmp);
 }
@@ -190,18 +186,16 @@ const char * CudaDrHandler::GetVar(const char* handler) {
 //     return NULL;
 // }
 
-const char *CudaDrHandler::GetSymbol(Buffer* in) {
+const char *CudaDrHandler::GetSymbol(Buffer *in) {
     char *symbol_handler = in->AssignString();
     char *symbol = in->AssignString();
-    char *our_symbol = const_cast<char *> (GetVar(symbol_handler));
-    if (our_symbol != NULL)
-        symbol = const_cast<char *> (our_symbol);
+    char *our_symbol = const_cast<char *>(GetVar(symbol_handler));
+    if (our_symbol != NULL) symbol = const_cast<char *>(our_symbol);
     return symbol;
 }
 
 void CudaDrHandler::Initialize() {
-    if (mspHandlers != NULL)
-        return;
+    if (mspHandlers != NULL) return;
     mspHandlers = new map<string, CudaDrHandler::CudaDriverHandler>();
 
     /*CudaDrHAndler_initialization*/
@@ -217,6 +211,8 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxGetCurrent));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxPopCurrent));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxPushCurrent));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxGetLimit));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxSetLimit));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxSynchronize));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxDisablePeerAccess));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(CtxEnablePeerAccess));
@@ -253,6 +249,9 @@ void CudaDrHandler::Initialize() {
     /*CudaDrHandler_memory*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemFree));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemAlloc));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemRelease));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemAddressFree));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemMap));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemcpyDtoH));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemcpyHtoD));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ArrayCreate));
@@ -262,9 +261,17 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemAllocPitch));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemGetAddressRange));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemGetInfo));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemsetD32Async));
 
     /*CudaDrHandler_virtmemory*/
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemCreate));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemExportToShareableHandle));
+
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemAddressReserve));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemGetAllocationGranularity));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemImportFromShareableHandle));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemSetAccess));
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(MemUnmap));
 
     /*CudaDrHandler_module*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ModuleLoadData));
@@ -285,6 +292,9 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(StreamQuery));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(StreamSynchronize));
 
+    /* CudaDrHandler_streammemory */
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(StreamWriteValue32));
+
     /*CudaDrHandler_event*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(EventCreate));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(EventDestroy));
@@ -303,4 +313,10 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetArray));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefGetFlags));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TexRefSetAddress));
+
+    /* CudaDrHandler_tensormap */
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(TensorMapEncodeTiled));
+
+    /* CudaDrHandler_unified */
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(PointerGetAttribute));
 }

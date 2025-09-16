@@ -20,8 +20,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * Written by: Ting-Hui Cheng <tinghc@es.aau.dk>,
- *             Department of Electronic Systems,
- *             Aalborg University, Denmark
+ *             Department of Electronic Systems, Aalborg University, Denmark
  */
 
 #include "CudaRtHandler.h"
@@ -29,7 +28,6 @@
 #ifndef CUDART_VERSION
 #error CUDART_VERSION not defined
 #endif
-
 
 CUDA_ROUTINE_HANDLER(GraphCreate) {
     try {
@@ -58,7 +56,7 @@ CUDA_ROUTINE_HANDLER(GraphDestroy) {
 CUDA_ROUTINE_HANDLER(GraphGetNodes) {
     try {
         cudaGraph_t pGraph = input_buffer->Get<cudaGraph_t>();
-        cudaGraphNode_t *nodes = input_buffer->Assign<cudaGraphNode_t>();
+        cudaGraphNode_t* nodes = input_buffer->Assign<cudaGraphNode_t>();
         size_t numNodes;
         cudaError_t exit_code = cudaGraphGetNodes(pGraph, nodes, &numNodes);
         // Debugging output
@@ -73,7 +71,7 @@ CUDA_ROUTINE_HANDLER(GraphGetNodes) {
     }
 }
 
-// cudaGraphInstantiate signature changed in CUDA 12. 
+// cudaGraphInstantiate signature changed in CUDA 12.
 CUDA_ROUTINE_HANDLER(GraphInstantiate) {
     try {
         cudaGraphExec_t pGraphExec;

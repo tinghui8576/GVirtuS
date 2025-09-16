@@ -1,9 +1,15 @@
-#include <gtest/gtest.h>
-#include <cusparse.h>
+/*
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             School of Computer Science, University College Dublin
+ */
+
 #include <cuda_runtime.h>
+#include <cusparse.h>
+#include <gtest/gtest.h>
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA error: " << cudaGetErrorString(err)
-#define CUSPARSE_CHECK(err) ASSERT_EQ((err), CUSPARSE_STATUS_SUCCESS) << "CuSPARSE error: " << cusparseGetErrorString(err)
+#define CUSPARSE_CHECK(err) \
+    ASSERT_EQ((err), CUSPARSE_STATUS_SUCCESS) << "CuSPARSE error: " << cusparseGetErrorString(err)
 
 TEST(CuSPARSE, CreateDestroy) {
     cusparseHandle_t handle;
@@ -21,7 +27,7 @@ TEST(CuSPARSE, GetVersion) {
     CUSPARSE_CHECK(cusparseCreate(&handle));
     int version;
     CUSPARSE_CHECK(cusparseGetVersion(handle, &version));
-    ASSERT_GT(version, 999); // Version should be greater than 1.0
+    ASSERT_GT(version, 999);  // Version should be greater than 1.0
     CUSPARSE_CHECK(cusparseDestroy(handle));
 }
 

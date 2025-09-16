@@ -19,7 +19,13 @@
  * along with gVirtuS; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
+ * Written By: Vincenzo Santopietro <vincenzo.santopietro@uniparthenope.it>,
+ *             Department of Science and Technologies
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            School of Computer Science, University College Dublin
  */
+
 #include "CurandHandler.h"
 
 using namespace std;
@@ -28,19 +34,16 @@ using namespace log4cplus;
 using gvirtus::communicators::Buffer;
 using gvirtus::communicators::Result;
 
-std::map<string, CurandHandler::CurandRoutineHandler> * CurandHandler::mspHandlers = NULL;
+std::map<string, CurandHandler::CurandRoutineHandler>* CurandHandler::mspHandlers = NULL;
 
-extern "C" std::shared_ptr<CurandHandler> create_t() {
-    return std::make_shared<CurandHandler>();
-}
+extern "C" std::shared_ptr<CurandHandler> create_t() { return std::make_shared<CurandHandler>(); }
 
 CurandHandler::CurandHandler() {
     logger = Logger::getInstance(LOG4CPLUS_TEXT("CurandHandler"));
     Initialize();
 }
 
-CurandHandler::~CurandHandler() {
-}
+CurandHandler::~CurandHandler() {}
 
 bool CurandHandler::CanExecute(std::string routine) {
     return mspHandlers->find(routine) != mspHandlers->end();
@@ -61,8 +64,7 @@ std::shared_ptr<Result> CurandHandler::Execute(std::string routine, std::shared_
 }
 
 void CurandHandler::Initialize() {
-    if (mspHandlers != NULL)
-        return;
+    if (mspHandlers != NULL) return;
     mspHandlers = new map<string, CurandHandler::CurandRoutineHandler>();
 
     /* CurandHandler Query Platform Info */

@@ -29,8 +29,6 @@ using namespace std;
 
 CudnnFrontend msInstance __attribute_used__;
 
-void * CudnnFrontend::handler = NULL;
+void* CudnnFrontend::handler = NULL;
 
-CudnnFrontend::CudnnFrontend() {
-Frontend::GetFrontend();
-}
+CudnnFrontend::CudnnFrontend() { Frontend::GetFrontend(); }

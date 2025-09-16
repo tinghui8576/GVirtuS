@@ -1,8 +1,14 @@
-#include <gtest/gtest.h>
+/*
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             School of Computer Science, University College Dublin
+ */
+
 #include <cufft.h>
 #include <cufftXt.h>
-#include <vector>
+#include <gtest/gtest.h>
+
 #include <cmath>
+#include <vector>
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA error: " << cudaGetErrorString(err)
 #define CUFFT_CHECK(err) ASSERT_EQ((err), CUFFT_SUCCESS)
@@ -55,9 +61,8 @@ TEST(cuFFT, PlanMany) {
     int n[] = {8};
     const int batch = 2;
     cufftHandle plan;
-    CUFFT_CHECK(cufftPlanMany(&plan, rank, n,
-                              nullptr, 1, 0,  // inembed, istride, idist
-                              nullptr, 1, 0,  // onembed, ostride, odist
+    CUFFT_CHECK(cufftPlanMany(&plan, rank, n, nullptr, 1, 0,  // inembed, istride, idist
+                              nullptr, 1, 0,                  // onembed, ostride, odist
                               CUFFT_C2C, batch));
     ASSERT_NE(plan, 0);
     CUFFT_CHECK(cufftDestroy(plan));
@@ -84,11 +89,7 @@ TEST(cuFFT, Estimate3D) {
 TEST(cuFFT, EstimateMany) {
     int n[] = {8};
     size_t workSize = 0;
-    CUFFT_CHECK(cufftEstimateMany(1, n,
-                                  nullptr, 1, 0,
-                                  nullptr, 1, 0,
-                                  CUFFT_C2C, 2,
-                                  &workSize));
+    CUFFT_CHECK(cufftEstimateMany(1, n, nullptr, 1, 0, nullptr, 1, 0, CUFFT_C2C, 2, &workSize));
     ASSERT_GT(workSize, 0u);
 }
 
@@ -110,7 +111,8 @@ TEST(cuFFT, Plan1DAndExecC2C) {
     CUDA_CHECK(cudaMemcpy(d_input, input.data(), sizeof(cufftComplex) * N, cudaMemcpyHostToDevice));
 
     CUFFT_CHECK(cufftExecC2C(plan, d_input, d_input, CUFFT_FORWARD));
-    CUDA_CHECK(cudaMemcpy(output.data(), d_input, sizeof(cufftComplex) * N, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(output.data(), d_input, sizeof(cufftComplex) * N, cudaMemcpyDeviceToHost));
 
     // Optional: Check at least that output is not all zero
     float totalEnergy = 0.0f;
@@ -193,17 +195,13 @@ TEST(cuFFT, MakePlanMany) {
     int n[] = {8};
     size_t workSize = 0;
 
-    CUFFT_CHECK(cufftMakePlanMany(plan, 1, n,
-                                  nullptr, 1, 0,
-                                  nullptr, 1, 0,
-                                  CUFFT_C2C, 2, &workSize));
+    CUFFT_CHECK(
+        cufftMakePlanMany(plan, 1, n, nullptr, 1, 0, nullptr, 1, 0, CUFFT_C2C, 2, &workSize));
 
     ASSERT_GT(workSize, 0u);
     CUFFT_CHECK(cufftDestroy(plan));
 }
 
-
-#if CUDART_VERSION >= 7000
 TEST(cuFFT, MakePlanMany64) {
     cufftHandle plan;
     CUFFT_CHECK(cufftCreate(&plan));
@@ -216,15 +214,12 @@ TEST(cuFFT, MakePlanMany64) {
     long long int howmany = 2;
     size_t workSize = 0;
 
-    CUFFT_CHECK(cufftMakePlanMany64(plan, 1, n,
-                                    inembed, istride, idist,
-                                    onembed, ostride, odist,
+    CUFFT_CHECK(cufftMakePlanMany64(plan, 1, n, inembed, istride, idist, onembed, ostride, odist,
                                     CUFFT_C2C, howmany, &workSize));
 
     ASSERT_GT(workSize, 0u);
     CUFFT_CHECK(cufftDestroy(plan));
 }
-#endif
 
 TEST(cuFFT, Plan2DAndExecC2C) {
     const int NX = 4, NY = 4;
@@ -240,10 +235,12 @@ TEST(cuFFT, Plan2DAndExecC2C) {
 
     cufftComplex *d_input;
     CUDA_CHECK(cudaMalloc(&d_input, sizeof(cufftComplex) * NX * NY));
-    CUDA_CHECK(cudaMemcpy(d_input, input.data(), sizeof(cufftComplex) * NX * NY, cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_input, input.data(), sizeof(cufftComplex) * NX * NY, cudaMemcpyHostToDevice));
 
     CUFFT_CHECK(cufftExecC2C(plan, d_input, d_input, CUFFT_FORWARD));
-    CUDA_CHECK(cudaMemcpy(output.data(), d_input, sizeof(cufftComplex) * NX * NY, cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(output.data(), d_input, sizeof(cufftComplex) * NX * NY, cudaMemcpyDeviceToHost));
 
     // Check for non-zero output
     float energy = 0;
@@ -267,7 +264,7 @@ TEST(cuFFT, ExecR2CAndC2R) {
     std::vector<float> output(N);
     std::vector<cufftComplex> spectrum(N / 2 + 1);
 
-    for (int i = 0; i < N; ++i) input[i] = sin(2 * M_PI * i / N); // A sine wave
+    for (int i = 0; i < N; ++i) input[i] = sin(2 * M_PI * i / N);  // A sine wave
 
     float *d_input;
     cufftComplex *d_spectrum;
@@ -285,11 +282,9 @@ TEST(cuFFT, ExecR2CAndC2R) {
     CUDA_CHECK(cudaMemcpy(output.data(), d_output, sizeof(float) * N, cudaMemcpyDeviceToHost));
 
     // Normalize inverse FFT output
-    for (int i = 0; i < N; ++i)
-        output[i] /= N;
+    for (int i = 0; i < N; ++i) output[i] /= N;
 
-    for (int i = 0; i < N; ++i)
-        ASSERT_NEAR(input[i], output[i], 1e-3f);
+    for (int i = 0; i < N; ++i) ASSERT_NEAR(input[i], output[i], 1e-3f);
 
     CUFFT_CHECK(cufftDestroy(plan_fwd));
     CUFFT_CHECK(cufftDestroy(plan_inv));
@@ -330,15 +325,12 @@ TEST(cuFFT, GetSizeMany) {
     CUFFT_CHECK(cufftCreate(&plan));
     int n[] = {8};
     size_t workSize = 0;
-    CUFFT_CHECK(cufftGetSizeMany(plan, 1, n,
-                                 nullptr, 1, 0,
-                                 nullptr, 1, 0,
-                                 CUFFT_C2C, 2, &workSize));
+    CUFFT_CHECK(
+        cufftGetSizeMany(plan, 1, n, nullptr, 1, 0, nullptr, 1, 0, CUFFT_C2C, 2, &workSize));
     ASSERT_GT(workSize, 0u);
     CUFFT_CHECK(cufftDestroy(plan));
 }
 
-#if CUDART_VERSION >= 7000
 TEST(cuFFT, GetSizeMany64) {
     cufftHandle plan;
     CUFFT_CHECK(cufftCreate(&plan));
@@ -346,24 +338,19 @@ TEST(cuFFT, GetSizeMany64) {
     long long int inembed[] = {8};
     long long int onembed[] = {8};
     size_t workSize = 0;
-    CUFFT_CHECK(cufftGetSizeMany64(plan, 1, n,
-                                   inembed, 1, 8,
-                                   onembed, 1, 8,
-                                   CUFFT_C2C, 2, &workSize));
+    CUFFT_CHECK(
+        cufftGetSizeMany64(plan, 1, n, inembed, 1, 8, onembed, 1, 8, CUFFT_C2C, 2, &workSize));
     ASSERT_GT(workSize, 0u);
     CUFFT_CHECK(cufftDestroy(plan));
 }
-#endif
 
 TEST(cuFFT, GetSize) {
     cufftHandle plan;
     CUFFT_CHECK(cufftCreate(&plan));
     int n[] = {8};
     size_t workSize = 0;
-    CUFFT_CHECK(cufftMakePlanMany(plan, 1, n,
-                                  nullptr, 1, 0,
-                                  nullptr, 1, 0,
-                                  CUFFT_C2C, 1, &workSize));
+    CUFFT_CHECK(
+        cufftMakePlanMany(plan, 1, n, nullptr, 1, 0, nullptr, 1, 0, CUFFT_C2C, 1, &workSize));
     size_t queriedSize = 0;
     CUFFT_CHECK(cufftGetSize(plan, &queriedSize));
     ASSERT_EQ(workSize, queriedSize);
@@ -373,21 +360,12 @@ TEST(cuFFT, GetSize) {
 TEST(cuFFT, SetWorkArea) {
     cufftHandle plan;
     CUFFT_CHECK(cufftCreate(&plan));
-    void* workArea;
+    void *workArea;
     CUDA_CHECK(cudaMalloc(&workArea, 1024));
     CUFFT_CHECK(cufftSetWorkArea(plan, workArea));
     CUFFT_CHECK(cufftDestroy(plan));
     CUDA_CHECK(cudaFree(workArea));
 }
-
-#if CUDART_VERSION <= 9000
-TEST(cuFFT, SetCompatibilityMode) {
-    cufftHandle plan;
-    CUFFT_CHECK(cufftCreate(&plan));
-    CUFFT_CHECK(cufftSetCompatibilityMode(plan, CUFFT_COMPATIBILITY_NATIVE));
-    CUFFT_CHECK(cufftDestroy(plan));
-}
-#endif
 
 TEST(cuFFT, SetAutoAllocation) {
     cufftHandle plan;
@@ -415,19 +393,17 @@ TEST(cuFFT, SetStream) {
     CUFFT_CHECK(cufftDestroy(plan));
 }
 
-#if __CUDA_API_VERSION >= 7000
 TEST(cuFFT, GetProperty) {
-    size_t property = 0;
-    CUFFT_CHECK(cufftGetProperty(CUFFT_MAJOR_VERSION, &property));
+    int property = 0;
+    CUFFT_CHECK(cufftGetProperty(MAJOR_VERSION, &property));
     ASSERT_GT(property, 0);
 }
-#endif
 
 TEST(cuFFT, ExecZ2Z) {
     cufftHandle plan;
     CUFFT_CHECK(cufftPlan1d(&plan, 8, CUFFT_Z2Z, 1));
 
-    cufftDoubleComplex* data;
+    cufftDoubleComplex *data;
     CUDA_CHECK(cudaMalloc(&data, sizeof(cufftDoubleComplex) * 8));
 
     cufftDoubleComplex h_data[8];
@@ -449,8 +425,8 @@ TEST(cuFFT, ExecD2Z) {
     cufftHandle plan;
     CUFFT_CHECK(cufftPlan1d(&plan, 8, CUFFT_D2Z, 1));
 
-    double* idata;
-    cufftDoubleComplex* odata;
+    double *idata;
+    cufftDoubleComplex *odata;
     CUDA_CHECK(cudaMalloc(&idata, sizeof(double) * 8));
     CUDA_CHECK(cudaMalloc(&odata, sizeof(cufftDoubleComplex) * 5));
 
@@ -473,8 +449,8 @@ TEST(cuFFT, ExecZ2D) {
     cufftHandle plan;
     CUFFT_CHECK(cufftPlan1d(&plan, 8, CUFFT_Z2D, 1));
 
-    cufftDoubleComplex* idata;
-    double* odata;
+    cufftDoubleComplex *idata;
+    double *odata;
     CUDA_CHECK(cudaMalloc(&idata, sizeof(cufftDoubleComplex) * 5));
     CUDA_CHECK(cudaMalloc(&odata, sizeof(double) * 8));
 
@@ -498,8 +474,7 @@ TEST(cuFFT, ExecZ2D) {
 TEST(cuFFT, XtSetGPUs) {
     int deviceCount = 0;
     CUDA_CHECK(cudaGetDeviceCount(&deviceCount));
-    if (deviceCount < 2 || deviceCount > 8)
-        GTEST_SKIP() << "Test requires 2-8 GPUs";
+    if (deviceCount < 2 || deviceCount > 8) GTEST_SKIP() << "Test requires 2-8 GPUs";
 
     cufftHandle plan;
     CUFFT_CHECK(cufftCreate(&plan));  // Step 1: Create
@@ -509,10 +484,8 @@ TEST(cuFFT, XtSetGPUs) {
 
     int n[1] = {8};  // 1D FFT of length 8
     size_t workSize = 0;
-    CUFFT_CHECK(cufftMakePlanMany(plan, 1, n,
-                                  nullptr, 1, 0,
-                                  nullptr, 1, 0,
-                                  CUFFT_C2C, 1, &workSize));  // Step 3: Make Plan
+    CUFFT_CHECK(cufftMakePlanMany(plan, 1, n, nullptr, 1, 0, nullptr, 1, 0, CUFFT_C2C, 1,
+                                  &workSize));  // Step 3: Make Plan
 
     CUFFT_CHECK(cufftDestroy(plan));
 }
@@ -526,19 +499,15 @@ TEST(cuFFT, XtMakePlanMany) {
     long long int onembed[] = {8};
     long long int howmany = 1;
     size_t workSize = 0;
-    // This should return CUFFT_NOT_IMPLEMENTED
-    // because cufftXtMakePlanMany is not supported in GVirtuS
-    ASSERT_EQ(cufftXtMakePlanMany(plan, 1, n,
-                                    inembed, 1, 8, CUDA_C_32F,
-                                    onembed, 1, 8, CUDA_C_32F,
-                                    howmany, &workSize, CUDA_C_32F), CUFFT_NOT_IMPLEMENTED); // check if the function returns CUFFT_NOT_IMPLEMENTED, which is expected
+    CUFFT_CHECK(cufftXtMakePlanMany(plan, 1, n, inembed, 1, 8, CUDA_C_32F, onembed, 1, 8,
+                                    CUDA_C_32F, howmany, &workSize, CUDA_C_32F));
     CUFFT_CHECK(cufftDestroy(plan));
 }
 
 TEST(cuFFT, XtMallocFree) {
     constexpr size_t N = 8;
     cufftHandle plan;
-    cudaLibXtDesc* deviceDesc = nullptr;
+    cudaLibXtDesc *deviceDesc = nullptr;
 
     // Create 1D plan
     CUFFT_CHECK(cufftPlan1d(&plan, N, CUFFT_C2C, 1));

@@ -21,6 +21,9 @@
  *
  * Written by: Flora Giannone <flora.giannone@studenti.uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaDr.h"
@@ -28,35 +31,34 @@
 using namespace std;
 
 /*Create a stream.*/
-extern CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
+extern "C" CUresult cuStreamCreate(CUstream *phStream, unsigned int Flags) {
     CudaDrFrontend::Prepare();
     CudaDrFrontend::AddVariableForArguments(Flags);
     CudaDrFrontend::Execute("cuStreamCreate");
-    if (CudaDrFrontend::Success())
-        *phStream = (CUstream) (CudaDrFrontend::GetOutputDevicePointer());
+    if (CudaDrFrontend::Success()) *phStream = (CUstream)(CudaDrFrontend::GetOutputDevicePointer());
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Destroys a stream.*/
-extern CUresult cuStreamDestroy(CUstream hStream) {
+extern "C" CUresult cuStreamDestroy(CUstream hStream) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hStream);
     CudaDrFrontend::Execute("cuStreamDestroy");
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Determine status of a compute stream.*/
-extern CUresult cuStreamQuery(CUstream hStream) {
+extern "C" CUresult cuStreamQuery(CUstream hStream) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hStream);
     CudaDrFrontend::Execute("cuStreamQuery");
     return CudaDrFrontend::GetExitCode();
 }
 
 /*Wait until a stream's tasks are completed.*/
-extern CUresult cuStreamSynchronize(CUstream hStream) {
+extern "C" CUresult cuStreamSynchronize(CUstream hStream) {
     CudaDrFrontend::Prepare();
-    CudaDrFrontend::AddDevicePointerForArguments((void*) hStream);
+    CudaDrFrontend::AddDevicePointerForArguments((void *)hStream);
     CudaDrFrontend::Execute("cuStreamSynchronize");
     return CudaDrFrontend::GetExitCode();
 }

@@ -38,9 +38,9 @@
 
 #ifdef HAVE_VMCI_VMCI_SOCKETS_H
 
-#include <ext/stdio_filebuf.h>
-
 #include <vmci/vmci_sockets.h>
+
+#include <ext/stdio_filebuf.h>
 
 #include "Communicator.h"
 
@@ -48,8 +48,8 @@
 
 namespace gvirtus {
 
-  class VmciCommunicator : public Communicator {
-  public:
+class VmciCommunicator : public Communicator {
+   public:
     VmciCommunicator(short port, short cid = -1);
     VmciCommunicator(unsigned fd);
     virtual ~VmciCommunicator();
@@ -61,40 +61,19 @@ namespace gvirtus {
     void Close();
 
     /* Semaphores and Shared Memory */
-    bool
-    HasSemaphoresAndShm() {
-      return false;
-    }
-    void
-    HostWait() {}
-    void
-    HostPost() {}
-    void
-    HostSet(int value) {}
-    void
-    GuestWait() {}
-    void
-    GuestPost() {}
-    void
-    GuestSet(int value) {}
-    void *
-    GetShm() {
-      return NULL;
-    }
-    const char *
-    GetHostSemName() {
-      return NULL;
-    }
-    const char *
-    GetGuestSemName() {
-      return NULL;
-    }
-    const char *
-    GetShmName() {
-      return NULL;
-    }
+    bool HasSemaphoresAndShm() { return false; }
+    void HostWait() {}
+    void HostPost() {}
+    void HostSet(int value) {}
+    void GuestWait() {}
+    void GuestPost() {}
+    void GuestSet(int value) {}
+    void *GetShm() { return NULL; }
+    const char *GetHostSemName() { return NULL; }
+    const char *GetGuestSemName() { return NULL; }
+    const char *GetShmName() { return NULL; }
 
-  private:
+   private:
     void InitializeStream();
     std::istream *mpInput;
     std::ostream *mpOutput;
@@ -103,8 +82,8 @@ namespace gvirtus {
     int mSocketFd;
     __gnu_cxx::stdio_filebuf<char> *mpInputBuf;
     __gnu_cxx::stdio_filebuf<char> *mpOutputBuf;
-  };
-} // namespace gvirtus
+};
+}  // namespace gvirtus
 #endif /* HAVE_VMCI_VMCI_SOCKETS_H */
 
 #endif /* _VMCICOMMUNICATOR_H */

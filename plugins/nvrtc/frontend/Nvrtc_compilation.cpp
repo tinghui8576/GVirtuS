@@ -1,46 +1,49 @@
 /*
- *  * gVirtuS -- A GPGPU transparent virtualization component.
- *   *
- *    * Copyright (C) 2009-2010  The University of Napoli Parthenope at Naples.
- *     *
- *      * This file is part of gVirtuS.
- *       *
- *        * gVirtuS is free software; you can redistribute it and/or modify
- *         * it under the terms of the GNU General Public License as published by
- *          * the Free Software Foundation; either version 2 of the License, or
- *           * (at your option) any later version.
- *            *
- *             * gVirtuS is distributed in the hope that it will be useful,
- *              * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *               * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *                * GNU Lesser General Public License for more details.
- *                 *
- *                  * You should have received a copy of the GNU General Public License
- *                   * along with gVirtuS; if not, write to the Free Software
- *                    * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *                     *
- *                      * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
- *                       *            Department of Computer Science, University College Dublin
- *                        */
+ * gVirtuS -- A GPGPU transparent virtualization component.
+ *
+ * Copyright (C) 2009-2010  The University of Napoli Parthenope at Naples.
+ *
+ * This file is part of gVirtuS.
+ *
+ * gVirtuS is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * gVirtuS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with gVirtuS; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Written by: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *             Department of Computer Science, University College Dublin
+ *
+ */
 
-
-#include "NvrtcFrontend.h"
 #include <unordered_map>
 
+#include "NvrtcFrontend.h"
+
 using namespace std;
-using CallbackType = int(*)(void*, void*);
+using CallbackType = int (*)(void *, void *);
 
 // Struct to hold both callback and payload
 typedef struct CallbackEntry {
     CallbackType callback;
-    void* payload;
+    void *payload;
 } CallbackEntry;
 
 // The map: prog -> callback + payload
 static std::unordered_map<nvrtcProgram, CallbackEntry> callbackRegistry;
 
-extern "C" nvrtcResult nvrtcResultnvrtcAddNameExpression(nvrtcProgram prog, const char *const name_expression) {
-    cout << "nvrtcAddNameExpression called with prog: " << prog << ", name_expression: " << (name_expression ? name_expression : "NULL") << endl;
+extern "C" nvrtcResult nvrtcResultnvrtcAddNameExpression(nvrtcProgram prog,
+                                                         const char *const name_expression) {
+    cout << "nvrtcAddNameExpression called with prog: " << prog
+         << ", name_expression: " << (name_expression ? name_expression : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddStringForArguments(name_expression);
@@ -48,8 +51,10 @@ extern "C" nvrtcResult nvrtcResultnvrtcAddNameExpression(nvrtcProgram prog, cons
     return NvrtcFrontend::GetExitCode();
 }
 
-extern "C" nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, const char *const *options) {
-    cout << "nvrtcCompileProgram called with prog: " << prog << ", numOptions: " << numOptions << ", options: " << (options ? "provided" : "NULL") << endl;
+extern "C" nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions,
+                                           const char *const *options) {
+    cout << "nvrtcCompileProgram called with prog: " << prog << ", numOptions: " << numOptions
+         << ", options: " << (options ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddVariableForArguments(numOptions);
@@ -60,14 +65,13 @@ extern "C" nvrtcResult nvrtcCompileProgram(nvrtcProgram prog, int numOptions, co
     return NvrtcFrontend::GetExitCode();
 }
 
-extern "C" nvrtcResult nvrtcCreateProgram(nvrtcProgram *prog, const char *src, const char *name, int numHeaders, const char *const *headers, const char *const *includeNames) {
-    cout << "nvrtcCreateProgram called with prog: " << (prog ? *prog : nullptr) 
-         << ", src: " << (src ? src : "NULL") 
-         << ", name: " << (name ? name : "NULL") 
-         << ", numHeaders: " << numHeaders 
-         << ", headers: " << (headers ? "provided" : "NULL") 
-         << ", includeNames: " << (includeNames ? "provided" : "NULL") 
-         << endl;
+extern "C" nvrtcResult nvrtcCreateProgram(nvrtcProgram *prog, const char *src, const char *name,
+                                          int numHeaders, const char *const *headers,
+                                          const char *const *includeNames) {
+    cout << "nvrtcCreateProgram called with prog: " << (prog ? *prog : nullptr)
+         << ", src: " << (src ? src : "NULL") << ", name: " << (name ? name : "NULL")
+         << ", numHeaders: " << numHeaders << ", headers: " << (headers ? "provided" : "NULL")
+         << ", includeNames: " << (includeNames ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddStringForArguments(src);
@@ -90,7 +94,8 @@ extern "C" nvrtcResult nvrtcDestroyProgram(nvrtcProgram *prog) {
 }
 
 extern "C" nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char *cubin) {
-    cout << "nvrtcGetCUBIN called with prog: " << prog << ", cubin: " << (cubin ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetCUBIN called with prog: " << prog
+         << ", cubin: " << (cubin ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(cubin);
@@ -99,7 +104,8 @@ extern "C" nvrtcResult nvrtcGetCUBIN(nvrtcProgram prog, char *cubin) {
 }
 
 extern "C" nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t *cubinSizeRet) {
-    cout << "nvrtcGetCUBINSize called with prog: " << prog << ", cubinSizeRet: " << (cubinSizeRet ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetCUBINSize called with prog: " << prog
+         << ", cubinSizeRet: " << (cubinSizeRet ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(cubinSizeRet);
@@ -108,7 +114,8 @@ extern "C" nvrtcResult nvrtcGetCUBINSize(nvrtcProgram prog, size_t *cubinSizeRet
 }
 
 extern "C" nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char *LTOIR) {
-    cout << "nvrtcGetLTOIR called with prog: " << prog << ", LTOIR: " << (LTOIR ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetLTOIR called with prog: " << prog
+         << ", LTOIR: " << (LTOIR ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(LTOIR);
@@ -117,7 +124,8 @@ extern "C" nvrtcResult nvrtcGetLTOIR(nvrtcProgram prog, char *LTOIR) {
 }
 
 extern "C" nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t *LTOIRSizeRet) {
-    cout << "nvrtcGetLTOIRSize called with prog: " << prog << ", LTOIRSizeRet: " << (LTOIRSizeRet ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetLTOIRSize called with prog: " << prog
+         << ", LTOIRSizeRet: " << (LTOIRSizeRet ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(LTOIRSizeRet);
@@ -125,11 +133,11 @@ extern "C" nvrtcResult nvrtcGetLTOIRSize(nvrtcProgram prog, size_t *LTOIRSizeRet
     return NvrtcFrontend::GetExitCode();
 }
 
-extern "C" nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char *const name_expression, const char **lowered_name) {
-    cout << "nvrtcGetLoweredName called with prog: " << prog 
-         << ", name_expression: " << (name_expression ? name_expression : "NULL") 
-         << ", lowered_name: " << (lowered_name ? "provided" : "NULL") 
-         << endl;
+extern "C" nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char *const name_expression,
+                                           const char **lowered_name) {
+    cout << "nvrtcGetLoweredName called with prog: " << prog
+         << ", name_expression: " << (name_expression ? name_expression : "NULL")
+         << ", lowered_name: " << (lowered_name ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddStringForArguments(name_expression);
@@ -139,7 +147,8 @@ extern "C" nvrtcResult nvrtcGetLoweredName(nvrtcProgram prog, const char *const 
 }
 
 extern "C" nvrtcResult nvrtcGetNVVM(nvrtcProgram prog, char *nvvm) {
-    cout << "nvrtcGetNVVM called with prog: " << prog << ", nvvm: " << (nvvm ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetNVVM called with prog: " << prog << ", nvvm: " << (nvvm ? "provided" : "NULL")
+         << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(nvvm);
@@ -148,7 +157,8 @@ extern "C" nvrtcResult nvrtcGetNVVM(nvrtcProgram prog, char *nvvm) {
 }
 
 extern "C" nvrtcResult nvrtcGetNVVMSize(nvrtcProgram prog, size_t *nvvmSizeRet) {
-    cout << "nvrtcGetNVVMSize called with prog: " << prog << ", nvvmSizeRet: " << (nvvmSizeRet ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetNVVMSize called with prog: " << prog
+         << ", nvvmSizeRet: " << (nvvmSizeRet ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(nvvmSizeRet);
@@ -157,7 +167,8 @@ extern "C" nvrtcResult nvrtcGetNVVMSize(nvrtcProgram prog, size_t *nvvmSizeRet) 
 }
 
 extern "C" nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char *optixir) {
-    cout << "nvrtcGetOptiXIR called with prog: " << prog << ", optixir: " << (optixir ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetOptiXIR called with prog: " << prog
+         << ", optixir: " << (optixir ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(optixir);
@@ -166,7 +177,8 @@ extern "C" nvrtcResult nvrtcGetOptiXIR(nvrtcProgram prog, char *optixir) {
 }
 
 extern "C" nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t *optixirSizeRet) {
-    cout << "nvrtcGetOptiXIRSize called with prog: " << prog << ", optixirSizeRet: " << (optixirSizeRet ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetOptiXIRSize called with prog: " << prog
+         << ", optixirSizeRet: " << (optixirSizeRet ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(optixirSizeRet);
@@ -175,7 +187,8 @@ extern "C" nvrtcResult nvrtcGetOptiXIRSize(nvrtcProgram prog, size_t *optixirSiz
 }
 
 extern "C" nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char *ptx) {
-    cout << "nvrtcGetPTX called with prog: " << prog << ", ptx: " << (ptx ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetPTX called with prog: " << prog << ", ptx: " << (ptx ? "provided" : "NULL")
+         << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(ptx);
@@ -184,7 +197,8 @@ extern "C" nvrtcResult nvrtcGetPTX(nvrtcProgram prog, char *ptx) {
 }
 
 extern "C" nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t *ptxSizeRet) {
-    cout << "nvrtcGetPTXSize called with prog: " << prog << ", ptxSizeRet: " << (ptxSizeRet ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetPTXSize called with prog: " << prog
+         << ", ptxSizeRet: " << (ptxSizeRet ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(ptxSizeRet);
@@ -193,7 +207,8 @@ extern "C" nvrtcResult nvrtcGetPTXSize(nvrtcProgram prog, size_t *ptxSizeRet) {
 }
 
 extern "C" nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char *log) {
-    cout << "nvrtcGetProgramLog called with prog: " << prog << ", log: " << (log ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetProgramLog called with prog: " << prog
+         << ", log: " << (log ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(log);
@@ -202,7 +217,8 @@ extern "C" nvrtcResult nvrtcGetProgramLog(nvrtcProgram prog, char *log) {
 }
 
 extern "C" nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t *logSizeRet) {
-    cout << "nvrtcGetProgramLogSize called with prog: " << prog << ", logSizeRet: " << (logSizeRet ? "provided" : "NULL") << endl;
+    cout << "nvrtcGetProgramLogSize called with prog: " << prog
+         << ", logSizeRet: " << (logSizeRet ? "provided" : "NULL") << endl;
     NvrtcFrontend::Prepare();
     NvrtcFrontend::AddDevicePointerForArguments(prog);
     NvrtcFrontend::AddHostPointerForArguments(logSizeRet);
@@ -210,11 +226,11 @@ extern "C" nvrtcResult nvrtcGetProgramLogSize(nvrtcProgram prog, size_t *logSize
     return NvrtcFrontend::GetExitCode();
 }
 
-extern "C" nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, int(*callback)(void *, void *), void *payload) {
-    cout << "nvrtcSetFlowCallback called with prog: " << prog 
-         << ", callback: " << (callback ? "provided" : "NULL") 
-         << ", payload: " << (payload ? "provided" : "NULL") 
-         << endl;
+extern "C" nvrtcResult nvrtcSetFlowCallback(nvrtcProgram prog, int (*callback)(void *, void *),
+                                            void *payload) {
+    cout << "nvrtcSetFlowCallback called with prog: " << prog
+         << ", callback: " << (callback ? "provided" : "NULL")
+         << ", payload: " << (payload ? "provided" : "NULL") << endl;
 
     callbackRegistry[prog] = {callback, payload};
     return NVRTC_SUCCESS;

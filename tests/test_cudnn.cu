@@ -1,9 +1,15 @@
-#include <gtest/gtest.h>
+/*
+ * Written By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             School of Computer Science, University College Dublin
+ */
+
 #include <cuda_runtime.h>
 #include <cudnn.h>
+#include <gtest/gtest.h>
 
 #define CUDA_CHECK(err) ASSERT_EQ((err), cudaSuccess) << "CUDA Error: " << cudaGetErrorString(err)
-#define CUDNN_CHECK(err) ASSERT_EQ((err), CUDNN_STATUS_SUCCESS) << "CUDNN Error: " << cudnnGetErrorString(err)
+#define CUDNN_CHECK(err) \
+    ASSERT_EQ((err), CUDNN_STATUS_SUCCESS) << "CUDNN Error: " << cudnnGetErrorString(err)
 
 TEST(cuDNN, CreateDestroy) {
     cudnnHandle_t handle;
@@ -49,7 +55,8 @@ TEST(cuDNN, TensorDescriptorSetGet) {
     cudnnDataType_t dataType;
     int n, c, h, w, nStride, cStride, hStride, wStride;
 
-    CUDNN_CHECK(cudnnGetTensor4dDescriptor(desc, &dataType, &n, &c, &h, &w, &nStride, &cStride, &hStride, &wStride));
+    CUDNN_CHECK(cudnnGetTensor4dDescriptor(desc, &dataType, &n, &c, &h, &w, &nStride, &cStride,
+                                           &hStride, &wStride));
     ASSERT_EQ(n, 1);
     ASSERT_EQ(c, 2);
     ASSERT_EQ(h, 3);
@@ -63,7 +70,7 @@ TEST(cuDNN, TensorNdDescriptorSetGet) {
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&desc));
 
     const int nbDims = 4;
-    int dimA[nbDims]    = {1, 2, 3, 4};  // NCHW
+    int dimA[nbDims] = {1, 2, 3, 4};  // NCHW
     int strideA[nbDims] = {
         2 * 3 * 4,  // N stride = C * H * W
         3 * 4,      // C stride = H * W
@@ -79,7 +86,8 @@ TEST(cuDNN, TensorNdDescriptorSetGet) {
     int dimOut[nbDims];
     int strideOut[nbDims];
 
-    CUDNN_CHECK(cudnnGetTensorNdDescriptor(desc, nbDims, &dataTypeOut, &nbDimsOut, dimOut, strideOut));
+    CUDNN_CHECK(
+        cudnnGetTensorNdDescriptor(desc, nbDims, &dataTypeOut, &nbDimsOut, dimOut, strideOut));
     ASSERT_EQ(dataTypeOut, CUDNN_DATA_FLOAT);
     ASSERT_EQ(nbDimsOut, nbDims);
     for (int i = 0; i < nbDims; ++i) {
@@ -100,7 +108,8 @@ TEST(cuDNN, ActivationForwardReLU) {
 
     cudnnActivationDescriptor_t actDesc;
     CUDNN_CHECK(cudnnCreateActivationDescriptor(&actDesc));
-    CUDNN_CHECK(cudnnSetActivationDescriptor(actDesc, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
+    CUDNN_CHECK(
+        cudnnSetActivationDescriptor(actDesc, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
 
     float h_input[] = {-1.0f, 0.0f, 2.0f};
     float h_output[3] = {};
@@ -111,7 +120,8 @@ TEST(cuDNN, ActivationForwardReLU) {
     CUDA_CHECK(cudaMemcpy(d_input, h_input, sizeof(h_input), cudaMemcpyHostToDevice));
 
     float alpha = 1.0f, beta = 0.0f;
-    CUDNN_CHECK(cudnnActivationForward(handle, actDesc, &alpha, desc, d_input, &beta, desc, d_output));
+    CUDNN_CHECK(
+        cudnnActivationForward(handle, actDesc, &alpha, desc, d_input, &beta, desc, d_output));
     CUDA_CHECK(cudaMemcpy(h_output, d_output, sizeof(h_output), cudaMemcpyDeviceToHost));
 
     ASSERT_FLOAT_EQ(h_output[0], 0.0f);
@@ -136,12 +146,14 @@ TEST(cuDNN, PoolingForwardMax) {
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&out_desc));
     CUDNN_CHECK(cudnnCreatePoolingDescriptor(&pool_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(in_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, 1, 2, 2));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(out_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, 1, 1, 1));
-    CUDNN_CHECK(cudnnSetPooling2dDescriptor(pool_desc, CUDNN_POOLING_MAX, CUDNN_PROPAGATE_NAN,
-                                            2, 2, 0, 0, 1, 1));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(in_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, 1, 2, 2));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(out_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, 1, 1, 1));
+    CUDNN_CHECK(cudnnSetPooling2dDescriptor(pool_desc, CUDNN_POOLING_MAX, CUDNN_PROPAGATE_NAN, 2, 2,
+                                            0, 0, 1, 1));
 
-    float h_input[] = {1, 2, 3, 4}; // max is 4
+    float h_input[] = {1, 2, 3, 4};  // max is 4
     float h_output[1] = {};
 
     float *d_input, *d_output;
@@ -150,7 +162,8 @@ TEST(cuDNN, PoolingForwardMax) {
     CUDA_CHECK(cudaMemcpy(d_input, h_input, sizeof(h_input), cudaMemcpyHostToDevice));
 
     float alpha = 1.0f, beta = 0.0f;
-    CUDNN_CHECK(cudnnPoolingForward(handle, pool_desc, &alpha, in_desc, d_input, &beta, out_desc, d_output));
+    CUDNN_CHECK(cudnnPoolingForward(handle, pool_desc, &alpha, in_desc, d_input, &beta, out_desc,
+                                    d_output));
     CUDA_CHECK(cudaMemcpy(h_output, d_output, sizeof(h_output), cudaMemcpyDeviceToHost));
 
     ASSERT_FLOAT_EQ(h_output[0], 4.0f);
@@ -190,9 +203,11 @@ TEST(cuDNN, ConvolutionForward) {
     int out_w = (w + 2 * pad - dilation * (kernel_size - 1) - 1) / stride + 1;
 
     // Allocate and initialize host memory
-    std::vector<float> h_input(n * c * h * w, 1.0f);   // Input filled with ones
-    std::vector<float> h_filter(out_c * c * kernel_size * kernel_size, 1.0f); // Filter filled with ones
-    std::vector<float> h_output(out_n * out_c * out_h * out_w, 0.0f); // Output initialized to zeros
+    std::vector<float> h_input(n * c * h * w, 1.0f);  // Input filled with ones
+    std::vector<float> h_filter(out_c * c * kernel_size * kernel_size,
+                                1.0f);  // Filter filled with ones
+    std::vector<float> h_output(out_n * out_c * out_h * out_w,
+                                0.0f);  // Output initialized to zeros
 
     // Allocate device memory
     float *d_input, *d_filter, *d_output;
@@ -201,8 +216,10 @@ TEST(cuDNN, ConvolutionForward) {
     CUDA_CHECK(cudaMalloc(&d_output, h_output.size() * sizeof(float)));
 
     // Copy data to device
-    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_filter, h_filter.data(), h_filter.size() * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_filter, h_filter.data(), h_filter.size() * sizeof(float),
+                          cudaMemcpyHostToDevice));
 
     // Create tensor descriptors
     cudnnTensorDescriptor_t input_desc, output_desc;
@@ -214,25 +231,30 @@ TEST(cuDNN, ConvolutionForward) {
     CUDNN_CHECK(cudnnCreateFilterDescriptor(&filter_desc));
     CUDNN_CHECK(cudnnCreateConvolutionDescriptor(&conv_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
-    CUDNN_CHECK(cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, out_c, c, kernel_size, kernel_size));
-    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc, pad, pad, stride, stride, dilation, dilation, CUDNN_CROSS_CORRELATION, CUDNN_DATA_FLOAT));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, out_c,
+                                           c, kernel_size, kernel_size));
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc, pad, pad, stride, stride, dilation,
+                                                dilation, CUDNN_CROSS_CORRELATION,
+                                                CUDNN_DATA_FLOAT));
 
     // Set output descriptor
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n, out_c, out_h, out_w));
+    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n,
+                                           out_c, out_h, out_w));
 
     // Select convolution algorithm
     cudnnConvolutionFwdAlgoPerf_t perf_results;
     int returned_algo_count = 0;
-    CUDNN_CHECK(cudnnFindConvolutionForwardAlgorithm(
-        cudnn, input_desc, filter_desc, conv_desc, output_desc,
-        1, &returned_algo_count, &perf_results));
+    CUDNN_CHECK(cudnnFindConvolutionForwardAlgorithm(cudnn, input_desc, filter_desc, conv_desc,
+                                                     output_desc, 1, &returned_algo_count,
+                                                     &perf_results));
     cudnnConvolutionFwdAlgo_t algo = perf_results.algo;
 
     // Allocate workspace
     size_t workspace_bytes = 0;
-    CUDNN_CHECK(cudnnGetConvolutionForwardWorkspaceSize(cudnn, input_desc, filter_desc, conv_desc, output_desc,
-                                                        algo, &workspace_bytes));
+    CUDNN_CHECK(cudnnGetConvolutionForwardWorkspaceSize(cudnn, input_desc, filter_desc, conv_desc,
+                                                        output_desc, algo, &workspace_bytes));
     void* d_workspace = nullptr;
     if (workspace_bytes > 0) {
         CUDA_CHECK(cudaMalloc(&d_workspace, workspace_bytes));
@@ -241,14 +263,16 @@ TEST(cuDNN, ConvolutionForward) {
     // Perform the convolution
     float alpha = 1.0f, beta = 0.0f;
     CUDNN_CHECK(cudnnConvolutionForward(cudnn, &alpha, input_desc, d_input, filter_desc, d_filter,
-                                        conv_desc, algo, d_workspace, workspace_bytes, &beta, output_desc, d_output));
+                                        conv_desc, algo, d_workspace, workspace_bytes, &beta,
+                                        output_desc, d_output));
 
     // Copy the result back to host
-    CUDA_CHECK(cudaMemcpy(h_output.data(), d_output, h_output.size() * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_output.data(), d_output, h_output.size() * sizeof(float),
+                          cudaMemcpyDeviceToHost));
 
     // Verify the result
     for (size_t i = 0; i < h_output.size(); ++i) {
-       ASSERT_NEAR(h_output[i], 9.0f, 1e-5f) << "Mismatch at index " << i;
+        ASSERT_NEAR(h_output[i], 9.0f, 1e-5f) << "Mismatch at index " << i;
     }
 
     // Cleanup
@@ -275,10 +299,11 @@ TEST(cuDNN, ConvolutionBackwardData) {
     int out_w = (w + 2 * pad - dilation * (kernel_size - 1) - 1) / stride + 1;
 
     // Host-side buffers
-    std::vector<float> h_input(n * c * h * w, 1.0f); // input filled with ones
-    std::vector<float> h_filter(c * kernel_size * kernel_size, 1.0f); // filter filled with ones
-    std::vector<float> h_output_grad(n * c * out_h * out_w, 1.0f); // output gradient (dy) filled with ones
-    std::vector<float> h_input_grad(n * c * h * w, 0.0f); // dx to be filled
+    std::vector<float> h_input(n * c * h * w, 1.0f);                   // input filled with ones
+    std::vector<float> h_filter(c * kernel_size * kernel_size, 1.0f);  // filter filled with ones
+    std::vector<float> h_output_grad(n * c * out_h * out_w,
+                                     1.0f);                // output gradient (dy) filled with ones
+    std::vector<float> h_input_grad(n * c * h * w, 0.0f);  // dx to be filled
 
     // Device-side buffers
     float *d_input, *d_filter, *d_output_grad, *d_input_grad;
@@ -287,8 +312,10 @@ TEST(cuDNN, ConvolutionBackwardData) {
     CUDA_CHECK(cudaMalloc(&d_output_grad, h_output_grad.size() * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&d_input_grad, h_input_grad.size() * sizeof(float)));
 
-    CUDA_CHECK(cudaMemcpy(d_filter, h_filter.data(), h_filter.size() * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_output_grad, h_output_grad.data(), h_output_grad.size() * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_filter, h_filter.data(), h_filter.size() * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_output_grad, h_output_grad.data(), h_output_grad.size() * sizeof(float),
+                          cudaMemcpyHostToDevice));
 
     // Descriptors
     cudnnTensorDescriptor_t input_desc, output_desc;
@@ -300,16 +327,21 @@ TEST(cuDNN, ConvolutionBackwardData) {
     CUDNN_CHECK(cudnnCreateFilterDescriptor(&filter_desc));
     CUDNN_CHECK(cudnnCreateConvolutionDescriptor(&conv_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, out_h, out_w));
-    CUDNN_CHECK(cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, c, c, kernel_size, kernel_size));
-    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc, pad, pad, stride, stride, dilation, dilation,
-                                                CUDNN_CROSS_CORRELATION, CUDNN_DATA_FLOAT));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c,
+                                           out_h, out_w));
+    CUDNN_CHECK(cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, c, c,
+                                           kernel_size, kernel_size));
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc, pad, pad, stride, stride, dilation,
+                                                dilation, CUDNN_CROSS_CORRELATION,
+                                                CUDNN_DATA_FLOAT));
 
     // Workspace
     size_t workspace_bytes = 0;
     CUDNN_CHECK(cudnnGetConvolutionBackwardDataWorkspaceSize(
-        cudnn, filter_desc, output_desc, conv_desc, input_desc, CUDNN_CONVOLUTION_BWD_DATA_ALGO_0, &workspace_bytes));
+        cudnn, filter_desc, output_desc, conv_desc, input_desc, CUDNN_CONVOLUTION_BWD_DATA_ALGO_0,
+        &workspace_bytes));
 
     void* d_workspace = nullptr;
     if (workspace_bytes > 0) {
@@ -318,13 +350,14 @@ TEST(cuDNN, ConvolutionBackwardData) {
 
     // Compute backward data (dx)
     float alpha = 1.0f, beta = 0.0f;
-    CUDNN_CHECK(cudnnConvolutionBackwardData(
-        cudnn, &alpha, filter_desc, d_filter, output_desc, d_output_grad,
-        conv_desc, CUDNN_CONVOLUTION_BWD_DATA_ALGO_0, d_workspace, workspace_bytes,
-        &beta, input_desc, d_input_grad));
+    CUDNN_CHECK(cudnnConvolutionBackwardData(cudnn, &alpha, filter_desc, d_filter, output_desc,
+                                             d_output_grad, conv_desc,
+                                             CUDNN_CONVOLUTION_BWD_DATA_ALGO_0, d_workspace,
+                                             workspace_bytes, &beta, input_desc, d_input_grad));
 
     // Copy result back
-    CUDA_CHECK(cudaMemcpy(h_input_grad.data(), d_input_grad, h_input_grad.size() * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_input_grad.data(), d_input_grad, h_input_grad.size() * sizeof(float),
+                          cudaMemcpyDeviceToHost));
 
     // Verify (each element in dx should be equal to number of times the kernel overlaps it)
     // With 3x3 kernel and 5x5 input, interior pixels get full 3x3 overlap = 9
@@ -335,13 +368,14 @@ TEST(cuDNN, ConvolutionBackwardData) {
                 for (int n = 0; n < kernel_size; ++n) {
                     int y = i - m + pad;
                     int x = j - n + pad;
-                    if (y >= 0 && y < out_h && x >= 0 && x < out_w)
-                        count++;
+                    if (y >= 0 && y < out_h && x >= 0 && x < out_w) count++;
                 }
             }
-            float expected = static_cast<float>(count);  // number of times the kernel covered this pixel
+            float expected =
+                static_cast<float>(count);  // number of times the kernel covered this pixel
             int idx = i * w + j;
-            ASSERT_NEAR(h_input_grad[idx], expected, 1e-5f) << "Mismatch at (" << i << "," << j << ")";
+            ASSERT_NEAR(h_input_grad[idx], expected, 1e-5f)
+                << "Mismatch at (" << i << "," << j << ")";
         }
     }
 
@@ -371,17 +405,20 @@ TEST(cuDNN, ConvolutionBackwardFilter) {
     int out_w = out_h;
     int out_n = n, out_c = c;
 
-    std::vector<float> h_input(n * c * h * w, 1.0f);            // Input filled with 1.0
-    std::vector<float> h_output_grad(n * c * out_h * out_w, 1.0f); // dOutput filled with 1.0
-    std::vector<float> h_filter_grad(c * c * kernel_size * kernel_size, 0.0f); // dFilter initialized to 0.0
+    std::vector<float> h_input(n * c * h * w, 1.0f);                // Input filled with 1.0
+    std::vector<float> h_output_grad(n * c * out_h * out_w, 1.0f);  // dOutput filled with 1.0
+    std::vector<float> h_filter_grad(c * c * kernel_size * kernel_size,
+                                     0.0f);  // dFilter initialized to 0.0
 
     float *d_input, *d_output_grad, *d_filter_grad;
     CUDA_CHECK(cudaMalloc(&d_input, h_input.size() * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&d_output_grad, h_output_grad.size() * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&d_filter_grad, h_filter_grad.size() * sizeof(float)));
 
-    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_output_grad, h_output_grad.data(), h_output_grad.size() * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_output_grad, h_output_grad.data(), h_output_grad.size() * sizeof(float),
+                          cudaMemcpyHostToDevice));
 
     cudnnTensorDescriptor_t input_desc, output_desc;
     cudnnFilterDescriptor_t filter_desc;
@@ -392,25 +429,23 @@ TEST(cuDNN, ConvolutionBackwardFilter) {
     CUDNN_CHECK(cudnnCreateFilterDescriptor(&filter_desc));
     CUDNN_CHECK(cudnnCreateConvolutionDescriptor(&conv_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n, out_c, out_h, out_w));
-    CUDNN_CHECK(cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, out_c, c, kernel_size, kernel_size));
-    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc, pad, pad, stride, stride, dilation, dilation,
-                                                CUDNN_CROSS_CORRELATION, CUDNN_DATA_FLOAT));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n,
+                                           out_c, out_h, out_w));
+    CUDNN_CHECK(cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, out_c,
+                                           c, kernel_size, kernel_size));
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc, pad, pad, stride, stride, dilation,
+                                                dilation, CUDNN_CROSS_CORRELATION,
+                                                CUDNN_DATA_FLOAT));
 
     // Get algorithm using the v7 API
     int returned_algo_count = 0;
     cudnnConvolutionBwdFilterAlgoPerf_t perf_results;
 
-    CUDNN_CHECK(cudnnGetConvolutionBackwardFilterAlgorithm_v7(
-        cudnn,
-        input_desc,
-        output_desc,
-        conv_desc,
-        filter_desc,
-        1,
-        &returned_algo_count,
-        &perf_results));
+    CUDNN_CHECK(cudnnGetConvolutionBackwardFilterAlgorithm_v7(cudnn, input_desc, output_desc,
+                                                              conv_desc, filter_desc, 1,
+                                                              &returned_algo_count, &perf_results));
 
     ASSERT_GT(returned_algo_count, 0);
     cudnnConvolutionBwdFilterAlgo_t algo = perf_results.algo;
@@ -427,12 +462,12 @@ TEST(cuDNN, ConvolutionBackwardFilter) {
 
     // Run convolution backward filter
     float alpha = 1.0f, beta = 0.0f;
-    CUDNN_CHECK(cudnnConvolutionBackwardFilter(
-        cudnn, &alpha, input_desc, d_input, output_desc, d_output_grad, conv_desc, algo,
-        d_workspace, workspace_bytes, &beta, filter_desc, d_filter_grad));
+    CUDNN_CHECK(cudnnConvolutionBackwardFilter(cudnn, &alpha, input_desc, d_input, output_desc,
+                                               d_output_grad, conv_desc, algo, d_workspace,
+                                               workspace_bytes, &beta, filter_desc, d_filter_grad));
 
-    CUDA_CHECK(cudaMemcpy(h_filter_grad.data(), d_filter_grad,
-                          h_filter_grad.size() * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_filter_grad.data(), d_filter_grad, h_filter_grad.size() * sizeof(float),
+                          cudaMemcpyDeviceToHost));
 
     // Verify: each value in the filter gradient should be equal to 9.0 (from 3x3 patch of 1s)
     for (size_t i = 0; i < h_filter_grad.size(); ++i) {
@@ -458,16 +493,10 @@ TEST(cuDNN, ActivationBackwardReLU) {
     const int n = 1, c = 1, h = 2, w = 3;
     const int total_size = n * c * h * w;
 
-    std::vector<float> h_input = {
-        -1.0f, 0.0f, 1.0f,
-         2.0f, -3.0f, 4.0f
-    }; // Input before ReLU
-    std::vector<float> h_output = {
-         0.0f, 0.0f, 1.0f,
-         2.0f, 0.0f, 4.0f
-    }; // Output after ReLU
-    std::vector<float> h_grad_output(total_size, 1.0f); // dY (incoming gradient): all ones
-    std::vector<float> h_grad_input(total_size, 0.0f);  // dX: what we compute
+    std::vector<float> h_input = {-1.0f, 0.0f, 1.0f, 2.0f, -3.0f, 4.0f};  // Input before ReLU
+    std::vector<float> h_output = {0.0f, 0.0f, 1.0f, 2.0f, 0.0f, 4.0f};   // Output after ReLU
+    std::vector<float> h_grad_output(total_size, 1.0f);  // dY (incoming gradient): all ones
+    std::vector<float> h_grad_input(total_size, 0.0f);   // dX: what we compute
 
     float *d_input, *d_output, *d_grad_output, *d_grad_input;
     CUDA_CHECK(cudaMalloc(&d_input, total_size * sizeof(float)));
@@ -475,9 +504,12 @@ TEST(cuDNN, ActivationBackwardReLU) {
     CUDA_CHECK(cudaMalloc(&d_grad_output, total_size * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&d_grad_input, total_size * sizeof(float)));
 
-    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_output, h_output.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_grad_output, h_grad_output.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_input, h_input.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_output, h_output.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_grad_output, h_grad_output.data(), total_size * sizeof(float),
+                          cudaMemcpyHostToDevice));
 
     cudnnTensorDescriptor_t desc;
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&desc));
@@ -485,28 +517,21 @@ TEST(cuDNN, ActivationBackwardReLU) {
 
     cudnnActivationDescriptor_t act_desc;
     CUDNN_CHECK(cudnnCreateActivationDescriptor(&act_desc));
-    CUDNN_CHECK(cudnnSetActivationDescriptor(act_desc, CUDNN_ACTIVATION_RELU,
-                                             CUDNN_PROPAGATE_NAN, 0.0));
+    CUDNN_CHECK(
+        cudnnSetActivationDescriptor(act_desc, CUDNN_ACTIVATION_RELU, CUDNN_PROPAGATE_NAN, 0.0));
 
     float alpha = 1.0f, beta = 0.0f;
 
-    CUDNN_CHECK(cudnnActivationBackward(
-        cudnn, act_desc,
-        &alpha,
-        desc, d_output,        // y
-        desc, d_grad_output,   // dy
-        desc, d_input,         // x
-        &beta,
-        desc, d_grad_input     // dx
-    ));
+    CUDNN_CHECK(cudnnActivationBackward(cudnn, act_desc, &alpha, desc, d_output,  // y
+                                        desc, d_grad_output,                      // dy
+                                        desc, d_input,                            // x
+                                        &beta, desc, d_grad_input                 // dx
+                                        ));
 
-    CUDA_CHECK(cudaMemcpy(h_grad_input.data(), d_grad_input,
-                          total_size * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_grad_input.data(), d_grad_input, total_size * sizeof(float),
+                          cudaMemcpyDeviceToHost));
 
-    std::vector<float> expected_grad_input = {
-        0.0f, 0.0f, 1.0f,
-        1.0f, 0.0f, 1.0f
-    };
+    std::vector<float> expected_grad_input = {0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
 
     for (int i = 0; i < total_size; ++i) {
         ASSERT_NEAR(h_grad_input[i], expected_grad_input[i], 1e-5f) << "Mismatch at index " << i;
@@ -526,13 +551,13 @@ TEST(cuDNN, BatchNormForwardTraining) {
     cudnnHandle_t cudnn;
     CUDNN_CHECK(cudnnCreate(&cudnn));
 
-    const int n = 1, c = 2, h = 1, w = 3; // Small 1x2x1x3 tensor
+    const int n = 1, c = 2, h = 1, w = 3;  // Small 1x2x1x3 tensor
     const int total_size = n * c * h * w;
     const int param_size = c;
 
     std::vector<float> h_input = {
-        1.0f, 2.0f, 3.0f,   // Channel 0
-        4.0f, 5.0f, 6.0f    // Channel 1
+        1.0f, 2.0f, 3.0f,  // Channel 0
+        4.0f, 5.0f, 6.0f   // Channel 1
     };
     std::vector<float> h_grad_output(total_size, 1.0f);  // dy
     std::vector<float> h_output(total_size, 0.0f);
@@ -568,20 +593,28 @@ TEST(cuDNN, BatchNormForwardTraining) {
     CUDA_CHECK(cudaMalloc(&d_dscale, param_size * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&d_dbias, param_size * sizeof(float)));
 
-    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_grad_output, h_grad_output.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_scale, h_scale.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_bias, h_bias.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_running_mean, h_running_mean.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_running_var, h_running_var.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_input, h_input.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_grad_output, h_grad_output.data(), total_size * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_scale, h_scale.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_bias, h_bias.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_running_mean, h_running_mean.data(), param_size * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_running_var, h_running_var.data(), param_size * sizeof(float),
+                          cudaMemcpyHostToDevice));
 
     cudnnTensorDescriptor_t x_desc;
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&x_desc));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(x_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(x_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
 
     cudnnTensorDescriptor_t bn_desc;
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&bn_desc));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(bn_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, c, 1, 1));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(bn_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, c, 1, 1));
 
     float alpha = 1.0f, beta = 0.0f;
     double epsilon = 1e-5;
@@ -589,17 +622,9 @@ TEST(cuDNN, BatchNormForwardTraining) {
 
     // Forward training pass
     CUDNN_CHECK(cudnnBatchNormalizationForwardTraining(
-        cudnn,
-        CUDNN_BATCHNORM_SPATIAL,
-        &alpha, &beta,
-        x_desc, d_input,
-        x_desc, d_output,
-        bn_desc, d_scale, d_bias,
-        exponential_average_factor,
-        d_running_mean, d_running_var,
-        epsilon,
-        d_saved_mean, d_saved_var
-    ));
+        cudnn, CUDNN_BATCHNORM_SPATIAL, &alpha, &beta, x_desc, d_input, x_desc, d_output, bn_desc,
+        d_scale, d_bias, exponential_average_factor, d_running_mean, d_running_var, epsilon,
+        d_saved_mean, d_saved_var));
 
     // Cleanup
     CUDA_CHECK(cudaFree(d_input));
@@ -665,20 +690,24 @@ TEST(cuDNN, BatchNormForwardTraining) {
 //     CUDA_CHECK(cudaMalloc(&d_dscale, param_size * sizeof(float)));
 //     CUDA_CHECK(cudaMalloc(&d_dbias, param_size * sizeof(float)));
 
-//     CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
-//     CUDA_CHECK(cudaMemcpy(d_grad_output, h_grad_output.data(), total_size * sizeof(float), cudaMemcpyHostToDevice));
-//     CUDA_CHECK(cudaMemcpy(d_scale, h_scale.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
-//     CUDA_CHECK(cudaMemcpy(d_bias, h_bias.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
-//     CUDA_CHECK(cudaMemcpy(d_running_mean, h_running_mean.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
-//     CUDA_CHECK(cudaMemcpy(d_running_var, h_running_var.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
+//     CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), total_size * sizeof(float),
+//     cudaMemcpyHostToDevice)); CUDA_CHECK(cudaMemcpy(d_grad_output, h_grad_output.data(),
+//     total_size * sizeof(float), cudaMemcpyHostToDevice)); CUDA_CHECK(cudaMemcpy(d_scale,
+//     h_scale.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
+//     CUDA_CHECK(cudaMemcpy(d_bias, h_bias.data(), param_size * sizeof(float),
+//     cudaMemcpyHostToDevice)); CUDA_CHECK(cudaMemcpy(d_running_mean, h_running_mean.data(),
+//     param_size * sizeof(float), cudaMemcpyHostToDevice)); CUDA_CHECK(cudaMemcpy(d_running_var,
+//     h_running_var.data(), param_size * sizeof(float), cudaMemcpyHostToDevice));
 
 //     cudnnTensorDescriptor_t x_desc;
 //     CUDNN_CHECK(cudnnCreateTensorDescriptor(&x_desc));
-//     CUDNN_CHECK(cudnnSetTensor4dDescriptor(x_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+//     CUDNN_CHECK(cudnnSetTensor4dDescriptor(x_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h,
+//     w));
 
 //     cudnnTensorDescriptor_t bn_desc;
 //     CUDNN_CHECK(cudnnCreateTensorDescriptor(&bn_desc));
-//     CUDNN_CHECK(cudnnSetTensor4dDescriptor(bn_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, c, 1, 1));
+//     CUDNN_CHECK(cudnnSetTensor4dDescriptor(bn_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, 1, c, 1,
+//     1));
 
 //     float alpha = 1.0f, beta = 0.0f;
 //     double epsilon = 1e-5;
@@ -714,12 +743,14 @@ TEST(cuDNN, BatchNormForwardTraining) {
 //     ));
 
 //     // Copy results back
-//     CUDA_CHECK(cudaMemcpy(h_output.data(), d_output, total_size * sizeof(float), cudaMemcpyDeviceToHost));
-//     CUDA_CHECK(cudaMemcpy(h_grad_input.data(), d_grad_input, total_size * sizeof(float), cudaMemcpyDeviceToHost));
-//     CUDA_CHECK(cudaMemcpy(h_dscale.data(), d_dscale, param_size * sizeof(float), cudaMemcpyDeviceToHost));
-//     CUDA_CHECK(cudaMemcpy(h_dbias.data(), d_dbias, param_size * sizeof(float), cudaMemcpyDeviceToHost));
-//     CUDA_CHECK(cudaMemcpy(h_saved_mean.data(), d_saved_mean, param_size * sizeof(float), cudaMemcpyDeviceToHost));
-//     CUDA_CHECK(cudaMemcpy(h_saved_var.data(), d_saved_var, param_size * sizeof(float), cudaMemcpyDeviceToHost));
+//     CUDA_CHECK(cudaMemcpy(h_output.data(), d_output, total_size * sizeof(float),
+//     cudaMemcpyDeviceToHost)); CUDA_CHECK(cudaMemcpy(h_grad_input.data(), d_grad_input, total_size
+//     * sizeof(float), cudaMemcpyDeviceToHost)); CUDA_CHECK(cudaMemcpy(h_dscale.data(), d_dscale,
+//     param_size * sizeof(float), cudaMemcpyDeviceToHost)); CUDA_CHECK(cudaMemcpy(h_dbias.data(),
+//     d_dbias, param_size * sizeof(float), cudaMemcpyDeviceToHost));
+//     CUDA_CHECK(cudaMemcpy(h_saved_mean.data(), d_saved_mean, param_size * sizeof(float),
+//     cudaMemcpyDeviceToHost)); CUDA_CHECK(cudaMemcpy(h_saved_var.data(), d_saved_var, param_size *
+//     sizeof(float), cudaMemcpyDeviceToHost));
 
 //     // Expect saved mean = mean of each channel
 //     ASSERT_NEAR(h_saved_mean[0], 2.0f, 1e-3);
@@ -769,16 +800,17 @@ TEST(cuDNN, GetConvolution2dForwardOutputDim) {
     CUDNN_CHECK(cudnnCreateFilterDescriptor(&filter_desc));
     CUDNN_CHECK(cudnnCreateConvolutionDescriptor(&conv_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
-    CUDNN_CHECK(cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, k, c, kh, kw));
-    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc,
-        pad, pad, stride, stride, dilation, dilation,
-        CUDNN_CROSS_CORRELATION, CUDNN_DATA_FLOAT));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(
+        cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, k, c, kh, kw));
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc, pad, pad, stride, stride, dilation,
+                                                dilation, CUDNN_CROSS_CORRELATION,
+                                                CUDNN_DATA_FLOAT));
 
     int out_n = 0, out_c = 0, out_h = 0, out_w = 0;
-    CUDNN_CHECK(cudnnGetConvolution2dForwardOutputDim(
-        conv_desc, input_desc, filter_desc,
-        &out_n, &out_c, &out_h, &out_w));
+    CUDNN_CHECK(cudnnGetConvolution2dForwardOutputDim(conv_desc, input_desc, filter_desc, &out_n,
+                                                      &out_c, &out_h, &out_w));
 
     ASSERT_EQ(out_n, n);
     ASSERT_EQ(out_c, k);
@@ -808,37 +840,32 @@ TEST(cuDNN, GetConvolutionForwardAlgorithm_v7) {
     CUDNN_CHECK(cudnnCreateFilterDescriptor(&filter_desc));
     CUDNN_CHECK(cudnnCreateConvolutionDescriptor(&conv_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
-    CUDNN_CHECK(cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, k, c, kh, kw));
-    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc,
-        pad, pad, stride, stride, dilation, dilation,
-        CUDNN_CROSS_CORRELATION, CUDNN_DATA_FLOAT));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(
+        cudnnSetFilter4dDescriptor(filter_desc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, k, c, kh, kw));
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(conv_desc, pad, pad, stride, stride, dilation,
+                                                dilation, CUDNN_CROSS_CORRELATION,
+                                                CUDNN_DATA_FLOAT));
 
     int out_n, out_c, out_h, out_w;
-    CUDNN_CHECK(cudnnGetConvolution2dForwardOutputDim(
-        conv_desc, input_desc, filter_desc,
-        &out_n, &out_c, &out_h, &out_w));
+    CUDNN_CHECK(cudnnGetConvolution2dForwardOutputDim(conv_desc, input_desc, filter_desc, &out_n,
+                                                      &out_c, &out_h, &out_w));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(
-        output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
-        out_n, out_c, out_h, out_w));
+    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n,
+                                           out_c, out_h, out_w));
 
     int returned_algo_count = 0;
     cudnnConvolutionFwdAlgoPerf_t perf_results[1];
 
-    CUDNN_CHECK(cudnnGetConvolutionForwardAlgorithm_v7(
-        cudnn,
-        input_desc,
-        filter_desc,
-        conv_desc,
-        output_desc,
-        1,
-        &returned_algo_count,
-        perf_results));
+    CUDNN_CHECK(cudnnGetConvolutionForwardAlgorithm_v7(cudnn, input_desc, filter_desc, conv_desc,
+                                                       output_desc, 1, &returned_algo_count,
+                                                       perf_results));
 
     ASSERT_GE(returned_algo_count, 1);
     ASSERT_EQ(perf_results[0].status, CUDNN_STATUS_SUCCESS);
-    ASSERT_NE(perf_results[0].algo, CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM);  // or just check algo is valid
+    ASSERT_NE(perf_results[0].algo,
+              CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_GEMM);  // or just check algo is valid
 
     CUDNN_CHECK(cudnnDestroyTensorDescriptor(input_desc));
     CUDNN_CHECK(cudnnDestroyTensorDescriptor(output_desc));
@@ -871,7 +898,8 @@ TEST(cuDNN, AddTensorFloat) {
 
     CUDNN_CHECK(cudnnAddTensor(cudnn, &alpha, desc, d_A, &beta, desc, d_B));
 
-    CUDA_CHECK(cudaMemcpy(h_result.data(), d_B, h_result.size() * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(h_result.data(), d_B, h_result.size() * sizeof(float), cudaMemcpyDeviceToHost));
 
     for (int i = 0; i < 4; ++i) {
         ASSERT_FLOAT_EQ(h_result[i], beta * h_B[i] + alpha * h_A[i]);  // Expected: 1*B + 2*A
@@ -905,11 +933,10 @@ TEST(cuDNN, AddTensorDouble) {
     CUDA_CHECK(cudaMemcpy(d_A, h_A.data(), h_A.size() * sizeof(double), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_B, h_B.data(), h_B.size() * sizeof(double), cudaMemcpyHostToDevice));
 
-    CUDNN_CHECK(cudnnAddTensor(cudnn,
-                                &alpha, desc, d_A,
-                                &beta, desc, d_B));
+    CUDNN_CHECK(cudnnAddTensor(cudnn, &alpha, desc, d_A, &beta, desc, d_B));
 
-    CUDA_CHECK(cudaMemcpy(h_result.data(), d_B, h_result.size() * sizeof(double), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(h_result.data(), d_B, h_result.size() * sizeof(double), cudaMemcpyDeviceToHost));
 
     for (int i = 0; i < 4; ++i) {
         ASSERT_DOUBLE_EQ(h_result[i], beta * h_B[i] + alpha * h_A[i]);  // Expected: 1*B + 2*A
@@ -932,8 +959,10 @@ TEST(cuDNN, TransformTensorFloat) {
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&src_desc));
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&dest_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(src_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(dest_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(src_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(dest_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
 
     std::vector<float> h_src = {1, 2, 3, 4};
     std::vector<float> h_dest(4, 0);
@@ -942,12 +971,15 @@ TEST(cuDNN, TransformTensorFloat) {
     CUDA_CHECK(cudaMalloc(&d_src, h_src.size() * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&d_dest, h_dest.size() * sizeof(float)));
 
-    CUDA_CHECK(cudaMemcpy(d_src, h_src.data(), h_src.size() * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_dest, h_dest.data(), h_dest.size() * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_src, h_src.data(), h_src.size() * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_dest, h_dest.data(), h_dest.size() * sizeof(float), cudaMemcpyHostToDevice));
 
     CUDNN_CHECK(cudnnTransformTensor(cudnn, &alpha, src_desc, d_src, &beta, dest_desc, d_dest));
 
-    CUDA_CHECK(cudaMemcpy(h_dest.data(), d_dest, h_dest.size() * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(h_dest.data(), d_dest, h_dest.size() * sizeof(float), cudaMemcpyDeviceToHost));
 
     for (int i = 0; i < 4; ++i) {
         ASSERT_FLOAT_EQ(h_dest[i], alpha * h_src[i]);  // Expected: 3 * source
@@ -971,8 +1003,10 @@ TEST(cuDNN, TransformTensorDouble) {
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&src_desc));
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&dest_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(src_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_DOUBLE, n, c, h, w));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(dest_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_DOUBLE, n, c, h, w));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(src_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_DOUBLE, n, c, h, w));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(dest_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_DOUBLE, n, c, h, w));
 
     std::vector<double> h_src = {1.0, 2.0, 3.0, 4.0};
     std::vector<double> h_dest(4, 0.0);
@@ -982,12 +1016,15 @@ TEST(cuDNN, TransformTensorDouble) {
     CUDA_CHECK(cudaMalloc(&d_src, h_src.size() * sizeof(double)));
     CUDA_CHECK(cudaMalloc(&d_dest, h_dest.size() * sizeof(double)));
 
-    CUDA_CHECK(cudaMemcpy(d_src, h_src.data(), h_src.size() * sizeof(double), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_dest, h_dest.data(), h_dest.size() * sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_src, h_src.data(), h_src.size() * sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_dest, h_dest.data(), h_dest.size() * sizeof(double), cudaMemcpyHostToDevice));
 
     CUDNN_CHECK(cudnnTransformTensor(cudnn, &alpha, src_desc, d_src, &beta, dest_desc, d_dest));
 
-    CUDA_CHECK(cudaMemcpy(h_dest.data(), d_dest, h_dest.size() * sizeof(double), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(h_dest.data(), d_dest, h_dest.size() * sizeof(double), cudaMemcpyDeviceToHost));
 
     for (int i = 0; i < 4; ++i) {
         ASSERT_DOUBLE_EQ(h_dest[i], alpha * h_src[i]);  // Expected: 3.0 * source
@@ -1016,16 +1053,21 @@ TEST(cuDNN, PoolingBackward) {
     CUDNN_CHECK(cudnnCreateTensorDescriptor(&dOutput_desc));
     CUDNN_CHECK(cudnnCreatePoolingDescriptor(&pooling_desc));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(input_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
     CUDNN_CHECK(cudnnSetPooling2dDescriptor(pooling_desc, CUDNN_POOLING_MAX, CUDNN_PROPAGATE_NAN,
-                                           window, window, padding, padding, stride, stride));
+                                            window, window, padding, padding, stride, stride));
 
     int out_n, out_c, out_h, out_w;
-    CUDNN_CHECK(cudnnGetPooling2dForwardOutputDim(pooling_desc, input_desc, &out_n, &out_c, &out_h, &out_w));
+    CUDNN_CHECK(cudnnGetPooling2dForwardOutputDim(pooling_desc, input_desc, &out_n, &out_c, &out_h,
+                                                  &out_w));
 
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n, out_c, out_h, out_w));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(dInput_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(dOutput_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n, out_c, out_h, out_w));
+    CUDNN_CHECK(cudnnSetTensor4dDescriptor(output_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n,
+                                           out_c, out_h, out_w));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(dInput_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, n, c, h, w));
+    CUDNN_CHECK(cudnnSetTensor4dDescriptor(dOutput_desc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, out_n,
+                                           out_c, out_h, out_w));
 
     std::vector<float> h_input(n * c * h * w, 1.0f);
     std::vector<float> h_output(out_n * out_c * out_h * out_w);
@@ -1038,17 +1080,23 @@ TEST(cuDNN, PoolingBackward) {
     CUDA_CHECK(cudaMalloc(&d_dInput, h_dInput.size() * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&d_dOutput, h_dOutput.size() * sizeof(float)));
 
-    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(float), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_dOutput, h_dOutput.data(), h_dOutput.size() * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_dOutput, h_dOutput.data(), h_dOutput.size() * sizeof(float),
+                          cudaMemcpyHostToDevice));
 
     // Forward pooling
     float alpha = 1.0f, beta = 0.0f;
-    CUDNN_CHECK(cudnnPoolingForward(cudnn, pooling_desc, &alpha, input_desc, d_input, &beta, output_desc, d_output));
+    CUDNN_CHECK(cudnnPoolingForward(cudnn, pooling_desc, &alpha, input_desc, d_input, &beta,
+                                    output_desc, d_output));
 
     // Backward pooling
-    CUDNN_CHECK(cudnnPoolingBackward(cudnn, pooling_desc, &alpha, output_desc, d_output, dOutput_desc, d_dOutput, input_desc, d_input, &beta, dInput_desc, d_dInput));
+    CUDNN_CHECK(cudnnPoolingBackward(cudnn, pooling_desc, &alpha, output_desc, d_output,
+                                     dOutput_desc, d_dOutput, input_desc, d_input, &beta,
+                                     dInput_desc, d_dInput));
 
-    CUDA_CHECK(cudaMemcpy(h_dInput.data(), d_dInput, h_dInput.size() * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_dInput.data(), d_dInput, h_dInput.size() * sizeof(float),
+                          cudaMemcpyDeviceToHost));
 
     // Basic check: gradients should be positive and distributed in max pooling positions
     for (auto val : h_dInput) {
@@ -1081,46 +1129,33 @@ TEST(cuDNN, FindConvolutionForwardAlgorithmEx) {
 
     // Define tensor dimensions (NCHW)
     const int N = 1, C = 3, H = 32, W = 32;
-    const int K = 16, R = 3, S = 3; // filters: output channels, input channels, filter height, filter width
+    const int K = 16, R = 3,
+              S = 3;  // filters: output channels, input channels, filter height, filter width
 
     // Setup input tensor descriptor (NCHW, float)
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(
-        inputDesc,
-        CUDNN_TENSOR_NCHW,
-        CUDNN_DATA_FLOAT,
-        N, C, H, W));
+    CUDNN_CHECK(
+        cudnnSetTensor4dDescriptor(inputDesc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, N, C, H, W));
 
     // Setup filter descriptor
-    CUDNN_CHECK(cudnnSetFilter4dDescriptor(
-        filterDesc,
-        CUDNN_DATA_FLOAT,
-        CUDNN_TENSOR_NCHW,
-        K, C, R, S));
+    CUDNN_CHECK(
+        cudnnSetFilter4dDescriptor(filterDesc, CUDNN_DATA_FLOAT, CUDNN_TENSOR_NCHW, K, C, R, S));
 
     // Setup convolution descriptor
     const int pad_h = 1, pad_w = 1;
     const int stride_h = 1, stride_w = 1;
     const int dilation_h = 1, dilation_w = 1;
-    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(
-        convDesc,
-        pad_h, pad_w,
-        stride_h, stride_w,
-        dilation_h, dilation_w,
-        CUDNN_CROSS_CORRELATION,
-        CUDNN_DATA_FLOAT));
+    CUDNN_CHECK(cudnnSetConvolution2dDescriptor(convDesc, pad_h, pad_w, stride_h, stride_w,
+                                                dilation_h, dilation_w, CUDNN_CROSS_CORRELATION,
+                                                CUDNN_DATA_FLOAT));
 
     // Get output dimensions
     int outN, outC, outH, outW;
-    CUDNN_CHECK(cudnnGetConvolution2dForwardOutputDim(
-        convDesc, inputDesc, filterDesc,
-        &outN, &outC, &outH, &outW));
+    CUDNN_CHECK(cudnnGetConvolution2dForwardOutputDim(convDesc, inputDesc, filterDesc, &outN, &outC,
+                                                      &outH, &outW));
 
     // Setup output tensor descriptor
-    CUDNN_CHECK(cudnnSetTensor4dDescriptor(
-        outputDesc,
-        CUDNN_TENSOR_NCHW,
-        CUDNN_DATA_FLOAT,
-        outN, outC, outH, outW));
+    CUDNN_CHECK(cudnnSetTensor4dDescriptor(outputDesc, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT, outN,
+                                           outC, outH, outW));
 
     // Allocate device memory for input, filter, output
     size_t inputBytes = N * C * H * W * sizeof(float);
@@ -1144,13 +1179,8 @@ TEST(cuDNN, FindConvolutionForwardAlgorithmEx) {
     size_t workspaceSize = 0;
     // Just get a reasonable workspace size for one algorithm to be safe
     CUDNN_CHECK(cudnnGetConvolutionForwardWorkspaceSize(
-        cudnn,
-        inputDesc,
-        filterDesc,
-        convDesc,
-        outputDesc,
-        CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM,
-        &workspaceSize));
+        cudnn, inputDesc, filterDesc, convDesc, outputDesc,
+        CUDNN_CONVOLUTION_FWD_ALGO_IMPLICIT_PRECOMP_GEMM, &workspaceSize));
 
     // Make workspace at least 1MB for safety (optional)
     workspaceSize = (workspaceSize > (1 << 20)) ? workspaceSize : (1 << 20);
@@ -1165,16 +1195,8 @@ TEST(cuDNN, FindConvolutionForwardAlgorithmEx) {
 
     // Run the algorithm finder
     CUDNN_CHECK(cudnnFindConvolutionForwardAlgorithmEx(
-        cudnn,
-        inputDesc, d_input,
-        filterDesc, d_filter,
-        convDesc,
-        outputDesc, d_output,
-        requestedAlgoCount,
-        &returnedAlgoCount,
-        perfResults,
-        d_workspace,
-        workspaceSize));
+        cudnn, inputDesc, d_input, filterDesc, d_filter, convDesc, outputDesc, d_output,
+        requestedAlgoCount, &returnedAlgoCount, perfResults, d_workspace, workspaceSize));
 
     // Checks
     ASSERT_GT(returnedAlgoCount, 0);
@@ -1225,35 +1247,21 @@ TEST(cuDNN, RNNSetGetDataDescriptor) {
     std::vector<int> seqLengths = {5, 4, 3};
     float paddingFillValue = 0.0f;
 
-    CUDNN_CHECK(cudnnSetRNNDataDescriptor(
-        rnnDataDesc,
-        dataType,
-        layout,
-        maxSeqLength,
-        batchSize,
-        vectorSize,
-        seqLengths.data(),
-        &paddingFillValue // must match `dataType` in type
-    ));
+    CUDNN_CHECK(cudnnSetRNNDataDescriptor(rnnDataDesc, dataType, layout, maxSeqLength, batchSize,
+                                          vectorSize, seqLengths.data(),
+                                          &paddingFillValue  // must match `dataType` in type
+                                          ));
 
     // Prepare output variables
     cudnnDataType_t outDataType;
     cudnnRNNDataLayout_t outLayout;
     int outMaxSeqLength = 0, outBatchSize = 0, outVectorSize = 0;
     std::vector<int> outSeqLengths(batchSize);
-    float outPaddingFill = -1.0f; // initial garbage value
+    float outPaddingFill = -1.0f;  // initial garbage value
 
-    CUDNN_CHECK(cudnnGetRNNDataDescriptor(
-        rnnDataDesc,
-        &outDataType,
-        &outLayout,
-        &outMaxSeqLength,
-        &outBatchSize,
-        &outVectorSize,
-        batchSize,
-        outSeqLengths.data(),
-        &outPaddingFill
-    ));
+    CUDNN_CHECK(cudnnGetRNNDataDescriptor(rnnDataDesc, &outDataType, &outLayout, &outMaxSeqLength,
+                                          &outBatchSize, &outVectorSize, batchSize,
+                                          outSeqLengths.data(), &outPaddingFill));
 
     // Validate roundtrip
     ASSERT_EQ(outDataType, dataType);
@@ -1291,7 +1299,8 @@ TEST(cuDNN, GetDropoutDescriptor) {
 
     // This will most likely return default/uninitialized values,
     // but the goal is to ensure it doesn't crash or return an error
-    ASSERT_EQ(cudnnGetDropoutDescriptor(dropoutDesc, handle, &dropout, &states, &seed), CUDNN_STATUS_SUCCESS);
+    ASSERT_EQ(cudnnGetDropoutDescriptor(dropoutDesc, handle, &dropout, &states, &seed),
+              CUDNN_STATUS_SUCCESS);
 
     // Clean up
     CUDNN_CHECK(cudnnDestroyDropoutDescriptor(dropoutDesc));
@@ -1324,7 +1333,8 @@ TEST(cuDNN, SetGetDropoutDescriptor) {
     void* returned_states;
     unsigned long long returned_seed;
 
-    CUDNN_CHECK(cudnnGetDropoutDescriptor(dropoutDesc, handle, &returned_dropout, &returned_states, &returned_seed));
+    CUDNN_CHECK(cudnnGetDropoutDescriptor(dropoutDesc, handle, &returned_dropout, &returned_states,
+                                          &returned_seed));
 
     // Assert values are correct
     ASSERT_FLOAT_EQ(returned_dropout, dropout);
@@ -1360,25 +1370,12 @@ TEST(cuDNN, RNNForward) {
     size_t stateSize;
     CUDNN_CHECK(cudnnDropoutGetStatesSize(handle, &stateSize));
     CUDA_CHECK(cudaMalloc(&states, stateSize));
-    CUDNN_CHECK(cudnnSetDropoutDescriptor(
-        dropoutDesc, handle, 0.0f, states, stateSize, 0));
+    CUDNN_CHECK(cudnnSetDropoutDescriptor(dropoutDesc, handle, 0.0f, states, stateSize, 0));
 
     CUDNN_CHECK(cudnnSetRNNDescriptor_v8(
-        rnnDesc,
-        CUDNN_RNN_ALGO_STANDARD,
-        CUDNN_LSTM,
-        CUDNN_RNN_DOUBLE_BIAS,
-        CUDNN_UNIDIRECTIONAL,
-        CUDNN_LINEAR_INPUT,
-        CUDNN_DATA_FLOAT,
-        CUDNN_DATA_FLOAT,
-        CUDNN_DEFAULT_MATH,
-        inputSize,
-        hiddenSize,
-        projSize,
-        numLayers,
-        dropoutDesc,
-        0));
+        rnnDesc, CUDNN_RNN_ALGO_STANDARD, CUDNN_LSTM, CUDNN_RNN_DOUBLE_BIAS, CUDNN_UNIDIRECTIONAL,
+        CUDNN_LINEAR_INPUT, CUDNN_DATA_FLOAT, CUDNN_DATA_FLOAT, CUDNN_DEFAULT_MATH, inputSize,
+        hiddenSize, projSize, numLayers, dropoutDesc, 0));
 
     // Input and output RNNDataDescriptors
     cudnnRNNDataDescriptor_t xDesc, yDesc;
@@ -1388,20 +1385,19 @@ TEST(cuDNN, RNNForward) {
     int seqLengthArray[batchSize];
     for (int i = 0; i < batchSize; ++i) seqLengthArray[i] = seqLength;
 
-    CUDNN_CHECK(cudnnSetRNNDataDescriptor(
-        xDesc, CUDNN_DATA_FLOAT, CUDNN_RNN_DATA_LAYOUT_SEQ_MAJOR_PACKED,
-        seqLength, batchSize, inputSize,
-        seqLengthArray, nullptr));
+    CUDNN_CHECK(cudnnSetRNNDataDescriptor(xDesc, CUDNN_DATA_FLOAT,
+                                          CUDNN_RNN_DATA_LAYOUT_SEQ_MAJOR_PACKED, seqLength,
+                                          batchSize, inputSize, seqLengthArray, nullptr));
 
-    CUDNN_CHECK(cudnnSetRNNDataDescriptor(
-        yDesc, CUDNN_DATA_FLOAT, CUDNN_RNN_DATA_LAYOUT_SEQ_MAJOR_PACKED,
-        seqLength, batchSize, hiddenSize,
-        seqLengthArray, nullptr));
+    CUDNN_CHECK(cudnnSetRNNDataDescriptor(yDesc, CUDNN_DATA_FLOAT,
+                                          CUDNN_RNN_DATA_LAYOUT_SEQ_MAJOR_PACKED, seqLength,
+                                          batchSize, hiddenSize, seqLengthArray, nullptr));
 
     // Allocate dummy input/output memory
     size_t inputBytes = seqLength * batchSize * inputSize * sizeof(float);
     size_t outputBytes = seqLength * batchSize * hiddenSize * sizeof(float);
-    float* x; float* y;
+    float* x;
+    float* y;
     CUDA_CHECK(cudaMalloc(&x, inputBytes));
     CUDA_CHECK(cudaMalloc(&y, outputBytes));
 
@@ -1429,27 +1425,23 @@ TEST(cuDNN, RNNForward) {
 
     // Workspace and reserve space
     size_t workspaceSize, reserveSize;
-    CUDNN_CHECK(cudnnGetRNNTempSpaceSizes(
-        handle, rnnDesc, CUDNN_FWD_MODE_TRAINING,
-        xDesc, &workspaceSize, &reserveSize));
-    void* workspace; void* reserveSpace;
+    CUDNN_CHECK(cudnnGetRNNTempSpaceSizes(handle, rnnDesc, CUDNN_FWD_MODE_TRAINING, xDesc,
+                                          &workspaceSize, &reserveSize));
+    void* workspace;
+    void* reserveSpace;
     CUDA_CHECK(cudaMalloc(&workspace, workspaceSize));
     CUDA_CHECK(cudaMalloc(&reserveSpace, reserveSize));
 
     // Allocate devSeqLengths
     int32_t* devSeqLengths;
     CUDA_CHECK(cudaMalloc(&devSeqLengths, batchSize * sizeof(int32_t)));
-    CUDA_CHECK(cudaMemcpy(devSeqLengths, seqLengthArray,
-                          batchSize * sizeof(int32_t), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(devSeqLengths, seqLengthArray, batchSize * sizeof(int32_t),
+                          cudaMemcpyHostToDevice));
 
     // Run forward
-    CUDNN_CHECK(cudnnRNNForward(
-        handle, rnnDesc, CUDNN_FWD_MODE_TRAINING, devSeqLengths,
-        xDesc, x, yDesc, y,
-        hDesc, hx, hy, cDesc, cx, cy,
-        weightSpaceSize, weightSpace,
-        workspaceSize, workspace,
-        reserveSize, reserveSpace));
+    CUDNN_CHECK(cudnnRNNForward(handle, rnnDesc, CUDNN_FWD_MODE_TRAINING, devSeqLengths, xDesc, x,
+                                yDesc, y, hDesc, hx, hy, cDesc, cx, cy, weightSpaceSize,
+                                weightSpace, workspaceSize, workspace, reserveSize, reserveSpace));
 
     // Cleanup
     CUDA_CHECK(cudaFree(x));
@@ -1526,12 +1518,13 @@ TEST(cuDNN, LRNCrossChannelForwardFloat) {
     std::vector<float> h_input(tensorSize, 1.0f);  // simple input
     std::vector<float> h_output(tensorSize, 0.0f);
 
-    float *d_input = nullptr;
-    float *d_output = nullptr;
+    float* d_input = nullptr;
+    float* d_output = nullptr;
     CUDA_CHECK(cudaMalloc(&d_input, tensorSize * sizeof(float)));
     CUDA_CHECK(cudaMalloc(&d_output, tensorSize * sizeof(float)));
 
-    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), tensorSize * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_input, h_input.data(), tensorSize * sizeof(float), cudaMemcpyHostToDevice));
 
     // Create and set tensor descriptors
     cudnnTensorDescriptor_t desc;
@@ -1550,16 +1543,17 @@ TEST(cuDNN, LRNCrossChannelForwardFloat) {
     // Perform forward pass
     const float alpha = 1.0f;
     const float beta = 0.0f;
-    CUDNN_CHECK(cudnnLRNCrossChannelForward(handle, lrnDesc, CUDNN_LRN_CROSS_CHANNEL_DIM1,
-                                            &alpha, desc, d_input,
-                                            &beta, desc, d_output));
+    CUDNN_CHECK(cudnnLRNCrossChannelForward(handle, lrnDesc, CUDNN_LRN_CROSS_CHANNEL_DIM1, &alpha,
+                                            desc, d_input, &beta, desc, d_output));
 
     // Copy result back to host
-    CUDA_CHECK(cudaMemcpy(h_output.data(), d_output, tensorSize * sizeof(float), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(h_output.data(), d_output, tensorSize * sizeof(float), cudaMemcpyDeviceToHost));
 
     // Optional: Validate results are different from input
     for (size_t i = 0; i < tensorSize; ++i) {
-        ASSERT_NE(h_output[i], 0.0f);  // since input was all 1s, LRN will produce something non-zero
+        ASSERT_NE(h_output[i],
+                  0.0f);  // since input was all 1s, LRN will produce something non-zero
     }
 
     // Cleanup
@@ -1586,7 +1580,8 @@ TEST(cuDNN, LRNCrossChannelForwardDouble) {
     CUDA_CHECK(cudaMalloc(&d_input, tensorSize * sizeof(double)));
     CUDA_CHECK(cudaMalloc(&d_output, tensorSize * sizeof(double)));
 
-    CUDA_CHECK(cudaMemcpy(d_input, h_input.data(), tensorSize * sizeof(double), cudaMemcpyHostToDevice));
+    CUDA_CHECK(
+        cudaMemcpy(d_input, h_input.data(), tensorSize * sizeof(double), cudaMemcpyHostToDevice));
 
     // Create and set tensor descriptors
     cudnnTensorDescriptor_t desc;
@@ -1605,12 +1600,12 @@ TEST(cuDNN, LRNCrossChannelForwardDouble) {
     // Perform forward pass
     const double alpha = 1.0;
     const double beta = 0.0;
-    CUDNN_CHECK(cudnnLRNCrossChannelForward(handle, lrnDesc, CUDNN_LRN_CROSS_CHANNEL_DIM1,
-                                            &alpha, desc, d_input,
-                                            &beta, desc, d_output));
+    CUDNN_CHECK(cudnnLRNCrossChannelForward(handle, lrnDesc, CUDNN_LRN_CROSS_CHANNEL_DIM1, &alpha,
+                                            desc, d_input, &beta, desc, d_output));
 
     // Copy result back to host
-    CUDA_CHECK(cudaMemcpy(h_output.data(), d_output, tensorSize * sizeof(double), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(
+        cudaMemcpy(h_output.data(), d_output, tensorSize * sizeof(double), cudaMemcpyDeviceToHost));
 
     // Optional: Validate results are different from input
     for (size_t i = 0; i < tensorSize; ++i) {
@@ -1628,7 +1623,8 @@ TEST(cuDNN, LRNCrossChannelForwardDouble) {
 TEST(cuDNN, BackendCreateAndDestroyDescriptor) {
     cudnnBackendDescriptor_t desc;
 
-    CUDNN_CHECK(cudnnBackendCreateDescriptor(CUDNN_BACKEND_OPERATION_CONVOLUTION_FORWARD_DESCRIPTOR, &desc));
+    CUDNN_CHECK(cudnnBackendCreateDescriptor(CUDNN_BACKEND_OPERATION_CONVOLUTION_FORWARD_DESCRIPTOR,
+                                             &desc));
     ASSERT_NE(desc, nullptr);
 
     CUDNN_CHECK(cudnnBackendDestroyDescriptor(desc));
@@ -1683,9 +1679,8 @@ TEST(cuDNN, BackendCreateAndDestroyDescriptor) {
 //     // Step 5: Finalize heuristics descriptor
 //     CUDNN_CHECK(cudnnBackendFinalize(heurDesc));
 
-//     // Step 6: Get attribute CUDNN_ATTR_ENGINEHEUR_RESULTS with element count 0 to get the real count
-//     int64_t returnedCount = 0;
-//     CUDNN_CHECK(cudnnBackendGetAttribute(
+//     // Step 6: Get attribute CUDNN_ATTR_ENGINEHEUR_RESULTS with element count 0 to get the real
+//     count int64_t returnedCount = 0; CUDNN_CHECK(cudnnBackendGetAttribute(
 //         heurDesc,
 //         CUDNN_ATTR_ENGINEHEUR_RESULTS,
 //         CUDNN_TYPE_BACKEND_DESCRIPTOR,

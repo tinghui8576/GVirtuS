@@ -6,10 +6,11 @@
 #ifndef GVIRTUS_CUDART_INTERNAL_H
 #define GVIRTUS_CUDART_INTERNAL_H
 
-#include <elf.h>
 #include <driver_types.h>
-#include <vector>
+#include <elf.h>
+
 #include <string>
+#include <vector>
 
 // defined in <cuda_install_dir>/include/fatbinary_section.h
 // typedef struct {
@@ -19,7 +20,6 @@
 //   void *filename_or_fatbins;  /* version 1: offline filename,
 //                                * version 2: array of prelinked fatbins */
 // } __fatBinC_Wrapper_t;
-
 
 // defined in <gvirtus_src_dir>/plugins/cudart/util/CudaUtil.h
 //   struct __align__(8) fatBinaryHeader {
@@ -34,7 +34,7 @@
 typedef struct {
     unsigned short kind;
     unsigned short version;
-    unsigned int headerSize; // size of the header
+    unsigned int headerSize;  // size of the header
     unsigned int paddedPayloadSize;
     unsigned int unknown0;
     unsigned int payloadSize;
@@ -135,7 +135,6 @@ typedef struct {
     uint16_t value;
 } NvInfoAttribute;
 
-
 // see: https://github.com/VivekPanyam/cudaparsers
 typedef struct {
     NvInfoAttribute nvInfoAttribute;
@@ -144,14 +143,14 @@ typedef struct {
     uint16_t offset;
     uint32_t tmp;
     uint8_t log_alignment() const { return tmp & 0xFF; }
-    uint8_t space()         const { return (tmp >> 8) & 0xF; }
-    uint8_t cbank()         const { return (tmp >> 12) & 0x1F; }
-    bool    is_cbank()      const { return ((tmp >> 16) & 2) == 0; }
-    uint16_t size_bytes()   const { return (((tmp >> 16) & 0xFFFF) >> 2); }
+    uint8_t space() const { return (tmp >> 8) & 0xF; }
+    uint8_t cbank() const { return (tmp >> 12) & 0x1F; }
+    bool is_cbank() const { return ((tmp >> 16) & 2) == 0; }
+    uint16_t size_bytes() const { return (((tmp >> 16) & 0xFFFF) >> 2); }
 } NvInfoKParam;
 
 typedef struct {
     std::vector<NvInfoKParam> params;
 } NvInfoFunction;
 
-#endif //GVIRTUS_CUDART_INTERNAL_H
+#endif  // GVIRTUS_CUDART_INTERNAL_H

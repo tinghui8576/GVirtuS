@@ -13,48 +13,85 @@
  * different deployment scenarios, such as providing GPGPU power to cloud
  * computing based HPC clusters and sharing remotely hosted GPGPUs among HPC
  * nodes.
+ *
+ * Written By: Carlo Palmieri <carlo.palmieri@uniparthenope.it>,
+ *             Department of Applied Science
+ *             Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
+ *             Department of Applied Science
+ *             Raffaele Montella <raffaele.montella@uniparthenope.it>,
+ *             Department of Science and Technologies
+ *             Antonio Mentone <antonio.mentone@uniparthenope.it>,
+ *             Department of Science and Technologies
+ * Edited By: Mariano Aponte <aponte2001@gmail.com>,
+ *            Department of Science and Technologies, University of Naples Parthenope
+ *            Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>,
+ *            Department of Computer Science, University College Dublin
  */
+
+#include <log4cplus/consoleappender.h>
 
 #include "gvirtus/backend/Backend.h"
 #include "gvirtus/backend/Property.h"
-
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
 
-log4cplus::Logger logger;
+using namespace log4cplus;
 
-std::string getEnvVar(std::string const & key) {
-    char * env_var = getenv(key.c_str());
-    return (env_var == nullptr) ? std::string("") : std::string(env_var);
+Logger logger;
+
+std::string getEnvVar(const std::string& name) {
+    const char* val = std::getenv(name.c_str());
+    return val ? val : "";
 }
 
-void loggerConfig() {
-    // Logger configuration
-    log4cplus::BasicConfigurator basicConfigurator;
-    basicConfigurator.configure();
-    logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS"));
+void rootLoggerConfig() {
+    // Create console appender with a pattern layout
+    SharedAppenderPtr consoleAppender(new ConsoleAppender());
+    consoleAppender->setName(LOG4CPLUS_TEXT("console"));
 
-    // Set the logging level
+    // Define the pattern layout string
+    std::string pattern = "[%p] [%c] (%F:%L) - %m%n";
+    // "%D{%Y-%m-%d %H:%M:%S} [%-5p] [%c] %F:%L (%M) - %m%n";
+    // %D = date/time
+    // %p = log level
+    // %c = logger name
+    // %F = file name
+    // %L = line number
+    // %M = function name
+    // %m = log message
+    // %n = newline
+
+    consoleAppender->setLayout(std::unique_ptr<Layout>(new PatternLayout(LOG4CPLUS_TEXT(pattern))));
+
+    // Get the root logger
+    Logger root = Logger::getRoot();
+    root.removeAllAppenders();          // Remove any default appender
+    root.addAppender(consoleAppender);  // Add our configured one
+
+    // Set log level from env
     std::string logLevelString = getEnvVar("GVIRTUS_LOGLEVEL");
-    log4cplus::LogLevel logLevel = log4cplus::INFO_LOG_LEVEL;
+    LogLevel logLevel = INFO_LOG_LEVEL;
     if (!logLevelString.empty()) {
         try {
-            logLevel = static_cast<log4cplus::LogLevel>(std::stoi(logLevelString));
+            logLevel = static_cast<LogLevel>(std::stoi(logLevelString));
         } catch (const std::exception& e) {
             std::cerr << "[GVIRTUS WARNING] Invalid GVIRTUS_LOGLEVEL value: '" << logLevelString
-                    << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
-            logLevel = log4cplus::INFO_LOG_LEVEL;
+                      << "'. Using default INFO_LOG_LEVEL. (" << e.what() << ")\n";
+            logLevel = INFO_LOG_LEVEL;
         }
     }
 
-    logger.setLogLevel(logLevel);
+    root.setLogLevel(logLevel);
 }
 
-int main(int argc, char **argv) {
-    loggerConfig();
+int main(int argc, char** argv) {
+    rootLoggerConfig();
 
-    LOG4CPLUS_INFO(logger, "🛈  - GVirtuS backend: 0.0.12 version");
+    // Get the main logger (GVirtuS); other loggers will inherit unless overridden
+    logger = Logger::getInstance(LOG4CPLUS_TEXT("GVirtuS"));
+
+    LOG4CPLUS_INFO(logger, "GVirtuS backend: 0.0.12 version");
 
     std::string config_path;
 #ifdef _CONFIG_FILE_JSON
@@ -62,22 +99,18 @@ int main(int argc, char **argv) {
 #endif
     config_path = (argc == 2) ? std::string(argv[1]) : std::string("");
 
-    LOG4CPLUS_INFO(logger, "🛈  - Configuration: " << config_path);
+    LOG4CPLUS_INFO(logger, "Configuration: " << config_path);
 
     // FIXME: Try - Catch? No.
     try {
         gvirtus::backend::Backend backend(config_path);
 
-        LOG4CPLUS_INFO(logger, "🛈  - [Process " << getpid() << "] Up and running!");
+        LOG4CPLUS_INFO(logger, "[Process " << getpid() << "] Up and running!");
         backend.Start();
-    }
-    catch (std::string & exc) {
-        LOG4CPLUS_ERROR(logger, "✖ - Exception:" << exc);
-    }
-    catch (const std::exception& e) {
-        LOG4CPLUS_ERROR(logger, "✖ - Exception:" << e.what());
+    } catch (const std::exception& e) {
+        LOG4CPLUS_ERROR(logger, "Exception:" << e.what());
     }
 
-    LOG4CPLUS_INFO(logger, "🛈  - [Process " << getpid() << "] Shutdown");
+    LOG4CPLUS_INFO(logger, "[Process " << getpid() << "] Shutdown");
     return 0;
 }

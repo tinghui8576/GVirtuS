@@ -23,7 +23,6 @@
  *             Department of Computer Science, University College Dublin
  */
 
-
 #include "CudaDrHandler.h"
 
 using gvirtus::communicators::Buffer;

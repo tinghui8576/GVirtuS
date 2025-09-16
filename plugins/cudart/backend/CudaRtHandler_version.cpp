@@ -25,33 +25,28 @@
 
 #include "CudaRtHandler.h"
 
-#ifndef CUDART_VERSION
-#error CUDART_VERSION not defined
-#endif
-#if CUDART_VERSION >= 2030
 CUDA_ROUTINE_HANDLER(DriverGetVersion) {
-  int driverVersion;
-  cudaError_t exit_code = cudaDriverGetVersion(&driverVersion);
-  std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-  try {
-    out->Add(driverVersion);
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
-  return std::make_shared<Result>(exit_code, out);
+    int driverVersion;
+    cudaError_t exit_code = cudaDriverGetVersion(&driverVersion);
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add(driverVersion);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+    return std::make_shared<Result>(exit_code, out);
 }
 
 CUDA_ROUTINE_HANDLER(RuntimeGetVersion) {
-  int runtimeVersion;
-  cudaError_t exit_code = cudaRuntimeGetVersion(&runtimeVersion);
-  std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
-  try {
-    out->Add(runtimeVersion);
-  } catch (const std::exception& e) {
-    cerr << e.what() << endl;
-    return std::make_shared<Result>(cudaErrorMemoryAllocation);
-  }
-  return std::make_shared<Result>(exit_code, out);
+    int runtimeVersion;
+    cudaError_t exit_code = cudaRuntimeGetVersion(&runtimeVersion);
+    std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+    try {
+        out->Add(runtimeVersion);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+    return std::make_shared<Result>(exit_code, out);
 }
-#endif

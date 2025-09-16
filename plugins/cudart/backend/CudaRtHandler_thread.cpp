@@ -21,16 +21,17 @@
  *
  * Written by: Giuseppe Coviello <giuseppe.coviello@uniparthenope.it>,
  *             Department of Applied Science
+ *
+ * Edited By: Theodoros Aslanidis <theodoros.aslanidis@ucdconnect.ie>
+ *             Department of Computer Science, University College Dublin
  */
 
 #include "CudaRtHandler.h"
 
 // deprecated
-CUDA_ROUTINE_HANDLER(ThreadExit) {
-  return std::make_shared<Result>(cudaThreadExit());
-}
+CUDA_ROUTINE_HANDLER(ThreadExit) { return std::make_shared<Result>(cudaThreadExit()); }
 
 // deprecated
 CUDA_ROUTINE_HANDLER(ThreadSynchronize) {
-  return std::make_shared<Result>(cudaThreadSynchronize());
+    return std::make_shared<Result>(cudaThreadSynchronize());
 }

@@ -4,7 +4,7 @@
  * Copyright (C) 2009-2010  The University of Napoli Parthenope at Naples.
  *
  * This file is part of gVirtuS.
- * 
+ *
  * gVirtuS is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -29,8 +29,6 @@ using namespace std;
 
 CusolverFrontend msInstance __attribute_used__;
 
-void * CusolverFrontend::handler = NULL;
+void* CusolverFrontend::handler = NULL;
 
-CusolverFrontend::CusolverFrontend() {
-Frontend::GetFrontend();
-}
+CusolverFrontend::CusolverFrontend() { Frontend::GetFrontend(); }

@@ -37,14 +37,15 @@
 #define SHMCOMMUNICATOR_H
 
 #include <semaphore.h>
+
 #include <string>
 
 #include "Communicator.h"
 
 namespace gvirtus {
 
-  class ShmCommunicator : public Communicator {
-  public:
+class ShmCommunicator : public Communicator {
+   public:
     ShmCommunicator(const std::string &communicator);
     ShmCommunicator();
     virtual ~ShmCommunicator();
@@ -56,7 +57,7 @@ namespace gvirtus {
     void Sync();
     void Close();
 
-  private:
+   private:
     ShmCommunicator(const char *name);
     size_t ReadPacket(char *buffer);
     int mSocketFd;
@@ -78,6 +79,6 @@ namespace gvirtus {
     char *mpLocalOut;
     size_t mLocalOutSize;
     size_t mLocalOutOffset;
-  };
-} // namespace gvirtus
+};
+}  // namespace gvirtus
 #endif /* SHMCOMMUNICATOR_H */
