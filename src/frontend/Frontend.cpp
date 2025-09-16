@@ -184,35 +184,123 @@ static bool isSyncRoutine(const std::string &routine) {
 
 void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     if (input_buffer == nullptr) input_buffer = mpInputBuffer.get();
+
     pid_t tid = syscall(SYS_gettid);
     pid_t pid = getpid();
-    size_t in_size = input_buffer->GetBufferSize();
 
     Frontend* frontend = nullptr;
     {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
         auto it = mpFrontends->find(tid);
-        if (it == mpFrontends->end()) {
-            LOG4CPLUS_ERROR(logger, "Cannot send any job request");
+        if (it == mpFrontends->end() || !it->second->mpInitialized) {
+            LOG4CPLUS_ERROR(logger, "Frontend not initialized for this thread. Cannot send job request.");
             return;
         }
         frontend = it->second;
     }
 
     std::string rname(routine);
+    LOG4CPLUS_DEBUG(logger, "Executing routine: " << rname << " [pid=" << pid << ", tid=" << tid << "]");
     frontend->mRoutinesExecuted++;
-    LOG4CPLUS_DEBUG(logger, "DEBUG - Received routine " << routine
-                       << " [pid=" << pid << ", tid=" << tid << "]");
 
-    auto* comm = frontend->_communicator->obj_ptr().get();
+    // ======================================================================
+    // UCX 新协议路径 (统一调用接口)
+    // ======================================================================
+    if (frontend->_communicator->obj_ptr()->to_string() == "ucxcommunicator") {
+        auto *ucx = dynamic_cast<gvirtus::communicators::UcxCommunicator*>(
+            frontend->_communicator->obj_ptr().get());
+        if (!ucx) {
+            LOG4CPLUS_FATAL(logger, "FATAL: dynamic_cast to UcxCommunicator failed.");
+            // This situation indicates a severe logic error and should likely terminate.
+            return;
+        }
 
-    if (isSyncRoutine(rname)) {
-        // ================== 同步路径 ==================
+        const void* payload_ptr = input_buffer->GetBuffer();
+        const size_t payload_len = input_buffer->GetBufferSize();
+        
+        // 1. 根据 routine 名称，决定本次调用是否需要等待响应
+        const bool expect_response = isSyncRoutine(rname);
+
+        // 2. 统一调用 SubmitRequest，将同步/异步标志作为参数传递
+        auto t0 = steady_clock::now();
+        auto res = ucx->SubmitRequest(routine, payload_ptr, payload_len, expect_response);
+        auto t1 = steady_clock::now();
+        
+        // 3. 根据是否为同步调用，进行后续处理和统计
+        if (expect_response) {
+            // 这是同步调用的处理逻辑
+            double wall_time = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
+
+            // 将返回的结果放入前端的输出缓冲区
+            frontend->mpOutputBuffer->Reset();
+            if (!res.out.empty()) {
+                frontend->mpOutputBuffer->Append(res.out.data(), res.out.size());
+                frontend->mDataReceived += res.out.size();
+            }
+
+            // 更新统计指标
+            frontend->mExitCode = res.exit_code;
+            frontend->mRoutineExecutionTime += res.server_exec_sec;
+            frontend->mDataSent += payload_len;
+            // 对于流水线模型，整个调用的 wall time 是衡量发送+接收开销的更准确指标
+            frontend->mSendingTime += wall_time; 
+            frontend->mReceivingTime += 0; // 包含在 wall_time 中，单独记为0
+
+            LOG4CPLUS_DEBUG(logger, "SYNC routine '" << routine << "' finished."
+                << " | exit_code=" << res.exit_code
+                << " | server_exec=" << res.server_exec_sec << "s"
+                << " | wall_time=" << wall_time << "s"
+                << " | in=" << payload_len << "B, out=" << res.out.size() << "B"
+                << " [pid=" << pid << ", tid=" << tid << "]");
+
+        } else {
+            // 这是异步调用的处理逻辑 (fire-and-forget)
+            double submission_time = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
+            
+            // 更新统计指标
+            frontend->mDataSent += payload_len;
+            frontend->mSendingTime += submission_time;
+
+            LOG4CPLUS_DEBUG(logger, "ASYNC routine '" << routine << "' submitted."
+                << " | submission_time=" << submission_time << "s"
+                << " | in=" << payload_len << "B"
+                << " [pid=" << pid << ", tid=" << tid << "]");
+        }
+        
+        return; // UCX 路径处理完毕，函数直接返回
+    }
+
+    // ======================================================================
+    // 非 UCX: 沿用旧逻辑 (保持原样)
+    // ======================================================================
+    auto send_request = [&](uint8_t expect_response) {
+        uint32_t routine_len = static_cast<uint32_t>(strlen(routine) + 1);
+        size_t total_len = sizeof(expect_response) + sizeof(routine_len) + routine_len;
+        std::vector<char> buf(total_len);
+
+        char* ptr = buf.data();
+        memcpy(ptr, &expect_response, sizeof(expect_response));
+        ptr += sizeof(expect_response);
+        memcpy(ptr, &routine_len, sizeof(routine_len));
+        ptr += sizeof(routine_len);
+        memcpy(ptr, routine, routine_len);
+
+        frontend->_communicator->obj_ptr()->Write(buf.data(), buf.size());
+    };
+
+    const bool sync_legacy = isSyncRoutine(rname);
+    size_t in_size = input_buffer->GetBufferSize();
+    double send_sec = 0.0;
+    double recv_sec = 0.0;
+
+    if (sync_legacy) {
+        // 旧的同步路径
         auto start_send = steady_clock::now();
+        send_request(1);
 
-        // Hybrid 特殊逻辑
-        if (comm->to_string() == "hybridcommunicator") {
-            auto* hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator*>(comm);
+        if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
+            auto* hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator*>(
+                frontend->_communicator->obj_ptr().get());
             if (hybrid) {
                 if (rname.find("cudaMemcpy") != std::string::npos ||
                     rname.find("cudaRegisterFatBinary") != std::string::npos ||
@@ -225,69 +313,62 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
             }
         }
 
-        // 真正通过 communicator 发请求
-        auto result = dynamic_cast<gvirtus::communicators::UcxCommunicator*>(comm)
-            ->SubmitRequest(routine,
-                            input_buffer->GetBuffer(),
-                            input_buffer->GetBufferSize(),
-                            true);
-
-        double send_sec = duration_cast<milliseconds>(
-                              steady_clock::now() - start_send).count() / 1000.0;
-
         frontend->mDataSent += in_size;
+        input_buffer->Dump(frontend->_communicator->obj_ptr().get());
+        send_sec = duration_cast<milliseconds>(steady_clock::now() - start_send).count() / 1000.0;
+        
         frontend->mpOutputBuffer->Reset();
 
-        size_t out_size = 0;
-        if (!result.out.empty()) {
-            frontend->mpOutputBuffer->Append(result.out.data(), result.out.size());
-            out_size = result.out.size();
-            frontend->mDataReceived += out_size;
+        auto start_recv = steady_clock::now();
+        int exit_code = 0;
+        double server_exec_sec = 0.0;
+        size_t out_buffer_size = 0;
+        frontend->_communicator->obj_ptr()->Read((char *)&exit_code, sizeof(int));
+        frontend->mExitCode = exit_code;
+        frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&server_exec_sec), sizeof(server_exec_sec));
+        frontend->_communicator->obj_ptr()->Read((char *)&out_buffer_size, sizeof(size_t));
+
+        if (out_buffer_size > 0) {
+            frontend->mpOutputBuffer->Reset(frontend->_communicator->obj_ptr().get());
+            frontend->mDataReceived += frontend->mpOutputBuffer->GetBufferSize();
         }
 
-        frontend->mExitCode = result.exit_code;
-        frontend->mRoutineExecutionTime += result.server_exec_sec;
+        recv_sec = duration_cast<milliseconds>(steady_clock::now() - start_recv).count() / 1000.0;
+        
+        frontend->mRoutineExecutionTime += server_exec_sec;
         frontend->mSendingTime += send_sec;
-        frontend->mReceivingTime += 0; // 已包含在 SubmitRequest 内部的等待
+        frontend->mReceivingTime += recv_sec;
 
-        LOG4CPLUS_DEBUG(logger,
-            "Routine '" << routine << "' returned " << result.exit_code
-            << " | server_exec=" << result.server_exec_sec << "s"
+        LOG4CPLUS_DEBUG(logger, "Routine '" << routine << "' returned " << exit_code
+            << " | server_exec=" << server_exec_sec << "s"
             << " | send=" << send_sec << "s"
+            << " | recv=" << recv_sec << "s"
             << " | in=" << in_size << "B"
-            << " | out=" << out_size << "B"
-            << " | pid=" << pid << " tid=" << tid);
+            << " | out=" << (out_buffer_size > 0 ? frontend->mpOutputBuffer->GetBufferSize() : 0) << "B"
+            << " [pid=" << pid << ", tid=" << tid << "]");
 
-        if (comm->to_string() == "hybridcommunicator") {
+        if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
             auto hybrid = std::dynamic_pointer_cast<gvirtus::communicators::HybridCommunicator>(
                 frontend->_communicator->obj_ptr());
             if (hybrid) {
                 hybrid->end_call();
             }
         }
-
     } else {
-        // ================== 异步路径 ==================
+        // 旧的异步路径
         auto start_send = steady_clock::now();
+        send_request(0);
 
-        dynamic_cast<gvirtus::communicators::UcxCommunicator*>(comm)
-            ->SubmitRequestAsync(routine,
-                                 input_buffer->GetBuffer(),
-                                 input_buffer->GetBufferSize());
-
-        double send_sec = duration_cast<milliseconds>(
-                              steady_clock::now() - start_send).count() / 1000.0;
         frontend->mDataSent += in_size;
+        input_buffer->Dump(frontend->_communicator->obj_ptr().get());
+        send_sec = duration_cast<milliseconds>(steady_clock::now() - start_send).count() / 1000.0;
         frontend->mSendingTime += send_sec;
 
-        LOG4CPLUS_DEBUG(logger,
-            "Routine '" << routine << "' launched asynchronously"
+        LOG4CPLUS_DEBUG(logger, "Routine '" << routine << "' launched asynchronously"
             << " | in=" << in_size << "B"
-            << " | pid=" << pid << " tid=" << tid);
+            << " [pid=" << pid << ", tid=" << tid << "]");
     }
 }
-
-
 
 void Frontend::Prepare() {
     pid_t tid = syscall(SYS_gettid);

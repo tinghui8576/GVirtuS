@@ -55,7 +55,7 @@ class Result {
 
   void TimeTaken(double time_taken);
   double TimeTaken() const;
-
+  std::shared_ptr<Buffer> GetOutputBuffer() const { return mpOutputBuffer; }
  private:
   int mExitCode;
   std::shared_ptr<Buffer> mpOutputBuffer;
