@@ -358,7 +358,7 @@ public:
         CUDA_CHECK(cudaMalloc(&d_bfc, FC_OUT * sizeof(float)));
         CUDA_CHECK(cudaMemcpy(d_bfc, bfc_host, FC_OUT * sizeof(float), cudaMemcpyHostToDevice));
 
-        // CUDA_CHECK(cudaHostAlloc(&h_input_pinned,  (size_t)batch_size * INSIZE * INSIZE * sizeof(float), cudaHostAllocDefault));
+        CUDA_CHECK(cudaHostAlloc(&h_input_pinned,  (size_t)batch_size * INSIZE * INSIZE * sizeof(float), cudaHostAllocDefault));
         CUDA_CHECK(cudaHostAlloc(&h_output_pinned, (size_t)batch_size * FC_OUT * sizeof(float),         cudaHostAllocDefault));
 
         cudaStreamCreate(&stream);
@@ -441,13 +441,13 @@ public:
                     batch_size, captured_batch);
             exit(1);
         }
-        // std::memcpy(h_input_pinned, data, (size_t)batch_size * INSIZE * INSIZE * sizeof(float));
-        // CUDA_CHECK(cudaMemcpy(d_in, data, in_bytes, cudaMemcpyHostToDevice));
+        std::memcpy(h_input_pinned, data, (size_t)batch_size * INSIZE * INSIZE * sizeof(float));
+        CUDA_CHECK(cudaMemcpy(d_in, data, in_bytes, cudaMemcpyHostToDevice));
 
         // cudaMemcpyAsync(d_in, data, in_bytes, cudaMemcpyHostToDevice, stream);
 
         
-        cudaMemcpyAsync(d_in, data, in_bytes, cudaMemcpyHostToDevice, stream);
+        // cudaMemcpyAsync(d_in, data, in_bytes, cudaMemcpyHostToDevice, stream);
            
         // ===== Conv =====
         dim3 tC(16, 16);
@@ -606,7 +606,7 @@ int main(int argc, char** argv) {
         csvFile << "BatchSize,ExecutionTime(ms)\n";
     }
 
-    auto t0 = std::chrono::steady_clock::now();
+    
     {
         Layer layer(batch_size);
         // printf("\n=== Strategy: batch size = %d, total %d batches ===\n", batch_size, num_batches);
@@ -623,10 +623,9 @@ int main(int argc, char** argv) {
             // cudaEvent_t start, stop;
             // CUDA_CHECK(cudaEventCreate(&start));
             
-            CUDA_CHECK(cudaHostRegister(batch_data,
-                (size_t)batch_size * INSIZE * INSIZE * sizeof(float), 0));
-            // CUDA_CHECK(cudaEventRecord(start, layer.stream));
             
+            // CUDA_CHECK(cudaEventRecord(start, layer.stream));
+            auto t0 = std::chrono::steady_clock::now();
             layer.forward_pass_batch(batch_data, batch_size);
             CUDA_CHECK(cudaStreamSynchronize(layer.stream));
 
@@ -634,11 +633,14 @@ int main(int argc, char** argv) {
             
             // CUDA_CHECK(cudaEventCreate(&stop));
             // CUDA_CHECK(cudaEventRecord(stop, layer.stream));
-            CUDA_CHECK(cudaHostUnregister(batch_data));
+            // CUDA_CHECK(cudaHostUnregister(batch_data));
             // CUDA_CHECK(cudaEventSynchronize(stop));
             // float ms = 0.f;
             // CUDA_CHECK(cudaEventElapsedTime(&ms, start, stop));
-            
+            auto t1 = std::chrono::steady_clock::now();
+            float ms = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() / 1000.0f;
+            total_time += ms;
+            csvFile << batch_size << "," << ms  << "\n";
 
             // fetch outputs [B*10]
             const float* h_out = layer.host_output();
@@ -666,7 +668,7 @@ int main(int argc, char** argv) {
             double acc = 100.0 - err_rate;
             total_errors += err_rate;
             // printf("Batch Size= %u Accuracy= %.2f%% Exec Time= %.3f\n", batch_size, acc, ms);
-            // csvFile << batch_size << "," << ms  << "\n";
+            
         }
         free(batch_data);
         cudaStreamSynchronize(layer.stream);
@@ -681,11 +683,9 @@ int main(int argc, char** argv) {
 
         double err_rate = (double)total_errors / N_runs;
         double acc = 100.0 - err_rate;
-        auto t1 = std::chrono::steady_clock::now();
-        float ms = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() / 1000.0f;
-        total_time += ms;
+        
         printf("Batch Size= %u Accuracy= %.2f%% Total Time= %.3f Avg Time = %.3f\n", batch_size, acc, total_time, total_time/N_runs );
-        csvFile << batch_size << "," << total_time << "," <<  total_time/N_runs  << "\n";
+        // csvFile << batch_size << "," << total_time << "," <<  total_time/N_runs  << "\n";
     }
 
     for (unsigned int i = 0; i < total_count; ++i) free(data_set[i]);
