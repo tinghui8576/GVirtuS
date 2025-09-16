@@ -49,6 +49,13 @@ TEST(cudaRT, MallocFree) {
     CUDA_CHECK(cudaFree(devPtr));
 }
 
+TEST(cudaRT, MallocAsyncFree) {
+    void* devPtr = nullptr;
+    cudaStream_t stream;
+    CUDA_CHECK(cudaStreamCreate(&stream));
+    CUDA_CHECK(cudaMallocAsync(&devPtr, 1024, stream));
+    CUDA_CHECK(cudaFreeAsync(devPtr, stream));
+}
 TEST(cudaRT, MemcpySync) {
     int h_src = 42;
     int h_dst = 0;
@@ -134,6 +141,7 @@ TEST(cudaRT, GraphInstantiateDestroy) {
     CUDA_CHECK(cudaGraphInstantiate(&graphExec, graph, 0));
     CUDA_CHECK(cudaGraphDestroy(graph));
     CUDA_CHECK(cudaStreamDestroy(stream));
+    CUDA_CHECK(cudaGraphExecDestroy(graphExec));
 }
 
 TEST(cudaRT, GraphLaunch) {
@@ -151,6 +159,7 @@ TEST(cudaRT, GraphLaunch) {
     CUDA_CHECK(cudaGraphInstantiate(&graphExec, graph, 0));
     CUDA_CHECK(cudaGraphDestroy(graph));
     CUDA_CHECK(cudaGraphLaunch(graphExec, stream));
+    CUDA_CHECK(cudaGraphUpload(graphExec, stream));
     CUDA_CHECK(cudaStreamSynchronize(stream));
 }
 

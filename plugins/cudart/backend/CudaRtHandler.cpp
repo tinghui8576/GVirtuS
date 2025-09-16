@@ -333,6 +333,8 @@ void CudaRtHandler::Initialize() {
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolGetAttribute));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolSetAttribute));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MemPoolDestroy));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(MallocAsync));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(FreeAsync));
 
     /* CudaRtHandler_stream */
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(StreamCreate));
@@ -353,6 +355,8 @@ void CudaRtHandler::Initialize() {
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphLaunch));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphGetNodes));
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphInstantiate));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphExecDestroy));
+    mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(GraphUpload));
 
     /* CudaRtHandler_version */
     mspHandlers->insert(CUDA_ROUTINE_HANDLER_PAIR(DriverGetVersion));

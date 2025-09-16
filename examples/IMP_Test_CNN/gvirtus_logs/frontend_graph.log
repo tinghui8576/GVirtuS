@@ -1,0 +1,3573 @@
+INFO - GVirtuS frontend version /usr/local/gvirtus/etc/properties.json
+INFO - Parsing endpoint config from: /usr/local/gvirtus/etc/properties.json
+DEBUG - Full JSON dump:
+{
+    "communicator": [
+        {
+            "endpoint": {
+                "port": "9999",
+                "protocol": "tcp",
+                "server_address": "127.0.0.1",
+                "suite": "tcp/ip"
+            },
+            "plugins": [
+                "cuda",
+                "cudart",
+                "cublas",
+                "curand",
+                "cudnn",
+                "cufft",
+                "cusolver",
+                "cusparse",
+                "nvrtc"
+            ]
+        }
+    ],
+    "secure_application": false
+}
+INFO - Parsed endpoint suite: tcp/ip
+INFO - Initializing TCP/IP Endpoint
+DEBUG - Routine 'cudaRegisterFatBinary' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 85
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 82
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 80
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 84
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 82
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 87
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 86
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 83
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFunction' returned 0
+Output buffer size: 88
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaRegisterFatBinaryEnd' returned 0
+Output buffer size: 0
+Images read: 10000 (of 10000). Shape: 28x28
+Labels read: 10000 (of 10000)
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMalloc' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaStreamCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaStreamBeginCapture' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPushCallConfiguration' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaPopCallConfiguration' returned 0
+Output buffer size: 40
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaLaunchKernel' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGetLastError' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamEndCapture' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaGraphInstantiate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaGraphDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 128.342
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 42.557
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 44.608
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 43.112
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.915
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.489
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.610
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.485
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.875
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.512
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.681
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 38.633
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 38.529
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.538
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.693
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 38.557
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.101
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.930
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 38.687
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.747
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.494
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.015
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 45.619
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 44.491
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.120
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 37.717
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 37.712
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 37.868
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.116
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.292
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.025
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.102
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.207
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.605
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.506
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.059
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.563
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.988
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 42.166
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.214
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.605
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.673
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.035
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.059
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.582
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 42.405
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 42.652
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.256
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 42.794
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 44.923
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.469
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.327
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.797
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.036
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.276
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.792
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.991
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.211
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 56.867
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.166
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 42.858
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.167
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 44.941
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.506
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 38.451
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 38.392
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 37.892
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 46.484
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 58.785
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 48.886
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.102
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 44.288
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.646
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.769
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.356
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.981
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.754
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.950
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.463
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.705
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.872
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.626
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.781
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.907
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 40.407
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 43.282
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.463
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 39.764
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.543
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.368
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 45.560
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 60.792
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 61.107
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 59.810
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 58.054
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 58.774
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 51.474
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 41.058
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 42.880
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventCreate' returned 0
+Output buffer size: 8
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaGraphLaunch' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventRecord' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventSynchronize' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventElapsedTime' returned 0
+Output buffer size: 12
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaMemcpy' returned 0
+Output buffer size: 400008
+Reading output buffer...
+Output buffer read successfully.
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaEventDestroy' returned 0
+Output buffer size: 0
+Batch Size= 10000 Accuracy= 94.12% Exec Time= 51.569
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaStreamDestroy' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaFree' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaDeviceReset' returned 0
+Output buffer size: 0
+DEBUG - Routine 'cudaUnregisterFatBinary' returned 0
+Output buffer size: 0

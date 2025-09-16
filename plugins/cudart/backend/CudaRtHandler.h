@@ -261,6 +261,8 @@ CUDA_ROUTINE_HANDLER(MemPoolCreate);
 CUDA_ROUTINE_HANDLER(MemPoolGetAttribute);
 CUDA_ROUTINE_HANDLER(MemPoolSetAttribute);
 CUDA_ROUTINE_HANDLER(MemPoolDestroy);
+CUDA_ROUTINE_HANDLER(FreeAsync);
+CUDA_ROUTINE_HANDLER(MallocAsync);
 
 /* CudaRtHandler_stream */
 CUDA_ROUTINE_HANDLER(StreamCreate);
@@ -281,6 +283,8 @@ CUDA_ROUTINE_HANDLER(GraphDestroy);
 CUDA_ROUTINE_HANDLER(GraphLaunch);
 CUDA_ROUTINE_HANDLER(GraphGetNodes);
 CUDA_ROUTINE_HANDLER(GraphInstantiate);
+CUDA_ROUTINE_HANDLER(GraphExecDestroy);
+CUDA_ROUTINE_HANDLER(GraphUpload);
 
 /* CudaRtHandler_version */
 CUDA_ROUTINE_HANDLER(DriverGetVersion);

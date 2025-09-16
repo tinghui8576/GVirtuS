@@ -98,3 +98,23 @@ CUDA_ROUTINE_HANDLER(GraphLaunch) {
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 }
+CUDA_ROUTINE_HANDLER(GraphExecDestroy) {
+    try {
+        cudaGraphExec_t graphExec = input_buffer->Get<cudaGraphExec_t>();
+        return std::make_shared<Result>(cudaGraphExecDestroy(graphExec));
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+} 
+
+CUDA_ROUTINE_HANDLER(GraphUpload) {
+    try {
+        cudaGraphExec_t graphExec = input_buffer->Get<cudaGraphExec_t>();
+        cudaStream_t stream = input_buffer->Get<cudaStream_t>();
+        return std::make_shared<Result>(cudaGraphUpload(graphExec, stream));
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
