@@ -38,10 +38,10 @@ run-gvirtus-dev:
 		-v ./tools:/gvirtus/tools/ \
 		-v ./tests:/gvirtus/tests/ \
 		-v ./CMakeLists.txt:/gvirtus/CMakeLists.txt \
-		-v ./docker/dev/build.sh:/build.sh \
+		-v ./docker/dev/build_and_run.sh:/build_and_run.sh \
 		-v ./examples:/gvirtus/examples/ \
 		--network host \
-		--entrypoint /build.sh \
+		--entrypoint /build_and_run.sh \
 		--name gvirtus \
 		--runtime=nvidia \
 		--shm-size=8G \
