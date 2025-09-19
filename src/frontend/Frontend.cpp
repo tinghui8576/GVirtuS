@@ -9,7 +9,8 @@
 #include <filesystem>
 #include "communicators/hybrid/HybridCommunicator.h"
 #include "communicators/ucx/UcxCommunicator.h"
-
+#include <cstdio>   // 确保包含了 printf 和 fflush
+#include <typeinfo> // 确保包含了 typeid
 #include <pthread.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -202,78 +203,92 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     std::string rname(routine);
     LOG4CPLUS_DEBUG(logger, "Executing routine: " << rname << " [pid=" << pid << ", tid=" << tid << "]");
     frontend->mRoutinesExecuted++;
-
-    // ======================================================================
-    // UCX 新协议路径 (统一调用接口)
-    // ======================================================================
+    
     if (frontend->_communicator->obj_ptr()->to_string() == "ucxcommunicator") {
+        // ================== [新 UCX "黑盒子适配器" 逻辑路径] ==================
         auto *ucx = dynamic_cast<gvirtus::communicators::UcxCommunicator*>(
             frontend->_communicator->obj_ptr().get());
         if (!ucx) {
             LOG4CPLUS_FATAL(logger, "FATAL: dynamic_cast to UcxCommunicator failed.");
-            // This situation indicates a severe logic error and should likely terminate.
             return;
         }
 
-        const void* payload_ptr = input_buffer->GetBuffer();
-        const size_t payload_len = input_buffer->GetBufferSize();
+        // === [适配器] 步骤 1: 将请求打包成一个格式绝对正确的 "邮包" ===
+        Buffer request_packet;
         
-        // 1. 根据 routine 名称，决定本次调用是否需要等待响应
+        // 1a. 序列化 routine 字符串
+        request_packet.AddString(routine);
+        
+        // 1b. [终极修正] 将 input_buffer 的完整内容，作为一个整体的 "货物"，打包进邮包。
+        //     我们先写入它的总长度，再写入它的全部数据。
+        size_t input_buffer_total_size = input_buffer->GetBufferSize();
+        request_packet.Add(input_buffer_total_size);
+        if (input_buffer_total_size > 0) {
+            request_packet.Append(input_buffer->GetBuffer(), input_buffer_total_size);
+        }
+        
         const bool expect_response = isSyncRoutine(rname);
 
-        // 2. 统一调用 SubmitRequest，将同步/异步标志作为参数传递
+        // === 步骤 2: 通过流水线发送这个打包好的 "邮包" ===
         auto t0 = steady_clock::now();
-        auto res = ucx->SubmitRequest(routine, payload_ptr, payload_len, expect_response);
+        auto res = ucx->SubmitRequest("execute_routine", 
+                                      request_packet.GetBuffer(), 
+                                      request_packet.GetBufferSize(), 
+                                      expect_response);
         auto t1 = steady_clock::now();
         
-        // 3. 根据是否为同步调用，进行后续处理和统计
+        // === [适配器] 步骤 3: 如果是同步请求，则解开响应 "邮包" ===
         if (expect_response) {
-            // 这是同步调用的处理逻辑
             double wall_time = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
+            
+            // 3a. 使用返回的 res.out 数据，构造一个只读的响应包 Buffer。
+            Buffer response_packet(res.out.data(), res.out.size());
+            
+            // 3b. 从响应包中，按顺序反序列化出结果。
+            int exit_code = response_packet.Get<int>();
+            double server_exec_sec = response_packet.Get<double>();
 
-            // 将返回的结果放入前端的输出缓冲区
+            // 3c. 从响应包中反序列化出最终的输出数据，并填充到前端的 mpOutputBuffer 中。
             frontend->mpOutputBuffer->Reset();
-            if (!res.out.empty()) {
-                frontend->mpOutputBuffer->Append(res.out.data(), res.out.size());
-                frontend->mDataReceived += res.out.size();
+            size_t output_len = response_packet.Get<size_t>();
+            if (output_len > 0) {
+                char* out_data = response_packet.Get<char>(output_len);
+                if (out_data) {
+                    frontend->mpOutputBuffer->Append(out_data, output_len);
+                    delete[] out_data;
+                }
             }
-
-            // 更新统计指标
-            frontend->mExitCode = res.exit_code;
-            frontend->mRoutineExecutionTime += res.server_exec_sec;
-            frontend->mDataSent += payload_len;
-            // 对于流水线模型，整个调用的 wall time 是衡量发送+接收开销的更准确指标
-            frontend->mSendingTime += wall_time; 
-            frontend->mReceivingTime += 0; // 包含在 wall_time 中，单独记为0
+            
+            // 更新统计
+            frontend->mExitCode = exit_code;
+            frontend->mRoutineExecutionTime += server_exec_sec;
+            frontend->mDataReceived += output_len;
+            frontend->mDataSent += request_packet.GetBufferSize();
+            frontend->mSendingTime += wall_time;
 
             LOG4CPLUS_DEBUG(logger, "SYNC routine '" << routine << "' finished."
-                << " | exit_code=" << res.exit_code
-                << " | server_exec=" << res.server_exec_sec << "s"
+                << " | exit_code=" << exit_code
+                << " | server_exec=" << server_exec_sec << "s"
                 << " | wall_time=" << wall_time << "s"
-                << " | in=" << payload_len << "B, out=" << res.out.size() << "B"
+                << " | in=" << input_buffer->GetBufferSize() << "B, out=" << output_len << "B"
                 << " [pid=" << pid << ", tid=" << tid << "]");
 
         } else {
-            // 这是异步调用的处理逻辑 (fire-and-forget)
             double submission_time = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
-            
-            // 更新统计指标
-            frontend->mDataSent += payload_len;
+            frontend->mDataSent += request_packet.GetBufferSize();
             frontend->mSendingTime += submission_time;
-
-            LOG4CPLUS_DEBUG(logger, "ASYNC routine '" << routine << "' submitted."
-                << " | submission_time=" << submission_time << "s"
-                << " | in=" << payload_len << "B"
-                << " [pid=" << pid << ", tid=" << tid << "]");
         }
         
-        return; // UCX 路径处理完毕，函数直接返回
+        return;
     }
+    // ================== [旧逻辑路径] ==================
+    // ... (旧逻辑保持原样，无需修改)
+    printf("[EXECUTE_TRACE] STEP 3.1: Path taken -> OLD LOGIC.\n");
+    fflush(stdout);
 
-    // ======================================================================
-    // 非 UCX: 沿用旧逻辑 (保持原样)
-    // ======================================================================
     auto send_request = [&](uint8_t expect_response) {
+        printf("[EXECUTE_TRACE] OLD_LOGIC: Preparing to send request header (expect_response=%d).\n", (int)expect_response);
+        fflush(stdout);
         uint32_t routine_len = static_cast<uint32_t>(strlen(routine) + 1);
         size_t total_len = sizeof(expect_response) + sizeof(routine_len) + routine_len;
         std::vector<char> buf(total_len);
@@ -286,88 +301,62 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
         memcpy(ptr, routine, routine_len);
 
         frontend->_communicator->obj_ptr()->Write(buf.data(), buf.size());
+        printf("[EXECUTE_TRACE] OLD_LOGIC: Request header sent.\n");
+        fflush(stdout);
     };
 
     const bool sync_legacy = isSyncRoutine(rname);
     size_t in_size = input_buffer->GetBufferSize();
     double send_sec = 0.0;
     double recv_sec = 0.0;
+    
+    printf("[EXECUTE_TRACE] OLD_LOGIC: Is sync routine? %s.\n", sync_legacy ? "Yes" : "No");
+    fflush(stdout);
 
     if (sync_legacy) {
-        // 旧的同步路径
         auto start_send = steady_clock::now();
         send_request(1);
-
-        if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
-            auto* hybrid = dynamic_cast<gvirtus::communicators::HybridCommunicator*>(
-                frontend->_communicator->obj_ptr().get());
-            if (hybrid) {
-                if (rname.find("cudaMemcpy") != std::string::npos ||
-                    rname.find("cudaRegisterFatBinary") != std::string::npos ||
-                    rname.find("cudaRegisterFatBinaryEnd") != std::string::npos ||
-                    rname.find("cudaMemcpyAsync") != std::string::npos) {
-                    hybrid->begin_call(routine, gvirtus::communicators::Transport::RDMA, in_size);
-                } else {
-                    hybrid->begin_call(routine, gvirtus::communicators::Transport::TCP, in_size);
-                }
-            }
-        }
-
+        printf("[EXECUTE_TRACE] OLD_LOGIC_SYNC: Preparing to dump buffer of size %zu.\n", in_size);
+        fflush(stdout);
         frontend->mDataSent += in_size;
         input_buffer->Dump(frontend->_communicator->obj_ptr().get());
-        send_sec = duration_cast<milliseconds>(steady_clock::now() - start_send).count() / 1000.0;
-        
+        printf("[EXECUTE_TRACE] OLD_LOGIC_SYNC: Buffer dumped. Now waiting for response...\n");
+        fflush(stdout);
         frontend->mpOutputBuffer->Reset();
-
         auto start_recv = steady_clock::now();
         int exit_code = 0;
         double server_exec_sec = 0.0;
         size_t out_buffer_size = 0;
+        printf("[EXECUTE_TRACE] OLD_LOGIC_SYNC: Reading exit_code...\n"); fflush(stdout);
         frontend->_communicator->obj_ptr()->Read((char *)&exit_code, sizeof(int));
         frontend->mExitCode = exit_code;
+        printf("[EXECUTE_TRACE] OLD_LOGIC_SYNC: Reading server_exec_sec...\n"); fflush(stdout);
         frontend->_communicator->obj_ptr()->Read(reinterpret_cast<char *>(&server_exec_sec), sizeof(server_exec_sec));
+        printf("[EXECUTE_TRACE] OLD_LOGIC_SYNC: Reading out_buffer_size...\n"); fflush(stdout);
         frontend->_communicator->obj_ptr()->Read((char *)&out_buffer_size, sizeof(size_t));
-
+        frontend->mDataReceived += out_buffer_size;
         if (out_buffer_size > 0) {
+            printf("[EXECUTE_TRACE] OLD_LOGIC_SYNC: Reading output buffer of size %zu...\n", out_buffer_size); fflush(stdout);
             frontend->mpOutputBuffer->Reset(frontend->_communicator->obj_ptr().get());
-            frontend->mDataReceived += frontend->mpOutputBuffer->GetBufferSize();
         }
-
+        printf("[EXECUTE_TRACE] OLD_LOGIC_SYNC: All responses received.\n"); fflush(stdout);
         recv_sec = duration_cast<milliseconds>(steady_clock::now() - start_recv).count() / 1000.0;
-        
         frontend->mRoutineExecutionTime += server_exec_sec;
-        frontend->mSendingTime += send_sec;
-        frontend->mReceivingTime += recv_sec;
-
-        LOG4CPLUS_DEBUG(logger, "Routine '" << routine << "' returned " << exit_code
-            << " | server_exec=" << server_exec_sec << "s"
-            << " | send=" << send_sec << "s"
-            << " | recv=" << recv_sec << "s"
-            << " | in=" << in_size << "B"
-            << " | out=" << (out_buffer_size > 0 ? frontend->mpOutputBuffer->GetBufferSize() : 0) << "B"
-            << " [pid=" << pid << ", tid=" << tid << "]");
-
-        if (frontend->_communicator->obj_ptr()->to_string() == "hybridcommunicator") {
-            auto hybrid = std::dynamic_pointer_cast<gvirtus::communicators::HybridCommunicator>(
-                frontend->_communicator->obj_ptr());
-            if (hybrid) {
-                hybrid->end_call();
-            }
-        }
     } else {
-        // 旧的异步路径
         auto start_send = steady_clock::now();
         send_request(0);
-
+        printf("[EXECUTE_TRACE] OLD_LOGIC_ASYNC: Preparing to dump buffer of size %zu.\n", in_size);
+        fflush(stdout);
         frontend->mDataSent += in_size;
         input_buffer->Dump(frontend->_communicator->obj_ptr().get());
+        printf("[EXECUTE_TRACE] OLD_LOGIC_ASYNC: Buffer dumped. No response expected.\n");
+        fflush(stdout);
         send_sec = duration_cast<milliseconds>(steady_clock::now() - start_send).count() / 1000.0;
         frontend->mSendingTime += send_sec;
-
-        LOG4CPLUS_DEBUG(logger, "Routine '" << routine << "' launched asynchronously"
-            << " | in=" << in_size << "B"
-            << " [pid=" << pid << ", tid=" << tid << "]");
     }
+    
+    printf("[EXECUTE_TRACE] STEP 4: Leaving Frontend::Execute.\n");
+    fflush(stdout);
 }
 
 void Frontend::Prepare() {

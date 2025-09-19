@@ -290,13 +290,23 @@ void UcxCommunicator::_send_loop() {
     if (!item) continue;
 
     try {
+      // [防御性编程] 先创建网络字节序的头，并清零
+      ReqHdr wh_n{};
+      memset(&wh_n, 0, sizeof(ReqHdr));
+
+      // 获取主机字节序的头
       ReqHdr wh = item->hdr;
-      wh.magic       = hton_any<uint32_t>(wh.magic);
-      wh.version     = hton_any<uint16_t>(wh.version);
-      wh.msg_id      = hton_any<uint64_t>(wh.msg_id);
-      wh.routine_len = hton_any<uint32_t>(wh.routine_len);
-      wh.payload_len = hton_any<uint32_t>(wh.payload_len);
-      _send_stream_exact(_ep, &wh, sizeof(wh));
+      
+      // 逐个字段进行转换和赋值
+      wh_n.magic       = hton_any<uint32_t>(wh.magic);
+      wh_n.version     = hton_any<uint16_t>(wh.version);
+      wh_n.flags       = wh.flags;
+      wh_n.reserved    = wh.reserved;
+      wh_n.msg_id      = hton_any<uint64_t>(wh.msg_id);
+      wh_n.routine_len = hton_any<uint32_t>(wh.routine_len);
+      wh_n.payload_len = hton_any<uint32_t>(wh.payload_len);
+      
+      _send_stream_exact(_ep, &wh_n, sizeof(wh_n));
 
       if (!item->routine.empty()) {
         _send_stream_exact(_ep, item->routine.data(), item->routine.size());
@@ -311,7 +321,6 @@ void UcxCommunicator::_send_loop() {
     }
   }
 }
-
 void UcxCommunicator::_recv_loop() {
   while (!_closing && _recv_thread_running) {
     try {
@@ -516,17 +525,30 @@ void UcxCommunicator::Connect() {
   if (_worker  == nullptr) _create_worker();
 
   ucp_ep_params_t ep_params{};
+
+  // [最终修正]
+  // 添加 UCP_EP_PARAM_FIELD_FLAGS 标志，
+  // 这是告诉 UCX 我们正在进行一次标准的客户端-服务器连接。
   ep_params.field_mask =
+      UCP_EP_PARAM_FIELD_FLAGS | // <--- 在这里添加
       UCP_EP_PARAM_FIELD_SOCK_ADDR |
       UCP_EP_PARAM_FIELD_ERR_HANDLER |
       UCP_EP_PARAM_FIELD_ERR_HANDLING_MODE;
+
+  // [最终修正]
+  // 设置对应的 flags 字段
+  ep_params.flags            = UCP_EP_PARAMS_FLAGS_CLIENT_SERVER; // <--- 在这里添加
+
   ep_params.err_mode         = UCP_ERR_HANDLING_MODE_PEER;
   ep_params.err_handler.cb   = &UcxCommunicator::_on_ep_error;
   ep_params.err_handler.arg  = this;
   ep_params.sockaddr.addr    = reinterpret_cast<const sockaddr*>(&ss);
   ep_params.sockaddr.addrlen = slen;
+  
+  // 现在，传递给 ucp_ep_create 的参数是完整且正确的
   UCS_THROW_IF_NOT_OK(ucp_ep_create(_worker, &ep_params, &_ep), "ucp_ep_create");
 
+  // 连接成功后，启动进度和流水线线程
   StartProgress();
   StartPipeline();
 }

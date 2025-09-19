@@ -219,8 +219,11 @@ class Buffer {
   }
 
   template <class T>
-  T *Assign(size_t n = 1) {
-    if (Get<size_t>() == 0) return NULL;
+T *Assign(size_t n = 1) {
+    // [修正] 移除 if (Get<size_t>() == 0) return NULL;
+    // 调用者应该负责提供正确的长度 n。
+    // 如果 n 是 0，我们应该返回 NULL 或一个有效的空指针。
+    if (n == 0) return NULL;
 
     if (mOffset + safe_sizeof<T>() * n > mLength) {
       throw std::runtime_error(std::string("Buffer::Assign(n): Can't read  ") + typeid(T).name());
@@ -228,7 +231,21 @@ class Buffer {
     T *result = (T *)(mpBuffer + mOffset);
     mOffset += safe_sizeof<T>() * n;
     return result;
-  }
+}
+
+// 修正 AssignString，让它自己负责所有逻辑
+char *AssignString() {
+    // 检查是否能读取长度
+    if (mOffset + sizeof(size_t) > mLength) {
+        return NULL;
+    }
+
+    // 读取长度
+    size_t size = Get<size_t>();
+    
+    // 调用修正后的 Assign<char>
+    return Assign<char>(size);
+}
 
   template <class T>
   T *AssignAll() {
@@ -240,11 +257,6 @@ class Buffer {
       T *result = (T *)(mpBuffer + mOffset);
       mOffset += safe_sizeof<T>() * n;
       return result;
-  }
-
-  char *AssignString() {
-    size_t size = Get<size_t>();
-    return Assign<char>(size);
   }
 
   template <class T>

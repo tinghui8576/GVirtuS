@@ -63,6 +63,7 @@ foreach(TEST_SRC ${TEST_SOURCES})
         cusolver
         cusparse
         nvrtc
+        ${UCX_LIBRARIES}            # 👈 显式补上 UCX
     )
 
     # Register the test with ctest
