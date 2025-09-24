@@ -9,8 +9,8 @@
 #include <filesystem>
 #include "communicators/hybrid/HybridCommunicator.h"
 #include "communicators/ucx/UcxCommunicator.h"
-#include <cstdio>   // 确保包含了 printf 和 fflush
-#include <typeinfo> // 确保包含了 typeid
+#include <cstdio>   
+#include <typeinfo> 
 #include <pthread.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -18,7 +18,7 @@
 #include <iostream>
 #include <mutex>
 #include <chrono>
-#include <stdlib.h> /* getenv */
+#include <stdlib.h> 
 
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
@@ -172,7 +172,7 @@ Frontend *Frontend::GetFrontend(Communicator *c) {
     return f;
 }
 
-// ---------------- 工具函数：判断是否需要同步 ----------------
+// ---------------- Utility function: Determine if synchronization is needed ----------------
 // MODIFIED: Added crucial routines that require synchronous behavior
 static bool isSyncRoutine(const std::string &routine) {
     return (routine.find("cudaMemcpy") != std::string::npos) ||
@@ -205,7 +205,7 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
     frontend->mRoutinesExecuted++;
     
     if (frontend->_communicator->obj_ptr()->to_string() == "ucxcommunicator") {
-        // ================== [新 UCX "黑盒子适配器" 逻辑路径] ==================
+
         auto *ucx = dynamic_cast<gvirtus::communicators::UcxCommunicator*>(
             frontend->_communicator->obj_ptr().get());
         if (!ucx) {
@@ -213,14 +213,14 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
             return;
         }
 
-        // === [适配器] 步骤 1: 将请求打包成一个格式绝对正确的 "邮包" ===
+        // Step 1: Package the request data into a payload
         Buffer request_packet;
         
-        // 1a. 序列化 routine 字符串
+        // 1a. Serialize the routine string
         request_packet.AddString(routine);
         
-        // 1b. [终极修正] 将 input_buffer 的完整内容，作为一个整体的 "货物"，打包进邮包。
-        //     我们先写入它的总长度，再写入它的全部数据。
+        // 1b. Package the entire contents of input_buffer as a single unit.
+        // First, we write the total length of the data, and then we write the entire data itself.
         size_t input_buffer_total_size = input_buffer->GetBufferSize();
         request_packet.Add(input_buffer_total_size);
         if (input_buffer_total_size > 0) {
@@ -229,7 +229,7 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
         
         const bool expect_response = isSyncRoutine(rname);
 
-        // === 步骤 2: 通过流水线发送这个打包好的 "邮包" ===
+        // === Step 2: Send via pipeline ===
         auto t0 = steady_clock::now();
         auto res = ucx->SubmitRequest("execute_routine", 
                                       request_packet.GetBuffer(), 
@@ -237,18 +237,19 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
                                       expect_response);
         auto t1 = steady_clock::now();
         
-        // === [适配器] 步骤 3: 如果是同步请求，则解开响应 "邮包" ===
+        // === Step 3: If it's a synchronous request, then parse the response payload ===
         if (expect_response) {
             double wall_time = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
             
-            // 3a. 使用返回的 res.out 数据，构造一个只读的响应包 Buffer。
+            // 3a. Use the returned data (res.out) to create a read-only response buffer.
             Buffer response_packet(res.out.data(), res.out.size());
             
-            // 3b. 从响应包中，按顺序反序列化出结果。
+            // 3b. Deserialize the result from the response packet in the correct order.
             int exit_code = response_packet.Get<int>();
             double server_exec_sec = response_packet.Get<double>();
 
-            // 3c. 从响应包中反序列化出最终的输出数据，并填充到前端的 mpOutputBuffer 中。
+            // 3c. Deserialize the final output data from the response packet and store 
+            //it in the mpOutputBuffer in the client-side application.
             frontend->mpOutputBuffer->Reset();
             size_t output_len = response_packet.Get<size_t>();
             if (output_len > 0) {
@@ -258,8 +259,7 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
                     delete[] out_data;
                 }
             }
-            
-            // 更新统计
+
             frontend->mExitCode = exit_code;
             frontend->mRoutineExecutionTime += server_exec_sec;
             frontend->mDataReceived += output_len;
@@ -281,8 +281,7 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
         
         return;
     }
-    // ================== [旧逻辑路径] ==================
-    // ... (旧逻辑保持原样，无需修改)
+    // ================== OLD LOGICL PATH, NOT USE IN UCX ==================
     printf("[EXECUTE_TRACE] STEP 3.1: Path taken -> OLD LOGIC.\n");
     fflush(stdout);
 

@@ -15,8 +15,6 @@
 #include <thread>
 #include <iostream>
 #include <vector>
-
-// 协议头（常量、结构）从公共头取
 #include <gvirtus/communicators/UcxProtocol.h>
 
 #define DEBUG
@@ -30,7 +28,7 @@ using gvirtus::communicators::Endpoint;
 using std::chrono::steady_clock;
 using namespace std;
 
-// 网络字节序辅助（只在本文件用）
+// Network byte order utilities
 namespace {
     inline uint64_t ntohll(uint64_t v) {
         uint32_t hi = ntohl(static_cast<uint32_t>(v >> 32));
@@ -38,13 +36,6 @@ namespace {
         return (static_cast<uint64_t>(lo) << 32) | hi;
     }
 }
-
-// NEW: 与旧代码兼容的命令头（保留，但当前 UCX 流水线不再使用它）
-#pragma pack(push, 1)
-struct CommandHeader {
-    uint8_t expect_response;
-};
-#pragma pack(pop)
 
 Process::Process(std::shared_ptr<LD_Lib<Communicator, std::shared_ptr<Endpoint>>> communicator, vector <string> &plugins) : Observable() {
     logger = log4cplus::Logger::getInstance(LOG4CPLUS_TEXT("Process"));
@@ -60,7 +51,7 @@ Process::Process(std::shared_ptr<LD_Lib<Communicator, std::shared_ptr<Endpoint>>
     mPlugins = plugins;
 }
 
-// 兼容各 communicator 的 getstring（保留）
+// Compatible with getstring function across various communicators (retained)
 bool getstring(Communicator *c, string &s) {
     s.clear();
     if (!c) return false;
@@ -137,12 +128,11 @@ void Process::Start() {
             return;
         }
 
-        ReqHdr hdr{}; // 将 hdr 声明在循环外，以便在 catch 块中访问 msg_id
+        ReqHdr hdr{}; 
 
         while (true) {
             try {
-                // === 步骤 1: 接收流水线传来的请求包 ===
-                // === 步骤 1: 接收流水线传来的请求包 (这部分已正确) ===
+                // === Step 1: Receive the request packet from the pipeline ===
                 ReqHdr hdr_n{};
                 ucx->Read(reinterpret_cast<char*>(&hdr_n), sizeof(hdr_n));
                 hdr = {}; 
@@ -164,32 +154,29 @@ void Process::Start() {
                 std::vector<char> payload(hdr.payload_len);
                 if (hdr.payload_len > 0) ucx->Read(payload.data(), payload.size());
 
-                // === [适配器] 步骤 2: 解开请求 "邮包"，为 Handler 准备输入 ===
+                // === Step 2: Parse the request payload to prepare input for the handler ===
                 Buffer request_packet(payload.data(), payload.size());
                 
                 char* routine_cstr = request_packet.AssignString();
                 std::string routine(routine_cstr ? routine_cstr : "");
                 
-                // [终极修正]
-                // 1. 从 "邮包" 中读取 "货物" (原始 input_buffer) 的总长度。
+
+                // 1. Read the total length of the original input_buffer from the payload.
                 size_t input_buffer_total_size = request_packet.Get<size_t>();
 
-                // 2. 创建一个新的 Buffer，它将成为 Handler 的完美输入副本。
+                // 2. Create a new Buffer, which is a copy of the input for the Handler.
                 std::shared_ptr<Buffer> handler_input_buffer = std::make_shared<Buffer>(input_buffer_total_size);
                 
-                // 3. 将 "货物" 的内容，从 "邮包" 中拷贝到这个新的副本里。
+                // 3. Copy the input content from the payload to this new copy.
                 if (input_buffer_total_size > 0) {
-                    // Get<char>(n) 会 new 一块内存，我们用它来获取数据。
                     char* data = request_packet.Get<char>(input_buffer_total_size);
-                    // Append 会将数据安全地拷贝到新 Buffer 的内部存储中。
                     handler_input_buffer->Append(data, input_buffer_total_size);
-                    // 释放 Get<char>(n) 创建的临时内存。
                     delete[] data;
                 }
 
                 LOG4CPLUS_DEBUG(logger, "✓ - Unpacked and received routine '" << routine << "' [msg_id=" << hdr.msg_id << "]");
 
-                // === 步骤 3: 调用 Handler (现在传递给它的 Buffer 是完美的副本) ===
+                // === Step 3: Call the Handler ===
                 std::shared_ptr<Handler> h = nullptr;
                 for (auto &ptr_el : _handlers) {
                     if (ptr_el->obj_ptr()->CanExecute(routine)) {
@@ -214,7 +201,7 @@ void Process::Start() {
                     }
                 }
 
-                // === [适配器] 步骤 4: 将 Result 打包成一个单一的响应 "邮包" 并发送 ===
+                // === Step 4: Package the Result into a single response payload and send it ===
                 if (hdr.flags & FLAG_EXPECT_RESPONSE) {
                     Buffer response_packet;
                     
@@ -258,7 +245,6 @@ void Process::Start() {
                 }
             } catch (const std::exception& e) {
                 LOG4CPLUS_WARN(logger, "Exception in client thread for msg_id=" << hdr.msg_id << ", closing session: " << e.what());
-                // 健壮性：发生异常时，如果可能，也尝试给客户端一个错误响应
                 if ((hdr.flags & FLAG_EXPECT_RESPONSE) && hdr.msg_id != 0) {
                     RespHdr rh_err{};
                     rh_err.magic = kMagic;

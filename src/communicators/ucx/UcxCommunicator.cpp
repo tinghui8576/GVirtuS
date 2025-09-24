@@ -17,17 +17,18 @@
 
 namespace gvirtus::communicators {
 
-// ============================ 工具/常量 ============================
+// ============================ UCX Toolkit & constant ============================
 namespace {
+//Convert ucx status code to string
 inline const char* _ucs_str(ucs_status_t st) { return ucs_status_string(st); }
-
+//ucx excepting throw
 #define UCS_THROW_IF_NOT_OK(expr, what) do {                                  \
   ucs_status_t __st = (expr);                                                 \
   if (__st != UCS_OK) {                                                       \
     throw std::runtime_error(std::string(what) + ": " + _ucs_str(__st));      \
   }                                                                           \
 } while(0)
-
+//netork tool function
 static std::string ifname_from_sockaddr(const struct sockaddr* sa) {
   struct ifaddrs* ifas = nullptr;
   if (getifaddrs(&ifas) != 0) return "";
@@ -59,9 +60,10 @@ static std::string route_ifname_to(const struct sockaddr* dst, socklen_t dlen) {
   close(s);
   return ifname_from_sockaddr(reinterpret_cast<sockaddr*>(&local));
 }
-} // 匿名命名空间
+} 
 
-// ============================ 内部状态实现 ============================
+// ============================  The pipeline internal state ============================
+//Temporarily block a thread until a single UCX asynchronous operation (such as a send or receive) completes.
 struct UcxCommunicator::_req_state {
   std::atomic<bool>           completed{false};
   std::atomic<ucs_status_t>   status{UCS_INPROGRESS};
@@ -82,7 +84,8 @@ struct UcxCommunicator::_req_state {
     cv.notify_one();
   }
 };
-
+//Block a thread (typically the main thread that calls SubmitRequest) for an extended period, 
+//until a complete server response matching a specific message ID is received.
 struct UcxCommunicator::Waiter {
   std::mutex m;
   std::condition_variable cv;
@@ -92,14 +95,15 @@ struct UcxCommunicator::Waiter {
   double server_exec_sec{0.0};
   std::vector<char> out;
 };
-
+//The internal queue 
 struct UcxCommunicator::Queued {
   ReqHdr hdr{};
   std::vector<char> routine;
   std::vector<char> payload;
 };
 
-// ============================ 收发底层 ============================
+// ============================ Packaging of network I/O functions ============================
+//Ensure that exactly nbytes bytes are received from the network stream
 void UcxCommunicator::_recv_stream_exact(ucp_worker_h worker, ucp_ep_h ep, void* buf, size_t nbytes) {
   if (!ep) throw std::runtime_error("Attempt to receive on a null endpoint.");
   if (nbytes == 0) return;
@@ -129,7 +133,7 @@ void UcxCommunicator::_recv_stream_exact(ucp_worker_h worker, ucp_ep_h ep, void*
     total += req_state->bytes.load();
   }
 }
-
+//Ensure that all nbytes bytes in the buffer are sent completely.
 void UcxCommunicator::_send_stream_exact(ucp_ep_h ep, const void* buf, size_t nbytes) {
   if (!ep) throw std::runtime_error("Attempt to send on a null endpoint.");
   if (nbytes == 0) return;
@@ -153,7 +157,8 @@ void UcxCommunicator::_send_stream_exact(ucp_ep_h ep, const void* buf, size_t nb
   }
 }
 
-// ============================ 上下文/worker/监听 ============================
+// ============================ Initialization and destruction of UCX objects ============================
+//resolve sockaddr info for ucx
 void UcxCommunicator::_resolve_sockaddr(struct sockaddr_storage& ss, socklen_t& slen) const {
   struct addrinfo hints{};
   memset(&hints, 0, sizeof(hints));
@@ -170,7 +175,7 @@ void UcxCommunicator::_resolve_sockaddr(struct sockaddr_storage& ss, socklen_t& 
   slen = static_cast<socklen_t>(res->ai_addrlen);
   freeaddrinfo(res);
 }
-
+//initialize ucx global context
 void UcxCommunicator::_init_context() {
   ucp_params_t params{};
   params.field_mask = UCP_PARAM_FIELD_FEATURES | UCP_PARAM_FIELD_NAME;
@@ -185,7 +190,7 @@ void UcxCommunicator::_init_context() {
 void UcxCommunicator::_finalize_context() {
   if (_context) { ucp_cleanup(_context); _context = nullptr; }
 }
-
+//create & destroy the worker
 void UcxCommunicator::_create_worker() {
   ucp_worker_params_t wparams{};
   wparams.field_mask  = UCP_WORKER_PARAM_FIELD_THREAD_MODE;
@@ -197,6 +202,7 @@ void UcxCommunicator::_destroy_worker() {
   if (_worker) { ucp_worker_destroy(_worker); _worker = nullptr; }
 }
 
+//create & destroy the listener, waiting for connect
 void UcxCommunicator::_setup_listener() {
   ucp_listener_params_t lp{};
   lp.field_mask = UCP_LISTENER_PARAM_FIELD_SOCK_ADDR | UCP_LISTENER_PARAM_FIELD_CONN_HANDLER;
@@ -211,7 +217,7 @@ void UcxCommunicator::_destroy_listener() {
   if (_listener) { ucp_listener_destroy(_listener); _listener = nullptr; }
 }
 
-// ============================ 进度线程 ============================
+// ============================ progress thread ============================
 void UcxCommunicator::StartProgress() {
   std::lock_guard<std::mutex> lk(_progress_mtx);
   if (_progress_running) return;
@@ -232,7 +238,7 @@ void UcxCommunicator::StopProgress() {
   if (_progress_thread.joinable()) _progress_thread.join();
 }
 
-// ============================ 核心流水线线程 ============================
+// ============================ pipeline core thread ============================
 void UcxCommunicator::StartPipeline() {
   {
     std::lock_guard<std::mutex> lk(_send_thread_mtx);
@@ -249,7 +255,6 @@ void UcxCommunicator::StartPipeline() {
     }
   }
 }
-
 void UcxCommunicator::StopPipeline() {
   {
     std::lock_guard<std::mutex> lk(_sendq_mtx);
@@ -274,6 +279,8 @@ void UcxCommunicator::StopPipeline() {
   if (_recv_thread.joinable()) _recv_thread.join();
 }
 
+//Logic: Loop continuously -> Retrieve a task from the queue -> Serialize the request header -> 
+//-> Send the header, routine, and payload sequentially -> Loop.
 void UcxCommunicator::_send_loop() {
   while (!_closing && _send_thread_running) {
     std::shared_ptr<Queued> item;
@@ -290,14 +297,14 @@ void UcxCommunicator::_send_loop() {
     if (!item) continue;
 
     try {
-      // [防御性编程] 先创建网络字节序的头，并清零
+      // Create the network byte order header first, and initialize it to zero.
       ReqHdr wh_n{};
       memset(&wh_n, 0, sizeof(ReqHdr));
 
-      // 获取主机字节序的头
+      // get the header of host byte order
       ReqHdr wh = item->hdr;
       
-      // 逐个字段进行转换和赋值
+      // convert every field
       wh_n.magic       = hton_any<uint32_t>(wh.magic);
       wh_n.version     = hton_any<uint16_t>(wh.version);
       wh_n.flags       = wh.flags;
@@ -321,6 +328,9 @@ void UcxCommunicator::_send_loop() {
     }
   }
 }
+
+//Loop -> Block and receive response header -> Deserialize -> Receive payload -> Find Waiter object using msg_id ->
+//-> Populate the Waiter object with the result -> Wake up the main thread (w->cv.notify_one()) -> Loop.
 void UcxCommunicator::_recv_loop() {
   while (!_closing && _recv_thread_running) {
     try {
@@ -393,12 +403,16 @@ void UcxCommunicator::_recv_loop() {
   }
 }
 
-// ============================ 对外 API：生产者入队 ============================
+// ============================ API：producer enter the queue ============================
+//Assign a id for each request.
 uint64_t UcxCommunicator::_next_msg_id() {
   return ++_msg_id_gen;
 }
 
 UcxCommunicator::SubmitResult
+//CORE API
+//Submit requests, and it determines whether to return synchronously (blocking) or asynchronously 
+//based on the `expect_response` parameter. A Producer.
 UcxCommunicator::SubmitRequest(const char* routine_cstr,
                                const void* payload, size_t payload_len,
                                bool expect_response) {
@@ -462,6 +476,7 @@ UcxCommunicator::SubmitRequest(const char* routine_cstr,
 }
 
 UcxCommunicator::AsyncTicket
+//The async submit
 UcxCommunicator::SubmitRequestAsync(const char* routine_cstr,
                                     const void* payload, size_t payload_len) {
   SubmitRequest(routine_cstr, payload, payload_len, false);
@@ -469,7 +484,7 @@ UcxCommunicator::SubmitRequestAsync(const char* routine_cstr,
   return t;
 }
 
-// ============================ Communicator 接口实现 ============================
+// ============================ UCX Communicator interface & other standard operation ============================
 UcxCommunicator::UcxCommunicator(const std::string& hostname, const std::string& port)
 : _tls("") {
   strncpy(_hostname, hostname.c_str(), sizeof(_hostname)-1);
@@ -526,29 +541,25 @@ void UcxCommunicator::Connect() {
 
   ucp_ep_params_t ep_params{};
 
-  // [最终修正]
-  // 添加 UCP_EP_PARAM_FIELD_FLAGS 标志，
-  // 这是告诉 UCX 我们正在进行一次标准的客户端-服务器连接。
+  // UCX paramemters (only for testing connect.. not product yet)
   ep_params.field_mask =
-      UCP_EP_PARAM_FIELD_FLAGS | // <--- 在这里添加
+      UCP_EP_PARAM_FIELD_FLAGS | 
       UCP_EP_PARAM_FIELD_SOCK_ADDR |
       UCP_EP_PARAM_FIELD_ERR_HANDLER |
       UCP_EP_PARAM_FIELD_ERR_HANDLING_MODE;
 
-  // [最终修正]
-  // 设置对应的 flags 字段
-  ep_params.flags            = UCP_EP_PARAMS_FLAGS_CLIENT_SERVER; // <--- 在这里添加
-
+  // setup the corresponding flgas field
+  ep_params.flags            = UCP_EP_PARAMS_FLAGS_CLIENT_SERVER; 
   ep_params.err_mode         = UCP_ERR_HANDLING_MODE_PEER;
   ep_params.err_handler.cb   = &UcxCommunicator::_on_ep_error;
   ep_params.err_handler.arg  = this;
   ep_params.sockaddr.addr    = reinterpret_cast<const sockaddr*>(&ss);
   ep_params.sockaddr.addrlen = slen;
   
-  // 现在，传递给 ucp_ep_create 的参数是完整且正确的
+  // pass to ucp create
   UCS_THROW_IF_NOT_OK(ucp_ep_create(_worker, &ep_params, &_ep), "ucp_ep_create");
 
-  // 连接成功后，启动进度和流水线线程
+  //start our pipeline after connecting
   StartProgress();
   StartPipeline();
 }
@@ -616,7 +627,7 @@ std::string UcxCommunicator::to_string() {
   return "ucxcommunicator";
 }
 
-// ============================ 回调/监听接受 ============================
+// ============================ Callback/Listener accepted ============================
 void UcxCommunicator::_on_conn_request(ucp_conn_request_h req, void* arg) {
   auto* self = reinterpret_cast<UcxCommunicator*>(arg);
   ucp_ep_params_t ep_params{};
@@ -642,9 +653,9 @@ void UcxCommunicator::_on_ep_error(void* arg, ucp_ep_h /*ep*/, ucs_status_t stat
   self->Close();
 }
 
-} // 命名空间 gvirtus::communicators 结束
+} 
 
-// ============================ 工厂 ============================
+// ============================ Factory stuffs ============================
 extern "C"
 std::shared_ptr<gvirtus::communicators::UcxCommunicator>
 create_communicator(std::shared_ptr<gvirtus::communicators::Endpoint> end) {

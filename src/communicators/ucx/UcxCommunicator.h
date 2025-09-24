@@ -12,12 +12,18 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include <unordered_map> // <-- 新增: 用于Waiter管理
+#include <unordered_map>
 
+// System headers for socket structures
+#include <sys/socket.h>
+#include <netdb.h>
+
+// UCX API
 #include <ucp/api/ucp.h>
+
+// GVirtuS base classes
 #include <gvirtus/communicators/Communicator.h>
 
-// <-- 新增: 前向声明，用于 friend 声明
 namespace gvirtus { namespace backend { class Process; } }
 
 namespace gvirtus {
@@ -25,31 +31,42 @@ namespace communicators {
 
 class UcxCommunicator : public Communicator {
 public:
-    // ... [协议常量、结果类型等保持不变] ...
+
+    // Protocol Magic Number ("GVUX")
     static constexpr uint32_t kMagic        = 0x47565558u;
+    // Protocol Version
     static constexpr uint16_t kProtoVersion = 1;
-    enum : uint8_t { FLAG_EXPECT_RESPONSE = 1u << 0 };
-    struct SubmitResult {
-        ucs_status_t    transport_status{UCS_OK};
-        int             exit_code{0};
-        double          server_exec_sec{0.0};
-        std::vector<char> out;
+
+    // Flags for the request header
+    enum : uint8_t {
+        // Indicates that the client expects a response from the server.
+        FLAG_EXPECT_RESPONSE = 1u << 0
     };
 
+    // Structure holding the result of a synchronous SubmitRequest call.
+    struct SubmitResult {
+        ucs_status_t    transport_status{UCS_OK}; // UCX transport status (UCS_OK if successful)
+        int             exit_code{0};             // Backend execution exit code (0 usually means success)
+        double          server_exec_sec{0.0};     // Time taken by the server to execute the routine (seconds)
+        std::vector<char> out;                    // Payload data returned by the server
+    };
+
+    // Ticket for an asynchronous request (currently a placeholder).
     struct AsyncTicket {
         uint64_t msg_id{0};
     };
 
-    // ---- 构造/析构 ----
-    // 构造函数的行为将根据上下文变得非对称：
-    // - 客户端: 创建完整的流水线 (发送/接收/进度线程)
-    // - 服务器端: 创建一个轻量级的 ep 包装器，不创建自己的线程
+    // ---- Construction/Destruction ----
+
+    // Constructor behavior is asymmetric based on context:
+    // - Client side: Creates the full pipeline (Send/Receive/Progress threads).
+    // - Server side: Creates a lightweight endpoint wrapper, does not create its own threads.
     UcxCommunicator(const std::string& hostname, const std::string& port);
     UcxCommunicator(const std::string& hostname, const std::string& port, const std::string& tls);
     UcxCommunicator(ucp_context_h context, ucp_worker_h worker, ucp_ep_h ep);
     ~UcxCommunicator() override;
 
-    // ---- Communicator 基础接口 ----
+    // ---- Communicator Base Interface ----
     void   Serve() override;
     void   Connect() override;
     size_t Read(char* buffer, size_t size) override;
@@ -59,93 +76,122 @@ public:
     const Communicator* const Accept() const override;
     std::string to_string() override;
 
-    // ---- 流水线请求接口 (外部API保持不变) ----
+    // ---- Pipeline Request Interface (External API) ----
+
+    /**
+     * Submits a request to the backend.
+     *
+     * @param routine         The name of the remote function/routine to call.
+     * @param payload         Pointer to the data payload.
+     * @param payload_len     Size of the payload in bytes.
+     * @param expect_response If true, the call blocks until a response is received.
+     *                        If false, it returns immediately (fire-and-forget).
+     * @return SubmitResult containing the response if expect_response is true.
+     */
     SubmitResult SubmitRequest(const char* routine,
                                const void* payload, size_t payload_len,
                                bool expect_response = true);
 
+    /**
+     * Submits an asynchronous (fire-and-forget) request.
+     * Returns an AsyncTicket immediately.
+     */
     AsyncTicket SubmitRequestAsync(const char* routine,
                                    const void* payload, size_t payload_len);
     
-    // ---- 线程管理 ----
-    // 旧的 Start/StopNetwork() 将被更有描述性的 Start/StopPipeline() 取代
+    // ---- Thread Management ----
+
+    // The old Start/StopNetwork() are replaced by the more descriptive Start/StopPipeline().
     void StartPipeline();
     void StopPipeline();
-    // 进度线程管理保持不变
+
+    // Progress thread management remains the same.
     void StartProgress();
     void StopProgress();
 
 private:
-    // <-- 新增: 授予后端Process访问底层收发函数的权限
-    // 这样服务器端可以直接、高效地发送响应，而无需通过发送队列。
+
+    // NEW: Grants the backend::Process class access to low-level send/receive functions.
+    // This allows the server side to send responses directly and efficiently without
+    // going through the send queue.
     friend class gvirtus::backend::Process;
 
-    // ... [UCX 对象, _req_state, Queued 结构体保持不变] ...
+    // Forward declarations for internal structures (defined in .cpp)
+    struct _req_state;
+    struct Queued;
+    struct Waiter;
+
+    // ---- UCX Objects ----
     ucp_context_h  _context  = nullptr;
     ucp_worker_h   _worker   = nullptr;
     ucp_listener_h _listener = nullptr;
     ucp_ep_h       _ep       = nullptr;
-    struct _req_state;
-    struct Queued;
 
-    // ---- 内部状态 (保持不变) ----
+    // ---- Internal State ----
+
+    // Flag indicating if this instance is just a wrapper for an accepted server-side endpoint.
     bool _is_server_side_wrapper = false;
+    
+    // Atomic flag to signal that the communicator is closing down.
     std::atomic<bool> _closing{false};
+
+    // Connection details (Client)
     char        _hostname[256] = {0};
     char        _port[32]      = {0};
     std::string _tls;
-    // ... [listener 相关的成员保持不变] ...
+
+    // Listener details (Server)
     struct sockaddr_storage _listen_addr{};
     socklen_t               _listen_addrlen = 0;
-    std::string _bind_ifname;
+    std::string             _bind_ifname;
+
+    // Synchronization for accepting new connections (Server)
     mutable std::mutex              _accept_mtx;
     mutable std::condition_variable _accept_cv;
     mutable std::queue<ucp_ep_h>    _accepted_eps;
 
-    // ---- 进度线程 (保持不变) ----
+    // ---- Progress Thread (Drives UCX background work) ----
     std::atomic<bool> _progress_running{false};
     std::thread       _progress_thread;
     std::mutex        _progress_mtx;
     
     // ========================================================================
-    //                         核心修改区域
+    //                         CORE MODIFICATION AREA
     // ========================================================================
     
-    // ---- Waiter 结构体 (保持不变) ----
-    struct Waiter;
-    
-    // ---- 1. 新增: Waiter 管理中心 ("总服务台") ----
-    // 用于存储所有正在等待响应的同步请求。
-    // key: msg_id, value: 对应的 Waiter 对象
+    // ---- 1. Waiter Management ----
+
+    // Stores all 'Waiters' for synchronous requests awaiting a response.
+    // Key: msg_id, Value: Shared pointer to the corresponding Waiter object.
     std::mutex _waiters_mtx;
     std::unordered_map<uint64_t, std::shared_ptr<Waiter>> _waiters;
 
-    // ---- 2. 重构: 流水线线程 (收发分离) ----
-    // 将原先的 _net_thread 明确为发送线程，并新增一个接收线程。
-    
-    // 发送线程: 负责从 _sendq 取出请求并发送
+    // ---- 2. Pipeline Threads (Send/Receive Split) ----
+
+    // Send Thread: Responsible for taking requests from _sendq and transmitting them.
     std::thread                       _send_thread;
     std::mutex                        _send_thread_mtx;
     std::atomic<bool>                 _send_thread_running{false};
 
-    // 接收线程: 负责接收所有响应，并通过 _waiters 唤醒等待的线程
+    // Receive Thread: Responsible for receiving all responses and waking up
+    // the corresponding waiting thread via the _waiters map.
     std::thread                       _recv_thread;
     std::mutex                        _recv_thread_mtx;
     std::atomic<bool>                 _recv_thread_running{false};
 
-    // ---- 发送队列 (保持不变) ----
+    // ---- Send Queue (Producer-Consumer) ----
     std::mutex                        _sendq_mtx;
     std::condition_variable           _sendq_cv;
     std::queue<std::shared_ptr<Queued>> _sendq;
     std::atomic<bool>                 _sendq_stopping{false};
 
-    // ---- 消息ID生成器 (保持不变) ----
+    // ---- Message ID Generator ----
     std::atomic<uint64_t>             _msg_id_gen{0};
     uint64_t _next_msg_id();
     
     // ========================================================================
 
-    // ---- 内部工具 (大部分保持不变) ----
+    // ---- Internal Utilities ----
     void _init_context();
     void _finalize_context();
     void _create_worker();
@@ -154,17 +200,23 @@ private:
     void _destroy_listener();
     void _resolve_sockaddr(struct sockaddr_storage& ss, socklen_t& slen) const;
 
-    // 底层收发函数，现在也将被服务器端直接使用 (通过 friend)
+    // Low-level send/receive functions. These are now also directly used by the server (via friend).
+    
+    // Receives exactly 'nbytes' from the stream.
     void   _recv_stream_exact(ucp_worker_h worker, ucp_ep_h ep, void* buf, size_t nbytes);
+    
+    // Sends exactly 'nbytes' over the stream.
     void   _send_stream_exact(ucp_ep_h ep, const void* buf, size_t nbytes);
 
-    // ---- 3. 重构: 线程循环函数 ----
-    // 原有的 _network_loop 将被重命名并改造为 _send_loop
+    // ---- 3. Refactored: Thread Loop Functions ----
+
+    // The main loop for the send thread (was _network_loop).
     void _send_loop();
-    // 新增 _recv_loop 用于接收线程
+
+    // The main loop for the receive thread (new).
     void _recv_loop();
 
-    // 回调函数 (保持不变)
+    // ---- UCX Callbacks ----
     static void _on_conn_request(ucp_conn_request_h req, void* arg);
     static void _on_ep_error(void* arg, ucp_ep_h ep, ucs_status_t status);
 };
@@ -172,8 +224,9 @@ private:
 } // namespace communicators
 } // namespace gvirtus
 
-// ... [create_communicator 声明保持不变] ...
+// ---- Factory Function ----
 
+// Extern "C" factory function to create a UcxCommunicator instance from an Endpoint.
 extern "C"
 std::shared_ptr<gvirtus::communicators::UcxCommunicator>
 create_communicator(std::shared_ptr<gvirtus::communicators::Endpoint> end);
