@@ -1,6 +1,6 @@
 #!/bin/bash
 export LD_LIBRARY_PATH=${GVIRTUS_HOME}/lib/frontend:${GVIRTUS_HOME}/lib
-export GVIRTUS_LOGLEVEL=0
+export GVIRTUS_LOGLEVEL=2000
 LD_PRELOAD="${GVIRTUS_HOME}/lib/frontend/libcudart.so: \
     ${GVIRTUS_HOME}/lib/frontend/libcuda.so: \
     ${GVIRTUS_HOME}/lib/frontend/libcublas.so: \

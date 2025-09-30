@@ -48,3 +48,25 @@ cudaGetDriverEntryPoint(const char* symbol, void** funcPtr, unsigned long long f
     }
     return CudaRtFrontend::GetExitCode();
 }
+
+extern "C" __host__ cudaError_t CUDARTAPI
+cudaGetDriverEntryPointByVersion (const char* symbol, void** funcPtr, unsigned int cudaVersion, 
+                                  unsigned long long flags, cudaDriverEntryPointQueryResult* driverStatus) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddVariableForArguments(symbol);
+    CudaRtFrontend::AddDevicePointerForArguments(funcPtr);
+    CudaRtFrontend::AddVariableForArguments(cudaVersion);
+    CudaRtFrontend::AddVariableForArguments(flags);
+    if (driverStatus != NULL) {
+        CudaRtFrontend::AddHostPointerForArguments(driverStatus);
+    }
+    CudaRtFrontend::Execute("cudaGetDriverEntryPointByVersion");
+
+    if (CudaRtFrontend::Success()) {
+        *funcPtr = CudaRtFrontend::GetOutputDevicePointer();
+        if (driverStatus != NULL) {
+            *driverStatus = CudaRtFrontend::GetOutputVariable<cudaDriverEntryPointQueryResult>();
+        }
+    }
+    return CudaRtFrontend::GetExitCode();
+}

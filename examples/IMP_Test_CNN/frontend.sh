@@ -17,40 +17,40 @@ rm -f "BatchGraph.csv"
 #   --output=nsys_out \
 #   ./example 10000
 nvcc cnn_batch.cu -o batch -L ${GVIRTUS_HOME}/lib/frontend -L ${GVIRTUS_HOME}/lib/ -lcuda --cudart=shared 
-./batch 1
-./batch 2
-./batch 4
-./batch 8
-./batch 10
-./batch 100
-./batch 1000
-./batch 2000
-./batch 3000
-./batch 4000
-./batch 5000
-./batch 6000
-./batch 7000
-./batch 8000
-./batch 9000
+# ./batch 1
+# ./batch 2
+# ./batch 4
+# ./batch 8
+# ./batch 10
+# ./batch 100
+# ./batch 1000
+# ./batch 2000
+# ./batch 3000
+# ./batch 4000
+# ./batch 5000
+# ./batch 6000
+# ./batch 7000
+# ./batch 8000
+# ./batch 9000
 ./batch 10000
 
-nvcc cnn_batch_graph.cu -o batch_graph -L ${GVIRTUS_HOME}/lib/frontend -L ${GVIRTUS_HOME}/lib/ -lcuda --cudart=shared 
-./batch_graph  1
-./batch_graph  2
-./batch_graph  4
-./batch_graph  8
-./batch_graph 10
-./batch_graph 100
-./batch_graph 1000
-./batch_graph 2000
-./batch_graph 3000
-./batch_graph 4000
-./batch_graph 5000
-./batch_graph 6000
-./batch_graph 7000
-./batch_graph 8000
-./batch_graph 9000
-./batch_graph 10000
+# nvcc cnn_batch_graph.cu -o batch_graph -L ${GVIRTUS_HOME}/lib/frontend -L ${GVIRTUS_HOME}/lib/ -lcuda --cudart=shared 
+# ./batch_graph  1
+# ./batch_graph  2
+# ./batch_graph  4
+# ./batch_graph  8
+# ./batch_graph 10
+# ./batch_graph 100
+# ./batch_graph 1000
+# ./batch_graph 2000
+# ./batch_graph 3000
+# ./batch_graph 4000
+# ./batch_graph 5000
+# ./batch_graph 6000
+# ./batch_graph 7000
+# ./batch_graph 8000
+# ./batch_graph 9000
+# ./batch_graph 10000
 
 # ./example 10000
 # > ${GVIRTUS_HOME}/frontend.log 2>&1

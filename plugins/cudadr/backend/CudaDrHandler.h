@@ -165,6 +165,8 @@ CUDA_DRIVER_HANDLER(DeviceGetName);
 CUDA_DRIVER_HANDLER(DeviceGetProperties);
 CUDA_DRIVER_HANDLER(DeviceTotalMem);
 
+/*CudaDrHandler_driver_entry_point*/
+CUDA_DRIVER_HANDLER(GetProcAddress);
 /*CudaDrHandler_execution*/
 CUDA_DRIVER_HANDLER(ParamSetSize);
 CUDA_DRIVER_HANDLER(FuncSetBlockShape);

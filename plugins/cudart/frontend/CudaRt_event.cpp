@@ -76,6 +76,15 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaEventRecord(cudaEvent_t event, cud
     return CudaRtFrontend::GetExitCode();
 }
 
+extern "C" __host__ cudaError_t CUDARTAPI cudaEventRecordWithFlags(cudaEvent_t event, cudaStream_t stream, unsigned int flags) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(event);
+    CudaRtFrontend::AddDevicePointerForArguments(stream);
+    CudaRtFrontend::AddVariableForArguments(flags);
+    CudaRtFrontend::Execute("cudaEventRecordWithFlags");
+    return CudaRtFrontend::GetExitCode();
+}
+
 extern "C" __host__ cudaError_t CUDARTAPI cudaEventSynchronize(cudaEvent_t event) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(event);

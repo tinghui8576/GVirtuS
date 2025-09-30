@@ -231,6 +231,9 @@ void CudaDrHandler::Initialize() {
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DeviceGetProperties));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(DeviceTotalMem));
 
+    /*CudaDrHandler_driver_entry_point*/
+    mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(GetProcAddress));
+    
     /*CudaDrHandler_execution*/
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(ParamSetSize));
     mspHandlers->insert(CUDA_DRIVER_HANDLER_PAIR(FuncSetBlockShape));

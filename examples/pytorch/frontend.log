@@ -1,0 +1,37 @@
+INFO - Using properties file: /usr/local/gvirtus/etc/properties.json
+INFO - Parsing endpoint config from: /usr/local/gvirtus/etc/properties.json
+DEBUG - Full JSON dump:
+{
+    "communicator": [
+        {
+            "endpoint": {
+                "port": "9999",
+                "protocol": "tcp",
+                "server_address": "0.0.0.0",
+                "suite": "tcp/ip"
+            },
+            "plugins": [
+                "cuda",
+                "cudart",
+                "cublas",
+                "curand",
+                "cudnn",
+                "cufft",
+                "cusolver",
+                "cusparse",
+                "nvrtc",
+                "nvml"
+            ]
+        }
+    ],
+    "secure_application": false
+}
+INFO - Parsed endpoint suite: tcp/ip
+INFO - Initializing TCP/IP Endpoint
+DEBUG: protocol string is [tcp]
+Traceback (most recent call last):
+  File "/gvirtus/examples/pytorch/classify.py", line 3, in <module>
+    import torch
+  File "/usr/local/lib/python3.10/dist-packages/torch/__init__.py", line 416, in <module>
+    from torch._C import *  # noqa: F403
+ImportError: /usr/local/lib/python3.10/dist-packages/torch/lib/libc10_cuda.so: undefined symbol: cudaGetDriverEntryPointByVersion, version libcudart.so.12

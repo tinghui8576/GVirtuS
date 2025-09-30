@@ -45,6 +45,7 @@ function(configure_cudadr_plugin)
     gvirtus_add_backend(cuda ${CUDADR_VERSION}
         backend/CudaDrHandler_context.cpp
         backend/CudaDrHandler_device.cpp
+        backend/CudaDrHandler_driver_entry_point.cpp
         backend/CudaDrHandler_error.cpp
         backend/CudaDrHandler_event.cpp
         backend/CudaDrHandler_execution.cpp
@@ -67,6 +68,7 @@ function(configure_cudadr_plugin)
     gvirtus_add_frontend(cuda ${CUDADR_VERSION}
         frontend/CudaDr_context.cpp
         frontend/CudaDr_device.cpp
+        frontend/CudaDr_driver_entry_point.cpp
         frontend/CudaDr_error.cpp
         frontend/CudaDr_event.cpp
         frontend/CudaDr_execution.cpp

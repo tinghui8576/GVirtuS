@@ -13,3 +13,14 @@ TEST(cudaDR, getDriverVersion) {
     CUDA_CHECK(cuDriverGetVersion(&version));
     ASSERT_GT(version, 0);
 }
+
+TEST(cudaDR, getProcAddress) {
+    const char* symbol = "cuDriverGetVersion";
+    void* pfn = nullptr;
+    int version = 0;
+    CUDA_CHECK(cuDriverGetVersion(&version));
+    cuuint64_t flags = 0;
+    CUdriverProcAddressQueryResult status;
+    
+    CUDA_CHECK(cuGetProcAddress(symbol, &pfn, version, flags, &status));
+}

@@ -40,6 +40,8 @@ if model_selector == "inception_v3":
 else:
     model = model_fn(weights=weights)
 
+device = "cuda"
+model = model.to(device)
 model.eval()
 
 # Use the preprocessing transforms provided by the weights
