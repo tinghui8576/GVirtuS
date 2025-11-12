@@ -41,8 +41,9 @@ run-gvirtus-dev:
 		-v ./docker/dev/build.sh:/build.sh \
 		-v ./examples:/gvirtus/examples/ \
 		--network host \
+		--privileged \
 		--entrypoint /build.sh \
-		--name gvirtus \
+		--name gvirtus_backend_ting_debug \
 		--runtime=nvidia \
 		--shm-size=8G \
 		gvirtus-dev:cuda12.6.3-cudnn-ubuntu22.04

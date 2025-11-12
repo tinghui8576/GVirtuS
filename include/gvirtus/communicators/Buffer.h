@@ -40,8 +40,6 @@
 #include <cstring>
 #include <iostream>
 #include <typeinfo>
-#include <type_traits>
-#include <cstddef>
 
 #include <gvirtus/common/gvirtus-type.h>
 
@@ -56,35 +54,27 @@ namespace gvirtus::communicators {
  * be created starting from an input stream and to be sent over an output
  * stream.
  */
-
-template <typename T>
-constexpr std::size_t safe_sizeof() {
-    if constexpr (std::is_void_v<T>) {
-        return 1;
-    } else if constexpr (std::is_function_v<T>) {
-        throw std::runtime_error("safe_sizeof<T> cannot be used with function types");
-    } else {
-        return sizeof(T);
-    }
-}
-
 class Buffer {
  public:
   Buffer(size_t initial_size = 0, size_t block_size = BLOCK_SIZE);
   Buffer(const Buffer &orig);
   Buffer(std::istream &in);
   Buffer(char *buffer, size_t buffer_size, size_t block_size = BLOCK_SIZE);
+  size_t Tell() const { return mOffset; }              // current read cursor
+  size_t DataSize() const { return mLength; }          // bytes valid in buffer
+  const char* DataPtr() const { return mpBuffer; }     // base pointer
+  void Append(const void* data, size_t len);
   virtual ~Buffer();
-  
+
   template <class T>
   void Add(T item) {
-    if ((mLength + safe_sizeof<T>()) >= mSize) {
-      mSize = ((mLength + safe_sizeof<T>()) / mBlockSize + 1) * mBlockSize;
+    if ((mLength + (sizeof(T))) >= mSize) {
+      mSize = ((mLength + (sizeof(T))) / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw std::runtime_error("Buffer::Add(item): Can't reallocate memory.");
+        throw "Buffer::Add(item): Can't reallocate memory.";
     }
-    memmove(mpBuffer + mLength, (char *)&item, safe_sizeof<T>());
-    mLength += safe_sizeof<T>();
+    memmove(mpBuffer + mLength, (char *)&item, sizeof(T));
+    mLength += sizeof(T);
     mBackOffset = mLength;
   }
 
@@ -94,27 +84,37 @@ class Buffer {
       Add((size_t)0);
       return;
     }
-    size_t size = safe_sizeof<T>() * n;
+    size_t size = sizeof(T) * n;
     Add(size);
     if ((mLength + size) >= mSize) {
       mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw std::runtime_error("Buffer::Add(item, n): Can't reallocate memory.");
+        throw "Buffer::Add(item, n): Can't reallocate memory.";
     }
     memmove(mpBuffer + mLength, (char *)item, size);
     mLength += size;
     mBackOffset = mLength;
   }
+  void Add(void* ptr) {
+    long long val = reinterpret_cast<long long>(ptr);
+    Add(&val, 1);  // 调用模板 Add<long long>()
+  }
+
+  // ✅ 重载：支持 const void*
+  void Add(const void* ptr) {
+    long long val = reinterpret_cast<long long>(ptr);
+    Add(&val, 1);  // 调用模板 Add<long long>()
+  }
 
   template <class T>
   void AddConst(const T item) {
-    if ((mLength + safe_sizeof<T>()) >= mSize) {
-      mSize = ((mLength + safe_sizeof<T>()) / mBlockSize + 1) * mBlockSize;
+    if ((mLength + (sizeof(T))) >= mSize) {
+      mSize = ((mLength + (sizeof(T))) / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw std::runtime_error("Buffer::AddConst(item): Can't reallocate memory.");
+        throw "Buffer::AddConst(item): Can't reallocate memory.";
     }
-    memmove(mpBuffer + mLength, (char *)&item, safe_sizeof<T>());
-    mLength += safe_sizeof<T>();
+    memmove(mpBuffer + mLength, (char *)&item, sizeof(T));
+    mLength += sizeof(T);
     mBackOffset = mLength;
   }
 
@@ -124,12 +124,12 @@ class Buffer {
       Add((size_t)0);
       return;
     }
-    size_t size = safe_sizeof<T>() * n;
+    size_t size = sizeof(T) * n;
     Add(size);
     if ((mLength + size) >= mSize) {
       mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw std::runtime_error("Buffer::AddConst(item, n): Can't reallocate memory.");
+        throw "Buffer::AddConst(item, n): Can't reallocate memory.";
     }
     memmove(mpBuffer + mLength, (char *)item, size);
     mLength += size;
@@ -146,71 +146,70 @@ class Buffer {
   void AddMarshal(T item) {
     Add((gvirtus::common::pointer_t)item);
   }
-  
-  void Append(const void* data, size_t len);
+
   template <class T>
   void Read(Communicator *c) {
-    auto required_size = mLength + safe_sizeof<T>();
+    auto required_size = mLength + sizeof(T);
     if (required_size >= mSize) {
       mSize = (required_size / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw std::runtime_error("Buffer::Read(*c) Can't reallocate memory.");
+        throw "Buffer::Read(*c) Can't reallocate memory.";
     }
-    c->Read(mpBuffer + mLength, safe_sizeof<T>());
-    mLength += safe_sizeof<T>();
+    c->Read(mpBuffer + mLength, sizeof(T));
+    mLength += sizeof(T);
     mBackOffset = mLength;
   }
 
   template <class T>
   void Read(Communicator *c, size_t n = 1) {
-    auto required_size = mLength + safe_sizeof<T>() * n;
+    auto required_size = mLength + sizeof(T) * n;
     if (required_size >= mSize) {
       mSize = (required_size / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw std::runtime_error("Buffer::Read(*c, n): Can't reallocate memory.");
+        throw "Buffer::Read(*c, n): Can't reallocate memory.";
     }
-    c->Read(mpBuffer + mLength, safe_sizeof<T>() * n);
-    mLength += safe_sizeof<T>() * n;
+    c->Read(mpBuffer + mLength, sizeof(T) * n);
+    mLength += sizeof(T) * n;
     mBackOffset = mLength;
   }
 
   template <class T>
   T Get() {
-    if (mOffset + safe_sizeof<T>() > mLength)
-      throw std::runtime_error(std::string("Buffer::Get(): Can't read any ") + typeid(T).name());
+    if (mOffset + sizeof(T) > mLength)
+      throw "Buffer::Get(): Can't read any " + std::string(typeid(T).name()) + ".";
     T result = *((T *)(mpBuffer + mOffset));
-    mOffset += safe_sizeof<T>();
+    mOffset += sizeof(T);
     return result;
   }
 
   template <class T>
   T BackGet() {
-    if (mBackOffset - safe_sizeof<T>() > mLength)
-      throw std::runtime_error(std::string("Buffer::BackGet(): Can't read ") + typeid(T).name());
-    T result = *((T *)(mpBuffer + mBackOffset - safe_sizeof<T>()));
-    mBackOffset -= safe_sizeof<T>();
+    if (mBackOffset - sizeof(T) > mLength)
+      throw "Buffer::BackGet(): Can't read  " + std::string(typeid(T).name()) + ".";
+    T result = *((T *)(mpBuffer + mBackOffset - sizeof(T)));
+    mBackOffset -= sizeof(T);
     return result;
   }
 
   template <class T>
   T *Get(size_t n) {
     if (Get<size_t>() == 0) return NULL;
-    if (mOffset + safe_sizeof<T>() * n > mLength)
-      throw std::runtime_error(std::string("Buffer::Get(n): Can't read  ") + typeid(T).name());
+    if (mOffset + sizeof(T) * n > mLength)
+      throw "Buffer::Get(n): Can't read  " + std::string(typeid(T).name()) + ".";
     T *result = new T[n];
-    memmove((char *)result, mpBuffer + mOffset, safe_sizeof<T>() * n);
-    mOffset += safe_sizeof<T>() * n;
+    memmove((char *)result, mpBuffer + mOffset, sizeof(T) * n);
+    mOffset += sizeof(T) * n;
     return result;
   }
 
   template <class T>
   T *Delegate(size_t n = 1) {
-    size_t size = safe_sizeof<T>() * n;
+    size_t size = sizeof(T) * n;
     Add(size);
     if ((mLength + size) >= mSize) {
       mSize = ((mLength + size) / mBlockSize + 1) * mBlockSize;
       if ((mpBuffer = (char *)realloc(mpBuffer, mSize)) == NULL)
-        throw std::runtime_error("Buffer::Delegate(n): Can't reallocate memory.");
+        throw "Buffer::Delegate(n): Can't reallocate memory.";
     }
     T *dst = (T *)(mpBuffer + mLength);
     mLength += size;
@@ -219,46 +218,41 @@ class Buffer {
   }
 
   template <class T>
-T *Assign(size_t n = 1) {
+  T *Assign(size_t n = 1) {
+    if (Get<size_t>() == 0) return NULL;
 
-    if (n == 0) return NULL;
-
-    if (mOffset + safe_sizeof<T>() * n > mLength) {
-      throw std::runtime_error(std::string("Buffer::Assign(n): Can't read  ") + typeid(T).name());
+    if (mOffset + sizeof(T) * n > mLength) {
+      throw "Buffer::Assign(n): Can't read  " + std::string(typeid(T).name()) + ".";
     }
     T *result = (T *)(mpBuffer + mOffset);
-    mOffset += safe_sizeof<T>() * n;
+    mOffset += sizeof(T) * n;
     return result;
-}
+  }
 
-
-char *AssignString() {
-
-    if (mOffset + sizeof(size_t) > mLength) {
-        return NULL;
+    template <class T>
+    T *AssignAll() {
+        size_t size = Get<size_t>();
+        if (size == 0) return NULL;
+        size_t n = size / sizeof(T);
+        if (mOffset + sizeof(T) * n > mLength)
+            throw "Buffer::AssignAll(): Can't read  " + std::string(typeid(T).name()) + ".";
+        T *result = (T *)(mpBuffer + mOffset);
+        mOffset += sizeof(T) * n;
+        return result;
     }
+  // AssignAll<void>
+
+  char *AssignString() {
     size_t size = Get<size_t>();
     return Assign<char>(size);
-}
-
-  template <class T>
-  T *AssignAll() {
-      size_t size = Get<size_t>();
-      if (size == 0) return NULL;
-      size_t n = size / safe_sizeof<T>();
-      if (mOffset + safe_sizeof<T>() * n > mLength)
-          throw std::runtime_error(std::string("Buffer::AssignAll(): Can't read ") + typeid(T).name());
-      T *result = (T *)(mpBuffer + mOffset);
-      mOffset += safe_sizeof<T>() * n;
-      return result;
   }
 
   template <class T>
   T *BackAssign(size_t n = 1) {
-    if (mBackOffset - safe_sizeof<T>() * n > mLength)
-      throw std::runtime_error(std::string("Buffer::BackAssign(n): Can't read ") + typeid(T).name());
-    T *result = (T *)(mpBuffer + mBackOffset - safe_sizeof<T>() * n);
-    mBackOffset -= safe_sizeof<T>() * n + sizeof(size_t);
+    if (mBackOffset - sizeof(T) * n > mLength)
+      throw "Buffer::BackAssign(n): Can't read  " + std::string(typeid(T).name()) + ".";
+    T *result = (T *)(mpBuffer + mBackOffset - sizeof(T) * n);
+    mBackOffset -= sizeof(T) * n + sizeof(size_t);
     return result;
   }
 
@@ -285,3 +279,38 @@ char *AssignString() {
   bool mOwnBuffer;
 };
 }  // namespace gvirtus::communicators
+
+// === Explicit specializations for void ===
+
+namespace gvirtus {
+  namespace communicators {
+
+    // Specialization: Assign<void>(size_t n)
+    template <>
+    inline void* Buffer::Assign<void>(size_t n) {
+      if (Get<size_t>() == 0) return nullptr;
+
+      if (mOffset + n > mLength)
+        throw std::string("Buffer::Assign<void>(n): Out of range");
+
+      void* result = mpBuffer + mOffset;
+      mOffset += n;
+      return result;
+    }
+
+    // Specialization: AssignAll<void>()
+    template <>
+    inline void* Buffer::AssignAll<void>() {
+      size_t size = Get<size_t>();
+      if (size == 0) return nullptr;
+
+      if (mOffset + size > mLength)
+        throw std::string("Buffer::AssignAll<void>(): Out of range");
+
+      void* result = mpBuffer + mOffset;
+      mOffset += size;
+      return result;
+    }
+
+  }  // namespace communicators
+}  // namespace gvirtus

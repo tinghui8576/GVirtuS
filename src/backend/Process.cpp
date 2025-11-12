@@ -129,16 +129,23 @@ void Process::Start() {
     }
   });
 
-  std::function<void(Communicator *)> execute = [this](
-                                                    Communicator *client_comm) {
+  // 小工具：十六进制 dump
+  auto dump_hex = [](const char* tag, const void* p, size_t n, size_t limit = 64) {
+    const unsigned char* b = static_cast<const unsigned char*>(p);
+    fprintf(stderr, "%s [len=%zu] hex:", tag, n);
+    size_t m = n < limit ? n : limit;
+    for (size_t i = 0; i < m; ++i) fprintf(stderr, " %02X", (unsigned)b[i]);
+    if (n > limit) fprintf(stderr, " ...");
+    fprintf(stderr, "\n"); fflush(stderr);
+  };
+
+  std::function<void(Communicator *)> execute = [this, dump_hex](Communicator *client_comm) {
     LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid()
                                             << "] New client thread started.");
 
-    auto *ucx =
-        dynamic_cast<gvirtus::communicators::UcxCommunicator *>(client_comm);
+    auto *ucx = dynamic_cast<gvirtus::communicators::UcxCommunicator *>(client_comm);
     if (!ucx) {
-      LOG4CPLUS_ERROR(logger,
-                      "✖ - Backend process only supports UcxCommunicator.");
+      LOG4CPLUS_ERROR(logger, "✖ - Backend process only supports UcxCommunicator.");
       delete client_comm;
       return;
     }
@@ -147,14 +154,14 @@ void Process::Start() {
 
     while (true) {
       try {
-        // === Step 1: Receive the request packet from the pipeline ===
+        // === Step 1: Receive request header + payload ===
         ReqHdr hdr_n{};
         ucx->Read(reinterpret_cast<char *>(&hdr_n), sizeof(hdr_n));
         hdr = {};
-        hdr.magic = ntoh_any<uint32_t>(hdr_n.magic);
-        hdr.version = ntoh_any<uint16_t>(hdr_n.version);
-        hdr.flags = hdr_n.flags;
-        hdr.msg_id = ntoh_any<uint64_t>(hdr_n.msg_id);
+        hdr.magic       = ntoh_any<uint32_t>(hdr_n.magic);
+        hdr.version     = ntoh_any<uint16_t>(hdr_n.version);
+        hdr.flags       = hdr_n.flags;
+        hdr.msg_id      = ntoh_any<uint64_t>(hdr_n.msg_id);
         hdr.routine_len = ntoh_any<uint32_t>(hdr_n.routine_len);
         hdr.payload_len = ntoh_any<uint32_t>(hdr_n.payload_len);
 
@@ -171,35 +178,76 @@ void Process::Start() {
         if (hdr.payload_len > 0)
           ucx->Read(payload.data(), payload.size());
 
-        // === Step 2: Parse the request payload to prepare input for the
-        // handler ===
+        // 观察输入 payload
+        dump_hex("[BE] payload head", payload.data(), payload.size(), 64);
+
+        // === Step 2: Parse request payload -> Buffer request_packet ===
         Buffer request_packet(payload.data(), payload.size());
 
-        char *routine_cstr = request_packet.AssignString();
-        std::string routine(routine_cstr ? routine_cstr : "");
-        std::cout << "routine " << routine << std::endl;
-        // 1. Read the total length of the original input_buffer from the
-        // payload.
-        size_t input_buffer_total_size = request_packet.Get<size_t>();
-
-        // 2. Create a new Buffer, which is a copy of the input for the Handler.
-        std::shared_ptr<Buffer> handler_input_buffer =
-            std::make_shared<Buffer>(input_buffer_total_size);
-
-        // 3. Copy the input content from the payload to this new copy.
-        if (input_buffer_total_size > 0) {
-          std::cout << "input_buffer_total_size " << input_buffer_total_size
-                    << std::endl;
-          // jero: dont read the size marker again, just assign the buffer
-          char *data = request_packet.Assign<char>(input_buffer_total_size);
-          handler_input_buffer->Append(data, input_buffer_total_size);
-          // jero: no need to free data as it is from the buffer
-          // delete[] data;
+        // ---- routine：按“旧 Buffer 语义”读取（双长度头）----
+        // AssignString(): 内部执行 Get<size_t>() + Assign<char>(size)
+        // 而旧的 Assign<char>(size) 又会再 Get<size_t>()，总计吃 2 次长度，正好匹配 AddString()
+        size_t off_before_routine = 0, off_after_routine = 0;
+        off_before_routine = request_packet.Tell();
+        if (request_packet.DataSize() > off_before_routine) {
+          const char* cursor = request_packet.DataPtr() + off_before_routine;
+          dump_hex("[BE][PARSE] cursor before routine", cursor,
+                   request_packet.DataSize() - off_before_routine, 48);
         }
 
+        char* routine_cstr = request_packet.AssignString();
+        std::string routine = routine_cstr ? std::string(routine_cstr) : std::string("(null)");
+
+        off_after_routine = request_packet.Tell();
+        fprintf(stderr, "[BE][PARSE] routine parsed: \"%s\"  offset: %zu -> %zu  consumed=%zu\n",
+                routine.c_str(), off_before_routine, off_after_routine,
+                (size_t)(off_after_routine - off_before_routine));
+        fflush(stderr);
+
+        if (request_packet.DataSize() > off_after_routine) {
+          const char* cursor = request_packet.DataPtr() + off_after_routine;
+          dump_hex("[BE][PARSE] cursor after routine", cursor,
+                   request_packet.DataSize() - off_after_routine, 48);
+        }
+
+        // ---- params：peek 长度（不移动 offset），再 AssignAll<char>() 取正文 ----
+        size_t off_before_param = request_packet.Tell();
+
+        size_t param_len = 0;
+        if (request_packet.DataSize() < off_before_param + sizeof(size_t)) {
+          throw std::runtime_error("[BE][PARSE] Not enough bytes for param length");
+        }
+        // peek：不改变 offset
+        ::memcpy(&param_len, request_packet.DataPtr() + off_before_param, sizeof(size_t));
+
+        char* param_ptr = request_packet.AssignAll<char>(); // 内部会消费一个 size_t，然后前进 param_len
+        size_t off_after_param = request_packet.Tell();
+
+        fprintf(stderr, "[BE][PARSE] params parsed: len=%zu  offset: %zu -> %zu  delta=%zu\n",
+                param_len, off_before_param, off_after_param,
+                (size_t)(off_after_param - off_before_param));
+        fflush(stderr);
+
+        if (param_ptr == nullptr && param_len != 0) {
+          throw std::runtime_error("[BE][PARSE] param_ptr is null but param_len != 0");
+        }
+        if (param_len == 0) {
+          fprintf(stderr, "[BE][PARSE] WARN: param_len=0\n"); fflush(stderr);
+        } else {
+          dump_hex("[BE][PARSE] params head", param_ptr, param_len, 48);
+        }
+
+        // ---- 构造 handler_input_buffer（严格使用 param_len/param_ptr）----
+        std::shared_ptr<Buffer> handler_input_buffer = std::make_shared<Buffer>(param_len);
+        if (param_len > 0) {
+          handler_input_buffer->Append(param_ptr, param_len);
+        }
+
+        fprintf(stderr, "[BE] routine=\"%s\" param_len=%zu\n", routine.c_str(), param_len);
+        fflush(stderr);
+
         LOG4CPLUS_DEBUG(logger, "✓ - Unpacked and received routine '"
-                                    << routine << "' [msg_id=" << hdr.msg_id
-                                    << "]");
+                                    << routine << "' [msg_id=" << hdr.msg_id << "]");
 
         // === Step 3: Call the Handler ===
         std::shared_ptr<Handler> h = nullptr;
@@ -217,24 +265,20 @@ void Process::Start() {
               -1, std::make_shared<Buffer>());
         } else {
           try {
-            auto start = steady_clock::now();
+            auto start = std::chrono::steady_clock::now();
             result = h->Execute(routine, handler_input_buffer);
             result->TimeTaken(
                 std::chrono::duration_cast<std::chrono::milliseconds>(
-                    steady_clock::now() - start)
-                    .count() /
-                1000.0);
+                    std::chrono::steady_clock::now() - start).count() / 1000.0);
           } catch (const std::exception &e) {
-            LOG4CPLUS_ERROR(logger, "Handler for routine '"
-                                        << routine << "' threw an exception: "
-                                        << e.what());
+            LOG4CPLUS_ERROR(logger, "Handler for routine '" << routine
+                                        << "' threw an exception: " << e.what());
             result = std::make_shared<communicators::Result>(
                 -1, std::make_shared<Buffer>());
           }
         }
 
-        // === Step 4: Package the Result into a single response payload and
-        // send it ===
+        // === Step 4: Package and send response ===
         if (hdr.flags & FLAG_EXPECT_RESPONSE) {
           Buffer response_packet;
 
@@ -246,8 +290,8 @@ void Process::Start() {
           auto out_buffer = result->GetOutputBuffer();
           size_t out_len = out_buffer ? out_buffer->GetBufferSize() : 0;
 
-          std::cout << "out_len for routine " << routine << " is " << out_len
-                    << std::endl;
+          fprintf(stderr, "out_len for routine %s is %zu\n", routine.c_str(), out_len);
+          fflush(stderr);
 
           response_packet.Add(out_len);
           if (out_len > 0) {
@@ -264,32 +308,29 @@ void Process::Start() {
           rh.out_len = response_packet.GetBufferSize();
 
           RespHdr rh_n{};
-          memset(&rh_n, 0, sizeof(RespHdr));
+          std::memset(&rh_n, 0, sizeof(RespHdr));
           rh_n.magic = hton_any<uint32_t>(rh.magic);
           rh_n.version = hton_any<uint16_t>(rh.version);
           rh_n.status = hton_any<uint16_t>(rh.status);
           rh_n.exit_code = hton_any<int32_t>(rh.exit_code);
-          rh_n.server_exec_sec = rh.server_exec_sec;
+          rh_n.server_exec_sec = rh.server_exec_sec; // double 按原样传
           rh_n.msg_id = hton_any<uint64_t>(rh.msg_id);
           rh_n.out_len = hton_any<uint32_t>(rh.out_len);
 
           ucx->Write(reinterpret_cast<const char *>(&rh_n), sizeof(rh_n));
-          // jero: you need to write the payload length first
           if (rh.out_len > 0) {
             size_t payload_len = rh.out_len;
-            ucx->Write(reinterpret_cast<const char *>(&payload_len),
-                       sizeof(size_t));
+            ucx->Write(reinterpret_cast<const char *>(&payload_len), sizeof(size_t));
             ucx->Write(response_packet.GetBuffer(), rh.out_len);
           }
 
           LOG4CPLUS_DEBUG(logger, "✓ - Sent serialized response for msg_id="
-                                      << hdr.msg_id
-                                      << " with packet_size=" << rh.out_len);
+                                      << hdr.msg_id << " with packet_size=" << rh.out_len);
         }
       } catch (const std::exception &e) {
         LOG4CPLUS_WARN(logger, "Exception in client thread for msg_id="
-                                   << hdr.msg_id
-                                   << ", closing session: " << e.what());
+                                   << hdr.msg_id << ", closing session: " << e.what());
+        // 尝试发错误响应
         if ((hdr.flags & FLAG_EXPECT_RESPONSE) && hdr.msg_id != 0) {
           RespHdr rh_err{};
           rh_err.magic = kMagic;
@@ -307,15 +348,14 @@ void Process::Start() {
           rh_err_n.msg_id = hton_any<uint64_t>(rh_err.msg_id);
           rh_err_n.out_len = hton_any<uint32_t>(rh_err.out_len);
 
-          ucx->Write(reinterpret_cast<const char *>(&rh_err_n),
-                     sizeof(rh_err_n));
+          ucx->Write(reinterpret_cast<const char *>(&rh_err_n), sizeof(rh_err_n));
         }
         break;
       }
     }
+
     delete client_comm;
-    LOG4CPLUS_DEBUG(logger,
-                    "✓ - [Process " << getpid() << "] Client thread finished.");
+    LOG4CPLUS_DEBUG(logger, "✓ - [Process " << getpid() << "] Client thread finished.");
     Notify("process-ended");
   };
 
@@ -340,12 +380,12 @@ void Process::Start() {
       }
     }
   } catch (const std::exception &exc) {
-    LOG4CPLUS_ERROR(logger,
-                    "✖ - Exception in main server loop: " << exc.what());
+    LOG4CPLUS_ERROR(logger, "✖ - Exception in main server loop: " << exc.what());
   }
 
   LOG4CPLUS_DEBUG(logger, "✓ - Process::Start() returned.");
 }
+
 Process::~Process() {
   _communicator.reset();
   _handlers.clear();

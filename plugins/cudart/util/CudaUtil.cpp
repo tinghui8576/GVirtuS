@@ -90,6 +90,14 @@ __fatBinC_Wrapper_t* CudaUtil::UnmarshalFatCudaBinary(Buffer* marshal) {
     size = marshal->Get<size_t>();
     bin->data = (const long long unsigned int*)marshal->Get<char>(size);
     bin->filename_or_fatbins = NULL;
+        // =======================================================================
+    // == YOUR DEBUGGING CODE IS PRESERVED HERE ==
+    // =======================================================================
+    printf("[DEBUG CudaUtil] Preparing to allocate memory...\n");
+    printf("[DEBUG CudaUtil]   - sizeof(__fatBinC_Wrapper_t): %zu\n", sizeof(__fatBinC_Wrapper_t));
+    printf("[DEBUG CudaUtil]   - size read from buffer: %llu\n", (unsigned long long)size);
+    fflush(stdout);
+    // =======================================================================
     return bin;
 }
 

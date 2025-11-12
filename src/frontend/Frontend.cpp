@@ -17,9 +17,12 @@
 #include <unistd.h>
 #include <iostream>
 #include <mutex>
+#include <vector>
+#include <cstring>
 #include <chrono>
 #include <stdlib.h> 
-
+#include <sstream>
+#include <iomanip>
 #include "log4cplus/configurator.h"
 #include "log4cplus/logger.h"
 #include "log4cplus/loggingmacros.h"
@@ -179,11 +182,16 @@ static bool isSyncRoutine(const std::string &routine) {
            (routine.find("cudaStreamSynchronize") != std::string::npos) ||
            (routine.find("cudaMalloc") != std::string::npos) ||
            (routine.find("cudaFree") != std::string::npos) ||
+           (routine.find("cudaPopCallConfiguration") != std::string::npos) ||
+           (routine.find("cudaPopCall") != std::string::npos) ||
            (routine.find("cudaRegisterFatBinary") != std::string::npos) ||
            (routine.find("cudaRegisterFunction") != std::string::npos);
 }
 
 void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
+    printf("[FE] RUN: Now execute runing.\n");
+    fflush(stdout);
+    std::cout << "[FE] COUT: Now executing Frontend::Execute()" << std::endl;
     if (input_buffer == nullptr) input_buffer = mpInputBuffer.get();
 
     pid_t tid = syscall(SYS_gettid);
@@ -194,91 +202,262 @@ void Frontend::Execute(const char *routine, const Buffer *input_buffer) {
         std::lock_guard<std::mutex> lock(gFrontendMutex);
         auto it = mpFrontends->find(tid);
         if (it == mpFrontends->end() || !it->second->mpInitialized) {
-            LOG4CPLUS_ERROR(logger, "Frontend not initialized for this thread. Cannot send job request.");
+            printf("[FE] ERROR: Frontend not initialized for this thread. Cannot send job request.\n");
+            fflush(stdout);
             return;
         }
         frontend = it->second;
     }
 
-    std::string rname(routine);
-    LOG4CPLUS_DEBUG(logger, "Executing routine: " << rname << " [pid=" << pid << ", tid=" << tid << "]");
-    frontend->mRoutinesExecuted++;
-    
-    if (frontend->_communicator->obj_ptr()->to_string() == "ucxcommunicator") {
+    std::string rname = routine ? std::string(routine) : std::string("");
+    printf("[FE] Execute begin: routine=\"%s\" pid=%d tid=%d\n", rname.c_str(), (int)pid, (int)tid);
+    fflush(stdout);
 
+    frontend->mRoutinesExecuted++;
+
+    auto print_hex_prefix = [](const char* tag, const void* p, size_t n, size_t limit = 32) {
+        const unsigned char* b = reinterpret_cast<const unsigned char*>(p);
+        size_t m = (n < limit ? n : limit);
+        printf("%s [len=%zu] hex:", tag, n);
+        for (size_t i = 0; i < m; ++i) printf(" %02X", (unsigned int)b[i]);
+        if (n > limit) printf(" ...");
+        printf("\n");
+        fflush(stdout);
+    };
+
+    if (frontend->_communicator->obj_ptr()->to_string() == std::string("ucxcommunicator")) {
         auto *ucx = dynamic_cast<gvirtus::communicators::UcxCommunicator*>(
             frontend->_communicator->obj_ptr().get());
         if (!ucx) {
-            LOG4CPLUS_FATAL(logger, "FATAL: dynamic_cast to UcxCommunicator failed.");
+            printf("[FE] FATAL: dynamic_cast<UcxCommunicator> failed.\n");
+            fflush(stdout);
             return;
         }
 
-        // Step 1: Package the request data into a payload
-        Buffer request_packet;
-        
-        // 1a. Serialize the routine string
-        request_packet.AddString(routine);
-        
-        // 1b. Package the entire contents of input_buffer as a single unit.
-        // First, we write the total length of the data, and then we write the entire data itself.
-        size_t input_buffer_total_size = input_buffer->GetBufferSize();
-        request_packet.Add(input_buffer_total_size);
-        if (input_buffer_total_size > 0) {
-            request_packet.Append(input_buffer->GetBuffer(), input_buffer_total_size);
-        }
-        
-        const bool expect_response = isSyncRoutine(rname);
+        // ------- Step 0: 参数区准备（必要时剥掉重复的 "routine\\0" 前缀） -------
+        const char* in_buf = input_buffer->GetBuffer();
+        size_t in_len = input_buffer->GetBufferSize();
+        print_hex_prefix("[FE] input_buffer head", in_buf, in_len, 32);
 
-        // === Step 2: Send via pipeline ===
+        size_t param_offset = 0;
+        if (!rname.empty() && in_len >= rname.size() + 1) {
+            bool exact_dup = (::memcmp(in_buf, rname.c_str(), rname.size()) == 0) &&
+                             (in_buf[rname.size()] == '\0');
+            if (exact_dup) {
+                param_offset = rname.size() + 1;
+                printf("[FE] WARN: Detected duplicated routine prefix in input_buffer, trimming %zu bytes (\"%s\\0\").\n",
+                       param_offset, rname.c_str());
+                fflush(stdout);
+            }
+        }
+        const char* param_ptr = in_buf + param_offset;
+        size_t      param_len = (in_len >= param_offset) ? (in_len - param_offset) : 0;
+
+        // ------- Step 1: 构造请求 payload： [string] [size_t] [bytes] -------
+        Buffer request_packet;
+        request_packet.AddString(rname.c_str());   // 双长度头
+        request_packet.Add(param_len);
+        if (param_len > 0) {
+            request_packet.Append(param_ptr, param_len);
+        }
+
+        // 期望长度：两个 size_t + 字符串本体 + 参数长度 + 参数数据
+        const size_t str_len = rname.size() + 1; // 含 '\0'
+        const size_t expected_payload_len =
+            2*sizeof(size_t) + str_len + sizeof(size_t) + param_len;
+
+        if (request_packet.GetBufferSize() != expected_payload_len) {
+            printf("[FE][UCX] ERROR: Payload length mismatch (double-len). built=%zu expected=%zu\n",
+                request_packet.GetBufferSize(), expected_payload_len);
+            print_hex_prefix("[FE][UCX] payload head", request_packet.GetBuffer(),
+                            request_packet.GetBufferSize(), 64);
+            return; // 协议不一致就别发，免得对端更乱
+        }
+
+        printf("[FE][UCX] Payload ready. routine=\"%s\" param_len=%zu payload_size=%zu\n",
+               rname.c_str(), param_len, request_packet.GetBufferSize());
+        print_hex_prefix("[FE][UCX] payload head", request_packet.GetBuffer(),
+                         request_packet.GetBufferSize(), 64);
+
+        // ------- Step 1.5: 本地“预反解”验证 -------
+            
+        {
+        const unsigned char* p = reinterpret_cast<const unsigned char*>(request_packet.GetBuffer());
+        size_t remain = request_packet.GetBufferSize();
+
+        auto read_size_t = [&](size_t &out) -> bool {
+            if (remain < sizeof(size_t)) return false;
+            ::memcpy(&out, p, sizeof(size_t));
+            p += sizeof(size_t); remain -= sizeof(size_t);
+            return true;
+        };
+        auto read_bytes = [&](size_t n, const unsigned char* &out) -> bool {
+            if (remain < n) return false;
+            out = p; p += n; remain -= n;
+            return true;
+        };
+
+        size_t len1=0, len2=0;
+        if (!read_size_t(len1) || !read_size_t(len2)) {
+            printf("[FE][UCX][PreParse] ERROR: cannot read double length headers\n"); fflush(stdout); return;
+        }
+        if (len1 != len2) {
+            printf("[FE][UCX][PreParse] ERROR: double length mismatch len1=%zu len2=%zu\n", len1, len2); fflush(stdout); return;
+        }
+
+        const unsigned char* str_ptr=nullptr;
+        if (!read_bytes(len1, str_ptr)) {
+            printf("[FE][UCX][PreParse] ERROR: not enough for routine string. need=%zu remain=%zu\n", len1, remain); fflush(stdout); return;
+        }
+        std::string routine_in_payload(reinterpret_cast<const char*>(str_ptr),
+                                    len1 ? (len1 - 1) : 0);
+        if (routine_in_payload != rname) {
+            printf("[FE][UCX][PreParse] ERROR: routine mismatch: \"%s\" vs \"%s\"\n",
+                routine_in_payload.c_str(), rname.c_str()); fflush(stdout); return;
+        }
+
+        size_t plen=0; const unsigned char* params_ptr=nullptr;
+        if (!read_size_t(plen) || !read_bytes(plen, params_ptr)) {
+            printf("[FE][UCX][PreParse] ERROR: cannot read params body\n"); fflush(stdout); return;
+        }
+
+        if (remain != 0) {
+            printf("[FE][UCX][PreParse] WARN: trailing bytes remain=%zu\n", remain); fflush(stdout);
+        }
+
+        printf("[FE][UCX][PreParse] OK. routine=\"%s\" param_len=%zu (double-len)\n",
+            routine_in_payload.c_str(), plen);
+        print_hex_prefix("[FE][UCX][PreParse] params head", params_ptr, (plen<32?plen:32), 32);
+        }
+
+
+        // ------- Step 2: 发送 -------
+        const bool expect_response = isSyncRoutine(rname);
         auto t0 = steady_clock::now();
-        auto res = ucx->SubmitRequest("execute_routine", 
-                                      request_packet.GetBuffer(), 
-                                      request_packet.GetBufferSize(), 
+        auto res = ucx->SubmitRequest("execute_routine",
+                                      request_packet.GetBuffer(),
+                                      request_packet.GetBufferSize(),
                                       expect_response);
         auto t1 = steady_clock::now();
-        
-        // === Step 3: If it's a synchronous request, then parse the response payload ===
-        if (expect_response) {
-            double wall_time = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
-            
-            // 3a. Use the returned data (res.out) to create a read-only response buffer.
-            Buffer response_packet(res.out.data(), res.out.size());
-            
-            // 3b. Deserialize the result from the response packet in the correct order.
-            int exit_code = response_packet.Get<int>();
-            double server_exec_sec = response_packet.Get<double>();
 
-            // 3c. Deserialize the final output data from the response packet and store 
-            //it in the mpOutputBuffer in the client-side application.
+        double send_wall_s = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
+        frontend->mDataSent    += request_packet.GetBufferSize();
+        frontend->mSendingTime += send_wall_s;
+
+        printf("[FE][UCX] SubmitRequest done. expect_response=%s wall_send_s=%.6f\n",
+               expect_response ? "true" : "false", send_wall_s);
+        fflush(stdout);
+        
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        // 关键改动：异步 (expect_response==false) 直接返回，不解析响应
+        if (!expect_response) {
+            // 不读取 res.out、不触碰 mpOutputBuffer，不修改接收/执行时间统计
+            return;
+        }
+        // ------- Step 3: 同步响应解析（修复点：用 vector<char> 适配 Buffer(char*, size_t)） -------
+        // 先拿到原始响应
+        const unsigned char* raw_rbuf = reinterpret_cast<const unsigned char*>(res.out.data());
+        size_t raw_rlen = res.out.size();
+
+        print_hex_prefix("[FE][UCX] raw response head", raw_rbuf, raw_rlen, 64);
+
+        // 探测并去掉可选的“前置 size_t = payload_len”
+        size_t offset = 0;
+        if (raw_rlen >= sizeof(size_t)) {
+            size_t pretended_len = 0;
+            ::memcpy(&pretended_len, raw_rbuf, sizeof(size_t));
+            if (pretended_len == (raw_rlen - sizeof(size_t))) {
+                offset = sizeof(size_t);
+                printf("[FE][UCX] Detected leading size_t payload_len in response, stripping %zu bytes.\n", offset);
+                fflush(stdout);
+            }
+        }
+
+        // 构造 resp_copy（真正要解析的主体）
+        std::vector<char> resp_copy;
+        if (raw_rlen >= offset) {
+            resp_copy.assign(res.out.begin() + static_cast<std::ptrdiff_t>(offset), res.out.end());
+        }
+        if (resp_copy.empty()) {
+            printf("[FE][UCX] ERROR: Empty response after stripping offset=%zu.\n", offset);
+            fflush(stdout);
+            return;
+        }
+
+        print_hex_prefix("[FE][UCX] response (post-strip) head", resp_copy.data(), resp_copy.size(), 64);
+
+                // === 新：用裸指针解析响应，避免 Buffer::Get<char>(n) 额外吃一个 size_t ===
+        {
+            const unsigned char* p = reinterpret_cast<const unsigned char*>(resp_copy.data());
+            size_t remain = resp_copy.size();
+
+            // 自检：整体 payload 头
+            print_hex_prefix("[FE][UCX][ParseRaw] resp_copy head", p, remain, 64);
+
+            auto take = [&](void* dst, size_t n) -> bool {
+                if (remain < n) return false;
+                ::memcpy(dst, p, n);
+                p += n; remain -= n;
+                return true;
+            };
+
+            int exit_code = 0;
+            double server_exec_sec = 0.0;
+            size_t output_len = 0;
+
+            // 解析头三项：int / double / size_t
+            if (!take(&exit_code, sizeof(exit_code))) {
+                printf("[FE][UCX][ParseRaw] ERROR: not enough for exit_code. remain=%zu\n", remain); fflush(stdout);
+                return;
+            }
+            if (!take(&server_exec_sec, sizeof(server_exec_sec))) {
+                printf("[FE][UCX][ParseRaw] ERROR: not enough for server_exec_sec. remain=%zu\n", remain); fflush(stdout);
+                return;
+            }
+            if (!take(&output_len, sizeof(output_len))) {
+                printf("[FE][UCX][ParseRaw] ERROR: not enough for out_len. remain=%zu\n", remain); fflush(stdout);
+                return;
+            }
+
+            printf("[FE][UCX][ParseRaw] header parsed: exit_code=%d server_exec=%.6f out_len=%zu remain=%zu\n",
+                exit_code, server_exec_sec, output_len, remain);
+            fflush(stdout);
+
+            // 解析 out 区域：直接切片，不再用 Buffer::Get<char>(n)
             frontend->mpOutputBuffer->Reset();
-            size_t output_len = response_packet.Get<size_t>();
             if (output_len > 0) {
-                char* out_data = response_packet.Get<char>(output_len);
-                if (out_data) {
-                    frontend->mpOutputBuffer->Append(out_data, output_len);
-                    delete[] out_data;
+                if (remain < output_len) {
+                    printf("[FE][UCX][ParseRaw] ERROR: not enough bytes for out body. need=%zu remain=%zu\n",
+                        output_len, remain);
+                    fflush(stdout);
+                    return;
+                }
+                print_hex_prefix("[FE][UCX][ParseRaw] out head", p, (output_len < 32 ? output_len : 32), 32);
+
+                // 直接 append
+                frontend->mpOutputBuffer->Append(reinterpret_cast<const char*>(p), output_len);
+                p += output_len;
+                remain -= output_len;
+
+                // 自检：是否还有尾巴
+                if (remain != 0) {
+                    printf("[FE][UCX][ParseRaw] WARN: trailing bytes after out. remain=%zu\n", remain);
+                    fflush(stdout);
                 }
             }
 
+            // 统计与总耗时
             frontend->mExitCode = exit_code;
             frontend->mRoutineExecutionTime += server_exec_sec;
             frontend->mDataReceived += output_len;
-            frontend->mDataSent += request_packet.GetBufferSize();
-            frontend->mSendingTime += wall_time;
 
-            LOG4CPLUS_DEBUG(logger, "SYNC routine '" << routine << "' finished."
-                << " | exit_code=" << exit_code
-                << " | server_exec=" << server_exec_sec << "s"
-                << " | wall_time=" << wall_time << "s"
-                << " | in=" << input_buffer->GetBufferSize() << "B, out=" << output_len << "B"
-                << " [pid=" << pid << ", tid=" << tid << "]");
-
-        } else {
-            double submission_time = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
-            frontend->mDataSent += request_packet.GetBufferSize();
-            frontend->mSendingTime += submission_time;
+            double wall_time = duration_cast<milliseconds>(t1 - t0).count() / 1000.0;
+            printf("[FE] SYNC done: routine=\"%s\" exit_code=%d server_exec=%.6f s wall=%.6f s in=%zu B out=%zu B pid=%d tid=%d\n",
+                rname.c_str(), exit_code, server_exec_sec, wall_time,
+                param_len, output_len, (int)pid, (int)tid);
+            fflush(stdout);
         }
-        
+
         return;
     }
     // ================== OLD LOGICL PATH, NOT USE IN UCX ==================

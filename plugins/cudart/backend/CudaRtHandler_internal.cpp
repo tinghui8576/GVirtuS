@@ -128,8 +128,35 @@ void parseNvInfoSections(const Elf64_Ehdr *eh, Elf64_Shdr *sh_table, char *sh_st
 CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
     LOG4CPLUS_DEBUG(pThis->GetLogger(), "Entering in RegisterFatBinary");
 
-    try {
+        try {
+                auto dump_hex = [](const char* tag, const void* p, size_t n, size_t limit=32) {
+            const unsigned char* b = static_cast<const unsigned char*>(p);
+            fprintf(stderr, "%s [len=%zu] hex:", tag, n);
+            size_t m = n < limit ? n : limit;
+            for (size_t i = 0; i < m; ++i) fprintf(stderr, " %02X", (unsigned)b[i]);
+            if (n > limit) fprintf(stderr, " ...");
+            fprintf(stderr, "\n"); fflush(stderr);
+        };
+
+        // --- 观察 AssignString() 之前 ---
+        fprintf(stderr, "[BE][RF] BEFORE AssignString: offset=%zu size=%zu\n",
+                input_buffer->Tell(), input_buffer->DataSize());
+        if (input_buffer->DataSize() > input_buffer->Tell()) {
+            const char* p = input_buffer->DataPtr() + input_buffer->Tell();
+            dump_hex("[BE][RF] cursor head", p,
+                     input_buffer->DataSize() - input_buffer->Tell(), 48);
+        }
+
         char *handler = input_buffer->AssignString();
+                // --- 观察 AssignString() 之后 ---
+        fprintf(stderr, "[BE][RF] AFTER  AssignString: offset=%zu size=%zu handler=\"%s\"\n",
+                input_buffer->Tell(), input_buffer->DataSize(), handler ? handler : "(null)");
+        if (input_buffer->DataSize() > input_buffer->Tell()) {
+            const char* p = input_buffer->DataPtr() + input_buffer->Tell();
+            dump_hex("[BE][RF] cursor head", p,
+                     input_buffer->DataSize() - input_buffer->Tell(), 48);
+        }
+        
         __fatBinC_Wrapper_t *fatBin = CudaUtil::UnmarshalFatCudaBinary(input_buffer.get());
         if (fatBin->magic != FATBINWRAPPER_MAGIC) {
             LOG4CPLUS_ERROR(pThis->GetLogger(),
@@ -146,8 +173,8 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
             return std::make_shared<Result>(cudaErrorInvalidValue);
         }
 
-        // cout << "Fat binary header size: " << fatBinHdr->headerSize << endl;
-        // cout << "Fat binary size: " << fatBinHdr->fatSize << endl;
+        cout << "Fat binary header size: " << fatBinHdr->headerSize << endl;
+        cout << "Fat binary size: " << fatBinHdr->fatSize << endl;
 
         uint8_t *data_ptr = (uint8_t *)fatBin->data + fatBinHdr->headerSize;
         size_t remaining_size = fatBinHdr->fatSize;
@@ -160,8 +187,7 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
                 uint8_t *compressed_data = data_ptr;
                 int compressed_size = fatBinData->payloadSize;
 
-                // cout << "Uncompressed payload: " <<
-                // fatBinData->uncompressedPayload << endl; Prepare output
+                cout << "Uncompressed payload: " << fatBinData->uncompressedPayload << endl;
                 // buffer with the expected decompressed size
                 cubin.resize(fatBinData->uncompressedPayload);
 
@@ -184,7 +210,7 @@ CUDA_ROUTINE_HANDLER(RegisterFatBinary) {
                 data_ptr += fatBinData->paddedPayloadSize;
             }
 
-            // cout << "kind " << fatBinData->kind << endl;
+            cout << "kind " << fatBinData->kind << endl;
             if (fatBinData->kind == 2) {
                 if (memcmp(cubin.data(), ELF_MAGIC, ELF_MAGIC_SIZE) != 0) {
                     cerr << "*** Error: Invalid ELF magic number in fat binary" << endl;

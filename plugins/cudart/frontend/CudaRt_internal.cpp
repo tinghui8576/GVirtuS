@@ -157,18 +157,18 @@ extern "C" __host__ void **__cudaRegisterFatBinary(void *fatCubin) {
         cerr << "*** Error: Invalid fat binary magic number" << endl;
         return nullptr;  // Not a valid fat binary
     }
-    // cout << "Fat binary wrapper magic: " << hex << bin->magic << endl;
+    cout << "Fat binary wrapper magic: " << hex << bin->magic << endl;
     struct fatBinaryHeader *fatBinHdr = (struct fatBinaryHeader *)bin->data;
     if (fatBinHdr->magic != FATBIN_MAGIC || fatBinHdr->version != 1) {
         cerr << "*** Error: Invalid fat binary" << endl;
         return nullptr;  // Not a valid fat binary
     }
-    // cout << "Fat binary header size: " << fatBinHdr->headerSize << endl;
-    // cout << "Fat binary size: " << fatBinHdr->fatSize << endl;
+    cout << "Fat binary header size: " << fatBinHdr->headerSize << endl;
+    cout << "Fat binary size: " << fatBinHdr->fatSize << endl;
 
     // only for debugging purposes
-    // writeCudaFatBinaryToFile(fatBinHdr, fatBinHdr->headerSize + fatBinHdr->fatSize,
-    // "fat_binary.cubin");
+    writeCudaFatBinaryToFile(fatBinHdr, fatBinHdr->headerSize + fatBinHdr->fatSize,
+    "fat_binary.cubin");
 
     uint8_t *data_ptr = (uint8_t *)bin->data + fatBinHdr->headerSize;
     size_t remaining_size = fatBinHdr->fatSize;
@@ -181,8 +181,8 @@ extern "C" __host__ void **__cudaRegisterFatBinary(void *fatCubin) {
             return nullptr;  // Not a valid fat binary data
         }
 
-        // cout << "Processing fat binary data of kind: " << fatBinData->kind
-        //     << " and smVersion: " << fatBinData->smVersion << endl;
+        cout << "Processing fat binary data of kind: " << fatBinData->kind
+             << " and smVersion: " << fatBinData->smVersion << endl;
 
         data_ptr += fatBinData->headerSize;
 
@@ -352,22 +352,37 @@ extern "C" __host__ __device__ unsigned CUDARTAPI __cudaPushCallConfiguration(di
     CudaRtFrontend::AddDevicePointerForArguments(stream);
 
     CudaRtFrontend::Execute("cudaPushCallConfiguration");
-
+                                                                                
     return CudaRtFrontend::GetExitCode();
 }
 
-extern "C" cudaError_t CUDARTAPI __cudaPopCallConfiguration(dim3 *gridDim, dim3 *blockDim,
-                                                            size_t *sharedMem,
-                                                            cudaStream_t *stream) {
+extern "C" cudaError_t CUDARTAPI __cudaPopCallConfiguration(dim3 *gridDim,
+                                                             dim3 *blockDim,
+                                                             size_t *sharedMem,
+                                                             cudaStream_t *stream) {
+    /*
+    printf("__cudaPopCallConfiguration:\n");
+    printf("gridDim: %d,%d,%d\n",gridDim->x,gridDim->y,gridDim->z);
+    printf("blockDim: %d,%d,%d\n",blockDim->x,blockDim->y,blockDim->z);
+    printf("sharedMem: %ld stream: %x\n",*sharedMem, *(cudaStream_t*)stream);
+    */
     CudaRtFrontend::Prepare();
 
     CudaRtFrontend::Execute("cudaPopCallConfiguration");
+    cudaError_t cudaError=CudaRtFrontend::GetExitCode();
+    //printf("__cudaPopCallConfiguration:%d\n",cudaError);
 
     *gridDim = CudaRtFrontend::GetOutputVariable<dim3>();
     *blockDim = CudaRtFrontend::GetOutputVariable<dim3>();
     *sharedMem = CudaRtFrontend::GetOutputVariable<size_t>();
-    cudaStream_t stream1 = CudaRtFrontend::GetOutputVariable<cudaStream_t>();
+    cudaStream_t stream1=CudaRtFrontend::GetOutputVariable<cudaStream_t>();
+    //cudaStream_t stream1=0;
+    memcpy(stream,&stream1,sizeof(cudaStream_t));
 
-    memcpy(stream, &stream1, sizeof(cudaStream_t));
-    return CudaRtFrontend::GetExitCode();
+    /*
+    printf("gridDim: %d,%d,%d\n",gridDim->x,gridDim->y,gridDim->z);
+    printf("blockDim: %d,%d,%d\n",blockDim->x,blockDim->y,blockDim->z);
+    printf("sharedMem: %ld stream: %x stream1: %x\n",*sharedMem,*(cudaStream_t*)stream,stream1);
+    */
+    return cudaError;
 }

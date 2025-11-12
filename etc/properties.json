@@ -5,7 +5,7 @@
         "suite": "ucx",
         "protocol": "ucx",
         "server_address": "24.24.24.1",
-        "port": "6767"
+        "port": "7952"
 
       },
             "plugins": [
