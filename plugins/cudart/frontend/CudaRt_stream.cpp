@@ -110,37 +110,89 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaStreamBeginCapture(cudaStream_t st
                                                                  cudaStreamCaptureMode mode) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(stream);
+    // cout << "Stream starts capturing." << endl;
     CudaRtFrontend::AddVariableForArguments(mode);
     CudaRtFrontend::Execute("cudaStreamBeginCapture");
+    
     return CudaRtFrontend::GetExitCode();
 }
 
-// TODO: needs testing
-extern "C" __host__ cudaError_t CUDARTAPI
-cudaStreamIsCapturing(cudaStream_t stream, cudaStreamCaptureStatus* pCaptureStatus) {
+extern "C" __host__ cudaError_t CUDARTAPI   cudaStreamIsCapturing(cudaStream_t stream, cudaStreamCaptureStatus* pCaptureStatus) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(stream);
     CudaRtFrontend::Execute("cudaStreamIsCapturing");
-    if (CudaRtFrontend::Success())
+    if (CudaRtFrontend::Success()){
         *pCaptureStatus = CudaRtFrontend::GetOutputVariable<cudaStreamCaptureStatus>();
+        // cout << "Stream is capturing. " << *pCaptureStatus << endl;
+    }
+        
+    return CudaRtFrontend::GetExitCode();
+}
+// cudaStreamGetId
+extern "C" __host__ cudaError_t CUDARTAPI cudaStreamGetCaptureInfo(cudaStream_t stream, 
+                                                                cudaStreamCaptureStatus* captureStatus_out, 
+                                                                unsigned long long* id_out, 
+                                                                cudaGraph_t* graph_out, 
+                                                                const cudaGraphNode_t **dependencies_out, 
+                                                                // const cudaGraphEdgeData **edgeData_out,
+                                                                size_t *numDependencies_out) {
+    CudaRtFrontend::Prepare();
+    CudaRtFrontend::AddDevicePointerForArguments(stream);
+    // cout << "Frontend" << *captureStatus_out << endl;
+    // cout << "Frontend" << *id_out << endl;
+    // 
+    // cout << "Frontend" << *numDependencies_out << endl;
+    CudaRtFrontend::AddHostPointerForArguments(graph_out);
+    CudaRtFrontend::AddHostPointerForArguments<const cudaGraphNode_t*>(dependencies_out);
+    CudaRtFrontend::AddHostPointerForArguments(numDependencies_out);
+
+    cudaGraph_t local_graph = nullptr;
+    size_t local_numDeps = 0;
+    const cudaGraphNode_t* local_deps = nullptr;
+
+    CudaRtFrontend::Execute("cudaStreamGetCaptureInfo");
+    if (CudaRtFrontend::Success()){
+
+
+        // cout << "Stream capture info." << endl;
+        *captureStatus_out = CudaRtFrontend::GetOutputVariable<cudaStreamCaptureStatus>();
+        // cout << "Frontend Status_out " << *captureStatus_out << endl;
+
+        *id_out = CudaRtFrontend::GetOutputVariable<unsigned long long>();
+        // cout << "Frontend id_out " << *id_out << endl;
+        
+        local_graph   = (cudaGraph_t)CudaRtFrontend::GetOutputDevicePointer();
+        // cout << "Frontend graph_out " << local_graph  << endl;
+        
+        local_deps = (const cudaGraphNode_t *)CudaRtFrontend::GetOutputDevicePointer();
+        // cout << "Frontend dependencies_out " << (void*)local_deps << endl;
+        local_numDeps = CudaRtFrontend::GetOutputVariable<size_t>();
+        // cout << "Frontend num dependencies_out " << local_numDeps << endl;
+
+        
+        if (graph_out) *graph_out = local_graph;
+        // cout << "Frontend graph_out " << local_graph << " "<<*graph_out << endl;
+        if (dependencies_out) *dependencies_out = local_deps;
+        // cout << "Frontend dependencies_out " << *dependencies_out << endl;
+        if (numDependencies_out) *numDependencies_out = local_numDeps;
+
+    }
+        
+        
     return CudaRtFrontend::GetExitCode();
 }
 
-// TODO: implement
-extern "C" __host__ cudaError_t CUDARTAPI cudaStreamGetCaptureInfo(
-    cudaStream_t stream, cudaStreamCaptureStatus* captureStatus_out, unsigned long long* id_out,
-    cudaGraph_t* graph_out, const cudaGraphNode_t** dependencies_out, size_t* numDependencies_out) {
-    return cudaErrorNotYetImplemented;
-}
 
 // TODO: needs testing
 extern "C" __host__ cudaError_t CUDARTAPI cudaStreamEndCapture(cudaStream_t stream,
                                                                cudaGraph_t* pGraph) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(stream);
-    CudaRtFrontend::AddHostPointerForArguments(pGraph);
+    // cout << "End capture." << *pGraph << endl;
     CudaRtFrontend::Execute("cudaStreamEndCapture");
     if (CudaRtFrontend::Success()) *pGraph = CudaRtFrontend::GetOutputVariable<cudaGraph_t>();
+    // cout << "End capture." << *pGraph << endl;
+    
     return CudaRtFrontend::GetExitCode();
 }
 

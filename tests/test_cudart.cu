@@ -125,6 +125,29 @@ TEST(cudaRT, GraphCreateDestroy) {
 __global__ void dummyKernel() {
 }
 
+TEST(cudaRT, StreamCaptureInfo) {
+    cudaStream_t stream;
+    CUDA_CHECK(cudaStreamCreate(&stream));
+    cudaStreamCaptureMode mode = cudaStreamCaptureModeThreadLocal;
+    CUDA_CHECK(cudaStreamBeginCapture(stream, mode));
+    cudaStreamCaptureStatus captureStatus_out;
+    unsigned long long id_out;
+    cudaGraph_t graph_out;
+    const cudaGraphNode_t* dependencies_out;
+    // const cudaGraphEdgeData* edgeData_out;
+    size_t numDependencies_out;
+    dummyKernel<<<1, 1, 0, stream>>>();
+    CUDA_CHECK(cudaStreamIsCapturing(stream, &captureStatus_out));
+    ASSERT_EQ(captureStatus_out, cudaStreamCaptureStatusActive);
+    CUDA_CHECK(cudaStreamGetCaptureInfo(stream, &captureStatus_out,
+                            &id_out, &graph_out, &dependencies_out,
+                            // &edgeData_out,
+                            &numDependencies_out));
+    CUDA_CHECK(cudaStreamEndCapture(stream, &graph_out));
+    ASSERT_EQ(captureStatus_out, cudaStreamCaptureStatusActive);
+    if (graph_out) CUDA_CHECK(cudaGraphDestroy(graph_out));
+    CUDA_CHECK(cudaStreamDestroy(stream));
+}
 TEST(cudaRT, GraphInstantiateDestroy) {
     cudaGraph_t graph;
     cudaStream_t stream;

@@ -1,4 +1,0 @@
-RunType,Iteration,ExecutionTime(ms)
-WithoutGraph(Sysc),1000,26.9543
-WithoutGraph(NotSysc),1000,26.8648
-WithGraph,1000,26.8899

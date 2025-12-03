@@ -276,6 +276,7 @@ CUDA_ROUTINE_HANDLER(ThreadExchangeStreamCaptureMode);
 CUDA_ROUTINE_HANDLER(StreamIsCapturing);
 CUDA_ROUTINE_HANDLER(StreamBeginCapture);
 CUDA_ROUTINE_HANDLER(StreamEndCapture);
+CUDA_ROUTINE_HANDLER(StreamGetCaptureInfo);
 
 /* CudaRtHandler_graph */
 CUDA_ROUTINE_HANDLER(GraphCreate);
@@ -283,6 +284,7 @@ CUDA_ROUTINE_HANDLER(GraphDestroy);
 CUDA_ROUTINE_HANDLER(GraphLaunch);
 CUDA_ROUTINE_HANDLER(GraphGetNodes);
 CUDA_ROUTINE_HANDLER(GraphInstantiate);
+CUDA_ROUTINE_HANDLER(GraphInstantiateWithFlags);
 CUDA_ROUTINE_HANDLER(GraphExecDestroy);
 CUDA_ROUTINE_HANDLER(GraphUpload);
 

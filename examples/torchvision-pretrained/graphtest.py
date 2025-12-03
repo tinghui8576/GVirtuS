@@ -6,21 +6,24 @@ from PIL import Image
 
 model_selectors = [
     "squeezenet1_1",
-    #"mobilenet_v2",
-    #"resnet18",
-    #"vgg16",
+    # "mobilenet_v2",
+    # "resnet18",
+    # "vgg16",
 ]
 
 model_registry = {
     "squeezenet1_1": (models.squeezenet1_1, models.SqueezeNet1_1_Weights.DEFAULT),
-    "mobilenet_v2": (models.mobilenet_v2, models.MobileNet_V2_Weights.DEFAULT),
-    "resnet18": (models.resnet18, models.ResNet18_Weights.DEFAULT),
-    "vgg16": (models.vgg16, models.VGG16_Weights.DEFAULT),
+    # "mobilenet_v2": (models.mobilenet_v2, models.MobileNet_V2_Weights.DEFAULT),
+    # "resnet18": (models.resnet18, models.ResNet18_Weights.DEFAULT),
+    # "vgg16": (models.vgg16, models.VGG16_Weights.DEFAULT),
 }
 
 device = "cuda" 
+# device="cpu"
 
-img_dir = "imagenet"
+img_dir = "imagenet_test_1000"
+input_shape = (1, 3, 224, 224)   
+dtype = torch.float32 
 
 for model_selector in model_selectors:
     if model_selector not in model_registry:
@@ -34,16 +37,21 @@ for model_selector in model_selectors:
     else:
         model = model_fn(weights=weights)
 
+
     model = model.to(device)
     model.eval()
 
     preprocess = weights.transforms()
 
-    time_log_file = f"time_{model_selector}.txt"
+    time_log_file = f"time_{model_selector}_graph.txt"
 
     correct = 0
     total = 0
 
+    Warmup = 3
+
+    static_input = torch.empty(input_shape, device=device, dtype=dtype)
+    static_output = None
     with open(time_log_file, "w") as f:
         for filename in sorted(os.listdir(img_dir)):
             if not (filename.endswith(".JPEG") or filename.endswith(".jpg") or filename.endswith(".png")):
@@ -56,24 +64,34 @@ for model_selector in model_selectors:
             input_tensor = preprocess(img)
             input_batch = input_tensor.unsqueeze(0).to(device)
 
+            static_input.copy_(input_batch)
             # Inference timing
             if device == "cuda":
                 torch.cuda.synchronize()
             start = time.time()
-            with torch.no_grad():
-                output = model(input_batch)
-            if device == "cuda":
-                torch.cuda.synchronize()
+            if Warmup > 0:
+                with torch.no_grad():
+                    static_output = model(static_input)
+            elif Warmup == 0:
+                g = torch.cuda.CUDAGraph()
+                
+                with torch.cuda.graph(g):
+                    static_output = model(static_input)
+            else:
+                g.replay()
+            # static_output = model(static_input)
+
             end = time.time()
             elapsed = (end - start) * 1000  # ms
-
+            
             # Prediction
-            _, predicted_idx = torch.max(output, 1)
+            _, predicted_idx = torch.max(static_output, 1)
             predicted_label = predicted_idx.item()
 
             if predicted_label == true_label:
                 correct += 1
             total += 1
+            Warmup -= 1
 
             # Save time log
             f.write(f"{filename}\t{elapsed:.4f} ms\n")

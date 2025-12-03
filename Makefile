@@ -38,11 +38,12 @@ run-gvirtus-dev:
 		-v ./tools:/gvirtus/tools/ \
 		-v ./tests:/gvirtus/tests/ \
 		-v ./CMakeLists.txt:/gvirtus/CMakeLists.txt \
-		-v ./docker/dev/build_and_run.sh:/build_and_run.sh \
+		-v ./docker/dev/build.sh:/build_and_run.sh \
 		-v ./examples:/gvirtus/examples/ \
 		--network host \
+		--privileged \
 		--entrypoint /build_and_run.sh \
-		--name gvirtus \
+		--name gvirtus_Ting \
 		--runtime=nvidia \
 		--shm-size=8G \
 		gvirtus-dev:cuda12.6.3-cudnn-ubuntu22.04
@@ -62,9 +63,9 @@ run-gvirtus-dev-no-gpu:
 		-v ./docker/dev/build.sh:/build.sh \
 		-v ./examples:/gvirtus/examples/ \
 		--entrypoint /build.sh \
-		--name gvirtus-no-gpu \
+		--name gvirtus-no-gpu_T \
 		--shm-size=8G \
-		gvirtus-dev:cuda12.6.3-cudnn-ubuntu22.04
+		gvirtus-dev:cuda12.6.3-cudnn-ubuntu22.04	
 
 run-gvirtus-tests:
 	docker run \

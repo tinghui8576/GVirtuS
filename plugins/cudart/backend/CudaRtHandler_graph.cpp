@@ -87,6 +87,23 @@ CUDA_ROUTINE_HANDLER(GraphInstantiate) {
     }
 }
 
+CUDA_ROUTINE_HANDLER(GraphInstantiateWithFlags) {
+    try {
+        cudaGraphExec_t pGraphExec;
+        cudaGraph_t graph = input_buffer->Get<cudaGraph_t>();
+        unsigned long long flags = input_buffer->Get<unsigned long long>();
+
+        cudaError_t exit_code = cudaGraphInstantiateWithFlags(&pGraphExec, graph, flags);
+        std::shared_ptr<Buffer> out = std::make_shared<Buffer>();
+        out->Add<cudaGraphExec_t>(pGraphExec);
+        // std::cout << "execution: " << pGraphExec << " Graph: "<< graph << std::endl;
+        return std::make_shared<Result>(exit_code, out);
+    } catch (const std::exception& e) {
+        cerr << e.what() << endl;
+        return std::make_shared<Result>(cudaErrorMemoryAllocation);
+    }
+}
+
 // No Testing
 CUDA_ROUTINE_HANDLER(GraphLaunch) {
     try {
@@ -98,6 +115,7 @@ CUDA_ROUTINE_HANDLER(GraphLaunch) {
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
 }
+
 CUDA_ROUTINE_HANDLER(GraphExecDestroy) {
     try {
         cudaGraphExec_t graphExec = input_buffer->Get<cudaGraphExec_t>();
@@ -106,7 +124,7 @@ CUDA_ROUTINE_HANDLER(GraphExecDestroy) {
         cerr << e.what() << endl;
         return std::make_shared<Result>(cudaErrorMemoryAllocation);
     }
-} 
+}
 
 CUDA_ROUTINE_HANDLER(GraphUpload) {
     try {

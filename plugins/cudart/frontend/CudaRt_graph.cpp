@@ -40,6 +40,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphGetNodes(cudaGraph_t graph,
 
     if (CudaRtFrontend::Success()) {
         *numNodes = CudaRtFrontend::GetOutputVariable<size_t>();
+        // cout << "Get a node for graph." << endl;
     }
     return CudaRtFrontend::GetExitCode();
 }
@@ -48,6 +49,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphExecDestroy(cudaGraphExec_t g
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graphExec);
     CudaRtFrontend::Execute("cudaGraphExecDestroy");
+    // cout << "Destroy graph execution." << endl;
     return CudaRtFrontend::GetExitCode();
 }
 
@@ -61,6 +63,7 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiate(cudaGraphExec_t* 
 
     if (CudaRtFrontend::Success()) {
         *pGraphExec = CudaRtFrontend::GetOutputVariable<cudaGraphExec_t>();
+        // cout << "Creates an executable graph from a graph." << endl;
     }
     return CudaRtFrontend::GetExitCode();
 }
@@ -70,13 +73,13 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphInstantiateWithFlags(cudaGrap
                                                                         cudaGraph_t graph,
                                                                         unsigned long long flags) {
     CudaRtFrontend::Prepare();
-    CudaRtFrontend::AddHostPointerForArguments(pGraphExec);
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::AddVariableForArguments(flags);
     CudaRtFrontend::Execute("cudaGraphInstantiateWithFlags");
-
+    // cout << "Graph:" << graph << endl;                                                                           
     if (CudaRtFrontend::Success()) {
-        *pGraphExec = (cudaGraphExec_t)CudaRtFrontend::GetOutputDevicePointer();
+        *pGraphExec = CudaRtFrontend::GetOutputVariable<cudaGraphExec_t>();
+        // cout << "Creates an executable graph from a graph." << endl;
     }
     return CudaRtFrontend::GetExitCode();
 }
@@ -101,23 +104,27 @@ extern "C" __host__ cudaError_t CUDARTAPI cudaGraphLaunch(cudaGraphExec_t graphE
     CudaRtFrontend::AddDevicePointerForArguments(graphExec);
     CudaRtFrontend::AddDevicePointerForArguments(stream);
     CudaRtFrontend::Execute("cudaGraphLaunch");
-
+    // cout << "Graph Launch" << endl;                                                        
     return CudaRtFrontend::GetExitCode();
 }
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaGraphCreate(cudaGraph_t* pGraph, unsigned int flags) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddVariableForArguments(flags);
+    // cout << "Graph is Create" << *pGraph << endl;
     CudaRtFrontend::Execute("cudaGraphCreate");
+    
     if (CudaRtFrontend::Success()) *pGraph = CudaRtFrontend::GetOutputVariable<cudaGraph_t>();
+    
     return CudaRtFrontend::GetExitCode();
 }
+
 
 extern "C" __host__ cudaError_t CUDARTAPI cudaGraphDestroy(cudaGraph_t graph) {
     CudaRtFrontend::Prepare();
     CudaRtFrontend::AddDevicePointerForArguments(graph);
     CudaRtFrontend::Execute("cudaGraphDestroy");
-
+    // cout << "Graph is Destroy" << endl;
     return CudaRtFrontend::GetExitCode();
 }
 

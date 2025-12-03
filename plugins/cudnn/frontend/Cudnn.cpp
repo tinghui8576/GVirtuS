@@ -248,10 +248,10 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnSetTensorNdDescriptor(cudnnTensorDescr
 
     CudnnFrontend::Execute("cudnnSetTensorNdDescriptor");
     if (CudnnFrontend::Success()) {
-        cout << "Successfully set tensor descriptor " << tensorDesc << " with data type "
-             << dataType << endl;
+        // cout << "Successfully set tensor descriptor " << tensorDesc << " with data type "
+        //      << dataType << endl;
         registerDescriptorType(tensorDesc, dataType);
-        cout << "isFloatDescriptor: " << isFloatDescriptor(tensorDesc) << endl;
+        // cout << "isFloatDescriptor: " << isFloatDescriptor(tensorDesc) << endl;
     }
     return CudnnFrontend::GetExitCode();
 }
@@ -5139,11 +5139,11 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendCreateDescriptor(
     cudnnBackendDescriptorType_t descriptorType, cudnnBackendDescriptor_t *descriptor) {
     CudnnFrontend::Prepare();
     CudnnFrontend::AddVariableForArguments<cudnnBackendDescriptorType_t>(descriptorType);
-    cout << "cudnnBackendCreateDescriptor called with descriptorType: " << descriptorType << endl;
+    // cout << "cudnnBackendCreateDescriptor called with descriptorType: " << descriptorType << endl;
     CudnnFrontend::Execute("cudnnBackendCreateDescriptor");
     if (CudnnFrontend::Success()) {
         *descriptor = CudnnFrontend::GetOutputVariable<cudnnBackendDescriptor_t>();
-        cout << "cudnnBackendCreateDescriptor created descriptor: " << *descriptor << endl;
+        // cout << "cudnnBackendCreateDescriptor created descriptor: " << *descriptor << endl;
     }
     return CudnnFrontend::GetExitCode();
 }
@@ -5162,21 +5162,21 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendSetAttribute(
 
     if (attributeName == CUDNN_ATTR_VARIANT_PACK_WORKSPACE &&
         attributeType == CUDNN_TYPE_VOID_PTR) {
-        cout << "SETTING WORKSPACE POINTER TO" << endl;
+        // cout << "SETTING WORKSPACE POINTER TO" << endl;
     }
 
-    cout << "cudnnBackendSetAttribute called with:" << endl;
-    cout << "descriptor: " << descriptor << endl;
-    cout << "attribute name: " << attributeName << endl;
-    cout << "attribute type: " << attributeType << endl;
-    cout << "element count: " << elementCount << endl;
-    cout << "byte count: " << byteCount << endl;
-    if (byteCount > 0) {
-        printHex(arrayOfElements, byteCount,
-                 "[FRONTEND] Sending bytes for cudnnBackendSetAttribute");
-    } else {
-        cout << "[FRONTEND] No bytes to send for cudnnBackendSetAttribute" << endl;
-    }
+    // cout << "cudnnBackendSetAttribute called with:" << endl;
+    // cout << "descriptor: " << descriptor << endl;
+    // cout << "attribute name: " << attributeName << endl;
+    // cout << "attribute type: " << attributeType << endl;
+    // cout << "element count: " << elementCount << endl;
+    // cout << "byte count: " << byteCount << endl;
+    // if (byteCount > 0) {
+    //     printHex(arrayOfElements, byteCount,
+    //              "[FRONTEND] Sending bytes for cudnnBackendSetAttribute");
+    // } else {
+    //     cout << "[FRONTEND] No bytes to send for cudnnBackendSetAttribute" << endl;
+    // }
     CudnnFrontend::Execute("cudnnBackendSetAttribute");
     return CudnnFrontend::GetExitCode();
 }
@@ -5193,25 +5193,25 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendGetAttribute(
     // CudnnFrontend::AddHostPointerForArguments<int64_t>(elementCount);
     CudnnFrontend::AddHostPointerForArguments<char>(
         (char *)arrayOfElements, requestedElementCount * getCudnnTypeSize(attributeType));
-    cout << "cudnnBackendGetAttribute called with:" << endl;
-    cout << "descriptor: " << descriptor << endl;
-    cout << "attribute name: " << attributeName << endl;
-    cout << "attribute type: " << attributeType << endl;
-    cout << "requested element count: " << requestedElementCount << endl;
+    // cout << "cudnnBackendGetAttribute called with:" << endl;
+    // cout << "descriptor: " << descriptor << endl;
+    // cout << "attribute name: " << attributeName << endl;
+    // cout << "attribute type: " << attributeType << endl;
+    // cout << "requested element count: " << requestedElementCount << endl;
     CudnnFrontend::Execute("cudnnBackendGetAttribute");
     if (CudnnFrontend::Success()) {
-        cout << "cudnnBackendGetAttribute succeeded" << endl;
+        // cout << "cudnnBackendGetAttribute succeeded" << endl;
         auto val = CudnnFrontend::GetOutputVariable<int64_t>();
-        cout << "val: " << val << endl;
+        // cout << "val: " << val << endl;
         int64_t elementsToWrite = std::min(val, requestedElementCount);
         if (elementCount != nullptr) {
             *elementCount = val;
-            cout << "setting elementCount to: " << val << endl;
-            cout << "elementCount: " << *elementCount << endl;
+            // cout << "setting elementCount to: " << val << endl;
+            // cout << "elementCount: " << *elementCount << endl;
         }
         int64_t bytesToWrite = elementsToWrite * getCudnnTypeSize(attributeType);
-        cout << "elementsToWrite: " << elementsToWrite << endl;
-        cout << "bytesToWrite: " << bytesToWrite << endl;
+        // cout << "elementsToWrite: " << elementsToWrite << endl;
+        // cout << "bytesToWrite: " << bytesToWrite << endl;
         if (bytesToWrite > 0 && arrayOfElements != nullptr) {
             std::memcpy(arrayOfElements, CudnnFrontend::GetOutputHostPointer<char>(bytesToWrite),
                         bytesToWrite);
@@ -5223,7 +5223,7 @@ extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendGetAttribute(
 extern "C" cudnnStatus_t CUDNNWINAPI cudnnBackendExecute(cudnnHandle_t handle,
                                                          cudnnBackendDescriptor_t executionPlan,
                                                          cudnnBackendDescriptor_t variantPack) {
-    cout << "cudnnBackendExecute called" << endl;
+    // cout << "cudnnBackendExecute called" << endl;
     CudnnFrontend::Prepare();
     CudnnFrontend::AddDevicePointerForArguments(handle);
     CudnnFrontend::AddDevicePointerForArguments(executionPlan);
