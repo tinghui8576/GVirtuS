@@ -20,14 +20,9 @@ spec:
     command: ["/bin/bash", "-c"]
     args:
       - |
-        apt-get update && apt-get install -y telnet
-
         BACKEND_IP=$(getent hosts gvirtus-backend.gvirtus-system.svc.cluster.local | awk '{ print $1 }')
         sed -i 's/"server_address": "[^"]*"/"server_address": "'"${BACKEND_IP}"'"/' ${GVIRTUS_HOME}/etc/properties.json
         sed -i 's/"port": "[^"]*"/"port": "'"${SERVICE_PORT}"'"/' ${GVIRTUS_HOME}/etc/properties.json
-
-        echo "Updated properties.json:"
-        cat ${GVIRTUS_HOME}/etc/properties.json
 
         # run your frontend executable
         ./example
